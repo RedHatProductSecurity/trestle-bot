@@ -1,0 +1,8 @@
+name: "trestle-bot"
+author: "Red Hat Product Security"
+description: "A workflow automation manager for OSCAL formatted compliance content"
+outputs:
+runs:
+branding:
+  icon: "check"
+  color: "green"
