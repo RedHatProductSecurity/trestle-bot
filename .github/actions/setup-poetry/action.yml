@@ -1,0 +1,38 @@
+name: "setup-poetry"
+description: "Composite action to setup poetry."
+
+inputs:
+  poetry-version:
+    required: false
+    description: "The poetry version to use"
+    default: "1.5.1"
+  python-version:
+     required: false
+     description: "The python version to use"
+     default: "3.11"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Poetry
+      run: pipx install poetry==${{ inputs.poetry-version }}
+      shell: bash
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python-version }}
+        cache: poetry
+        cache-dependency-path: poetry.lock
+
+    - name: Set Poetry environment
+      run: poetry env use ${{ inputs.python-version }}
+      shell: bash
+
+    - name: Install dependencies
+      run: poetry install --no-root
+      shell: bash
+
+    - name: Install dependencies
+      run: poetry install --no-interaction --no-root
+      shell: bash
