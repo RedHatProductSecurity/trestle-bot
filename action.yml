@@ -1,8 +1,45 @@
 name: "trestle-bot"
 author: "Red Hat Product Security"
 description: "A workflow automation manager for OSCAL formatted compliance content"
-outputs:
+
+inputs:
+  commit_message:
+    description: Commit message
+    required: false
+    default: "chore: sync automatic updates"
+  branch:
+    description: Git branch name, where changes should be pushed too. Required if Action is used on the `pull_request` event
+    required: false
+    default: ${{ github.head_ref }}
+  file_pattern:
+    description: File pattern used for `git add`. For example `src/*.js`
+    required: false
+    default: '.'
+  repository:
+    description: Local file path to the git repository. Defaults to the current directory (`.`)
+    required: false
+    default: '.'
+  commit_user_name:
+    description: Name used for the commit user
+    required: false
+    default: github-actions[bot]
+  commit_user_email:
+    description: Email address used for the commit user
+    required: false
+    default: 41898282+github-actions[bot]@users.noreply.github.com
+  commit_author_name:
+    description: Named used for the commit author. Defaults to the username of whoever triggered this workflow run.
+    required: false
+    default: ${{ github.actor }}
+  commit_author_email:
+    description: Email address used for the commit author. Defaults to the email of whoever triggered this workflow run.
+    required: false
+    default: ${{ github.actor }}@users.noreply.github.com
+
 runs:
+  using: "docker"
+  image: "REPLACE_ME"
+  
 branding:
   icon: "check"
   color: "green"
