@@ -40,7 +40,8 @@ def create_tmp_directory():
 
 def clean(repo_path: str, repo: Repo):
     # Clean up the temporary Git repository
-    repo.close()
+    if repo is not None:
+        repo.close()
     shutil.rmtree(repo_path)
 
 
@@ -158,6 +159,41 @@ def test_local_commit_with_author():
     )
 
     # Verify that the commit is made
+    commit = next(repo.iter_commits())
+    assert commit.message.strip() == "Test commit message"
+    assert commit.author.name == "The Author"
+    assert commit.author.email == "author@test.com"
+
+    # Verify that the file is tracked by the commit
+    assert os.path.basename(test_file_path) in commit.stats.files
+
+    clean(repo_path, repo)
+
+
+def test_run_dry_run():
+    repo_path = create_tmp_directory()
+    repo = repo_setup(repo_path)
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    # Test running the bot
+    bot.run(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        commit_message="Test commit message",
+        author_name="The Author",
+        author_email="author@test.com",
+        patterns=["*.txt"],
+        dry_run=True,
+    )
+
+    # Verify that the commit is made
+    
     commit = next(repo.iter_commits())
     assert commit.message.strip() == "Test commit message"
     assert commit.author.name == "The Author"
