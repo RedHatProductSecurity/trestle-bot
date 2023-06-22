@@ -193,7 +193,6 @@ def test_run_dry_run():
     )
 
     # Verify that the commit is made
-    
     commit = next(repo.iter_commits())
     assert commit.message.strip() == "Test commit message"
     assert commit.author.name == "The Author"
