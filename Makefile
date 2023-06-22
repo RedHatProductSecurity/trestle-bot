@@ -18,6 +18,11 @@ lint:
 	@poetry run flake8
 .PHONY: lint
 
+format:
+	@poetry run isort --profile=black --lines-after-imports=2 $(TESTS) $(PYMODULE)
+	@poetry run black $(TESTS) $(PYMODULE)
+.PHONY: format
+
 test:
 	@poetry run pytest --cov --cov-config=pyproject.toml --cov-report=xml
 .PHONY: test
