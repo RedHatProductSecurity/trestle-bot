@@ -20,7 +20,11 @@ import logging
 import sys
 from typing import List, Optional
 
-from git import Actor, GitCommandError, Repo
+from git import GitCommandError
+from git.repo import Repo
+from git.util import Actor
+
+from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
 logging.basicConfig(
@@ -75,9 +79,18 @@ def run(
     author_name: str,
     author_email: str,
     patterns: List[str],
+    pre_tasks: Optional[List[TaskBase]] = None,
     dry_run: bool = False,
-) -> bool:
-    """Run Trestle Bot."""
+) -> int:
+    """Run Trestle Bot and return exit code"""
+
+    # Execute bot pre-tasks before committing repository updates
+    if pre_tasks is not None:
+        for task in pre_tasks:
+            try:
+                task.execute()
+            except TaskException as e:
+                raise RepoException(f"Bot pre-tasks failed: {e}")
 
     # Create Git Repo
     repo = Repo(working_dir)
@@ -98,7 +111,7 @@ def run(
 
             if dry_run:
                 logging.info("Dry run mode is enabled. Do not push to remote.")
-                return True
+                return 0
 
             try:
                 # Get the remote repository by name
@@ -114,7 +127,7 @@ def run(
                 raise RepoException(f"Git push to {branch} failed: {e}") from e
         else:
             logging.info("Nothing to commit")
-            return True
+            return 0
     else:
         logging.info("Nothing to commit")
-        return True
+        return 0

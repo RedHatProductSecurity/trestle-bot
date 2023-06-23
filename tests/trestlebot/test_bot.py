@@ -17,47 +17,16 @@
 """Test for top-level Trestle Bot logic."""
 
 import os
-import shutil
-import tempfile
-
-from git import Repo
 
 import trestlebot.bot as bot
+from tests.testutils import clean
 
 
-def repo_setup(repo_path: str) -> Repo:
-    repo = Repo.init(repo_path)
-    repo.config_writer().set_value("user", "name", "Test User").release()
-    repo.config_writer().set_value("user", "email", "test@example.com").release()
-    return repo
-
-
-def create_tmp_directory():
-    tmp_dir = tempfile.mkdtemp()
-    print(f"Temporary directory created: {tmp_dir}")
-    return tmp_dir
-
-
-def clean(repo_path: str, repo: Repo):
-    # Clean up the temporary Git repository
-    if repo is not None:
-        repo.close()
-    shutil.rmtree(repo_path)
-
-
-def test_stage_files():
-    repo_path = create_tmp_directory()
-    repo = repo_setup(repo_path)
-
-    # Create initial commit
-    file1_path = os.path.join(repo_path, "file1.txt")
-    with open(file1_path, "w") as f:
-        f.write("Test file 1 content initial")
-    repo.index.add(file1_path)
-    repo.index.commit("my test")
+def test_stage_files(tmp_repo) -> None:
+    repo_path, repo = tmp_repo
 
     # Create test files
-    with open(file1_path, "w") as f:
+    with open(os.path.join(repo_path, "file1.txt"), "w") as f:
         f.write("Test file 1 content")
     with open(os.path.join(repo_path, "file2.txt"), "w") as f:
         f.write("Test file 2 content")
@@ -75,9 +44,8 @@ def test_stage_files():
     clean(repo_path, repo)
 
 
-def test_local_commit():
-    repo_path = create_tmp_directory()
-    repo = repo_setup(repo_path)
+def test_local_commit(tmp_repo) -> None:
+    repo_path, repo = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -106,9 +74,8 @@ def test_local_commit():
     clean(repo_path, repo)
 
 
-def test_local_commit_with_committer():
-    repo_path = create_tmp_directory()
-    repo = repo_setup(repo_path)
+def test_local_commit_with_committer(tmp_repo) -> None:
+    repo_path, repo = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -137,9 +104,8 @@ def test_local_commit_with_committer():
     clean(repo_path, repo)
 
 
-def test_local_commit_with_author():
-    repo_path = create_tmp_directory()
-    repo = repo_setup(repo_path)
+def test_local_commit_with_author(tmp_repo) -> None:
+    repo_path, repo = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -170,9 +136,8 @@ def test_local_commit_with_author():
     clean(repo_path, repo)
 
 
-def test_run_dry_run():
-    repo_path = create_tmp_directory()
-    repo = repo_setup(repo_path)
+def test_run_dry_run(tmp_repo) -> None:
+    repo_path, repo = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")

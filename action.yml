@@ -3,6 +3,16 @@ author: "Red Hat Product Security"
 description: "A workflow automation manager for OSCAL formatted compliance content"
 
 inputs:
+  markdown_path: 
+    description: Path relative to the repository path where the Trestle markdown files are located. See project README.md for more information.
+    required: true
+  assemble_model:
+    description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
+    required: true
+  ssp_index_path:
+    description: Path relative to the repository path where the ssp index is located. See project README.md for information about the ssp index.
+    required: false
+    default: "ssp-index.txt"
   commit_message:
     description: Commit message
     required: false
