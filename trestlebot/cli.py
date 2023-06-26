@@ -18,9 +18,19 @@
 """This module parses CLI arguments for the Trestle Bot."""
 
 import argparse
+import logging
 import sys
+from typing import List
 
 from trestlebot import bot
+from trestlebot.tasks.assemble_task import AssembleTask
+from trestlebot.tasks.authored import types
+from trestlebot.tasks.base_task import TaskBase
+
+
+logging.basicConfig(
+    format="%(levelname)s - %(message)s", stream=sys.stdout, level=logging.INFO
+)
 
 
 def _parse_cli_arguments() -> argparse.Namespace:
@@ -34,11 +44,30 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="Branch name to push changes to",
     )
     parser.add_argument(
+        "--markdown-path",
+        required=True,
+        type=str,
+        help="Path to Trestle markdown files",
+    )
+    parser.add_argument(
+        "--assemble-model",
+        required=True,
+        type=str,
+        help="OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp",
+    )
+    parser.add_argument(
         "--working-dir",
         type=str,
         required=False,
         default=".",
         help="Working directory wit git repository",
+    )
+    parser.add_argument(
+        "--commit-message",
+        type=str,
+        required=False,
+        default="chore: automatic updates",
+        help="Commit message for automated updates",
     )
     parser.add_argument(
         "--committer-name",
@@ -67,25 +96,65 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="Email for commit author if differs from committer",
     )
     parser.add_argument(
-        "--patterns", nargs="+", type=str, required=True, help="List of file patterns"
+        "--ssp-index-path",
+        required=False,
+        type=str,
+        default="ssp-index.txt",
+        help="Path to ssp index file",
+    )
+    parser.add_argument(
+        "--patterns",
+        nargs="+",
+        type=str,
+        required=True,
+        help="List of file patterns to include in repository updates",
     )
     return parser.parse_args()
 
 
-def run():
+def run() -> None:
     """Trestle Bot entry point function."""
     args = _parse_cli_arguments()
-    success = bot.run(
+    pre_tasks: List[TaskBase] = []
+
+    # Pre-process flags
+    if args.assemble_model:
+        assembled_type: types.AuthoredType
+        try:
+            assembled_type = types.check_authored_type(args.assembled_model)
+        except ValueError:
+            logging.error(
+                f"Invalid value {args.assemble_model} for assemble model. \
+                    Please use catalog, profile, compdef, or ssp."
+            )
+            sys.exit(1)
+
+        if not args.markdown_path:
+            logging.error("Must set markdown path with assemble model.")
+            sys.exit(1)
+
+        if args.assemble_model == "ssp" & args.ssp_index_path == "":
+            logging.error("Must set ssp_index_path when using SSP as assemble model.")
+            sys.exit(1)
+
+        assemble_task = AssembleTask(
+            args.working_dir,
+            assembled_type,
+            args.markdown_dir,
+            args.ssp_index_path,
+        )
+        pre_tasks.append(assemble_task)
+
+    exit_code = bot.run(
         working_dir=args.working_dir,
         branch=args.branch,
         commit_name=args.committer_name,
         commit_email=args.committer_email,
+        commit_message=args.commit_message,
         author_name=args.author_name,
         author_email=args.author_email,
+        pre_tasks=pre_tasks,
         patterns=args.patterns,
     )
 
-    if success:
-        sys.exit(0)
-    else:
-        sys.exit(1)
+    sys.exit(exit_code)

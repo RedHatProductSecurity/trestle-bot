@@ -20,7 +20,11 @@ import logging
 import sys
 from typing import List, Optional
 
-from git import Actor, GitCommandError, Repo
+from git import GitCommandError
+from git.repo import Repo
+from git.util import Actor
+
+from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
 logging.basicConfig(
@@ -34,7 +38,7 @@ class RepoException(Exception):
     """
 
 
-def _stage_files(gitwd: Repo, patterns: List[str]):
+def _stage_files(gitwd: Repo, patterns: List[str]) -> None:
     """Stages files in git based on file patterns"""
     for pattern in patterns:
         logging.info(f"Adding file for pattern {pattern}")
@@ -48,7 +52,7 @@ def _local_commit(
     commit_message: str,
     author_name: str = "",
     author_email: str = "",
-):
+) -> None:
     """Creates a local commit in git working directory"""
     try:
         # Set the user and email for the commit
@@ -75,9 +79,18 @@ def run(
     author_name: str,
     author_email: str,
     patterns: List[str],
+    pre_tasks: Optional[List[TaskBase]] = None,
     dry_run: bool = False,
-) -> bool:
-    """Run Trestle Bot."""
+) -> int:
+    """Run Trestle Bot and return exit code"""
+
+    # Execute bot pre-tasks before committing repository updates
+    if pre_tasks is not None:
+        for task in pre_tasks:
+            try:
+                task.execute()
+            except TaskException as e:
+                raise RepoException(f"Bot pre-tasks failed: {e}")
 
     # Create Git Repo
     repo = Repo(working_dir)
@@ -98,7 +111,7 @@ def run(
 
             if dry_run:
                 logging.info("Dry run mode is enabled. Do not push to remote.")
-                return True
+                return 0
 
             try:
                 # Get the remote repository by name
@@ -108,13 +121,13 @@ def run(
                 remote.push(refspec=f"HEAD:{branch}")
 
                 logging.info(f"Changes pushed to {branch} successfully.")
-                return True
+                return 0
 
             except GitCommandError as e:
                 raise RepoException(f"Git push to {branch} failed: {e}") from e
         else:
             logging.info("Nothing to commit")
-            return True
+            return 0
     else:
         logging.info("Nothing to commit")
-        return True
+        return 0
