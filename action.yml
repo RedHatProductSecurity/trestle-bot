@@ -48,7 +48,7 @@ inputs:
 
 runs:
   using: "docker"
-  image: "REPLACE_ME"
+  image: "Dockerfile"
   
 branding:
   icon: "check"
