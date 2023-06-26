@@ -17,12 +17,15 @@
 """Test for top-level Trestle Bot logic."""
 
 import os
+from typing import Tuple
+
+from git.repo import Repo
 
 import trestlebot.bot as bot
 from tests.testutils import clean
 
 
-def test_stage_files(tmp_repo) -> None:
+def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Create test files
@@ -44,7 +47,7 @@ def test_stage_files(tmp_repo) -> None:
     clean(repo_path, repo)
 
 
-def test_local_commit(tmp_repo) -> None:
+def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -74,7 +77,7 @@ def test_local_commit(tmp_repo) -> None:
     clean(repo_path, repo)
 
 
-def test_local_commit_with_committer(tmp_repo) -> None:
+def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -104,7 +107,7 @@ def test_local_commit_with_committer(tmp_repo) -> None:
     clean(repo_path, repo)
 
 
-def test_local_commit_with_author(tmp_repo) -> None:
+def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -136,7 +139,7 @@ def test_local_commit_with_author(tmp_repo) -> None:
     clean(repo_path, repo)
 
 
-def test_run_dry_run(tmp_repo) -> None:
+def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Create a test file

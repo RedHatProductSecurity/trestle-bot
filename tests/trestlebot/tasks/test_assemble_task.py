@@ -41,7 +41,7 @@ compdef_md_dir = "md_comp"
 ssp_md_dir = "md_ssp"
 
 
-def test_catalog_assemble_task(tmp_trestle_dir):
+def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:
     """Test catalog assemble at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(cat_md_dir, test_cat)
@@ -58,7 +58,7 @@ def test_catalog_assemble_task(tmp_trestle_dir):
     assert assemble_task.execute() == 0
 
 
-def test_profile_assemble_task(tmp_trestle_dir):
+def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
     """Test profile assemble at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(prof_md_dir, test_prof)
@@ -74,7 +74,7 @@ def test_profile_assemble_task(tmp_trestle_dir):
     assert assemble_task.execute() == 0
 
 
-def test_compdef_assemble_task(tmp_trestle_dir):
+def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
     """Test compdef assemble at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(compdef_md_dir, test_comp)
@@ -90,7 +90,7 @@ def test_compdef_assemble_task(tmp_trestle_dir):
     assert assemble_task.execute() == 0
 
 
-def test_ssp_assemble_task(tmp_trestle_dir):
+def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
     with open(ssp_index_path, "w") as f:
@@ -111,7 +111,7 @@ def test_ssp_assemble_task(tmp_trestle_dir):
     assert assemble_task.execute() == 0
 
 
-def test_ssp_assemble_task_no_index_path(tmp_trestle_dir):
+def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level with failure"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
     with open(ssp_index_path, "w") as f:

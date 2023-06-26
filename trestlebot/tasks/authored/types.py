@@ -28,10 +28,10 @@ class AuthoredType(Enum):
     COMPDEF = "compdef"
 
 
-def check_authored_type(string):
+def check_authored_type(input_type: str) -> AuthoredType:
     """Check if the string has a matching AuthoredType, if not raise an error"""
     try:
-        item_type = AuthoredType[string.upper()]
+        item_type = AuthoredType[input_type.upper()]
         return item_type
     except KeyError:
-        raise ValueError(f"Invalid item type: {string}")
+        raise ValueError(f"Invalid item type: {input_type}")

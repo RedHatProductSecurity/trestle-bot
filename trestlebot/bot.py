@@ -38,7 +38,7 @@ class RepoException(Exception):
     """
 
 
-def _stage_files(gitwd: Repo, patterns: List[str]):
+def _stage_files(gitwd: Repo, patterns: List[str]) -> None:
     """Stages files in git based on file patterns"""
     for pattern in patterns:
         logging.info(f"Adding file for pattern {pattern}")
@@ -52,7 +52,7 @@ def _local_commit(
     commit_message: str,
     author_name: str = "",
     author_email: str = "",
-):
+) -> None:
     """Creates a local commit in git working directory"""
     try:
         # Set the user and email for the commit
@@ -121,7 +121,7 @@ def run(
                 remote.push(refspec=f"HEAD:{branch}")
 
                 logging.info(f"Changes pushed to {branch} successfully.")
-                return True
+                return 0
 
             except GitCommandError as e:
                 raise RepoException(f"Git push to {branch} failed: {e}") from e

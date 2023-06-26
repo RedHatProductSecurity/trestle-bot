@@ -50,7 +50,7 @@ class AuthoredSSP(AuthorObjectBase):
         self.comps_by_ssp = comps_by_ssp
 
     def assemble(self, model_path: str, version_tag: str = "") -> None:
-        ssp_assemble = SSPAssemble()
+        ssp_assemble: SSPAssemble = SSPAssemble()
         ssp = os.path.basename(model_path)
 
         try:

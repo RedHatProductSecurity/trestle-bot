@@ -35,7 +35,7 @@ test_ssp_output = "test-ssp"
 markdown_dir = "md_ssp"
 
 
-def test_assemble(tmp_trestle_dir) -> None:
+def test_assemble(tmp_trestle_dir: str) -> None:
     """Test to test assemble functionality for SSPs"""
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
@@ -59,7 +59,7 @@ def test_assemble(tmp_trestle_dir) -> None:
     assert len(ssp.control_implementation.implemented_requirements) == 12
 
 
-def test_assemble_no_ssp_entry(tmp_trestle_dir) -> None:
+def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
     """Test to test assemble functionality for SSPs"""
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
