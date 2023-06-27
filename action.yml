@@ -22,7 +22,7 @@ inputs:
     required: false
     default: ${{ github.head_ref }}
   file_pattern:
-    description: File pattern used for `git add`. For example `src/*.js`
+    description: File pattern used for `git add`. For example `component-definitions/*`. Defaults to (`.`)
     required: false
     default: '.'
   repository:
@@ -38,7 +38,7 @@ inputs:
     required: false
     default: 41898282+github-actions[bot]@users.noreply.github.com
   commit_author_name:
-    description: Named used for the commit author. Defaults to the username of whoever triggered this workflow run.
+    description: Name used for the commit author. Defaults to the username of whoever triggered this workflow run.
     required: false
     default: ${{ github.actor }}
   commit_author_email:
