@@ -49,7 +49,18 @@ inputs:
 runs:
   using: "docker"
   image: "Dockerfile"
-  
+  env:
+    MARKDOWN_PATH: ${{ inputs.markdown_path }}
+    ASSEMBLE_MODEL: ${{ inputs.assemble_model }}
+    SSP_INDEX_PATH: ${{ inputs.ssp_index_path }}
+    COMMIT_MESSAGE: ${{ inputs.commit_message }}
+    BRANCH: ${{ inputs.branch }}
+    PATTERNS: ${{ inputs.file_pattern }}
+    COMMIT_USER_NAME: ${{ inputs.commit_user_name }}
+    COMMIT_USER_EMAIL: ${{ inputs.commit_user_email }}
+    COMMIT_AUTHOR_NAME: ${{ inputs.commit_author_name }}
+    COMMIT_AUTHOR_EMAIL: ${{ inputs.commit_author_email }}
+    REPOSITORY: ${{ inputs.repository }}
 branding:
   icon: "check"
   color: "green"
