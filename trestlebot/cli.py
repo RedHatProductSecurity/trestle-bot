@@ -121,7 +121,7 @@ def run() -> None:
     if args.assemble_model:
         assembled_type: types.AuthoredType
         try:
-            assembled_type = types.check_authored_type(args.assembled_model)
+            assembled_type = types.check_authored_type(args.assemble_model)
         except ValueError:
             logging.error(
                 f"Invalid value {args.assemble_model} for assemble model. \
@@ -133,14 +133,14 @@ def run() -> None:
             logging.error("Must set markdown path with assemble model.")
             sys.exit(1)
 
-        if args.assemble_model == "ssp" & args.ssp_index_path == "":
+        if args.assemble_model == "ssp" and args.ssp_index_path == "":
             logging.error("Must set ssp_index_path when using SSP as assemble model.")
             sys.exit(1)
 
         assemble_task = AssembleTask(
             args.working_dir,
             assembled_type,
-            args.markdown_dir,
+            args.markdown_path,
             args.ssp_index_path,
         )
         pre_tasks.append(assemble_task)
