@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi8/python-38:latest
+FROM registry.access.redhat.com/ubi8/python-38:1
 
 ENV POETRY_NO_INTERACTION=1
 
