@@ -19,7 +19,6 @@ RUN  chown -HR 1001:1001 /trestle-bot \
 
 USER 1001
 
-# kics-scan disable=b86987e1-6397-4619-81d5-8807f2387c79
 ENTRYPOINT poetry run trestle-bot \
            --markdown-path="${MARKDOWN_PATH}" \
            --assemble-model="${ASSEMBLE_MODEL}" \
