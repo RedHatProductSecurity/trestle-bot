@@ -52,7 +52,7 @@ def _local_commit(
     commit_message: str,
     author_name: str = "",
     author_email: str = "",
-) -> None:
+) -> str:
     """Creates a local commit in git working directory"""
     try:
         # Set the user and email for the commit
@@ -65,7 +65,10 @@ def _local_commit(
             author = Actor(name=author_name, email=author_email)
 
         # Commit the changes
-        gitwd.index.commit(commit_message, author=author)
+        commit = gitwd.index.commit(commit_message, author=author)
+
+        # Return commit sha
+        return commit.hexsha
     except GitCommandError as e:
         raise RepoException(f"Git commit failed: {e}") from e
 
@@ -81,8 +84,25 @@ def run(
     patterns: List[str],
     pre_tasks: Optional[List[TaskBase]] = None,
     dry_run: bool = False,
-) -> int:
-    """Run Trestle Bot and return exit code"""
+) -> str:
+    """Run Trestle Bot and return exit code
+
+    Args:
+         working_dir: Location of the git repo
+         branch: Branch to put updates to
+         commit_name: Name of the user for commit creation
+         commit_email: Email of the user for commit creation
+         author_name: Name of the commit author
+         author_email: Email of the commit author
+         patterns: List of file patterns for `git add`
+         pre_task: Option task list to executing before updating the workspace
+         dry_run: Only complete local work. Do not push.
+
+    Returns:
+        A string containing the full commit sha. Defaults to "" if
+        there was no updates
+    """
+    commit_sha: str = ""
 
     # Execute bot pre-tasks before committing repository updates
     if pre_tasks is not None:
@@ -100,7 +120,7 @@ def run(
         _stage_files(repo, patterns)
 
         if repo.is_dirty():
-            _local_commit(
+            commit_sha = _local_commit(
                 repo,
                 commit_name,
                 commit_email,
@@ -111,7 +131,7 @@ def run(
 
             if dry_run:
                 logging.info("Dry run mode is enabled. Do not push to remote.")
-                return 0
+                return commit_sha
 
             try:
                 # Get the remote repository by name
@@ -121,13 +141,13 @@ def run(
                 remote.push(refspec=f"HEAD:{branch}")
 
                 logging.info(f"Changes pushed to {branch} successfully.")
-                return 0
+                return commit_sha
 
             except GitCommandError as e:
                 raise RepoException(f"Git push to {branch} failed: {e}") from e
         else:
             logging.info("Nothing to commit")
-            return 0
+            return commit_sha
     else:
         logging.info("Nothing to commit")
-        return 0
+        return commit_sha

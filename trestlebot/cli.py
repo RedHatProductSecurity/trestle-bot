@@ -112,6 +112,15 @@ def _parse_cli_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def handle_exception(
+    exception: Exception, msg: str = "Exception occurred during execution"
+) -> int:
+    """Log the exception and return the exit code"""
+    logging.exception(msg + f": {exception}")
+
+    return 1
+
+
 def run() -> None:
     """Trestle Bot entry point function."""
     args = _parse_cli_arguments()
@@ -145,16 +154,27 @@ def run() -> None:
         )
         pre_tasks.append(assemble_task)
 
-    exit_code = bot.run(
-        working_dir=args.working_dir,
-        branch=args.branch,
-        commit_name=args.committer_name,
-        commit_email=args.committer_email,
-        commit_message=args.commit_message,
-        author_name=args.author_name,
-        author_email=args.author_email,
-        pre_tasks=pre_tasks,
-        patterns=args.patterns,
-    )
+    exit_code: int = 0
+
+    # Assume it is a successful run, if the bot
+    # throws an exception update the exit code accordingly
+    try:
+        commit_sha = bot.run(
+            working_dir=args.working_dir,
+            branch=args.branch,
+            commit_name=args.committer_name,
+            commit_email=args.committer_email,
+            commit_message=args.commit_message,
+            author_name=args.author_name,
+            author_email=args.author_email,
+            pre_tasks=pre_tasks,
+            patterns=args.patterns,
+        )
+
+        # Print the full commit sha
+        print(commit_sha)
+
+    except Exception as e:
+        exit_code = handle_exception(e)
 
     sys.exit(exit_code)

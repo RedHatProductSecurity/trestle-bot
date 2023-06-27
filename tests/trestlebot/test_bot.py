@@ -58,12 +58,13 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
-    bot._local_commit(
+    commit_sha = bot._local_commit(
         repo,
         commit_user="Test User",
         commit_email="test@example.com",
         commit_message="Test commit message",
     )
+    assert commit_sha != ""
 
     # Verify that the commit is made
     commit = next(repo.iter_commits())
@@ -88,12 +89,14 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
-    bot._local_commit(
+    commit_sha = bot._local_commit(
         repo,
         commit_user="Test Commit User",
         commit_email="test-committer@example.com",
         commit_message="Test commit message",
     )
+
+    assert commit_sha != ""
 
     # Verify that the commit is made
     commit = next(repo.iter_commits())
@@ -118,7 +121,7 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
-    bot._local_commit(
+    commit_sha = bot._local_commit(
         repo,
         commit_user="Test User",
         commit_email="test@example.com",
@@ -126,6 +129,7 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
         author_name="The Author",
         author_email="author@test.com",
     )
+    assert commit_sha != ""
 
     # Verify that the commit is made
     commit = next(repo.iter_commits())
@@ -148,7 +152,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
         f.write("Test content")
 
     # Test running the bot
-    bot.run(
+    commit_sha = bot.run(
         working_dir=repo_path,
         branch="main",
         commit_name="Test User",
@@ -159,6 +163,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
         patterns=["*.txt"],
         dry_run=True,
     )
+    assert commit_sha != ""
 
     # Verify that the commit is made
     commit = next(repo.iter_commits())
@@ -168,5 +173,26 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
 
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
+
+    clean(repo_path, repo)
+
+
+def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test running bot with no file updates"""
+    repo_path, repo = tmp_repo
+
+    # Test running the bot
+    commit_sha = bot.run(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        commit_message="Test commit message",
+        author_name="The Author",
+        author_email="author@test.com",
+        patterns=["*.txt"],
+        dry_run=True,
+    )
+    assert commit_sha == ""
 
     clean(repo_path, repo)
