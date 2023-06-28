@@ -16,7 +16,7 @@ inputs:
   commit_message:
     description: Commit message
     required: false
-    default: "chore: sync automatic updates"
+    default: "Sync automatic updates"
   branch:
     description: Git branch name, where changes should be pushed too. Required if Action is used on the `pull_request` event
     required: false
@@ -46,21 +46,17 @@ inputs:
     required: false
     default: ${{ github.actor }}@users.noreply.github.com
 
+outputs:
+  changes:
+    description: Value is "true" if changes were committed back to the repository.
+  commit:
+    description: Full hash of the created commit. Only present if the "changes" output is "true".
+
 runs:
   using: "docker"
   image: "Dockerfile"
-  env:
-    MARKDOWN_PATH: ${{ inputs.markdown_path }}
-    ASSEMBLE_MODEL: ${{ inputs.assemble_model }}
-    SSP_INDEX_PATH: ${{ inputs.ssp_index_path }}
-    COMMIT_MESSAGE: ${{ inputs.commit_message }}
-    BRANCH: ${{ inputs.branch }}
-    PATTERNS: ${{ inputs.file_pattern }}
-    COMMIT_USER_NAME: ${{ inputs.commit_user_name }}
-    COMMIT_USER_EMAIL: ${{ inputs.commit_user_email }}
-    COMMIT_AUTHOR_NAME: ${{ inputs.commit_author_name }}
-    COMMIT_AUTHOR_EMAIL: ${{ inputs.commit_author_email }}
-    REPOSITORY: ${{ inputs.repository }}
+  entrypoint: [ "/entrypoint.sh"]
+
 branding:
   icon: "check"
   color: "green"

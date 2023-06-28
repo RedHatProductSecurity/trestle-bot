@@ -55,16 +55,9 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT [ "/bin/sh", "-c", "python3.8 -m trestlebot \
-           --markdown-path=${MARKDOWN_PATH} \
-           --assemble-model=${ASSEMBLE_MODEL} \
-           --ssp-index-path=${SSP_INDEX_PATH} \
-           --commit-message=${COMMIT_MESSAGE} \
-           --branch=${BRANCH} \
-           --patterns=${PATTERNS} \
-           --committer-name=${COMMIT_USER_NAME} \
-           --committer-email=${COMMIT_USER_EMAIL} \
-           --author-name=${AUTHOR_NAME} \
-           --author-email=${AUTHOR_EMAIL} \
-           --working-dir=${WORKING_DIR}" ]
+COPY ./entrypoint.sh /
+
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["python3.8", "-m" , "trestlebot"]
            
