@@ -2,7 +2,7 @@
 
 set -eu
 
-commit=$(python3.8 -m trestlebot \
+output=$(python3.8 -m trestlebot \
         --markdown-path="${INPUT_MARKDOWN_PATH}" \
         --assemble-model="${INPUT_ASSEMBLE_MODEL}" \
         --ssp-index-path="${INPUT_SSP_INDEX_PATH}" \
@@ -13,7 +13,11 @@ commit=$(python3.8 -m trestlebot \
         --committer-email="${INPUT_COMMIT_USER_EMAIL}" \
         --author-name="${INPUT_COMMIT_AUTHOR_NAME}" \
         --author-email="${INPUT_COMMIT_AUTHOR_EMAIL}" \
-        --working-dir="${INPUT_WORKING_DIR}")
+        --working-dir="${INPUT_WORKING_DIR}" 2>&1 | tee log.txt)
+
+cat log.txt
+
+commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')
 
 if [ -n "$commit" ]; then
     echo "changes=true" >> "$GITHUB_OUTPUT"

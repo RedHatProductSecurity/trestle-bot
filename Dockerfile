@@ -59,5 +59,5 @@ COPY ./entrypoint.sh /
 
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["python3.8 -m trestlebot"]
+ENTRYPOINT ["python3.8", "-m" , "trestlebot"]
            
