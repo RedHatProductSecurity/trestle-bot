@@ -41,8 +41,15 @@ class RepoException(Exception):
 def _stage_files(gitwd: Repo, patterns: List[str]) -> None:
     """Stages files in git based on file patterns"""
     for pattern in patterns:
-        logging.info(f"Adding file for pattern {pattern}")
-        gitwd.index.add(pattern)
+        if pattern == ".":
+            logging.info("Staging all repository changes")
+            # Using check to avoid adding git directory
+            # https://github.com/gitpython-developers/GitPython/issues/292
+            gitwd.git.add(all=True)
+            return
+        else:
+            logging.info(f"Adding file for pattern {pattern}")
+            gitwd.git.add(pattern)
 
 
 def _local_commit(
