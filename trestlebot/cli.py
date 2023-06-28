@@ -124,8 +124,8 @@ def run() -> None:
             assembled_type = types.check_authored_type(args.assemble_model)
         except ValueError:
             logging.error(
-                f"Invalid value {args.assemble_model} for assemble model. \
-                    Please use catalog, profile, compdef, or ssp."
+                f"Invalid value {args.assemble_model} for assemble model. "
+                f"Please use catalog, profile, compdef, or ssp."
             )
             sys.exit(1)
 

@@ -60,7 +60,7 @@ def test_assemble(tmp_trestle_dir: str) -> None:
 
 
 def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
-    """Test to test assemble functionality for SSPs"""
+    """Test to trigger failure for missing SSP index"""
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = f"{markdown_dir}/{test_ssp_output}"

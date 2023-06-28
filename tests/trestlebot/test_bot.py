@@ -26,6 +26,7 @@ from tests.testutils import clean
 
 
 def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test staging files by patterns"""
     repo_path, repo = tmp_repo
 
     # Create test files
@@ -48,6 +49,7 @@ def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
 
 
 def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test local commit function"""
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -78,6 +80,7 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
 
 
 def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test setting committer information for commits"""
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -108,6 +111,7 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
 
 
 def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test setting author for commits"""
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -140,6 +144,7 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
 
 
 def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with dry run"""
     repo_path, repo = tmp_repo
 
     # Create a test file
