@@ -95,7 +95,7 @@ def run(
          author_name: Name of the commit author
          author_email: Email of the commit author
          patterns: List of file patterns for `git add`
-         pre_task: Option task list to executing before updating the workspace
+         pre_tasks: Optional task list to executing before updating the workspace
          dry_run: Only complete local work. Do not push.
 
     Returns:
