@@ -20,7 +20,7 @@ inputs:
   branch:
     description: Git branch name, where changes should be pushed too. Required if Action is used on the `pull_request` event
     required: false
-    default: ${{ github.head_ref }}
+    default: ${{ github.ref_name }}
   file_pattern:
     description: File pattern used for `git add`. For example `component-definitions/*`. Defaults to (`.`)
     required: false
@@ -55,7 +55,7 @@ outputs:
 runs:
   using: "docker"
   image: "Dockerfile"
-  entrypoint: [ "/entrypoint.sh"]
+  entrypoint: "/entrypoint.sh"
 
 branding:
   icon: "check"
