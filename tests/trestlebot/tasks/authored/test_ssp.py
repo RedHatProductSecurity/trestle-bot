@@ -77,7 +77,9 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
-    with pytest.raises(AuthoredObjectException, match="SSP test-ssp does not exists in the index"):
+    with pytest.raises(
+        AuthoredObjectException, match="SSP test-ssp does not exists in the index"
+    ):
         authored_ssp.assemble(md_path)
 
 
@@ -115,7 +117,9 @@ def test_regenerate_no_ssp_entry(tmp_trestle_dir: str) -> None:
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
     model_path = os.path.join(const.MODEL_DIR_SSP, test_ssp_output)
-    with pytest.raises(AuthoredObjectException, match="SSP test-ssp does not exists in the index"):
+    with pytest.raises(
+        AuthoredObjectException, match="SSP test-ssp does not exists in the index"
+    ):
         authored_ssp.regenerate(model_path, md_path)
 
 
