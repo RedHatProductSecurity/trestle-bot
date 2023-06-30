@@ -22,7 +22,7 @@ import pathlib
 import sys
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.catalog import CatalogAssemble
+from trestle.core.commands.author.catalog import CatalogAssemble, CatalogGenerate
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 
 from trestlebot.tasks.authored.base_authored import (
@@ -47,13 +47,13 @@ class AuthoredCatalog(AuthorObjectBase):
         """
         super().__init__(trestle_root)
 
-    def assemble(self, model_path: str, version_tag: str = "") -> None:
-        trestle_root = pathlib.Path(self._trestle_root)
-        catalog = os.path.basename(model_path)
+    def assemble(self, markdown_path: str, version_tag: str = "") -> None:
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        catalog = os.path.basename(markdown_path)
         try:
             exit_code = CatalogAssemble.assemble_catalog(
                 trestle_root=trestle_root,
-                md_name=model_path,
+                md_name=markdown_path,
                 assem_cat_name=catalog,
                 parent_cat_name="",
                 set_parameters_flag=True,
@@ -66,3 +66,24 @@ class AuthoredCatalog(AuthorObjectBase):
                 )
         except TrestleError as e:
             raise AuthoredObjectException(f"Trestle assemble failed for {catalog}: {e}")
+
+    def regenerate(self, model_path: str, markdown_path: str) -> None:
+        trestle_root = self.get_trestle_root()
+        trestle_path = pathlib.Path(trestle_root)
+        catalog_generate: CatalogGenerate = CatalogGenerate()
+
+        catalog = os.path.basename(model_path)
+        try:
+            exit_code = catalog_generate.generate_markdown(
+                trestle_root=trestle_path,
+                catalog_path=pathlib.Path(trestle_root, model_path, "catalog.json"),
+                markdown_path=pathlib.Path(trestle_root, markdown_path, catalog),
+                yaml_header={},
+                overwrite_header_values=False,
+            )
+            if exit_code != CmdReturnCodes.SUCCESS.value:
+                raise AuthoredObjectException(
+                    f"Unknown error occurred while regenerating {catalog}"
+                )
+        except TrestleError as e:
+            raise AuthoredObjectException(f"Trestle generate failed for {catalog}: {e}")

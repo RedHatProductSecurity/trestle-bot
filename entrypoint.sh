@@ -37,6 +37,7 @@ output=$(python3.8 -m trestlebot \
         --skip-assemble="${INPUT_SKIP_ASSMEBLE}" \
         --skip-regenerate="${INPUT_SKIP_REGENERATE}" \
         --check-only="${INPUT_CHECK_ONLY}" \
+        --skip-items="${INPUT_SKIP_ITEMS}" \
         --working-dir="${INPUT_REPOSITORY}" | tee /dev/fd/3)
 
 commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')

@@ -10,19 +10,19 @@ inputs:
     description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
     required: true
   check_only: 
-    description: "Runs tasks and check if exit with an error if there is a diff. Default to false"
+    description: "Runs tasks and exits with an error if there is a diff. Defaults to false"
     required: false
     default: false
-  skip-assemble:
+  skip_assemble:
     description: "Skip assembly task. Defaults to false"
     required: false
     default: false
-  skip-regenerate:
+  skip_regenerate:
     description: "Skip regenerate task. Defaults to false."
     required: false
     default: false
   skip_items:
-    description: "Comma-separated list of content by Trestle name to skip during task execution. For example `profile_x,profile_y`".
+    description: "Space-separated list of content by Trestle name to skip during task execution. For example `profile_x profile_y`".
     required: false
     default: ""
   ssp_index_path:

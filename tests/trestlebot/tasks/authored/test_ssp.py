@@ -20,6 +20,7 @@ import os
 import pathlib
 
 import pytest
+from trestle.common import const
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
@@ -76,23 +77,65 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
-    with pytest.raises(AuthoredObjectException):
+    with pytest.raises(AuthoredObjectException, match="SSP test-ssp does not exists in the index"):
         authored_ssp.assemble(md_path)
 
 
+def test_regenerate(tmp_trestle_dir: str) -> None:
+    """Test to test regenerate functionality for SSPs"""
+    # Prepare the workspace and generate the markdown
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(markdown_dir, test_ssp_output)
+    _ = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+
+    # Run to ensure no exceptions are raised
+    model_path = os.path.join(const.MODEL_DIR_SSP, test_ssp_output)
+    authored_ssp.regenerate(model_path, md_path)
+
+    assert os.path.exists(os.path.join(tmp_trestle_dir, markdown_dir, test_ssp_output))
+
+
+def test_regenerate_no_ssp_entry(tmp_trestle_dir: str) -> None:
+    """Test to trigger failure for missing SSP index"""
+    # Prepare the workspace and generate the markdown
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(markdown_dir, test_ssp_output)
+    _ = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, "fake", test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+
+    model_path = os.path.join(const.MODEL_DIR_SSP, test_ssp_output)
+    with pytest.raises(AuthoredObjectException, match="SSP test-ssp does not exists in the index"):
+        authored_ssp.regenerate(model_path, md_path)
+
+
+# SSPIndex tests
+
+
 def test_get_comps_by_ssp(tmp_trestle_dir: str) -> None:
-    """Test to get formatted component definition string"""
+    """Test to get component definition list from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
     testutils.write_index_json(
         ssp_index_path, test_ssp_output, test_prof, [test_comp, "another_comp"]
     )
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
 
-    assert ssp_index.get_comps_by_ssp(test_ssp_output) == "test_comp,another_comp"
+    assert test_comp in ssp_index.get_comps_by_ssp(test_ssp_output)
+    assert "another_comp" in ssp_index.get_comps_by_ssp(test_ssp_output)
 
 
 def test_get_profile_by_ssp(tmp_trestle_dir: str) -> None:
-    """Test to get formatted component definition string"""
+    """Test to get profile from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
     testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)

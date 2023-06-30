@@ -22,7 +22,7 @@ import pathlib
 import sys
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.component import ComponentAssemble
+from trestle.core.commands.author.component import ComponentAssemble, ComponentGenerate
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 
 from trestlebot.tasks.authored.base_authored import (
@@ -47,13 +47,13 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
         """
         super().__init__(trestle_root)
 
-    def assemble(self, model_path: str, version_tag: str = "") -> None:
-        trestle_root = pathlib.Path(self._trestle_root)
-        compdef = os.path.basename(model_path)
+    def assemble(self, markdown_path: str, version_tag: str = "") -> None:
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        compdef = os.path.basename(markdown_path)
         try:
             exit_code = ComponentAssemble.assemble_component(
                 trestle_root=trestle_root,
-                md_name=model_path,
+                md_name=markdown_path,
                 assem_comp_name=compdef,
                 parent_comp_name="",
                 regenerate=False,
@@ -65,3 +65,24 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
                 )
         except TrestleError as e:
             raise AuthoredObjectException(f"Trestle assemble failed for {compdef}: {e}")
+
+    def regenerate(self, model_path: str, markdown_path: str) -> None:
+        trestle_root = self.get_trestle_root()
+        trestle_path = pathlib.Path(trestle_root)
+        comp_generate: ComponentGenerate = ComponentGenerate()
+
+        comp_name = os.path.basename(model_path)
+        try:
+            exit_code = comp_generate.component_generate_all(
+                trestle_root=trestle_path,
+                comp_def_name=comp_name,
+                markdown_dir_name=os.path.join(trestle_root, markdown_path, comp_name),
+            )
+            if exit_code != CmdReturnCodes.SUCCESS.value:
+                raise AuthoredObjectException(
+                    f"Unknown error occurred while regenerating {comp_name}"
+                )
+        except TrestleError as e:
+            raise AuthoredObjectException(
+                f"Trestle generate failed for {comp_name}: {e}"
+            )

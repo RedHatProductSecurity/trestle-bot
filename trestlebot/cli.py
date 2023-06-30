@@ -26,6 +26,7 @@ from trestlebot import bot
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
 logging.basicConfig(
@@ -53,7 +54,22 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--oscal-model",
         required=True,
         type=str,
-        help="OSCAL Model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
+        help="OSCAL model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
+    )
+    parser.add_argument(
+        "--patterns",
+        nargs="+",
+        type=str,
+        required=True,
+        help="List of file patterns to include in repository updates",
+    )
+    parser.add_argument(
+        "--skip-items",
+        nargs="+",
+        type=str,
+        required=False,
+        default=[],
+        help="List of items of the chosen model type to skip when running tasks",
     )
     parser.add_argument(
         "--skip-assemble",
@@ -74,7 +90,7 @@ def _parse_cli_arguments() -> argparse.Namespace:
         required=False,
         type=bool,
         default=False,
-        help="Runs tasks and check if exit with an error if there is a diff",
+        help="Runs tasks and exits with an error if there is a diff",
     )
     parser.add_argument(
         "--working-dir",
@@ -123,13 +139,6 @@ def _parse_cli_arguments() -> argparse.Namespace:
         default="ssp-index.json",
         help="Path to ssp index file",
     )
-    parser.add_argument(
-        "--patterns",
-        nargs="+",
-        type=str,
-        required=True,
-        help="List of file patterns to include in repository updates",
-    )
     return parser.parse_args()
 
 
@@ -147,12 +156,12 @@ def run() -> None:
     args = _parse_cli_arguments()
     pre_tasks: List[TaskBase] = []
 
+    authored_list: List[str] = [model.value for model in types.AuthoredType]
+
     # Pre-process flags
+
     if args.oscal_model:
-        authored_type: types.AuthoredType
-        try:
-            authored_type = types.check_authored_type(args.oscal_model)
-        except ValueError:
+        if args.oscal_model not in authored_list:
             logging.error(
                 f"Invalid value {args.oscal_model} for oscal model. "
                 f"Please use catalog, profile, compdef, or ssp."
@@ -172,15 +181,20 @@ def run() -> None:
         if not args.skip_assemble:
             assemble_task = AssembleTask(
                 args.working_dir,
-                authored_type,
+                args.oscal_model,
                 args.markdown_path,
                 args.ssp_index_path,
             )
             pre_tasks.append(assemble_task)
 
         if not args.skip_regenerate:
-            # TODO: add regenerate task
-            pass
+            regenerate_task = RegenerateTask(
+                args.working_dir,
+                args.oscal_model,
+                args.markdown_path,
+                args.ssp_index_path,
+            )
+            pre_tasks.append(regenerate_task)
 
     exit_code: int = 0
 

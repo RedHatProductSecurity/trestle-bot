@@ -32,6 +32,14 @@ class AuthorObjectBase(ABC):
         """Initialize task base and store trestle root path"""
         self._trestle_root = trestle_root
 
+    def get_trestle_root(self) -> str:
+        """Return the trestle root directory"""
+        return self._trestle_root
+
     @abstractmethod
-    def assemble(self, model_path: str, version_tag: str = "") -> None:
+    def assemble(self, markdown_path: str, version_tag: str = "") -> None:
         """Execute assemble for model path"""
+
+    @abstractmethod
+    def regenerate(self, model_path: str, markdown_path: str) -> None:
+        """Execute regeneration for model path"""
