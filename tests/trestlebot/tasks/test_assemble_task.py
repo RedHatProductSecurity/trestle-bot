@@ -92,9 +92,8 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
 
 def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level"""
-    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
-    with open(ssp_index_path, "w") as f:
-        f.write(f"{test_ssp_output}:{test_comp}")
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
@@ -113,10 +112,6 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
 
 def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level with failure"""
-    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
-    with open(ssp_index_path, "w") as f:
-        f.write(f"{test_ssp_output}:{test_comp}")
-
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
     args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)

@@ -38,7 +38,7 @@ logging.basicConfig(
 
 class AuthoredCatalog(AuthorObjectBase):
     """
-    Functions for authoring OSCAL catalogs in automation
+    Class for authoring OSCAL catalogs in automation
     """
 
     def __init__(self, trestle_root: str) -> None:

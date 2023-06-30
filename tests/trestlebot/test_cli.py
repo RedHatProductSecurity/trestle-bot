@@ -30,7 +30,7 @@ def valid_args_dict() -> dict:
     return {
         "branch": "main",
         "markdown-path": "/my/path",
-        "assemble-model": "profile",
+        "oscal-model": "profile",
         "committer-name": "test",
         "committer-email": "test@email.com",
         "working-dir": "tmp",
@@ -47,10 +47,10 @@ def args_dict_to_list(args_dict: dict) -> List[str]:
     return args
 
 
-def test_invalid_assemble_model(monkeypatch, valid_args_dict, caplog):
-    """Test invalid assemble model"""
+def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
+    """Test invalid oscal model"""
     args_dict = valid_args_dict
-    args_dict["assemble-model"] = "fake"
+    args_dict["oscal-model"] = "fake"
     monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
 
     with pytest.raises(SystemExit):
@@ -59,15 +59,15 @@ def test_invalid_assemble_model(monkeypatch, valid_args_dict, caplog):
     assert any(
         record.levelno == logging.ERROR
         and record.message
-        == "Invalid value fake for assemble model. Please use catalog, profile, compdef, or ssp."
+        == "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
         for record in caplog.records
     )
 
 
 def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
-    """Test invalid assemble model"""
+    """Test missing index file for ssp"""
     args_dict = valid_args_dict
-    args_dict["assemble-model"] = "ssp"
+    args_dict["oscal-model"] = "ssp"
     args_dict["ssp-index-path"] = ""
     monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
 
@@ -76,7 +76,6 @@ def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
 
     assert any(
         record.levelno == logging.ERROR
-        and record.message
-        == "Must set ssp_index_path when using SSP as assemble model."
+        and record.message == "Must set ssp_index_path when using SSP as oscal model."
         for record in caplog.records
     )

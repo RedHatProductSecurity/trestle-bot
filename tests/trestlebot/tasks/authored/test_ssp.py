@@ -16,8 +16,8 @@
 
 """Test for Trestle Bot Authored SSP."""
 
+import os
 import pathlib
-from typing import Dict
 
 import pytest
 from trestle.common.model_utils import ModelUtils
@@ -26,7 +26,8 @@ from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal import ssp as ossp
 
 from tests import testutils
-from trestlebot.tasks.authored.ssp import AuthoredSSP
+from trestlebot.tasks.authored.base_authored import AuthoredObjectException
+from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 
 
 test_prof = "simplified_nist_profile"
@@ -44,10 +45,11 @@ def test_assemble(tmp_trestle_dir: str) -> None:
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
-    comps_by_ssp: Dict[str, str] = {}
-    comps_by_ssp[test_ssp_output] = test_comp
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
 
-    authored_ssp = AuthoredSSP(tmp_trestle_dir, comps_by_ssp)
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
     # Run to ensure no exceptions are raised
     authored_ssp.assemble(md_path)
@@ -68,10 +70,31 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
-    comps_by_ssp: Dict[str, str] = {}
-    comps_by_ssp["fake"] = test_comp
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, "fake", test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
 
-    authored_ssp = AuthoredSSP(tmp_trestle_dir, comps_by_ssp)
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
-    with pytest.raises(ValueError):
+    with pytest.raises(AuthoredObjectException):
         authored_ssp.assemble(md_path)
+
+
+def test_get_comps_by_ssp(tmp_trestle_dir: str) -> None:
+    """Test to get formatted component definition string"""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(
+        ssp_index_path, test_ssp_output, test_prof, [test_comp, "another_comp"]
+    )
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    assert ssp_index.get_comps_by_ssp(test_ssp_output) == "test_comp,another_comp"
+
+
+def test_get_profile_by_ssp(tmp_trestle_dir: str) -> None:
+    """Test to get formatted component definition string"""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    assert ssp_index.get_profile_by_ssp(test_ssp_output) == test_prof

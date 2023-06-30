@@ -34,6 +34,9 @@ output=$(python3.8 -m trestlebot \
         --committer-email="${INPUT_COMMIT_USER_EMAIL}" \
         --author-name="${INPUT_COMMIT_AUTHOR_NAME}" \
         --author-email="${INPUT_COMMIT_AUTHOR_EMAIL}" \
+        --skip-assemble="${INPUT_SKIP_ASSMEBLE}" \
+        --skip-regenerate="${INPUT_SKIP_REGENERATE}" \
+        --check-only="${INPUT_CHECK_ONLY}" \
         --working-dir="${INPUT_REPOSITORY}" | tee /dev/fd/3)
 
 commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')

@@ -17,7 +17,6 @@
 """Trestle Bot Assembly Tasks"""
 
 import os
-from typing import Dict
 
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.authored.base_authored import (
@@ -27,7 +26,7 @@ from trestlebot.tasks.authored.base_authored import (
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentsDefinition
 from trestlebot.tasks.authored.profile import AuthoredProfile
-from trestlebot.tasks.authored.ssp import AuthoredSSP
+from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
@@ -86,14 +85,7 @@ class AssembleTask(TaskBase):
         elif self._authored_model is types.AuthoredType.COMPDEF:  # noqa: E721
             return AuthoredComponentsDefinition(self._working_dir)
         elif self._authored_model is types.AuthoredType.SSP:  # noqa: E721
-            comps_by_ssp: Dict[str, str] = {}
-
-            with open(self._ssp_index_path, "r") as file:
-                for line in file:
-                    line = line.strip()
-                    if line:
-                        key, value = line.split(":", 1)
-                        comps_by_ssp[key] = value
-            return AuthoredSSP(self._working_dir, comps_by_ssp)
+            ssp_index: SSPIndex = SSPIndex(self._ssp_index_path)
+            return AuthoredSSP(self._working_dir, ssp_index)
         else:
             raise TaskException(f"Invalid authored type {self._authored_model}")

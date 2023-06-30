@@ -38,7 +38,7 @@ logging.basicConfig(
 
 class AuthoredComponentsDefinition(AuthorObjectBase):
     """
-    Functions for authoring OSCAL Component Definitions in automation
+    Class for authoring OSCAL Component Definitions in automation
     """
 
     def __init__(self, trestle_root: str) -> None:

@@ -38,7 +38,7 @@ logging.basicConfig(
 
 class AuthoredProfile(AuthorObjectBase):
     """
-    Functions for authoring OSCAL Profiles in automation
+    Class for authoring OSCAL Profiles in automation
     """
 
     def __init__(self, trestle_root: str) -> None:

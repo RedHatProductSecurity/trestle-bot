@@ -50,10 +50,31 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="Path to Trestle markdown files",
     )
     parser.add_argument(
-        "--assemble-model",
+        "--oscal-model",
         required=True,
         type=str,
-        help="OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp",
+        help="OSCAL Model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
+    )
+    parser.add_argument(
+        "--skip-assemble",
+        required=False,
+        type=bool,
+        default=False,
+        help="Skip assembly task. Defaults to false",
+    )
+    parser.add_argument(
+        "--skip-regenerate",
+        required=False,
+        type=bool,
+        default=False,
+        help="Skip regenerate task. Defaults to false.",
+    )
+    parser.add_argument(
+        "--check-only",
+        required=False,
+        type=bool,
+        default=False,
+        help="Runs tasks and check if exit with an error if there is a diff",
     )
     parser.add_argument(
         "--working-dir",
@@ -99,7 +120,7 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--ssp-index-path",
         required=False,
         type=str,
-        default="ssp-index.txt",
+        default="ssp-index.json",
         help="Path to ssp index file",
     )
     parser.add_argument(
@@ -127,13 +148,13 @@ def run() -> None:
     pre_tasks: List[TaskBase] = []
 
     # Pre-process flags
-    if args.assemble_model:
-        assembled_type: types.AuthoredType
+    if args.oscal_model:
+        authored_type: types.AuthoredType
         try:
-            assembled_type = types.check_authored_type(args.assemble_model)
+            authored_type = types.check_authored_type(args.oscal_model)
         except ValueError:
             logging.error(
-                f"Invalid value {args.assemble_model} for assemble model. "
+                f"Invalid value {args.oscal_model} for oscal model. "
                 f"Please use catalog, profile, compdef, or ssp."
             )
             sys.exit(1)
@@ -142,17 +163,24 @@ def run() -> None:
             logging.error("Must set markdown path with assemble model.")
             sys.exit(1)
 
-        if args.assemble_model == "ssp" and args.ssp_index_path == "":
-            logging.error("Must set ssp_index_path when using SSP as assemble model.")
+        if args.oscal_model == "ssp" and args.ssp_index_path == "":
+            logging.error("Must set ssp_index_path when using SSP as oscal model.")
             sys.exit(1)
 
-        assemble_task = AssembleTask(
-            args.working_dir,
-            assembled_type,
-            args.markdown_path,
-            args.ssp_index_path,
-        )
-        pre_tasks.append(assemble_task)
+        # Assuming an edit has occurred assemble would be run before regenerate.
+        # Adding this to the list first
+        if not args.skip_assemble:
+            assemble_task = AssembleTask(
+                args.working_dir,
+                authored_type,
+                args.markdown_path,
+                args.ssp_index_path,
+            )
+            pre_tasks.append(assemble_task)
+
+        if not args.skip_regenerate:
+            # TODO: add regenerate task
+            pass
 
     exit_code: int = 0
 

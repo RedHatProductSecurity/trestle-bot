@@ -90,6 +90,7 @@ def run(
     author_email: str,
     patterns: List[str],
     pre_tasks: Optional[List[TaskBase]] = None,
+    check_only: bool = False,
     dry_run: bool = False,
 ) -> str:
     """Run Trestle Bot and return exit code
@@ -124,6 +125,12 @@ def run(
 
     # Check if there are any unstaged files
     if repo.is_dirty(untracked_files=True):
+        if check_only:
+            raise RepoException(
+                "Check only mode is enable and diff detected. "
+                f"Manual intervention on {branch} is required."
+            )
+
         _stage_files(repo, patterns)
 
         if repo.is_dirty():
