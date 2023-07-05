@@ -22,7 +22,6 @@ from typing import List
 
 import pytest
 
-from trestlebot.cli import _parse_cli_arguments
 from trestlebot.cli import run as cli_main
 
 

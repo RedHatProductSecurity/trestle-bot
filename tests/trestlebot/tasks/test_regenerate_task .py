@@ -55,6 +55,19 @@ def test_catalog_regenerate_task(tmp_trestle_dir: str) -> None:
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
 
 
+def test_catalog_regenerate_task_with_skip(tmp_trestle_dir: str) -> None:
+    """Test catalog regenerate at the task level"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+
+    regenerate_task = RegenerateTask(
+        tmp_trestle_dir, AuthoredType.CATALOG.value, cat_md_dir, "", [test_cat]
+    )
+    assert regenerate_task.execute() == 0
+    assert not os.path.exists(os.path.join(tmp_trestle_dir, md_path))
+
+
 def test_profile_regenerate_task(tmp_trestle_dir: str) -> None:
     """Test profile regenerate at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)

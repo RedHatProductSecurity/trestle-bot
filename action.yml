@@ -38,7 +38,7 @@ inputs:
     required: false
     default: ${{ github.ref_name }}
   file_pattern:
-    description: Comma seperated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
+    description: Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
     required: false
     default: '.'
   repository:
