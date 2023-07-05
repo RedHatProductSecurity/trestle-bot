@@ -57,11 +57,10 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="OSCAL model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
     )
     parser.add_argument(
-        "--patterns",
-        nargs="+",
-        type=str,
+        "--file-pattern",
         required=True,
-        help="List of file patterns to include in repository updates",
+        type=str,
+        help="File pattern to be used with `git add` in repository updates",
     )
     parser.add_argument(
         "--skip-items",
@@ -211,7 +210,7 @@ def run() -> None:
             author_name=args.author_name,
             author_email=args.author_email,
             pre_tasks=pre_tasks,
-            patterns=args.patterns,
+            patterns=[args.file_pattern],
             check_only=args.check_only,
         )
 

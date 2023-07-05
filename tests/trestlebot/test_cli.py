@@ -34,7 +34,7 @@ def valid_args_dict() -> dict:
         "committer-name": "test",
         "committer-email": "test@email.com",
         "working-dir": "tmp",
-        "patterns": ".",
+        "file-pattern": ".",
     }
 
 

@@ -26,18 +26,18 @@ trap exec 3>&- EXIT
 
 # Initialize the command variable
 command="python3.8 -m trestlebot \
-        --markdown-path=${INPUT_MARKDOWN_PATH} \
-        --oscal-model=${INPUT_OSCAL_MODEL} \
-        --ssp-index-path=${INPUT_SSP_INDEX_PATH} \
-        --commit-message=${INPUT_COMMIT_MESSAGE} \
-        --branch=${INPUT_BRANCH} \
-        --patterns=${INPUT_FILE_PATTERN} \
-        --committer-name=${INPUT_COMMIT_USER_NAME} \
-        --committer-email=${INPUT_COMMIT_USER_EMAIL} \
-        --author-name=${INPUT_COMMIT_AUTHOR_NAME} \
-        --author-email=${INPUT_COMMIT_AUTHOR_EMAIL} \
-        --skip-items=${INPUT_SKIP_ITEMS} \
-        --working-dir=${INPUT_REPOSITORY}"
+        --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
+        --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
+        --ssp-index-path=\"${INPUT_SSP_INDEX_PATH}\" \
+        --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
+        --branch=\"${INPUT_BRANCH}\" \
+        --file-pattern=\"${INPUT_FILE_PATTERN}\" \
+        --committer-name=\"${INPUT_COMMIT_USER_NAME}\" \
+        --committer-email=\"${INPUT_COMMIT_USER_EMAIL}\" \
+        --author-name=\"${INPUT_COMMIT_AUTHOR_NAME}\" \
+        --author-email=\"${INPUT_COMMIT_AUTHOR_EMAIL}\" \
+        --working-dir=\"${INPUT_REPOSITORY}\" \
+        --skip-items=\"${INPUT_SKIP_ITEMS}\""
 
 # Conditionally include flags
 if [[ ${INPUT_SKIP_ASSEMBLE} == true ]]; then
