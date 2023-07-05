@@ -25,7 +25,7 @@ trap exec 3>&- EXIT
 
 output=$(python3.8 -m trestlebot \
         --markdown-path="${INPUT_MARKDOWN_PATH}" \
-        --assemble-model="${INPUT_OSCAL_MODEL}" \
+        --oscal-model="${INPUT_OSCAL_MODEL}" \
         --ssp-index-path="${INPUT_SSP_INDEX_PATH}" \
         --commit-message="${INPUT_COMMIT_MESSAGE}" \
         --branch="${INPUT_BRANCH}" \
