@@ -215,7 +215,7 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
 
     with pytest.raises(
         bot.RepoException,
-        match="Check only mode is enable and diff detected. Manual intervention on main is required.",
+        match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
     ):
         _ = bot.run(
             working_dir=repo_path,

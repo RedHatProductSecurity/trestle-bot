@@ -127,7 +127,7 @@ def run(
     if repo.is_dirty(untracked_files=True):
         if check_only:
             raise RepoException(
-                "Check only mode is enable and diff detected. "
+                "Check only mode is enabled and diff detected. "
                 f"Manual intervention on {branch} is required."
             )
 

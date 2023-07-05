@@ -23,22 +23,36 @@ exec 3>&1
 
 trap exec 3>&- EXIT
 
-output=$(python3.8 -m trestlebot \
-        --markdown-path="${INPUT_MARKDOWN_PATH}" \
-        --oscal-model="${INPUT_OSCAL_MODEL}" \
-        --ssp-index-path="${INPUT_SSP_INDEX_PATH}" \
-        --commit-message="${INPUT_COMMIT_MESSAGE}" \
-        --branch="${INPUT_BRANCH}" \
-        --patterns="${INPUT_FILE_PATTERN}" \
-        --committer-name="${INPUT_COMMIT_USER_NAME}" \
-        --committer-email="${INPUT_COMMIT_USER_EMAIL}" \
-        --author-name="${INPUT_COMMIT_AUTHOR_NAME}" \
-        --author-email="${INPUT_COMMIT_AUTHOR_EMAIL}" \
-        --skip-assemble="${INPUT_SKIP_ASSEMBLE}" \
-        --skip-regenerate="${INPUT_SKIP_REGENERATE}" \
-        --check-only="${INPUT_CHECK_ONLY}" \
-        --skip-items="${INPUT_SKIP_ITEMS}" \
-        --working-dir="${INPUT_REPOSITORY}" | tee /dev/fd/3)
+
+# Initialize the command variable
+command="python3.8 -m trestlebot \
+        --markdown-path=${INPUT_MARKDOWN_PATH} \
+        --oscal-model=${INPUT_OSCAL_MODEL} \
+        --ssp-index-path=${INPUT_SSP_INDEX_PATH} \
+        --commit-message=${INPUT_COMMIT_MESSAGE} \
+        --branch=${INPUT_BRANCH} \
+        --patterns=${INPUT_FILE_PATTERN} \
+        --committer-name=${INPUT_COMMIT_USER_NAME} \
+        --committer-email=${INPUT_COMMIT_USER_EMAIL} \
+        --author-name=${INPUT_COMMIT_AUTHOR_NAME} \
+        --author-email=${INPUT_COMMIT_AUTHOR_EMAIL} \
+        --skip-items=${INPUT_SKIP_ITEMS} \
+        --working-dir=${INPUT_REPOSITORY}"
+
+# Conditionally include flags
+if [[ ${INPUT_SKIP_ASSEMBLE} == true ]]; then
+    command+=" --skip-assemble"
+fi
+
+if [[ ${INPUT_SKIP_REGENERATE} == true ]]; then
+    command+=" --skip-regenerate"
+fi
+
+if [[ ${INPUT_CHECK_ONLY} == true ]]; then
+    command+=" --check-only"
+fi
+
+output=$( eval "$command" | tee /dev/fd/3)
 
 commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')
 

@@ -74,22 +74,19 @@ def _parse_cli_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--skip-assemble",
         required=False,
-        type=bool,
-        default=False,
+        action="store_true",
         help="Skip assembly task. Defaults to false",
     )
     parser.add_argument(
         "--skip-regenerate",
         required=False,
-        type=bool,
-        default=False,
+        action="store_true",
         help="Skip regenerate task. Defaults to false.",
     )
     parser.add_argument(
         "--check-only",
         required=False,
-        type=bool,
-        default=False,
+        action="store_true",
         help="Runs tasks and exits with an error if there is a diff",
     )
     parser.add_argument(
@@ -186,6 +183,8 @@ def run() -> None:
                 args.ssp_index_path,
             )
             pre_tasks.append(assemble_task)
+        else:
+            logging.info("Assemble task skipped")
 
         if not args.skip_regenerate:
             regenerate_task = RegenerateTask(
@@ -195,6 +194,8 @@ def run() -> None:
                 args.ssp_index_path,
             )
             pre_tasks.append(regenerate_task)
+        else:
+            logging.info("Regeneration task skipped")
 
     exit_code: int = 0
 
@@ -211,6 +212,7 @@ def run() -> None:
             author_email=args.author_email,
             pre_tasks=pre_tasks,
             patterns=args.patterns,
+            check_only=args.check_only,
         )
 
         # Print the full commit sha
