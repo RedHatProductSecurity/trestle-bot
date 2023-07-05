@@ -52,7 +52,8 @@ if [[ ${INPUT_CHECK_ONLY} == true ]]; then
     command+=" --check-only"
 fi
 
-output=$( eval "$command" | tee /dev/fd/3)
+output=$(eval "$command" 2>&1 > >(tee /dev/fd/3))
+
 
 commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')
 
