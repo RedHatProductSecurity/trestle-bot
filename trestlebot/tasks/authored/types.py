@@ -49,7 +49,7 @@ def get_authored_object(
         return AuthoredProfile(working_dir)
     elif input_type == AuthoredType.COMPDEF.value:
         return AuthoredComponentsDefinition(working_dir)
-    elif input_type is AuthoredType.SSP.value:
+    elif input_type == AuthoredType.SSP.value:
         ssp_index: SSPIndex = SSPIndex(ssp_index_path)
         return AuthoredSSP(working_dir, ssp_index)
     else:
