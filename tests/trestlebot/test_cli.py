@@ -22,6 +22,7 @@ from typing import List
 
 import pytest
 
+from trestlebot.cli import _parse_cli_arguments
 from trestlebot.cli import run as cli_main
 
 
@@ -34,7 +35,7 @@ def valid_args_dict() -> dict:
         "committer-name": "test",
         "committer-email": "test@email.com",
         "working-dir": "tmp",
-        "file-pattern": ".",
+        "file-patterns": ".",
     }
 
 

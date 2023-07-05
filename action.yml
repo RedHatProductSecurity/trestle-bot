@@ -22,7 +22,7 @@ inputs:
     required: false
     default: false
   skip_items:
-    description: "Space-separated list of content by Trestle name to skip during task execution. For example `profile_x profile_y`."
+    description: "Comma-separated list of content by Trestle name to skip during task execution. For example `profile_x,profile_y`."
     required: false
     default: ""
   ssp_index_path:
@@ -38,7 +38,7 @@ inputs:
     required: false
     default: ${{ github.ref_name }}
   file_pattern:
-    description: File pattern used for `git add`. For example `component-definitions/*`. Defaults to (`.`)
+    description: Comma seperated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
     required: false
     default: '.'
   repository:

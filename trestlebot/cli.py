@@ -57,18 +57,17 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="OSCAL model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
     )
     parser.add_argument(
-        "--file-pattern",
+        "--file-patterns",
         required=True,
         type=str,
-        help="File pattern to be used with `git add` in repository updates",
+        help="Comma-separated list of file patterns to be used with `git add` in repository updates",
     )
     parser.add_argument(
         "--skip-items",
-        nargs="+",
         type=str,
         required=False,
-        default=[],
-        help="List of items of the chosen model type to skip when running tasks",
+        default="",
+        help="Comma-separated list of items of the chosen model type to skip when running tasks",
     )
     parser.add_argument(
         "--skip-assemble",
@@ -180,6 +179,7 @@ def run() -> None:
                 args.oscal_model,
                 args.markdown_path,
                 args.ssp_index_path,
+                comma_sep_to_list(args.skip_items),
             )
             pre_tasks.append(assemble_task)
         else:
@@ -191,6 +191,7 @@ def run() -> None:
                 args.oscal_model,
                 args.markdown_path,
                 args.ssp_index_path,
+                comma_sep_to_list(args.skip_items),
             )
             pre_tasks.append(regenerate_task)
         else:
@@ -210,7 +211,7 @@ def run() -> None:
             author_name=args.author_name,
             author_email=args.author_email,
             pre_tasks=pre_tasks,
-            patterns=[args.file_pattern],
+            patterns=comma_sep_to_list(args.file_patterns),
             check_only=args.check_only,
         )
 
@@ -222,3 +223,9 @@ def run() -> None:
         exit_code = handle_exception(e)
 
     sys.exit(exit_code)
+
+
+def comma_sep_to_list(string: str) -> List[str]:
+    """Convert comma-sep string to list of strings and strip."""
+    string = string.strip() if string else ""
+    return list(map(str.strip, string.split(","))) if string else []
