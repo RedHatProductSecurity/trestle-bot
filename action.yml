@@ -22,7 +22,7 @@ inputs:
     required: false
     default: false
   skip_items:
-    description: "Space-separated list of content by Trestle name to skip during task execution. For example `profile_x profile_y`".
+    description: "Space-separated list of content by Trestle name to skip during task execution. For example `profile_x profile_y`."
     required: false
     default: ""
   ssp_index_path:
