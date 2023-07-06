@@ -20,18 +20,21 @@ import sys
 from types import TracebackType
 from typing import Optional, Type
 
+
 # Singleton logger instance
 # All other CLI sub module will inherit settings of this logger as long as
 # sub-module instantiates a logger with a prefix 'trestlebot' or __name__
-_logger = logging.getLogger('trestlebot')
+_logger = logging.getLogger("trestlebot")
 
 
 class SpecificLevelFilter(logging.Filter):
     """
     Filter for the same level as provided by setLevel for a log handler.
 
-    Python by default logs all levels above to a given destination. This makes it easy to split levels where you might
-    log all levels to file and only errors to std.err, however, does not allow logging a specific level elsewhere.
+    Python by default logs all levels above to a given destination.
+    This makes it easy to split levels where you might
+    log all levels to file and only errors to std.err,
+    however, does not allow logging a specific level elsewhere.
     """
 
     def __init__(self, level: int) -> None:
@@ -67,8 +70,12 @@ def set_global_logging_levels(level: int = logging.INFO) -> None:
     console_error_handler = logging.StreamHandler(sys.stderr)
     console_error_handler.setLevel(logging.WARNING)
     # create formatters
-    error_formatter = logging.Formatter('%(name)s:%(lineno)d %(levelname)s: %(message)s')
-    debug_formatter = logging.Formatter('%(name)s:%(lineno)d %(levelname)s: %(message)s')
+    error_formatter = logging.Formatter(
+        "%(name)s:%(lineno)d %(levelname)s: %(message)s"
+    )
+    debug_formatter = logging.Formatter(
+        "%(name)s:%(lineno)d %(levelname)s: %(message)s"
+    )
     console_debug_handler.setFormatter(debug_formatter)
     console_error_handler.setFormatter(error_formatter)
     # add ch to logger
@@ -78,7 +85,9 @@ def set_global_logging_levels(level: int = logging.INFO) -> None:
 
 
 def _exception_handler(
-    exception_type: Type[BaseException], exception: BaseException, traceback: Optional[TracebackType]
+    exception_type: Type[BaseException],
+    exception: BaseException,
+    traceback: Optional[TracebackType],
 ) -> None:
     """Empty exception handler to prevent stack traceback in quiet mode."""
     logging.warning(exception)
@@ -111,7 +120,7 @@ def get_current_verbosity_level(logger: logging.Logger) -> int:
     return 0
 
 
-class Trace():
+class Trace:
     """Class allowing low priority trace message when verbose > 1 and log level below DEBUG."""
 
     def __init__(self, logger: logging.Logger) -> None:

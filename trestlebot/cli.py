@@ -29,8 +29,7 @@ from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
-logger = logging.getLogger('trestlebot')
-
+logger = logging.getLogger("trestlebot")
 
 
 def _parse_cli_arguments() -> argparse.Namespace:

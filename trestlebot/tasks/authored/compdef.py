@@ -28,6 +28,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 
+
 class AuthoredComponentsDefinition(AuthorObjectBase):
     """
     Class for authoring OSCAL Component Definitions in automation

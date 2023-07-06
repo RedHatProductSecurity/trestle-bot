@@ -28,6 +28,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 
+
 class AuthoredProfile(AuthorObjectBase):
     """
     Class for authoring OSCAL Profiles in automation

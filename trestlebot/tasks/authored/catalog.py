@@ -28,6 +28,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 
+
 class AuthoredCatalog(AuthorObjectBase):
     """
     Class for authoring OSCAL catalogs in automation

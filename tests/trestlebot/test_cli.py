@@ -16,7 +16,6 @@
 
 """Test for CLI"""
 
-import logging
 import sys
 from typing import List
 
@@ -47,7 +46,7 @@ def args_dict_to_list(args_dict: dict) -> List[str]:
     return args
 
 
-def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
+def test_invalid_oscal_model(monkeypatch, valid_args_dict, capsys):
     """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "fake"
@@ -56,16 +55,15 @@ def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
     with pytest.raises(SystemExit):
         cli_main()
 
-    assert any(
-        record.levelno == logging.ERROR
-        and record.message
-        == "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
-        for record in caplog.records
+    captured = capsys.readouterr()
+    assert (
+        "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
+        in captured.err
     )
 
 
-def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
-    """Test missing index file for ssp"""
+def test_no_ssp_index(monkeypatch, valid_args_dict, capsys):
+    """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "ssp"
     args_dict["ssp-index-path"] = ""
@@ -74,8 +72,6 @@ def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
     with pytest.raises(SystemExit):
         cli_main()
 
-    assert any(
-        record.levelno == logging.ERROR
-        and record.message == "Must set ssp_index_path when using SSP as oscal model."
-        for record in caplog.records
-    )
+    captured = capsys.readouterr()
+
+    assert "Must set ssp_index_path when using SSP as oscal model." in captured.err
