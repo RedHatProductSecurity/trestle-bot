@@ -16,10 +16,8 @@
 
 """Trestle Bot functions for catalog authoring"""
 
-import logging
 import os
 import pathlib
-import sys
 
 from trestle.common.err import TrestleError
 from trestle.core.commands.author.catalog import CatalogAssemble, CatalogGenerate
@@ -29,12 +27,6 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
-
-
-logging.basicConfig(
-    format="%(levelname)s - %(message)s", stream=sys.stdout, level=logging.INFO
-)
-
 
 class AuthoredCatalog(AuthorObjectBase):
     """

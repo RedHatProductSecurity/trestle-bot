@@ -18,10 +18,8 @@
 
 import argparse
 import json
-import logging
 import os
 import pathlib
-import sys
 from typing import Dict, List
 
 from trestle.common.err import TrestleError
@@ -32,12 +30,6 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
-
-
-logging.basicConfig(
-    format="%(levelname)s - %(message)s", stream=sys.stdout, level=logging.INFO
-)
-
 
 class SSPIndex:
     """

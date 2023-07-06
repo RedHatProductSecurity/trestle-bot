@@ -22,16 +22,15 @@ import logging
 import sys
 from typing import List
 
-from trestlebot import bot
+from trestlebot import bot, log
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
-logging.basicConfig(
-    format="%(levelname)s - %(message)s", stream=sys.stdout, level=logging.INFO
-)
+logger = logging.getLogger('trestlebot')
+
 
 
 def _parse_cli_arguments() -> argparse.Namespace:
@@ -141,13 +140,15 @@ def handle_exception(
     exception: Exception, msg: str = "Exception occurred during execution"
 ) -> int:
     """Log the exception and return the exit code"""
-    logging.exception(msg + f": {exception}")
+    logger.error(msg + f": {exception}")
 
     return 1
 
 
 def run() -> None:
     """Trestle Bot entry point function."""
+    log.set_global_logging_levels()
+
     args = _parse_cli_arguments()
     pre_tasks: List[TaskBase] = []
 
@@ -157,18 +158,18 @@ def run() -> None:
 
     if args.oscal_model:
         if args.oscal_model not in authored_list:
-            logging.error(
+            logger.error(
                 f"Invalid value {args.oscal_model} for oscal model. "
                 f"Please use catalog, profile, compdef, or ssp."
             )
             sys.exit(1)
 
         if not args.markdown_path:
-            logging.error("Must set markdown path with assemble model.")
+            logger.error("Must set markdown path with assemble model.")
             sys.exit(1)
 
         if args.oscal_model == "ssp" and args.ssp_index_path == "":
-            logging.error("Must set ssp_index_path when using SSP as oscal model.")
+            logger.error("Must set ssp_index_path when using SSP as oscal model.")
             sys.exit(1)
 
         # Assuming an edit has occurred assemble would be run before regenerate.
