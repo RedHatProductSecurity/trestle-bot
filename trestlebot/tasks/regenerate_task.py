@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Trestle Bot Assembly Tasks"""
+"""Trestle Bot Regenerate Tasks"""
 
 import os
 from typing import List
@@ -27,9 +27,9 @@ from trestlebot.tasks.authored.base_authored import (
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
-class AssembleTask(TaskBase):
+class RegenerateTask(TaskBase):
     """
-    Assemble Markdown into OSCAL content
+    Regenerate Trestle Markdown from OSCAL JSON content changes
     """
 
     def __init__(
@@ -41,7 +41,7 @@ class AssembleTask(TaskBase):
         skip_model_list: List[str] = [],
     ) -> None:
         """
-        Initialize assemble task.
+        Initialize regenerate task.
 
         Args:
             working_dir: Working directory to complete operations in
@@ -59,24 +59,27 @@ class AssembleTask(TaskBase):
 
     def execute(self) -> int:
         """Execute task"""
-        return self._assemble()
+        return self._regenerate()
 
-    def _assemble(self) -> int:
-        """Assemble all objects in markdown directory"""
+    def _regenerate(self) -> int:
+        """Regenerate all objects in model JSON directory"""
         authored_object: AuthorObjectBase = types.get_authored_object(
             self._authored_model, self.get_working_dir(), self._ssp_index_path
         )
-        search_path = os.path.join(self.get_working_dir(), self._markdown_dir)
+
+        model_dir = types.get_trestle_model_dir(self._authored_model)
+
+        search_path = os.path.join(self.get_working_dir(), model_dir)
         for model in os.listdir(search_path):
-            # Construct model path from markdown path. AuthoredObject already has
-            # the working dir data as part of object construction.
             if model in self._skip_model_list or model == ".keep":
                 continue
-            model_path = os.path.join(self._markdown_dir, model)
+            model_path = os.path.join(model_dir, model)
 
             try:
-                authored_object.assemble(markdown_path=model_path)
+                authored_object.regenerate(
+                    model_path=model_path, markdown_path=self._markdown_dir
+                )
             except AuthoredObjectException as e:
-                raise TaskException(f"Assemble task failed for model {model_path}: {e}")
+                raise TaskException(f"Regenerate task failed for model {model}: {e}")
 
         return 0

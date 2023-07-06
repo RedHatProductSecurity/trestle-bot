@@ -22,7 +22,7 @@ import pathlib
 import sys
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.profile import ProfileAssemble
+from trestle.core.commands.author.profile import ProfileAssemble, ProfileGenerate
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 
 from trestlebot.tasks.authored.base_authored import (
@@ -38,7 +38,7 @@ logging.basicConfig(
 
 class AuthoredProfile(AuthorObjectBase):
     """
-    Functions for authoring OSCAL Profiles in automation
+    Class for authoring OSCAL Profiles in automation
     """
 
     def __init__(self, trestle_root: str) -> None:
@@ -47,13 +47,13 @@ class AuthoredProfile(AuthorObjectBase):
         """
         super().__init__(trestle_root)
 
-    def assemble(self, model_path: str, version_tag: str = "") -> None:
-        trestle_root = pathlib.Path(self._trestle_root)
-        profile = os.path.basename(model_path)
+    def assemble(self, markdown_path: str, version_tag: str = "") -> None:
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        profile = os.path.basename(markdown_path)
         try:
             exit_code = ProfileAssemble.assemble_profile(
                 trestle_root=trestle_root,
-                md_name=model_path,
+                md_name=markdown_path,
                 assem_prof_name=profile,
                 parent_prof_name="",
                 set_parameters_flag=True,
@@ -69,3 +69,26 @@ class AuthoredProfile(AuthorObjectBase):
                 )
         except TrestleError as e:
             raise AuthoredObjectException(f"Trestle assemble failed for {profile}: {e}")
+
+    def regenerate(self, model_path: str, markdown_path: str) -> None:
+        trestle_root = self.get_trestle_root()
+        trestle_path = pathlib.Path(trestle_root)
+        profile_generate: ProfileGenerate = ProfileGenerate()
+
+        profile = os.path.basename(model_path)
+        try:
+            exit_code = profile_generate.generate_markdown(
+                trestle_root=trestle_path,
+                profile_path=pathlib.Path(trestle_root, model_path, "profile.json"),
+                markdown_path=pathlib.Path(trestle_root, markdown_path, profile),
+                yaml_header={},
+                overwrite_header_values=False,
+                sections_dict={},
+                required_sections=[],
+            )
+            if exit_code != CmdReturnCodes.SUCCESS.value:
+                raise AuthoredObjectException(
+                    f"Unknown error occurred while regenerating {profile}"
+                )
+        except TrestleError as e:
+            raise AuthoredObjectException(f"Trestle generate failed for {profile}: {e}")

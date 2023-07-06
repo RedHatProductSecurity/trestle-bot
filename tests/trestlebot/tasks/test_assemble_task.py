@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Test for Trestle Bot assemble"""
+"""Test for Trestle Bot assemble task"""
 
 import os
 import pathlib
@@ -51,7 +51,7 @@ def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:
 
     assemble_task = AssembleTask(
         tmp_trestle_dir,
-        AuthoredType.CATALOG,
+        AuthoredType.CATALOG.value,
         cat_md_dir,
         "",
     )
@@ -67,7 +67,7 @@ def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
     assert profile_generate._run(args) == 0
     assemble_task = AssembleTask(
         tmp_trestle_dir,
-        AuthoredType.PROFILE,
+        AuthoredType.PROFILE.value,
         prof_md_dir,
         "",
     )
@@ -83,7 +83,7 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
     assert comp_generate._run(args) == 0
     assemble_task = AssembleTask(
         tmp_trestle_dir,
-        AuthoredType.COMPDEF,
+        AuthoredType.COMPDEF.value,
         compdef_md_dir,
         "",
     )
@@ -92,9 +92,8 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
 
 def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level"""
-    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
-    with open(ssp_index_path, "w") as f:
-        f.write(f"{test_ssp_output}:{test_comp}")
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
@@ -104,7 +103,7 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
 
     assemble_task = AssembleTask(
         tmp_trestle_dir,
-        AuthoredType.SSP,
+        AuthoredType.SSP.value,
         ssp_md_dir,
         ssp_index_path,
     )
@@ -113,10 +112,6 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
 
 def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level with failure"""
-    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.txt")
-    with open(ssp_index_path, "w") as f:
-        f.write(f"{test_ssp_output}:{test_comp}")
-
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
     args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
@@ -125,7 +120,7 @@ def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
 
     assemble_task = AssembleTask(
         tmp_trestle_dir,
-        AuthoredType.SSP,
+        AuthoredType.SSP.value,
         ssp_md_dir,
         "",
     )

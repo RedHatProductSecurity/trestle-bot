@@ -17,9 +17,10 @@
 """Helper functions for unit test setup and teardown."""
 
 import argparse
+import json
 import pathlib
 import shutil
-from typing import Optional
+from typing import List, Optional
 
 from git.repo import Repo
 from trestle.common.model_utils import ModelUtils
@@ -157,3 +158,15 @@ def setup_for_compdef(
     )
 
     return args
+
+
+def write_index_json(
+    file_path: str, ssp_name: str, profile: str, component_definitions: List[str]
+) -> None:
+    """Write out ssp index JSON for tests"""
+    data = {
+        ssp_name: {"profile": profile, "component_definitions": component_definitions}
+    }
+
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)

@@ -26,6 +26,7 @@ from trestlebot import bot
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
 logging.basicConfig(
@@ -50,10 +51,41 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="Path to Trestle markdown files",
     )
     parser.add_argument(
-        "--assemble-model",
+        "--oscal-model",
         required=True,
         type=str,
-        help="OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp",
+        help="OSCAL model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
+    )
+    parser.add_argument(
+        "--file-patterns",
+        required=True,
+        type=str,
+        help="Comma-separated list of file patterns to be used with `git add` in repository updates",
+    )
+    parser.add_argument(
+        "--skip-items",
+        type=str,
+        required=False,
+        default="",
+        help="Comma-separated list of items of the chosen model type to skip when running tasks",
+    )
+    parser.add_argument(
+        "--skip-assemble",
+        required=False,
+        action="store_true",
+        help="Skip assembly task. Defaults to false",
+    )
+    parser.add_argument(
+        "--skip-regenerate",
+        required=False,
+        action="store_true",
+        help="Skip regenerate task. Defaults to false.",
+    )
+    parser.add_argument(
+        "--check-only",
+        required=False,
+        action="store_true",
+        help="Runs tasks and exits with an error if there is a diff",
     )
     parser.add_argument(
         "--working-dir",
@@ -99,15 +131,8 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--ssp-index-path",
         required=False,
         type=str,
-        default="ssp-index.txt",
+        default="ssp-index.json",
         help="Path to ssp index file",
-    )
-    parser.add_argument(
-        "--patterns",
-        nargs="+",
-        type=str,
-        required=True,
-        help="List of file patterns to include in repository updates",
     )
     return parser.parse_args()
 
@@ -126,14 +151,14 @@ def run() -> None:
     args = _parse_cli_arguments()
     pre_tasks: List[TaskBase] = []
 
+    authored_list: List[str] = [model.value for model in types.AuthoredType]
+
     # Pre-process flags
-    if args.assemble_model:
-        assembled_type: types.AuthoredType
-        try:
-            assembled_type = types.check_authored_type(args.assemble_model)
-        except ValueError:
+
+    if args.oscal_model:
+        if args.oscal_model not in authored_list:
             logging.error(
-                f"Invalid value {args.assemble_model} for assemble model. "
+                f"Invalid value {args.oscal_model} for oscal model. "
                 f"Please use catalog, profile, compdef, or ssp."
             )
             sys.exit(1)
@@ -142,17 +167,35 @@ def run() -> None:
             logging.error("Must set markdown path with assemble model.")
             sys.exit(1)
 
-        if args.assemble_model == "ssp" and args.ssp_index_path == "":
-            logging.error("Must set ssp_index_path when using SSP as assemble model.")
+        if args.oscal_model == "ssp" and args.ssp_index_path == "":
+            logging.error("Must set ssp_index_path when using SSP as oscal model.")
             sys.exit(1)
 
-        assemble_task = AssembleTask(
-            args.working_dir,
-            assembled_type,
-            args.markdown_path,
-            args.ssp_index_path,
-        )
-        pre_tasks.append(assemble_task)
+        # Assuming an edit has occurred assemble would be run before regenerate.
+        # Adding this to the list first
+        if not args.skip_assemble:
+            assemble_task = AssembleTask(
+                args.working_dir,
+                args.oscal_model,
+                args.markdown_path,
+                args.ssp_index_path,
+                comma_sep_to_list(args.skip_items),
+            )
+            pre_tasks.append(assemble_task)
+        else:
+            logging.info("Assemble task skipped")
+
+        if not args.skip_regenerate:
+            regenerate_task = RegenerateTask(
+                args.working_dir,
+                args.oscal_model,
+                args.markdown_path,
+                args.ssp_index_path,
+                comma_sep_to_list(args.skip_items),
+            )
+            pre_tasks.append(regenerate_task)
+        else:
+            logging.info("Regeneration task skipped")
 
     exit_code: int = 0
 
@@ -168,7 +211,8 @@ def run() -> None:
             author_name=args.author_name,
             author_email=args.author_email,
             pre_tasks=pre_tasks,
-            patterns=args.patterns,
+            patterns=comma_sep_to_list(args.file_patterns),
+            check_only=args.check_only,
         )
 
         # Print the full commit sha
@@ -179,3 +223,9 @@ def run() -> None:
         exit_code = handle_exception(e)
 
     sys.exit(exit_code)
+
+
+def comma_sep_to_list(string: str) -> List[str]:
+    """Convert comma-sep string to list of strings and strip."""
+    string = string.strip() if string else ""
+    return list(map(str.strip, string.split(","))) if string else []

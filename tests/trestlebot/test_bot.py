@@ -19,6 +19,7 @@
 import os
 from typing import Tuple
 
+import pytest
 from git.repo import Repo
 
 import trestlebot.bot as bot
@@ -201,3 +202,30 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     assert commit_sha == ""
 
     clean(repo_path, repo)
+
+
+def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with check_only"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    with pytest.raises(
+        bot.RepoException,
+        match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
+    ):
+        _ = bot.run(
+            working_dir=repo_path,
+            branch="main",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            dry_run=True,
+            check_only=True,
+        )
