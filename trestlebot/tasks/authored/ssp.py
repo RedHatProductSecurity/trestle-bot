@@ -31,6 +31,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 
+
 class SSPIndex:
     """
     Class for managing the SSP index that stores relationship data by Trestle name

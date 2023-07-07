@@ -183,7 +183,7 @@ def run() -> None:
             )
             pre_tasks.append(assemble_task)
         else:
-            logging.info("Assemble task skipped")
+            logger.info("Assemble task skipped")
 
         if not args.skip_regenerate:
             regenerate_task = RegenerateTask(
@@ -195,7 +195,7 @@ def run() -> None:
             )
             pre_tasks.append(regenerate_task)
         else:
-            logging.info("Regeneration task skipped")
+            logger.info("Regeneration task skipped")
 
     exit_code: int = 0
 
