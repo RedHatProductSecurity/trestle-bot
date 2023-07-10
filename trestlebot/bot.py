@@ -161,9 +161,12 @@ def run(
                 # Only create a pull request if a GitProvider is configured and
                 # a target branch is set.
                 if git_provider is not None and target_branch:
-                    logger.info("Git provider detected, submitting pull request")
+                    logger.info(
+                        f"Git provider detected, submitting pull request to {target_branch}"
+                    )
                     # Parse remote url to get repository information for pull request
                     namespace, repo_name = git_provider.parse_repository(remote.url)
+                    logger.debug("Detected namespace {namespace} and {repo_name}")
 
                     git_provider.create_pull_request(
                         ns=namespace,
@@ -177,11 +180,9 @@ def run(
                 return commit_sha
 
             except GitCommandError as e:
-                raise RepoException(f"Git push to {branch} failed: {e}") from e
+                raise RepoException(f"Git push to {branch} failed: {e}")
             except GitProviderException as e:
-                raise RepoException(
-                    f"Git pull request to {target_branch} failed: {e}"
-                ) from e
+                raise RepoException(f"Git pull request to {target_branch} failed: {e}")
         else:
             logger.info("Nothing to commit")
             return commit_sha

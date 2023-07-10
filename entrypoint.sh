@@ -55,7 +55,7 @@ if [[ -n ${INPUT_TARGET_BRANCH} ]]; then
     exit 1
   fi
 
-  command+=" --with-token <<<\"${GITHUB_TOKEN}\""
+  command+=" --with-token - <<<\"${GITHUB_TOKEN}\""
 fi
 
 exec 3>&1

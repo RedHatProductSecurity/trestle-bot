@@ -230,7 +230,11 @@ def run() -> None:
             )
             sys.exit(1)
 
-        git_provider = GitHub(access_token=args.with_token)
+        if not args.with_token:
+            logger.error("with-token value cannot be empty")
+            sys.exit(1)
+
+        git_provider = GitHub(access_token=args.with_token.read().strip())
 
     exit_code: int = 0
 
