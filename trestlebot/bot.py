@@ -17,7 +17,6 @@
 """This module implements functions for the Trestle Bot."""
 
 import logging
-import sys
 from typing import List, Optional
 
 from git import GitCommandError
@@ -27,9 +26,7 @@ from git.util import Actor
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
-logging.basicConfig(
-    format="%(levelname)s - %(message)s", stream=sys.stdout, level=logging.INFO
-)
+logger = logging.getLogger(__name__)
 
 
 class RepoException(Exception):
@@ -41,14 +38,15 @@ class RepoException(Exception):
 def _stage_files(gitwd: Repo, patterns: List[str]) -> None:
     """Stages files in git based on file patterns"""
     for pattern in patterns:
+        gitwd.index.add(pattern)
         if pattern == ".":
-            logging.info("Staging all repository changes")
+            logger.info("Staging all repository changes")
             # Using check to avoid adding git directory
             # https://github.com/gitpython-developers/GitPython/issues/292
             gitwd.git.add(all=True)
             return
         else:
-            logging.info(f"Adding file for pattern {pattern}")
+            logger.info(f"Adding file for pattern {pattern}")
             gitwd.git.add(pattern)
 
 
@@ -144,7 +142,7 @@ def run(
             )
 
             if dry_run:
-                logging.info("Dry run mode is enabled. Do not push to remote.")
+                logger.info("Dry run mode is enabled. Do not push to remote.")
                 return commit_sha
 
             try:
@@ -154,14 +152,14 @@ def run(
                 # Push changes to the remote repository
                 remote.push(refspec=f"HEAD:{branch}")
 
-                logging.info(f"Changes pushed to {branch} successfully.")
+                logger.info(f"Changes pushed to {branch} successfully.")
                 return commit_sha
 
             except GitCommandError as e:
                 raise RepoException(f"Git push to {branch} failed: {e}") from e
         else:
-            logging.info("Nothing to commit")
+            logger.info("Nothing to commit")
             return commit_sha
     else:
-        logging.info("Nothing to commit")
+        logger.info("Nothing to commit")
         return commit_sha
