@@ -18,6 +18,7 @@
 
 import sys
 from typing import List
+from unittest.mock import patch
 
 import pytest
 
@@ -75,3 +76,40 @@ def test_no_ssp_index(monkeypatch, valid_args_dict, capsys):
     captured = capsys.readouterr()
 
     assert "Must set ssp_index_path when using SSP as oscal model." in captured.err
+
+
+def test_no_markdown_path(monkeypatch, valid_args_dict, capsys):
+    """Test without a markdown file passed as a flag"""
+    args_dict = valid_args_dict
+    args_dict["markdown-path"] = ""
+    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
+
+    with pytest.raises(SystemExit):
+        cli_main()
+
+    captured = capsys.readouterr()
+
+    assert "Must set markdown path with oscal model." in captured.err
+
+
+def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
+    """Test with target branch set an an unsupported Git provider"""
+    args_dict = valid_args_dict
+    args_dict["target-branch"] = "main"
+    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
+
+    with patch("trestlebot.cli.is_github_actions") as mock_check:
+        mock_check.return_value = False
+
+        with pytest.raises(SystemExit):
+            cli_main()
+
+    captured = capsys.readouterr()
+
+    expected_string = (
+        "target-branch flag is set with an unsupported git provider. "
+        "If testing locally with the GitHub API, "
+        "set the GITHUB_ACTIONS environment variable to true."
+    )
+
+    assert expected_string in captured.err

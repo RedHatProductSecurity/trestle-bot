@@ -22,6 +22,7 @@ trestle-bot = "trestlebot.cli:run"
 python = '^3.8.1'
 gitpython = "^3.1.31"
 compliance-trestle = "^2.1.1"
+github3-py = "^4.0.1"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
@@ -53,3 +54,13 @@ addopts = """
 testpaths = [
     'tests',
 ]
+
+[tool.mypy]
+
+[[tool.mypy.overrides]]
+module = "github3.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "ruamel"
+ignore_missing_imports = true

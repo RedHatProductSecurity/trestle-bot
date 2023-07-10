@@ -19,10 +19,13 @@
 
 import argparse
 import logging
+import os
 import sys
-from typing import List
+from typing import List, Optional
 
 from trestlebot import bot, log
+from trestlebot.github import GitHub
+from trestlebot.provider import GitProvider
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
@@ -64,7 +67,6 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--skip-items",
         type=str,
         required=False,
-        default="",
         help="Comma-separated list of items of the chosen model type to skip when running tasks",
     )
     parser.add_argument(
@@ -115,14 +117,12 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--author-name",
         required=False,
         type=str,
-        default="",
         help="Name for commit author if differs from committer",
     )
     parser.add_argument(
         "--author-email",
         required=False,
         type=str,
-        default="",
         help="Email for commit author if differs from committer",
     )
     parser.add_argument(
@@ -137,6 +137,22 @@ def _parse_cli_arguments() -> argparse.Namespace:
         required=False,
         action="store_true",
         help="Run in verbose mode",
+    )
+    parser.add_argument(
+        "--target-branch",
+        type=str,
+        required=False,
+        help="Target branch or base branch to create a pull request against. \
+        No pull request is created if unset",
+    )
+    parser.add_argument(
+        "--with-token",
+        nargs="?",
+        type=argparse.FileType("r"),
+        required=False,
+        default=sys.stdin,
+        help="Read token from standard input for authenticated requests with \
+        Git provider (e.g. create pull requests)",
     )
     return parser.parse_args()
 
@@ -157,6 +173,7 @@ def run() -> None:
     log.set_log_level_from_args(args=args)
 
     pre_tasks: List[TaskBase] = []
+    git_provider: Optional[GitProvider] = None
 
     authored_list: List[str] = [model.value for model in types.AuthoredType]
 
@@ -171,7 +188,7 @@ def run() -> None:
             sys.exit(1)
 
         if not args.markdown_path:
-            logger.error("Must set markdown path with assemble model.")
+            logger.error("Must set markdown path with oscal model.")
             sys.exit(1)
 
         if args.oscal_model == "ssp" and args.ssp_index_path == "":
@@ -204,6 +221,17 @@ def run() -> None:
         else:
             logger.info("Regeneration task skipped")
 
+    if args.target_branch:
+        if not is_github_actions():
+            logger.error(
+                "target-branch flag is set with an unsupported git provider. "
+                "If testing locally with the GitHub API, set "
+                "the GITHUB_ACTIONS environment variable to true."
+            )
+            sys.exit(1)
+
+        git_provider = GitHub(access_token=args.with_token)
+
     exit_code: int = 0
 
     # Assume it is a successful run, if the bot
@@ -219,6 +247,8 @@ def run() -> None:
             author_email=args.author_email,
             pre_tasks=pre_tasks,
             patterns=comma_sep_to_list(args.file_patterns),
+            git_provider=git_provider,
+            target_branch=args.target_branch,
             check_only=args.check_only,
         )
 
@@ -236,3 +266,12 @@ def comma_sep_to_list(string: str) -> List[str]:
     """Convert comma-sep string to list of strings and strip."""
     string = string.strip() if string else ""
     return list(map(str.strip, string.split(","))) if string else []
+
+
+# GitHub ref:
+# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+def is_github_actions() -> bool:
+    var_value = os.getenv("GITHUB_ACTIONS")
+    if var_value and var_value.lower() in ["true", "1"]:
+        return True
+    return False

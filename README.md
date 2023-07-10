@@ -42,23 +42,3 @@ Checkout [`action.yml`](./action.yml) for a full list of supported inputs and ou
             ]
         },
 ```
-  
-
-## Contributing
-
-### Format and Styling
-
-```
-make format
-make lint
-```
-
-### Running tests
-```
-make test
-```
-
-### Run with poetry
-```
-poetry run trestle-bot
-```

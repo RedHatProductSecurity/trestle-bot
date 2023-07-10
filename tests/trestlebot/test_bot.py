@@ -16,14 +16,17 @@
 
 """Test for top-level Trestle Bot logic."""
 
+import json
 import os
 from typing import Tuple
+from unittest.mock import Mock, patch
 
 import pytest
 from git.repo import Repo
 
 import trestlebot.bot as bot
 from tests.testutils import clean
+from trestlebot.provider import GitProvider
 
 
 def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
@@ -148,6 +151,47 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     clean(repo_path, repo)
 
 
+def test_run(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with mocked push"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    repo.create_remote("origin", url="git.test.com/test/repo.git")
+
+    with patch("git.remote.Remote.push") as mock_push:
+        mock_push.return_value = "Mocked result"
+
+        # Test running the bot
+        commit_sha = bot.run(
+            working_dir=repo_path,
+            branch="main",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            dry_run=False,
+        )
+        assert commit_sha != ""
+
+        # Verify that the commit is made
+        commit = next(repo.iter_commits())
+        assert commit.message.strip() == "Test commit message"
+        assert commit.author.name == "The Author"
+        assert commit.author.email == "author@test.com"
+        mock_push.assert_called_once_with(refspec="HEAD:main")
+
+        # Verify that the file is tracked by the commit
+        assert os.path.basename(test_file_path) in commit.stats.files
+
+    clean(repo_path, repo)
+
+
 def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with dry run"""
     repo_path, repo = tmp_repo
@@ -204,6 +248,48 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     clean(repo_path, repo)
 
 
+def test_non_matching_files(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test that non-matching files are ignored"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    # Create a test file
+    data = {"test": "file"}
+    test_json_path = os.path.join(repo_path, "test.json")
+    with open(test_json_path, "w") as f:
+        json.dump(data, f, indent=4)
+
+    # Test running the bot
+    commit_sha = bot.run(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        commit_message="Test commit message",
+        author_name="The Author",
+        author_email="author@test.com",
+        patterns=["*.json"],
+        dry_run=True,
+    )
+    assert commit_sha != ""
+
+    # Verify that the commit is made
+    commit = next(repo.iter_commits())
+    assert commit.message.strip() == "Test commit message"
+    assert commit.author.name == "The Author"
+    assert commit.author.email == "author@test.com"
+
+    # Verify that only the JSON file is tracked in the commits
+    assert os.path.basename(test_file_path) not in commit.stats.files
+    assert os.path.basename(test_json_path) in commit.stats.files
+
+    clean(repo_path, repo)
+
+
 def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with check_only"""
     repo_path, repo = tmp_repo
@@ -229,3 +315,62 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=True,
             check_only=True,
         )
+
+    clean(repo_path, repo)
+
+
+def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with mock git provider"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    mock = Mock(spec=GitProvider)
+    mock.create_pull_request.return_value = "10"
+    mock.parse_repository.return_value = ("ns", "repo")
+
+    repo.create_remote("origin", url="git.test.com/test/repo.git")
+
+    with patch("git.remote.Remote.push") as mock_push:
+        mock_push.return_value = "Mocked result"
+
+        # Test running the bot
+        commit_sha = bot.run(
+            working_dir=repo_path,
+            branch="test",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            git_provider=mock,
+            target_branch="main",
+            dry_run=False,
+        )
+        assert commit_sha != ""
+
+        # Verify that the commit is made
+        commit = next(repo.iter_commits())
+        assert commit.message.strip() == "Test commit message"
+        assert commit.author.name == "The Author"
+        assert commit.author.email == "author@test.com"
+
+        # Verify that the file is tracked by the commit
+        assert os.path.basename(test_file_path) in commit.stats.files
+
+        # Verify that the method was called with the expected arguments
+        mock.create_pull_request.assert_called_once_with(
+            ns="ns",
+            repo_name="repo",
+            head_branch="test",
+            base_branch="main",
+            title="Automatic updates from trestlebot",
+            body="",
+        )
+        mock_push.assert_called_once_with(refspec="HEAD:test")
+
+    clean(repo_path, repo)
