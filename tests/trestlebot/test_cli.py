@@ -63,7 +63,7 @@ def test_invalid_oscal_model(monkeypatch, valid_args_dict, capsys):
 
 
 def test_no_ssp_index(monkeypatch, valid_args_dict, capsys):
-    """Test invalid oscal model"""
+    """Test missing index file for ssp"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "ssp"
     args_dict["ssp-index-path"] = ""
