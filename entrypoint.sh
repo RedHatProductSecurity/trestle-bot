@@ -19,11 +19,6 @@ else
    git config --global --add safe.directory "$INPUT_REPOSITORY"
 fi
 
-exec 3>&1
-
-trap exec 3>&- EXIT
-
-
 # Initialize the command variable
 command="python3.8 -m trestlebot \
         --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
@@ -52,8 +47,8 @@ if [[ ${INPUT_CHECK_ONLY} == true ]]; then
     command+=" --check-only"
 fi
 
-output=$(eval "$command" 2>&1 > >(tee /dev/fd/3))
-
+exec 3>&1
+output=$(eval "$command" > >(tee /dev/fd/3) 2>&1)
 
 commit=$(echo "$output" | grep "Commit Hash:" | sed 's/.*: //')
 

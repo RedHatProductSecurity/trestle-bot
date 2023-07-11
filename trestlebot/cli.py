@@ -29,7 +29,7 @@ from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
-logger = logging.getLogger("trestlebot")
+logger = logging.getLogger("trestle")
 
 
 def _parse_cli_arguments() -> argparse.Namespace:
@@ -132,6 +132,12 @@ def _parse_cli_arguments() -> argparse.Namespace:
         default="ssp-index.json",
         help="Path to ssp index file",
     )
+    parser.add_argument(
+        "--verbose",
+        required=False,
+        action="store_true",
+        help="Run in verbose mode",
+    )
     return parser.parse_args()
 
 
@@ -139,16 +145,17 @@ def handle_exception(
     exception: Exception, msg: str = "Exception occurred during execution"
 ) -> int:
     """Log the exception and return the exit code"""
-    logger.error(msg + f": {exception}")
+    logger.error(msg + f": {exception}", exc_info=True)
 
     return 1
 
 
 def run() -> None:
     """Trestle Bot entry point function."""
-    log.set_global_logging_levels()
 
     args = _parse_cli_arguments()
+    log.set_log_level_from_args(args=args)
+
     pre_tasks: List[TaskBase] = []
 
     authored_list: List[str] = [model.value for model in types.AuthoredType]
