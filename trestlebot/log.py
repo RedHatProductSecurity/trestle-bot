@@ -23,8 +23,8 @@ from typing import Optional, Type
 
 # Singleton logger instance
 # All other CLI sub module will inherit settings of this logger as long as
-# sub-module instantiates a logger with a prefix 'trestlebot' or __name__
-_logger = logging.getLogger("trestlebot")
+# sub-module instantiates a logger with a prefix 'trestle' or __name__
+_logger = logging.getLogger("trestle")
 
 
 class SpecificLevelFilter(logging.Filter):
