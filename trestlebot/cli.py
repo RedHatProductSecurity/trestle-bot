@@ -23,7 +23,7 @@ import os
 import sys
 from typing import List, Optional
 
-from trestlebot import bot, log
+from trestlebot import bot, const, log
 from trestlebot.github import GitHub
 from trestlebot.provider import GitProvider
 from trestlebot.tasks.assemble_task import AssembleTask
@@ -163,7 +163,7 @@ def handle_exception(
     """Log the exception and return the exit code"""
     logger.error(msg + f": {exception}", exc_info=True)
 
-    return 1
+    return const.ERROR_EXIT_CODE
 
 
 def run() -> None:
@@ -185,15 +185,15 @@ def run() -> None:
                 f"Invalid value {args.oscal_model} for oscal model. "
                 f"Please use catalog, profile, compdef, or ssp."
             )
-            sys.exit(1)
+            sys.exit(const.ERROR_EXIT_CODE)
 
         if not args.markdown_path:
             logger.error("Must set markdown path with oscal model.")
-            sys.exit(1)
+            sys.exit(const.ERROR_EXIT_CODE)
 
         if args.oscal_model == "ssp" and args.ssp_index_path == "":
             logger.error("Must set ssp_index_path when using SSP as oscal model.")
-            sys.exit(1)
+            sys.exit(const.ERROR_EXIT_CODE)
 
         # Assuming an edit has occurred assemble would be run before regenerate.
         # Adding this to the list first
@@ -228,15 +228,15 @@ def run() -> None:
                 "If testing locally with the GitHub API, set "
                 "the GITHUB_ACTIONS environment variable to true."
             )
-            sys.exit(1)
+            sys.exit(const.ERROR_EXIT_CODE)
 
         if not args.with_token:
             logger.error("with-token value cannot be empty")
-            sys.exit(1)
+            sys.exit(const.ERROR_EXIT_CODE)
 
         git_provider = GitHub(access_token=args.with_token.read().strip())
 
-    exit_code: int = 0
+    exit_code: int = const.SUCCESS_EXIT_CODE
 
     # Assume it is a successful run, if the bot
     # throws an exception update the exit code accordingly
