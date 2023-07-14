@@ -7,21 +7,13 @@ Verify the trigger you are using. The default branch is set to `github.ref_name`
 
 ## Action does not have permission to commit
 
-If your workflow requires that this action make changes to your branch, ensure the the token being used has the correct permissions and the token is being set. Some examples of how to set the GitHub token are:
+If your workflow requires that this action make changes to your branch, ensure the token being used has `content: write` permissions and the token is being set.
 
 ```yaml
+## Defaults to ${{ github.token }}
 - uses: actions/checkout@v3
   with:
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.TOKEN }}
 ```
 
-```yaml
-- uses: RedHatProductSecurity/trestle-bot@main
-  with:
-    markdown_path: "markdown/profiles"
-    assemble_model: "profile"
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-```
-
-> Note: Using the GitHub token provided with GitHub Action to commit to a branch will [NOT trigger additional workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow).
+> Note: Using the GitHub token provided with GitHub Actions to commit to a branch will [NOT trigger additional workflows](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow).
