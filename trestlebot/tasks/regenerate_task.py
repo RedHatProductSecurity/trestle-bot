@@ -19,6 +19,7 @@
 import os
 from typing import List
 
+from trestlebot import const
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
@@ -62,7 +63,12 @@ class RegenerateTask(TaskBase):
         return self._regenerate()
 
     def _regenerate(self) -> int:
-        """Regenerate all objects in model JSON directory"""
+        """
+        Regenerate all objects in model JSON directory
+
+        Returns:
+         0 on success, raises an exception if not successful
+        """
         authored_object: AuthorObjectBase = types.get_authored_object(
             self._authored_model, self.get_working_dir(), self._ssp_index_path
         )
@@ -82,4 +88,4 @@ class RegenerateTask(TaskBase):
             except AuthoredObjectException as e:
                 raise TaskException(f"Regenerate task failed for model {model}: {e}")
 
-        return 0
+        return const.SUCCESS_EXIT_CODE

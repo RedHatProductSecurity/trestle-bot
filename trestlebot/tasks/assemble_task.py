@@ -19,6 +19,7 @@
 import os
 from typing import List
 
+from trestlebot import const
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
@@ -62,7 +63,12 @@ class AssembleTask(TaskBase):
         return self._assemble()
 
     def _assemble(self) -> int:
-        """Assemble all objects in markdown directory"""
+        """
+        Assemble all objects in markdown directory
+
+        Returns:
+          0 on success, raises an exception if not successful
+        """
         authored_object: AuthorObjectBase = types.get_authored_object(
             self._authored_model, self.get_working_dir(), self._ssp_index_path
         )
@@ -79,4 +85,4 @@ class AssembleTask(TaskBase):
             except AuthoredObjectException as e:
                 raise TaskException(f"Assemble task failed for model {model_path}: {e}")
 
-        return 0
+        return const.SUCCESS_EXIT_CODE

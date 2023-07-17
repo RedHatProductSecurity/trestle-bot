@@ -23,6 +23,7 @@ from git import GitCommandError
 from git.repo import Repo
 from git.util import Actor
 
+from trestlebot.provider import GitProvider, GitProviderException
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
@@ -87,7 +88,9 @@ def run(
     author_name: str,
     author_email: str,
     patterns: List[str],
+    git_provider: Optional[GitProvider] = None,
     pre_tasks: Optional[List[TaskBase]] = None,
+    target_branch: str = "",
     check_only: bool = False,
     dry_run: bool = False,
 ) -> str:
@@ -101,6 +104,7 @@ def run(
          author_name: Name of the commit author
          author_email: Email of the commit author
          patterns: List of file patterns for `git add`
+         git_provider: Optional configured git provider for interacting with the API
          pre_tasks: Optional task list to executing before updating the workspace
          dry_run: Only complete local work. Do not push.
 
@@ -153,10 +157,32 @@ def run(
                 remote.push(refspec=f"HEAD:{branch}")
 
                 logger.info(f"Changes pushed to {branch} successfully.")
+
+                # Only create a pull request if a GitProvider is configured and
+                # a target branch is set.
+                if git_provider is not None and target_branch:
+                    logger.info(
+                        f"Git provider detected, submitting pull request to {target_branch}"
+                    )
+                    # Parse remote url to get repository information for pull request
+                    namespace, repo_name = git_provider.parse_repository(remote.url)
+                    logger.debug("Detected namespace {namespace} and {repo_name}")
+
+                    git_provider.create_pull_request(
+                        ns=namespace,
+                        repo_name=repo_name,
+                        head_branch=branch,
+                        base_branch=target_branch,
+                        title="Automatic updates from trestlebot",
+                        body="",
+                    )
+
                 return commit_sha
 
             except GitCommandError as e:
-                raise RepoException(f"Git push to {branch} failed: {e}") from e
+                raise RepoException(f"Git push to {branch} failed: {e}")
+            except GitProviderException as e:
+                raise RepoException(f"Git pull request to {target_branch} failed: {e}")
         else:
             logger.info("Nothing to commit")
             return commit_sha
