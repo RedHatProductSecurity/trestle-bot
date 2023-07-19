@@ -21,7 +21,7 @@ trestle-bot = "trestlebot.cli:run"
 [tool.poetry.dependencies]
 python = '^3.8.1'
 gitpython = "^3.1.31"
-compliance-trestle = "^2.1.1"
+compliance-trestle = "^2.2.1"
 github3-py = "^4.0.1"
 
 [tool.poetry.group.dev.dependencies]
