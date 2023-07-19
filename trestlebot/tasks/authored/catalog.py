@@ -41,6 +41,7 @@ class AuthoredCatalog(AuthorObjectBase):
         super().__init__(trestle_root)
 
     def assemble(self, markdown_path: str, version_tag: str = "") -> None:
+        """Run assemble actions for catalog type at the provided path"""
         trestle_root = pathlib.Path(self.get_trestle_root())
         catalog = os.path.basename(markdown_path)
         try:
@@ -61,6 +62,7 @@ class AuthoredCatalog(AuthorObjectBase):
             raise AuthoredObjectException(f"Trestle assemble failed for {catalog}: {e}")
 
     def regenerate(self, model_path: str, markdown_path: str) -> None:
+        """Run assemble actions for catalog type at the provided path"""
         trestle_root = self.get_trestle_root()
         trestle_path = pathlib.Path(trestle_root)
         catalog_generate: CatalogGenerate = CatalogGenerate()
