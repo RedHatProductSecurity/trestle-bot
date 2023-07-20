@@ -184,7 +184,7 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha = bot.run(
+        commit_sha, pr_number = bot.run(
             working_dir=repo_path,
             branch="main",
             commit_name="Test User",
@@ -196,6 +196,7 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=False,
         )
         assert commit_sha != ""
+        assert pr_number == 0
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())
@@ -223,7 +224,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha = bot.run(
+        commit_sha, pr_number = bot.run(
             working_dir=repo_path,
             branch="main",
             commit_name="Test User",
@@ -235,6 +236,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=True,
         )
         assert commit_sha != ""
+        assert pr_number == 0
 
         mock_push.assert_not_called()
 
@@ -246,7 +248,7 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Test running the bot
-    commit_sha = bot.run(
+    commit_sha, pr_number = bot.run(
         working_dir=repo_path,
         branch="main",
         commit_name="Test User",
@@ -258,6 +260,7 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
         dry_run=True,
     )
     assert commit_sha == ""
+    assert pr_number == 0
 
     clean(repo_path, repo)
 
@@ -275,7 +278,7 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
         bot.RepoException,
         match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
     ):
-        _ = bot.run(
+        _, _ = bot.run(
             working_dir=repo_path,
             branch="main",
             commit_name="Test User",
@@ -348,7 +351,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         f.write("Test content")
 
     mock = Mock(spec=GitProvider)
-    mock.create_pull_request.return_value = "10"
+    mock.create_pull_request.return_value = 10
     mock.parse_repository.return_value = ("ns", "repo")
 
     repo.create_remote("origin", url="git.test.com/test/repo.git")
@@ -357,7 +360,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha = bot.run(
+        commit_sha, pr_number = bot.run(
             working_dir=repo_path,
             branch="test",
             commit_name="Test User",
@@ -371,6 +374,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=False,
         )
         assert commit_sha != ""
+        assert pr_number == 10
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())

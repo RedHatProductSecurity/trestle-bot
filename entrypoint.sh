@@ -70,3 +70,9 @@ if [ -n "$commit" ]; then
 else
     echo "changes=false" >> "$GITHUB_OUTPUT"
 fi
+
+pr_number=$(echo "$output" | grep "Pull Request Number:" | sed 's/.*: //')
+
+if [ -n "$pr_number" ]; then 
+   echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+fi

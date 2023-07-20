@@ -17,7 +17,7 @@
 """This module implements functions for the Trestle Bot."""
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from git import GitCommandError
 from git.repo import Repo
@@ -93,8 +93,8 @@ def run(
     pull_request_title: str = "Automatic updates from bot",
     check_only: bool = False,
     dry_run: bool = False,
-) -> str:
-    """Run Trestle Bot and return exit code
+) -> Tuple[str, int]:
+    """Run Trestle Bot and returns commit and pull request information.
 
     Args:
          working_dir: Location of the git repo
@@ -113,10 +113,12 @@ def run(
          dry_run: Only complete local work. Do not push.
 
     Returns:
-        A string containing the full commit sha. Defaults to "" if
-        there was no updates
+        A tuple with commit_sha and pull request number.
+        The commit_sha defaults to "" if there was no updates and the
+        pull request number default to 0 if not submitted.
     """
     commit_sha: str = ""
+    pr_number: int = 0
 
     # Execute bot pre-tasks before committing repository updates
     if pre_tasks is not None:
@@ -151,7 +153,7 @@ def run(
 
             if dry_run:
                 logger.info("Dry run mode is enabled. Do not push to remote.")
-                return commit_sha
+                return commit_sha, pr_number
 
             try:
                 # Get the remote repository by name
@@ -172,7 +174,7 @@ def run(
                     namespace, repo_name = git_provider.parse_repository(remote.url)
                     logger.debug("Detected namespace {namespace} and {repo_name}")
 
-                    git_provider.create_pull_request(
+                    pr_number = git_provider.create_pull_request(
                         ns=namespace,
                         repo_name=repo_name,
                         head_branch=branch,
@@ -181,7 +183,7 @@ def run(
                         body="",
                     )
 
-                return commit_sha
+                return commit_sha, pr_number
 
             except GitCommandError as e:
                 raise RepoException(f"Git push to {branch} failed: {e}")
@@ -189,7 +191,7 @@ def run(
                 raise RepoException(f"Git pull request to {target_branch} failed: {e}")
         else:
             logger.info("Nothing to commit")
-            return commit_sha
+            return commit_sha, pr_number
     else:
         logger.info("Nothing to commit")
-        return commit_sha
+        return commit_sha, pr_number
