@@ -115,7 +115,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
 
         catalog = ProfileResolver.get_resolved_profile_catalog(
             trestle_root,
-            existing_profile_path.as_uri(),
+            existing_profile_path.as_posix(),
         )
 
         controls = CatalogInterface.get_control_ids_from_catalog(catalog)
@@ -153,7 +153,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
 
         get_control_implementation(
             component=component,
-            source=existing_profile_path.as_uri(),
+            source=existing_profile_path.as_posix(),
             description="",
             controls=controls,
         )
