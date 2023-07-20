@@ -9,7 +9,7 @@ In addition to trestle-bot, this repo contains the trestle-bot GitHub Action tha
 ## Basic Configuration
 
 
-```
+```yaml
 
 name: Example Workflow
 ...
@@ -42,3 +42,55 @@ Checkout [`action.yml`](./action.yml) for a full list of supported inputs and ou
             ]
         },
 ```
+
+## Action Behavior
+
+The purpose of this action is to sync JSON and Markdown data with `compliance-trestle` and commit changes back to the branch or submit a pull request (if desired). Below are the main use-cases/workflows available:
+
+- The default behavior of this action is to run a trestle `assemble` and `regenerate` tasks with the given markdown directory and model and commit the changes back to the branch the workflow ran from ( `github.ref_name` ). The branch can be changed by setting the field `branch`. If no changes exist or the changes do not exist with the file pattern set, no changes will be made and the action will exit successfully.
+
+```yaml
+  steps:
+    - uses: actions/checkout@v3
+    - name: Run trestlebot
+      id: trestlebot
+      uses: RedHatProductSecurity/trestle-bot@main
+      with:
+        markdown_path: "markdown/profiles"
+        oscal_model: "profile"
+        branch: "another-branch"
+```
+
+- If the `target_branch` field is set, a pull request will be made using the `target_branch` as the base branch and `branch` as the head branch.
+
+```yaml
+  steps:
+    - uses: actions/checkout@v3
+    - name: Run trestlebot
+      id: trestlebot
+      uses: RedHatProductSecurity/trestle-bot@main
+      with:
+        markdown_path: "markdown/profiles"
+        oscal_model: "profile"
+        branch: "autoupdate-${{ github.run_id }}"
+        target_branch: "main"
+        github_token: ${{ secret.GITHUB_TOKEN }}
+```
+
+- When `check_only` is set, the trestle `assemble` and `regenerate` tasks are run and the repository is checked for changes. If changes exists, the action with exit with an error.
+
+```yaml
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run trestlebot
+        id: trestlebot
+        uses: RedHatProductSecurity/trestle-bot@main
+        with:
+          markdown_path: "markdown/profiles"
+          oscal_model: "profile"
+          check_only: true
+```
+
+> Note: Trestle `assemble` or `regenerate` tasks may be skipped if desired using `skip_assemble: true` or `skip_regenerate: true`, respectively. 
+
+See `TROUBLESHOOTING.md` for additional information.
