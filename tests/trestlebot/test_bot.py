@@ -368,7 +368,65 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
             repo_name="repo",
             head_branch="test",
             base_branch="main",
-            title="Automatic updates from trestlebot",
+            title="Automatic updates from bot",
+            body="",
+        )
+        mock_push.assert_called_once_with(refspec="HEAD:test")
+
+    clean(repo_path, repo)
+
+
+def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with customer pull request title"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    mock = Mock(spec=GitProvider)
+    mock.create_pull_request.return_value = "10"
+    mock.parse_repository.return_value = ("ns", "repo")
+
+    repo.create_remote("origin", url="git.test.com/test/repo.git")
+
+    with patch("git.remote.Remote.push") as mock_push:
+        mock_push.return_value = "Mocked result"
+
+        # Test running the bot
+        commit_sha = bot.run(
+            working_dir=repo_path,
+            branch="test",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            git_provider=mock,
+            target_branch="main",
+            pull_request_title="Test",
+            dry_run=False,
+        )
+        assert commit_sha != ""
+
+        # Verify that the commit is made
+        commit = next(repo.iter_commits())
+        assert commit.message.strip() == "Test commit message"
+        assert commit.author.name == "The Author"
+        assert commit.author.email == "author@test.com"
+
+        # Verify that the file is tracked by the commit
+        assert os.path.basename(test_file_path) in commit.stats.files
+
+        # Verify that the method was called with the expected arguments
+        mock.create_pull_request.assert_called_once_with(
+            ns="ns",
+            repo_name="repo",
+            head_branch="test",
+            base_branch="main",
+            title="Test",
             body="",
         )
         mock_push.assert_called_once_with(refspec="HEAD:test")
