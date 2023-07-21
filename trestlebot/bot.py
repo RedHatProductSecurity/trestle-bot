@@ -91,6 +91,7 @@ def run(
     git_provider: Optional[GitProvider] = None,
     pre_tasks: Optional[List[TaskBase]] = None,
     target_branch: str = "",
+    pull_request_title: str = "Automatic updates from bot",
     check_only: bool = False,
     dry_run: bool = False,
 ) -> str:
@@ -101,11 +102,15 @@ def run(
          branch: Branch to put updates to
          commit_name: Name of the user for commit creation
          commit_email: Email of the user for commit creation
+         commit_message: Customized commit message
          author_name: Name of the commit author
          author_email: Email of the commit author
          patterns: List of file patterns for `git add`
          git_provider: Optional configured git provider for interacting with the API
          pre_tasks: Optional task list to executing before updating the workspace
+         target_branch: Optional target or base branch for submitted pull request
+         pull_request_title: Optional customized pull request title
+         check_only: Optional heck if the repo is dirty. Fail if true.
          dry_run: Only complete local work. Do not push.
 
     Returns:
@@ -173,7 +178,7 @@ def run(
                         repo_name=repo_name,
                         head_branch=branch,
                         base_branch=target_branch,
-                        title="Automatic updates from trestlebot",
+                        title=pull_request_title,
                         body="",
                     )
 

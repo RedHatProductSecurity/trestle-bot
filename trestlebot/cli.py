@@ -102,6 +102,13 @@ def _parse_cli_arguments() -> argparse.Namespace:
         help="Commit message for automated updates",
     )
     parser.add_argument(
+        "--pull-request-title",
+        type=str,
+        required=False,
+        default="Automatic updates from trestlebot",
+        help="Customized title for submitted pull requests",
+    )
+    parser.add_argument(
         "--committer-name",
         type=str,
         required=True,
@@ -253,6 +260,7 @@ def run() -> None:
             patterns=comma_sep_to_list(args.file_patterns),
             git_provider=git_provider,
             target_branch=args.target_branch,
+            pull_request_title=args.pull_request_title,
             check_only=args.check_only,
         )
 
