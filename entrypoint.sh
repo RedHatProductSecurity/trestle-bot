@@ -25,6 +25,7 @@ command="python3.8 -m trestlebot \
         --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
         --ssp-index-path=\"${INPUT_SSP_INDEX_PATH}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
+        --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
         --file-patterns=\"${INPUT_FILE_PATTERN}\" \
         --committer-name=\"${INPUT_COMMIT_USER_NAME}\" \
