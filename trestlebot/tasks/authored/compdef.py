@@ -130,7 +130,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
                 compdef_name,
                 comp.ComponentDefinition,
                 FileContentType.JSON,
-            )  # type: ignore
+            )
             existing_comp_data_path = pathlib.Path(comp_data_path)
         except TrestleNotFoundError:
             comp_data = gens.generate_sample_model(comp.ComponentDefinition)  # type: ignore
