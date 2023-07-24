@@ -1,4 +1,4 @@
-# Assemble Diagrams
+# Diagrams: Assemble
 
 ## Context
 
@@ -19,7 +19,3 @@ graph LR
     Compliance_Trestle --> Git_Provider_API["Git Provider API"]
     Git_Provider_API --> Branch["User's Git Branch"]
 ```
-
-## Component
-
-## Code
