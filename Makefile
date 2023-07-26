@@ -27,6 +27,20 @@ test:
 	@poetry run pytest --cov --cov-config=pyproject.toml --cov-report=xml
 .PHONY: test
 
+test-code-cov:
+	@poetry run pytest --cov=trestlebot --exitfirst --cov-config=pyproject.toml --cov-report=xml --cov-fail-under=80
+.PHONY: test-code-cov
+
+# https://github.com/python-poetry/poetry/issues/994#issuecomment-831598242
+# Check for CVEs locally. For automated/scheduled checks, use dependabot. 
+dep-cve-check:
+	@poetry export -f requirements.txt --without-hashes | poetry run safety check --stdin
+.PHONY: dep-cve-check
+
+security-check:
+	@poetry run bandit -r $(PYMODULE)
+.PHONY: security-check
+
 build: clean-build
 	@poetry build
 .PHONY: build

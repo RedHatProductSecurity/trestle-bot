@@ -16,20 +16,38 @@
 
 """Test for top-level Trestle Bot logic."""
 
-import json
 import os
-from typing import Tuple
+from typing import Callable, List, Tuple
 from unittest.mock import Mock, patch
 
 import pytest
+from git import GitCommandError
 from git.repo import Repo
 
 import trestlebot.bot as bot
 from tests.testutils import clean
-from trestlebot.provider import GitProvider
+from trestlebot.provider import GitProvider, GitProviderException
 
 
-def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
+def check_lists_equal(list1: List[str], list2: List[str]) -> bool:
+    return sorted(list1) == sorted(list2)
+
+
+@pytest.mark.parametrize(
+    "file_patterns, expected_files",
+    [
+        (["*.txt"], ["file1.txt", "file2.txt"]),
+        (["file*.txt"], ["file1.txt", "file2.txt"]),
+        (["*.csv"], ["file3.csv"]),
+        (["file*.csv"], ["file3.csv"]),
+        (["*.txt", "*.csv"], ["file1.txt", "file2.txt", "file3.csv"]),
+        (["."], ["file1.txt", "file2.txt", "file3.csv"]),
+        ([], []),
+    ],
+)
+def test_stage_files(
+    tmp_repo: Tuple[str, Repo], file_patterns: List[str], expected_files: List[str]
+) -> None:
     """Test staging files by patterns"""
     repo_path, repo = tmp_repo
 
@@ -38,16 +56,16 @@ def test_stage_files(tmp_repo: Tuple[str, Repo]) -> None:
         f.write("Test file 1 content")
     with open(os.path.join(repo_path, "file2.txt"), "w") as f:
         f.write("Test file 2 content")
+    with open(os.path.join(repo_path, "file3.csv"), "w") as f:
+        f.write("test,")
 
     # Stage the files
-    bot._stage_files(repo, ["*.txt"])
+    bot._stage_files(repo, file_patterns)
 
     # Verify that files are staged
     staged_files = [item.a_path for item in repo.index.diff(repo.head.commit)]
 
-    assert len(staged_files) == 2
-    assert "file1.txt" in staged_files
-    assert "file2.txt" in staged_files
+    assert check_lists_equal(staged_files, expected_files) is True
 
     clean(repo_path, repo)
 
@@ -201,28 +219,24 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     with open(test_file_path, "w") as f:
         f.write("Test content")
 
-    # Test running the bot
-    commit_sha = bot.run(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-        commit_message="Test commit message",
-        author_name="The Author",
-        author_email="author@test.com",
-        patterns=["*.txt"],
-        dry_run=True,
-    )
-    assert commit_sha != ""
+    with patch("git.remote.Remote.push") as mock_push:
+        mock_push.return_value = "Mocked result"
 
-    # Verify that the commit is made
-    commit = next(repo.iter_commits())
-    assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "The Author"
-    assert commit.author.email == "author@test.com"
+        # Test running the bot
+        commit_sha = bot.run(
+            working_dir=repo_path,
+            branch="main",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            dry_run=True,
+        )
+        assert commit_sha != ""
 
-    # Verify that the file is tracked by the commit
-    assert os.path.basename(test_file_path) in commit.stats.files
+        mock_push.assert_not_called()
 
     clean(repo_path, repo)
 
@@ -244,48 +258,6 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
         dry_run=True,
     )
     assert commit_sha == ""
-
-    clean(repo_path, repo)
-
-
-def test_non_matching_files(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test that non-matching files are ignored"""
-    repo_path, repo = tmp_repo
-
-    # Create a test file
-    test_file_path = os.path.join(repo_path, "test.txt")
-    with open(test_file_path, "w") as f:
-        f.write("Test content")
-
-    # Create a test file
-    data = {"test": "file"}
-    test_json_path = os.path.join(repo_path, "test.json")
-    with open(test_json_path, "w") as f:
-        json.dump(data, f, indent=4)
-
-    # Test running the bot
-    commit_sha = bot.run(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-        commit_message="Test commit message",
-        author_name="The Author",
-        author_email="author@test.com",
-        patterns=["*.json"],
-        dry_run=True,
-    )
-    assert commit_sha != ""
-
-    # Verify that the commit is made
-    commit = next(repo.iter_commits())
-    assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "The Author"
-    assert commit.author.email == "author@test.com"
-
-    # Verify that only the JSON file is tracked in the commits
-    assert os.path.basename(test_file_path) not in commit.stats.files
-    assert os.path.basename(test_json_path) in commit.stats.files
 
     clean(repo_path, repo)
 
@@ -315,6 +287,53 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=True,
             check_only=True,
         )
+
+    clean(repo_path, repo)
+
+
+def push_side_effect(refspec: str) -> None:
+    raise GitCommandError("example")
+
+
+def pull_side_effect(refspec: str) -> None:
+    raise GitProviderException("example")
+
+
+@pytest.mark.parametrize(
+    "side_effect, msg",
+    [
+        (push_side_effect, "Git push to .* failed: .*"),
+        (pull_side_effect, "Git pull request to .* failed: example"),
+    ],
+)
+def test_run_with_exception(
+    tmp_repo: Tuple[str, Repo], side_effect: Callable[[str], None], msg: str
+) -> None:
+    """Test bot run with mocked push with side effects that throw exceptions"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    repo.create_remote("origin", url="git.test.com/test/repo.git")
+
+    with patch("git.remote.Remote.push") as mock_push:
+        mock_push.side_effect = side_effect
+
+        with pytest.raises(bot.RepoException, match=msg):
+            _ = bot.run(
+                working_dir=repo_path,
+                branch="main",
+                commit_name="Test User",
+                commit_email="test@example.com",
+                commit_message="Test commit message",
+                author_name="The Author",
+                author_email="author@test.com",
+                patterns=["*.txt"],
+                dry_run=False,
+            )
 
     clean(repo_path, repo)
 
