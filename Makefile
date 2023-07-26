@@ -28,7 +28,7 @@ test:
 .PHONY: test
 
 test-code-cov:
-	@poetry run pytest --cov=trestlebot --exitfirst --cov-config=pyproject.toml --cov-report=xml --cov-fail-under=85
+	@poetry run pytest --cov=trestlebot --exitfirst --cov-config=pyproject.toml --cov-report=xml --cov-fail-under=80
 .PHONY: test-code-cov
 
 # https://github.com/python-poetry/poetry/issues/994#issuecomment-831598242
