@@ -18,6 +18,7 @@
 
 import os
 import pathlib
+from unittest.mock import Mock, patch
 
 import pytest
 from trestle.core.commands.author.catalog import CatalogGenerate
@@ -27,6 +28,7 @@ from trestle.core.commands.author.ssp import SSPGenerate
 
 from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
+from trestlebot.tasks.authored.base_authored import AuthorObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
 
 
@@ -39,6 +41,33 @@ cat_md_dir = "md_cat"
 prof_md_dir = "md_prof"
 compdef_md_dir = "md_comp"
 ssp_md_dir = "md_ssp"
+
+
+def test_assemble_task_isolated(tmp_trestle_dir: str) -> None:
+    """Test the assemble task isolated from AuthoredObject implementation"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    args = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+    cat_generate = CatalogGenerate()
+    assert cat_generate._run(args) == 0
+
+    mock = Mock(spec=AuthorObjectBase)
+
+    assemble_task = AssembleTask(
+        tmp_trestle_dir,
+        AuthoredType.CATALOG.value,
+        cat_md_dir,
+        "",
+    )
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_authored_object"
+    ) as mock_get_authored_object:
+        mock_get_authored_object.return_value = mock
+
+        assert assemble_task.execute() == 0
+
+        mock.assemble.assert_called_once_with(markdown_path=md_path)
 
 
 def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:

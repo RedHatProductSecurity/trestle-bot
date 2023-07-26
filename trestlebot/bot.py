@@ -39,7 +39,6 @@ class RepoException(Exception):
 def _stage_files(gitwd: Repo, patterns: List[str]) -> None:
     """Stages files in git based on file patterns"""
     for pattern in patterns:
-        gitwd.index.add(pattern)
         if pattern == ".":
             logger.info("Staging all repository changes")
             # Using check to avoid adding git directory

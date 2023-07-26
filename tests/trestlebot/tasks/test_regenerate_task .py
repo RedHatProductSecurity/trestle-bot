@@ -19,11 +19,13 @@
 import argparse
 import os
 import pathlib
+from unittest.mock import Mock, patch
 
 import pytest
 from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 
 from tests import testutils
+from trestlebot.tasks.authored.base_authored import AuthorObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
@@ -37,6 +39,33 @@ cat_md_dir = "md_cat"
 prof_md_dir = "md_prof"
 compdef_md_dir = "md_comp"
 ssp_md_dir = "md_ssp"
+
+
+def test_regenerate_task_isolated(tmp_trestle_dir: str) -> None:
+    """Test the regenerate task isolated from AuthoredObject implementation"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+
+    mock = Mock(spec=AuthorObjectBase)
+
+    regenerate_task = RegenerateTask(
+        tmp_trestle_dir,
+        AuthoredType.CATALOG.value,
+        cat_md_dir,
+        "",
+    )
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_authored_object"
+    ) as mock_get_authored_object:
+        mock_get_authored_object.return_value = mock
+
+        assert regenerate_task.execute() == 0
+
+        mock.regenerate.assert_called_once_with(
+            model_path=f"catalogs/{test_cat}", markdown_path=cat_md_dir
+        )
 
 
 def test_catalog_regenerate_task(tmp_trestle_dir: str) -> None:
