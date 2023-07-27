@@ -23,6 +23,7 @@ python = '^3.8.1'
 gitpython = "^3.1.31"
 compliance-trestle = "^2.2.1"
 github3-py = "^4.0.1"
+python-gitlab = "^3.15.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"

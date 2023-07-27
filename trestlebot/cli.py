@@ -25,6 +25,7 @@ from typing import List, Optional
 
 from trestlebot import bot, const, log
 from trestlebot.github import GitHub
+from trestlebot.gitlab import GitLab
 from trestlebot.provider import GitProvider
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
@@ -229,19 +230,22 @@ def run() -> None:
             logger.info("Regeneration task skipped")
 
     if args.target_branch:
-        if not is_github_actions():
-            logger.error(
-                "target-branch flag is set with an unsupported git provider. "
-                "If testing locally with the GitHub API, set "
-                "the GITHUB_ACTIONS environment variable to true."
-            )
-            sys.exit(const.ERROR_EXIT_CODE)
-
         if not args.with_token:
             logger.error("with-token value cannot be empty")
             sys.exit(const.ERROR_EXIT_CODE)
 
-        git_provider = GitHub(access_token=args.with_token.read().strip())
+        if is_github_actions():
+            git_provider = GitHub(access_token=args.with_token.read().strip())
+        elif is_gitlab_ci():
+            git_provider = GitLab(api_token=args.with_token.read().strip())
+        else:
+            logger.error(
+                (
+                    "target-branch flag is set with an unset git provider. "
+                    "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
+                )
+            )
+            sys.exit(const.ERROR_EXIT_CODE)
 
     exit_code: int = const.SUCCESS_EXIT_CODE
 
@@ -284,6 +288,14 @@ def comma_sep_to_list(string: str) -> List[str]:
 # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
 def is_github_actions() -> bool:
     var_value = os.getenv("GITHUB_ACTIONS")
+    if var_value and var_value.lower() in ["true", "1"]:
+        return True
+    return False
+
+
+# GitLab ref: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+def is_gitlab_ci() -> bool:
+    var_value = os.getenv("GITLAB_CI")
     if var_value and var_value.lower() in ["true", "1"]:
         return True
     return False

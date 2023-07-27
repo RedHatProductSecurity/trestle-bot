@@ -14,48 +14,41 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""GitHub related functions for the Trestle Bot."""
+"""GitLab related functions for the Trestle Bot."""
 
 import re
-from typing import Optional, Tuple
+from typing import Tuple
 
-import github3
-from github3.repos.repo import Repository
+import gitlab
 
 from trestlebot.provider import GitProvider, GitProviderException
 
 
-class GitHub(GitProvider):
-    """Create GitHub object to interact with the GitHub API"""
+class GitLab(GitProvider):
+    def __init__(self, api_token: str, server_url: str = "https://gitlab.com"):
+        """Create GitLab object to interact with the GitLab API"""
 
-    def __init__(self, access_token: str):
-        """
-        Initialize GitHub Object
+        self._gitlab_client = gitlab.Gitlab(server_url, private_token=api_token)
 
-        Args:
-            access_token: Access token to make authenticated API requests.
-        """
-        session: github3.GitHub = github3.GitHub()
-        session.login(token=access_token)
-
-        self._session = session
-        self.pattern = r"^(?:https?://)?github\.com/([^/]+)/([^/.]+)"
+        stripped_url = re.sub(r"^(https?://)?", "", server_url)
+        self.pattern = r"^(?:https?://)?{0}/([^/]+)/([^/.]+)".format(
+            re.escape(stripped_url)
+        )
 
     def parse_repository(self, repo_url: str) -> Tuple[str, str]:
         """
         Parse repository url
 
         Args:
-            repo_url: Valid url for a GitHub repo
+            repo_url: Valid url for a GitLab repo
 
         Returns:
-            Owner and repo name in a tuple, respectively
+            Owner and project name in a tuple, respectively
         """
-
         match = re.match(self.pattern, repo_url)
 
         if not match:
-            raise GitProviderException(f"{repo_url} is an invalid GitHub repo URL")
+            raise GitProviderException(f"{repo_url} is an invalid repo URL")
 
         owner = match.group(1)
         repo = match.group(2)
@@ -71,7 +64,7 @@ class GitHub(GitProvider):
         body: str,
     ) -> int:
         """
-        Create a pull request in the repository
+        Create a pull (merge request in the GitLab) request in the repository
 
         Args:
             ns: Namespace or owner of the repository
@@ -82,23 +75,27 @@ class GitHub(GitProvider):
             body: Text for the body of the pull request
 
         Returns:
-            Pull request number
+            Pull/Merge request number
         """
-        repository: Optional[Repository] = self._session.repository(
-            owner=ns, repository=repo_name
-        )
-        if repository is None:
-            raise GitProviderException(
-                f"Repository for {ns}/{repo_name} cannot be None"
+
+        try:
+            project = self._gitlab_client.projects.get(f"{ns}/{repo_name}")
+            merge_request = project.mergerequests.create(
+                {
+                    "source_branch": head_branch,
+                    "target_branch": base_branch,
+                    "title": title,
+                    "description": body,
+                }
             )
 
-        pull_request = repository.create_pull(
-            title=title, body=body, base=base_branch, head=head_branch
-        )
+            return merge_request.id
 
-        if pull_request:
-            return pull_request.number
-        else:
+        except gitlab.exceptions.GitlabCreateError as e:
             raise GitProviderException(
-                "Failed to create pull request in {ns}/{repo_name} for {head_branch} to {base_branch}"
+                f"Failed to create merge request in {ns}/{repo_name}: {e}"
+            )
+        except gitlab.exceptions.GitlabAuthenticationError as e:
+            raise GitProviderException(
+                f"Authentication error during merge request creation in {ns}/{repo_name}: {e}"
             )

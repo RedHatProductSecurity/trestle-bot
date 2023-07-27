@@ -107,9 +107,8 @@ def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
     captured = capsys.readouterr()
 
     expected_string = (
-        "target-branch flag is set with an unsupported git provider. "
-        "If testing locally with the GitHub API, "
-        "set the GITHUB_ACTIONS environment variable to true."
+        "target-branch flag is set with an unset git provider. "
+        "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
     )
 
     assert expected_string in captured.err
