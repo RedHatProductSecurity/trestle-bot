@@ -16,6 +16,7 @@
 
 """GitLab related functions for the Trestle Bot."""
 
+import os
 import re
 from typing import Tuple
 
@@ -99,3 +100,26 @@ class GitLab(GitProvider):
             raise GitProviderException(
                 f"Authentication error during merge request creation in {ns}/{repo_name}: {e}"
             )
+
+
+# GitLab ref: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
+
+
+def is_gitlab_ci() -> bool:
+    """Determine if the environment in GitLab CI"""
+    var_value = os.getenv("GITLAB_CI")
+    if var_value and var_value.lower() in ["true", "1"]:
+        return True
+    return False
+
+
+def get_gitlab_root_url() -> str:
+    """Get the GitLab URL"""
+    protocol = os.getenv("CI_SERVER_PROTOCOL")
+    host = os.getenv("CI_SERVER_HOST")
+    if protocol and host:
+        return f"{protocol}://{host}"
+    else:
+        raise GitProviderException(
+            "Set CI_SERVER_PROTOCOL and CI SERVER HOST environment variables"
+        )

@@ -16,6 +16,7 @@
 
 """GitHub related functions for the Trestle Bot."""
 
+import os
 import re
 from typing import Optional, Tuple
 
@@ -102,3 +103,13 @@ class GitHub(GitProvider):
             raise GitProviderException(
                 "Failed to create pull request in {ns}/{repo_name} for {head_branch} to {base_branch}"
             )
+
+
+# GitHub ref:
+# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+def is_github_actions() -> bool:
+    """Determine in the environment is GitHub Actions"""
+    var_value = os.getenv("GITHUB_ACTIONS")
+    if var_value and var_value.lower() in ["true", "1"]:
+        return True
+    return False

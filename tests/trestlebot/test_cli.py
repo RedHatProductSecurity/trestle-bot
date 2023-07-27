@@ -112,3 +112,5 @@ def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
     )
 
     assert expected_string in captured.err
+
+    mock_check.assert_called_once()

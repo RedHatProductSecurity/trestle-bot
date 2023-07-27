@@ -19,13 +19,12 @@
 
 import argparse
 import logging
-import os
 import sys
 from typing import List, Optional
 
 from trestlebot import bot, const, log
-from trestlebot.github import GitHub
-from trestlebot.gitlab import GitLab
+from trestlebot.github import GitHub, is_github_actions
+from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
@@ -237,7 +236,10 @@ def run() -> None:
         if is_github_actions():
             git_provider = GitHub(access_token=args.with_token.read().strip())
         elif is_gitlab_ci():
-            git_provider = GitLab(api_token=args.with_token.read().strip())
+            server_api_url = get_gitlab_root_url()
+            git_provider = GitLab(
+                api_token=args.with_token.read().strip(), server_url=server_api_url
+            )
         else:
             logger.error(
                 (
@@ -282,20 +284,3 @@ def comma_sep_to_list(string: str) -> List[str]:
     """Convert comma-sep string to list of strings and strip."""
     string = string.strip() if string else ""
     return list(map(str.strip, string.split(","))) if string else []
-
-
-# GitHub ref:
-# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-def is_github_actions() -> bool:
-    var_value = os.getenv("GITHUB_ACTIONS")
-    if var_value and var_value.lower() in ["true", "1"]:
-        return True
-    return False
-
-
-# GitLab ref: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
-def is_gitlab_ci() -> bool:
-    var_value = os.getenv("GITLAB_CI")
-    if var_value and var_value.lower() in ["true", "1"]:
-        return True
-    return False
