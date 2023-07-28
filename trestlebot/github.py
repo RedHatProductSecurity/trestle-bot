@@ -21,6 +21,7 @@ import re
 from typing import Optional, Tuple
 
 import github3
+from github3.exceptions import AuthenticationFailed
 from github3.repos.repo import Repository
 
 from trestlebot.provider import GitProvider, GitProviderException
@@ -85,23 +86,31 @@ class GitHub(GitProvider):
         Returns:
             Pull request number
         """
-        repository: Optional[Repository] = self._session.repository(
-            owner=ns, repository=repo_name
-        )
-        if repository is None:
-            raise GitProviderException(
-                f"Repository for {ns}/{repo_name} cannot be None"
+        try:
+            repository: Optional[Repository] = self._session.repository(
+                owner=ns, repository=repo_name
+            )
+            if repository is None:
+                raise GitProviderException(
+                    f"Repository for {ns}/{repo_name} cannot be None"
+                )
+
+            pull_request = repository.create_pull(
+                title=title, body=body, base=base_branch, head=head_branch
             )
 
-        pull_request = repository.create_pull(
-            title=title, body=body, base=base_branch, head=head_branch
-        )
-
-        if pull_request:
-            return pull_request.number
-        else:
+            if pull_request:
+                return pull_request.number
+            else:
+                raise GitProviderException(
+                    (
+                        f"Failed to create pull request in {ns}/{repo_name}"
+                        f"for {head_branch} to {base_branch}"
+                    )
+                )
+        except AuthenticationFailed as e:
             raise GitProviderException(
-                "Failed to create pull request in {ns}/{repo_name} for {head_branch} to {base_branch}"
+                f"Authentication error during pull request creation in {ns}/{repo_name}: {e}"
             )
 
 

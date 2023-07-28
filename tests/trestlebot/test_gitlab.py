@@ -16,10 +16,12 @@
 
 """Test for GitLab provider logic"""
 
-from typing import Tuple
+from typing import Callable, Tuple
+from unittest.mock import patch
 
 import pytest
 from git.repo import Repo
+from gitlab.exceptions import GitlabAuthenticationError, GitlabCreateError
 
 from tests.testutils import clean
 from trestlebot.gitlab import GitLab
@@ -88,3 +90,40 @@ def test_parse_repository_with_incorrect_name() -> None:
         match="https://notgitlab.com/owner/repo.git is an invalid repo URL",
     ):
         gl.parse_repository("https://notgitlab.com/owner/repo.git")
+
+
+def create_side_effect(name: str) -> None:
+    raise GitlabCreateError("example")
+
+
+def auth_side_effect(name: str) -> None:
+    raise GitlabAuthenticationError("example")
+
+
+@pytest.mark.parametrize(
+    "side_effect, msg",
+    [
+        (create_side_effect, "Failed to create merge request in .*: example"),
+        (
+            auth_side_effect,
+            "Authentication error during merge request creation in .*: example",
+        ),
+    ],
+)
+def test_create_pull_request_with_exceptions(
+    side_effect: Callable[[str], None], msg: str
+) -> None:
+    """Test triggering an error during pull request creation"""
+    gl = GitLab("fake")
+
+    with patch("gitlab.v4.objects.ProjectManager.get") as mock_get:
+        mock_get.side_effect = side_effect
+
+        with pytest.raises(
+            GitProviderException,
+            match=msg,
+        ):
+            gl.create_pull_request(
+                "owner", "repo", "main", "test", "My PR", "Has Changes"
+            )
+        mock_get.assert_called_once()
