@@ -272,7 +272,7 @@ def run() -> None:
 
         # Print the full commit sha
         if commit_sha:
-            print(f"Commit Hash: {commit_sha}")
+            print(f"Commit Hash: {commit_sha}")  # noqa
 
     except Exception as e:
         exit_code = handle_exception(e)
