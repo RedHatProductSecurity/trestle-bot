@@ -106,7 +106,7 @@ class GitLab(GitProvider):
 
 
 def is_gitlab_ci() -> bool:
-    """Determine if the environment in GitLab CI"""
+    """Determine if the environment is GitLab CI"""
     var_value = os.getenv("GITLAB_CI")
     if var_value and var_value.lower() in ["true", "1"]:
         return True
