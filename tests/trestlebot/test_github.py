@@ -17,6 +17,7 @@
 """Test for GitHub provider logic"""
 
 from typing import Tuple
+from unittest.mock import patch
 
 import pytest
 from git.repo import Repo
@@ -70,3 +71,19 @@ def test_parse_repository_with_incorrect_name() -> None:
         match="https://notgithub.com/owner/repo.git is an invalid GitHub repo URL",
     ):
         gh.parse_repository("https://notgithub.com/owner/repo.git")
+
+
+def test_create_pull_request_invalid_repo() -> None:
+    """Test triggering an error during pull request creation"""
+    gh = GitHub("fake")
+    with patch("github3.GitHub.repository") as mock_pull:
+        mock_pull.return_value = None
+
+        with pytest.raises(
+            GitProviderException,
+            match="Repository for owner/repo cannot be None",
+        ):
+            gh.create_pull_request(
+                "owner", "repo", "main", "test", "My PR", "Has Changes"
+            )
+        mock_pull.assert_called_once()

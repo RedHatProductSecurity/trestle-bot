@@ -19,12 +19,12 @@
 
 import argparse
 import logging
-import os
 import sys
 from typing import List, Optional
 
 from trestlebot import bot, const, log
-from trestlebot.github import GitHub
+from trestlebot.github import GitHub, is_github_actions
+from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
@@ -229,19 +229,25 @@ def run() -> None:
             logger.info("Regeneration task skipped")
 
     if args.target_branch:
-        if not is_github_actions():
-            logger.error(
-                "target-branch flag is set with an unsupported git provider. "
-                "If testing locally with the GitHub API, set "
-                "the GITHUB_ACTIONS environment variable to true."
-            )
-            sys.exit(const.ERROR_EXIT_CODE)
-
         if not args.with_token:
             logger.error("with-token value cannot be empty")
             sys.exit(const.ERROR_EXIT_CODE)
 
-        git_provider = GitHub(access_token=args.with_token.read().strip())
+        if is_github_actions():
+            git_provider = GitHub(access_token=args.with_token.read().strip())
+        elif is_gitlab_ci():
+            server_api_url = get_gitlab_root_url()
+            git_provider = GitLab(
+                api_token=args.with_token.read().strip(), server_url=server_api_url
+            )
+        else:
+            logger.error(
+                (
+                    "target-branch flag is set with an unset git provider. "
+                    "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
+                )
+            )
+            sys.exit(const.ERROR_EXIT_CODE)
 
     exit_code: int = const.SUCCESS_EXIT_CODE
 
@@ -266,7 +272,7 @@ def run() -> None:
 
         # Print the full commit sha
         if commit_sha:
-            print(f"Commit Hash: {commit_sha}")
+            print(f"Commit Hash: {commit_sha}")  # noqa
 
     except Exception as e:
         exit_code = handle_exception(e)
@@ -278,12 +284,3 @@ def comma_sep_to_list(string: str) -> List[str]:
     """Convert comma-sep string to list of strings and strip."""
     string = string.strip() if string else ""
     return list(map(str.strip, string.split(","))) if string else []
-
-
-# GitHub ref:
-# https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-def is_github_actions() -> bool:
-    var_value = os.getenv("GITHUB_ACTIONS")
-    if var_value and var_value.lower() in ["true", "1"]:
-        return True
-    return False

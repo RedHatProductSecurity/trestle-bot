@@ -98,6 +98,8 @@ def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
     args_dict["target-branch"] = "main"
     monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
 
+    # Patch is_github_actions since these tests will be running in
+    # GitHub Actions
     with patch("trestlebot.cli.is_github_actions") as mock_check:
         mock_check.return_value = False
 
@@ -107,9 +109,10 @@ def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
     captured = capsys.readouterr()
 
     expected_string = (
-        "target-branch flag is set with an unsupported git provider. "
-        "If testing locally with the GitHub API, "
-        "set the GITHUB_ACTIONS environment variable to true."
+        "target-branch flag is set with an unset git provider. "
+        "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
     )
 
     assert expected_string in captured.err
+
+    mock_check.assert_called_once()
