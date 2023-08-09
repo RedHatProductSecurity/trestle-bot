@@ -19,3 +19,10 @@
 # Common exit codes
 SUCCESS_EXIT_CODE = 0
 ERROR_EXIT_CODE = 1
+
+
+# SSP Index Fields
+
+PROFILE_KEY_NAME = "profile"
+COMPDEF_KEY_NAME = "component_definitions"
+LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"

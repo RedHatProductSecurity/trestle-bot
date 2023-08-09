@@ -30,6 +30,8 @@ from trestle.oscal import catalog as cat
 from trestle.oscal import component as comp
 from trestle.oscal import profile as prof
 
+from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
+
 
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
 
@@ -161,12 +163,19 @@ def setup_for_compdef(
 
 
 def write_index_json(
-    file_path: str, ssp_name: str, profile: str, component_definitions: List[str]
+    file_path: str,
+    ssp_name: str,
+    profile: str,
+    component_definitions: List[str],
+    leveraged_ssp: str = "",
 ) -> None:
     """Write out ssp index JSON for tests"""
     data = {
-        ssp_name: {"profile": profile, "component_definitions": component_definitions}
+        ssp_name: {PROFILE_KEY_NAME: profile, COMPDEF_KEY_NAME: component_definitions}
     }
+
+    if leveraged_ssp:
+        data[ssp_name][LEVERAGED_SSP_KEY_NAME] = leveraged_ssp
 
     with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
