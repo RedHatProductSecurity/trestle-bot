@@ -254,7 +254,7 @@ def run() -> None:
     # Assume it is a successful run, if the bot
     # throws an exception update the exit code accordingly
     try:
-        commit_sha = bot.run(
+        commit_sha, pr_number = bot.run(
             working_dir=args.working_dir,
             branch=args.branch,
             commit_name=args.committer_name,
@@ -272,7 +272,11 @@ def run() -> None:
 
         # Print the full commit sha
         if commit_sha:
-            print(f"Commit Hash: {commit_sha}")  # noqa
+            print(f"Commit Hash: {commit_sha}")  # noqa: T201
+
+        # Print the pr number
+        if pr_number:
+            print(f"Pull Request Number: {pr_number}")  # noqa: T201
 
     except Exception as e:
         exit_code = handle_exception(e)
