@@ -64,7 +64,7 @@ def get_trestle_model_dir(input_type: str) -> str:
         return const.MODEL_DIR_PROFILE
     elif input_type == AuthoredType.COMPDEF.value:
         return const.MODEL_DIR_COMPDEF
-    elif input_type is AuthoredType.SSP.value:
+    elif input_type == AuthoredType.SSP.value:
         return const.MODEL_DIR_SSP
     else:
         raise AuthoredObjectException(f"Invalid authored type {input_type}")
