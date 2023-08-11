@@ -1,4 +1,4 @@
-name: Publish Image to GHCR
+name: Publish Image to Quay
 
 on:
   release:
@@ -11,7 +11,7 @@ on:
         required: true
 env:
     IMAGE_NAME: trestle-bot
-    IMAGE_REGISTRY: ghcr.io/redhatproductsecurity
+    IMAGE_REGISTRY: quay.io
 
 jobs:
   publish-image:
@@ -23,11 +23,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Log in to ghcr.io
+      - name: Log in to registry
         uses: redhat-actions/podman-login@v1
         with:
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.QUAY_USER }}
+          password: ${{ secrets.QUAY_TOKEN }}
           registry: ${{ env.IMAGE_REGISTRY }}
 
       - name: Check if triggered by release or workflow dispatch
@@ -56,16 +56,14 @@ jobs:
           containerfiles: |
             ./Dockerfile
         
-      - name: Push To GHCR
+      - name: Push To registry
         uses: redhat-actions/push-to-registry@v2
         id: push
         with:
           image: ${{ steps.build_image.outputs.image }}
           tags: ${{ steps.build_image.outputs.tags }}
-          registry: ${{ env.IMAGE_REGISTRY }}
+          registry: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}
 
       - name: Echo outputs
         run: |
           echo "${{ toJSON(steps.push.outputs) }}"
-
-  
