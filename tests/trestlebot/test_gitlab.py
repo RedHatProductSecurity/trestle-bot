@@ -56,7 +56,7 @@ def test_parse_repository(repo_url: str) -> None:
     ],
 )
 def test_parse_repository_with_server_url(repo_url: str) -> None:
-    """Test an invalid url input"""
+    """Test with a custom server url"""
     gl = GitLab("fake", "https://mygitlab.com")
 
     owner, repo_name = gl.parse_repository(repo_url)
@@ -74,7 +74,7 @@ def test_parse_repository_with_server_url(repo_url: str) -> None:
     ],
 )
 def test_parse_repository_with_group(repo_url: str) -> None:
-    """Test an invalid url input"""
+    """Test with nested namespaces"""
     gl = GitLab("fake", "https://mygitlab.com")
 
     owner, repo_name = gl.parse_repository(repo_url)
