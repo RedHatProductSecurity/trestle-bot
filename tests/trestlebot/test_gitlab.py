@@ -64,6 +64,24 @@ def test_parse_repository_with_server_url(repo_url: str) -> None:
     assert repo_name == "repo"
 
 
+@pytest.mark.parametrize(
+    "repo_url",
+    [
+        "https://mygitlab.com/group/owner/repo",
+        "https://mygitlab.com/group/owner/repo.git",
+        "mygitlab.com/group/owner/repo.git",
+    ],
+)
+def test_parse_repository_with_group(repo_url: str) -> None:
+    """Test an invalid url input"""
+    gl = GitLab("fake", "https://mygitlab.com")
+
+    owner, repo_name = gl.parse_repository(repo_url)
+
+    assert owner == "group/owner"
+    assert repo_name == "repo"
+
+
 def test_parse_repository_integration(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests integration with git remote get-url"""
     repo_path, repo = tmp_repo
