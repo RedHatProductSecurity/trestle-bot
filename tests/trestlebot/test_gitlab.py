@@ -33,6 +33,7 @@ from trestlebot.provider import GitProviderException
     [
         "https://gitlab.com/owner/repo",
         "https://gitlab.com/owner/repo.git",
+        "https://test:test@gitlab.com/owner/repo.git",
         "gitlab.com/owner/repo.git",
     ],
 )

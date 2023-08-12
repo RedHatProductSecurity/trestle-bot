@@ -47,10 +47,13 @@ class GitLab(GitProvider):
             Owner and project name in a tuple, respectively
         """
 
-        match = re.match(self.pattern, repo_url)
+        # Strip out any basic auth
+        stripped_url = re.sub(r"https?://.*?@", "https://", repo_url)
+
+        match = re.match(self.pattern, stripped_url)
 
         if not match:
-            raise GitProviderException(f"{repo_url} is an invalid repo URL")
+            raise GitProviderException(f"{stripped_url} is an invalid repo URL")
 
         owner = match.group(1)[1:]  # Removing the leading slash
         repo = match.group(2)
