@@ -192,8 +192,9 @@ class AuthoredSSP(AuthorObjectBase):
         comps = self.ssp_index.get_comps_by_ssp(ssp)
         profile = self.ssp_index.get_profile_by_ssp(ssp)
 
-        # TODO: Add this to the trestle command once available
-        _ = self.ssp_index.get_leveraged_by_ssp(ssp)
+        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp)
+        if leveraged_ssp is None:
+            leveraged_ssp = ""
 
         try:
             exit_code = ssp_generate._generate_ssp_markdown(
@@ -204,6 +205,7 @@ class AuthoredSSP(AuthorObjectBase):
                 yaml_header={},
                 overwrite_header_values=False,
                 force_overwrite=False,
+                leveraged_ssp_name_or_href=leveraged_ssp,
             )
             if exit_code != CmdReturnCodes.SUCCESS.value:
                 raise AuthoredObjectException(

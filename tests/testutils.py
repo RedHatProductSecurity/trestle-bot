@@ -80,6 +80,7 @@ def setup_for_ssp(
         yaml_header=None,
         allowed_sections=None,
         force_overwrite=None,
+        leveraged_ssp="",
     )
 
     return args
