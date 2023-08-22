@@ -24,7 +24,7 @@ import pathlib
 from typing import Any, Dict, List, Optional
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
+from trestle.core.commands.author.ssp import SSPAssemble, SSPFilter, SSPGenerate
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 
 from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
@@ -242,3 +242,65 @@ class AuthoredSSP(AuthorObjectBase):
         # Pass the ssp_name as the model base path.
         # We don't need the model dir for SSP generation.
         return self.regenerate(ssp_name, markdown_path)
+
+    def create_new_with_filter(
+        self,
+        ssp_name: str,
+        input_ssp: str,
+        profile_name: str,
+        compdefs: List[str],
+    ) -> None:
+        """
+        Create new ssp from an ssp with filtering by profile and component definitions
+
+        Args:
+            ssp_name: Output name for ssp
+            input_ssp: Input ssp to filter
+            profile_name: Profile to filter by
+            compdefs: List of component definitions to filter by
+
+        Notes:
+            This will generate SSP markdown and an index entry for a new managed SSP.
+        """
+
+        # Create new ssp by filtering input ssp
+        trestle_root = self.get_trestle_root()
+        trestle_path = pathlib.Path(trestle_root)
+        ssp_filter: SSPFilter = SSPFilter()
+
+        try:
+            exit_code = ssp_filter.filter_ssp(
+                trestle_root=trestle_path,
+                ssp_name=input_ssp,
+                profile_name=profile_name,
+                out_name=ssp_name,
+                regenerate=False,
+                components=compdefs,
+                version="",
+                implementation_status=None,
+                control_origination=None,
+            )
+
+            if exit_code != CmdReturnCodes.SUCCESS.value:
+                raise AuthoredObjectException(
+                    f"Unknown error occurred while filtering {input_ssp}"
+                )
+        except TrestleError as e:
+            raise AuthoredObjectException(
+                f"Trestle filtering failed for {input_ssp}: {e}"
+            )
+
+        # Retrieve index information from existing ssp
+        if not profile_name:
+            profile_name = self.ssp_index.get_profile_by_ssp(input_ssp)
+
+        if not compdefs:
+            compdefs = self.ssp_index.get_comps_by_ssp(input_ssp)
+
+        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(input_ssp)
+
+        # Add new information to index
+        self.ssp_index.add_new_ssp(ssp_name, profile_name, compdefs, leveraged_ssp)
+
+        # Write out index
+        self.ssp_index.write_out()
