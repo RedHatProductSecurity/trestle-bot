@@ -18,18 +18,23 @@
 
 import argparse
 import json
+import logging
 import os
 import pathlib
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from trestle.common.err import TrestleError
 from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 
+from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
+
+
+logger = logging.getLogger("trestle")
 
 
 class SSPIndex:
@@ -42,27 +47,41 @@ class SSPIndex:
         """
         Initialize ssp index.
         """
+        self._index_path = index_path
         self.profile_by_ssp: Dict[str, str] = {}
         self.comps_by_ssp: Dict[str, List[str]] = {}
+        self.leveraged_ssp_by_ssp: Dict[str, str] = {}
 
-        with open(index_path, "r") as file:
-            json_data = json.load(file)
+        # Try to load the current file. If it does not exist,
+        # create an empty JSON file.
+        try:
+            with open(index_path, "r") as file:
+                json_data = json.load(file)
 
-        for ssp_name, ssp_info in json_data.items():
-            try:
-                profile = ssp_info["profile"]
-                component_definitions = ssp_info["component_definitions"]
-            except KeyError:
-                raise AuthoredObjectException(
-                    f"SSP {ssp_name} entry is missing profile or component data"
-                )
+            for ssp_name, ssp_info in json_data.items():
+                try:
+                    profile = ssp_info[PROFILE_KEY_NAME]
+                    component_definitions = ssp_info[COMPDEF_KEY_NAME]
+                except KeyError:
+                    raise AuthoredObjectException(
+                        f"SSP {ssp_name} entry is missing profile or component data"
+                    )
 
-            if profile is not None and component_definitions is not None:
-                self.profile_by_ssp[ssp_name] = profile
-                self.comps_by_ssp[ssp_name] = component_definitions
+                if profile is not None and component_definitions is not None:
+                    self.profile_by_ssp[ssp_name] = profile
+                    self.comps_by_ssp[ssp_name] = component_definitions
+
+                if LEVERAGED_SSP_KEY_NAME in ssp_info:
+                    self.leveraged_ssp_by_ssp[ssp_name] = ssp_info[
+                        LEVERAGED_SSP_KEY_NAME
+                    ]
+
+        except FileNotFoundError:
+            with open(index_path, "w") as file:
+                json.dump({}, file)
 
     def get_comps_by_ssp(self, ssp_name: str) -> List[str]:
-        """Returns list of compdefs associated with the SSP"""
+        """Return list of compdefs associated with the SSP"""
         try:
             return self.comps_by_ssp[ssp_name]
         except KeyError:
@@ -71,7 +90,7 @@ class SSPIndex:
             )
 
     def get_profile_by_ssp(self, ssp_name: str) -> str:
-        """Returns the profile associated with the SSP"""
+        """Return the profile associated with the SSP"""
         try:
             return self.profile_by_ssp[ssp_name]
         except KeyError:
@@ -79,9 +98,48 @@ class SSPIndex:
                 f"SSP {ssp_name} does not exists in the index"
             )
 
+    def get_leveraged_by_ssp(self, ssp_name: str) -> Optional[str]:
+        """Return the optional leveraged SSP used with the SSP"""
+        try:
+            return self.leveraged_ssp_by_ssp[ssp_name]
+        except KeyError:
+            logging.debug(f"key {ssp_name} does not exist")
+            return None
+
+    def add_new_ssp(
+        self,
+        ssp_name: str,
+        profile_name: str,
+        compdefs: List[str],
+        leveraged_ssp: Optional[str] = None,
+    ) -> None:
+        """Add a new ssp to the index"""
+        self.profile_by_ssp[ssp_name] = profile_name
+        self.comps_by_ssp[ssp_name] = compdefs
+        if leveraged_ssp:
+            self.leveraged_ssp_by_ssp[ssp_name] = leveraged_ssp
+
+    def write_out(self) -> None:
+        """Write SSP index back to the index file"""
+        data: Dict[str, Any] = {}
+
+        for ssp_name, profile_name in self.profile_by_ssp.items():
+            ssp_info: Dict[str, Any] = {
+                PROFILE_KEY_NAME: profile_name,
+                COMPDEF_KEY_NAME: self.comps_by_ssp[ssp_name],
+            }
+            if ssp_name in self.leveraged_ssp_by_ssp:
+                ssp_info[LEVERAGED_SSP_KEY_NAME] = self.leveraged_ssp_by_ssp[ssp_name]
+
+            data[ssp_name] = ssp_info
+
+        with open(self._index_path, "w") as file:
+            json.dump(data, file, indent=4)
+
 
 # TODO: Move away from using private run to a public function.
 # Done initially because a lot of required high level logic for SSP is private.
+# See - https://github.com/IBM/compliance-trestle/pull/1432
 
 
 class AuthoredSSP(AuthorObjectBase):
@@ -134,6 +192,10 @@ class AuthoredSSP(AuthorObjectBase):
         comps = self.ssp_index.get_comps_by_ssp(ssp)
         profile = self.ssp_index.get_profile_by_ssp(ssp)
 
+        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp)
+        if leveraged_ssp is None:
+            leveraged_ssp = ""
+
         try:
             exit_code = ssp_generate._generate_ssp_markdown(
                 trestle_root=trestle_path,
@@ -143,6 +205,7 @@ class AuthoredSSP(AuthorObjectBase):
                 yaml_header={},
                 overwrite_header_values=False,
                 force_overwrite=False,
+                leveraged_ssp_name_or_href=leveraged_ssp,
             )
             if exit_code != CmdReturnCodes.SUCCESS.value:
                 raise AuthoredObjectException(
@@ -150,3 +213,32 @@ class AuthoredSSP(AuthorObjectBase):
                 )
         except TrestleError as e:
             raise AuthoredObjectException(f"Trestle generate failed for {ssp}: {e}")
+
+    def create_new_default(
+        self,
+        ssp_name: str,
+        profile_name: str,
+        compdefs: List[str],
+        markdown_path: str,
+        leveraged_ssp: Optional[str] = None,
+    ) -> None:
+        """
+        Create new ssp with index
+
+        Args:
+            ssp_name: Output name for ssp
+            profile_name: Profile to import controls from
+            compdefs: List of component definitions to import
+            markdown_path: Top-level markdown path to write to
+            leveraged_ssp: Optional leveraged ssp name for inheritance view editing
+
+        Notes:
+            This will generate SSP markdown and an index entry for a new managed SSP.
+        """
+
+        self.ssp_index.add_new_ssp(ssp_name, profile_name, compdefs, leveraged_ssp)
+        self.ssp_index.write_out()
+
+        # Pass the ssp_name as the model base path.
+        # We don't need the model dir for SSP generation.
+        return self.regenerate(ssp_name, markdown_path)

@@ -33,6 +33,7 @@ from trestlebot.provider import GitProviderException
     [
         "https://gitlab.com/owner/repo",
         "https://gitlab.com/owner/repo.git",
+        "https://test:test@gitlab.com/owner/repo.git",
         "gitlab.com/owner/repo.git",
     ],
 )
@@ -55,12 +56,30 @@ def test_parse_repository(repo_url: str) -> None:
     ],
 )
 def test_parse_repository_with_server_url(repo_url: str) -> None:
-    """Test an invalid url input"""
+    """Test with a custom server url"""
     gl = GitLab("fake", "https://mygitlab.com")
 
     owner, repo_name = gl.parse_repository(repo_url)
 
     assert owner == "owner"
+    assert repo_name == "repo"
+
+
+@pytest.mark.parametrize(
+    "repo_url",
+    [
+        "https://mygitlab.com/group/owner/repo",
+        "https://mygitlab.com/group/owner/repo.git",
+        "mygitlab.com/group/owner/repo.git",
+    ],
+)
+def test_parse_repository_with_group(repo_url: str) -> None:
+    """Test with nested namespaces"""
+    gl = GitLab("fake", "https://mygitlab.com")
+
+    owner, repo_name = gl.parse_repository(repo_url)
+
+    assert owner == "group/owner"
     assert repo_name == "repo"
 
 

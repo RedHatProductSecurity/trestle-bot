@@ -33,7 +33,8 @@ FROM python-base as dependencies
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         # deps for building python deps
-        build-essential
+        build-essential \
+        git
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN  python3.8 -m pip install --no-cache-dir --upgrade pip \

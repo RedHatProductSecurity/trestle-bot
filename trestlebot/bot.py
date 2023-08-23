@@ -120,6 +120,17 @@ def run(
     commit_sha: str = ""
     pr_number: int = 0
 
+    # Create Git Repo
+    repo = Repo(working_dir)
+
+    branch_names: List[str] = [b.name for b in repo.branches]  # type: ignore
+    if branch in branch_names:
+        logger.debug(f"Local branch {branch} found")
+        repo.git.checkout(branch)
+    else:
+        logger.debug(f"Local branch {branch} created")
+        repo.git.checkout("-b", branch)
+
     # Execute bot pre-tasks before committing repository updates
     if pre_tasks is not None:
         for task in pre_tasks:
@@ -127,9 +138,6 @@ def run(
                 task.execute()
             except TaskException as e:
                 raise RepoException(f"Bot pre-tasks failed: {e}")
-
-    # Create Git Repo
-    repo = Repo(working_dir)
 
     # Check if there are any unstaged files
     if repo.is_dirty(untracked_files=True):

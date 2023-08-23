@@ -427,14 +427,12 @@ files = [
 
 [[package]]
 name = "compliance-trestle"
-version = "2.2.1"
+version = "0.1.dev1090+gf8ae19d"
 description = "Tools to manage & autogenerate python objects representing the OSCAL layers/models"
 optional = false
 python-versions = "*"
-files = [
-    {file = "compliance-trestle-2.2.1.tar.gz", hash = "sha256:d9da50ea5da3f2df60ddaa83af52c73c37b8b48cf91e28eaac6df0af6dbad73b"},
-    {file = "compliance_trestle-2.2.1-py2.py3-none-any.whl", hash = "sha256:ef964173a9f0841565e705334386717d6869c38747f9af2bcfc4956a684285df"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 attrs = "*"
@@ -456,6 +454,12 @@ pywin32 = {version = ">=1.0", markers = "platform_system == \"Windows\""}
 
 [package.extras]
 dev = ["gitpython", "livereload", "markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings[python-legacy] (>=0.19.0)", "mypy", "pep8-naming", "pre-commit (>=2.4.0)", "pylint", "pymdown-extensions", "pytest (>=5.4.3)", "pytest-cov (>=2.10.0)", "pytest-random-order", "pytest-xdist", "python-dateutil", "python-semantic-release", "setuptools", "types-PyYAML", "types-paramiko", "types-requests", "types-setuptools", "wheel", "yapf"]
+
+[package.source]
+type = "git"
+url = "https://github.com/RedHatProductSecurity/compliance-trestle.git"
+reference = "PSCE-143"
+resolved_reference = "f8ae19d83f8b8c57c7550eded0d56db651f75f4c"
 
 [[package]]
 name = "coverage"
@@ -2158,4 +2162,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "e4421783726e2c16fa65098b19709d0ae51e3887b99304be381c9fb15f446593"
+content-hash = "2487409638eb23594286b25575801a6d6f10e583995bfb84b6eee08a1cf476ce"
