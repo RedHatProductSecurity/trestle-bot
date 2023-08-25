@@ -32,7 +32,7 @@ class GitLab(GitProvider):
         self._gitlab_client = gitlab.Gitlab(server_url, private_token=api_token)
 
         stripped_url = re.sub(r"^(https?://)?", "", server_url)
-        self.pattern = r"^(?:https?://)?{0}/([^/]+)/([^/.]+)".format(
+        self.pattern = r"^(?:https?://)?{0}(/.+)/([^/.]+)(\.git)?$".format(
             re.escape(stripped_url)
         )
 
@@ -46,12 +46,16 @@ class GitLab(GitProvider):
         Returns:
             Owner and project name in a tuple, respectively
         """
-        match = re.match(self.pattern, repo_url)
+
+        # Strip out any basic auth
+        stripped_url = re.sub(r"https?://.*?@", "https://", repo_url)
+
+        match = re.match(self.pattern, stripped_url)
 
         if not match:
-            raise GitProviderException(f"{repo_url} is an invalid repo URL")
+            raise GitProviderException(f"{stripped_url} is an invalid repo URL")
 
-        owner = match.group(1)
+        owner = match.group(1)[1:]  # Removing the leading slash
         repo = match.group(2)
         return (owner, repo)
 

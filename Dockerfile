@@ -1,5 +1,5 @@
 # kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f,b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM python:3.8.1-slim as python-base
+FROM python:3.9-slim as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
@@ -33,10 +33,11 @@ FROM python-base as dependencies
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
         # deps for building python deps
-        build-essential
+        build-essential \
+        git
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
-RUN  python3.8 -m pip install --no-cache-dir --upgrade pip \
+RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
      && pip install --no-cache-dir poetry=="$POETRY_VERSION"
 
 # Cache runtime deps
@@ -59,5 +60,5 @@ COPY ./entrypoint.sh /
 
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["python3.8", "-m" , "trestlebot"]
+ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
            
