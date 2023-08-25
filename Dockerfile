@@ -1,5 +1,5 @@
 # kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f,b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM python:3.9.17-slim as python-base
+FROM python:3.9-slim as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
