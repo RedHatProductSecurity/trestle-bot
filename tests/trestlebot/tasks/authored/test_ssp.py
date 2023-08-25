@@ -21,6 +21,7 @@ import pathlib
 
 import pytest
 from trestle.common import const
+from trestle.common.load_validate import load_validate_model_name
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
@@ -36,6 +37,39 @@ test_comp = "test_comp"
 test_ssp_output = "test-ssp"
 markdown_dir = "md_ssp"
 leveraged_ssp = "leveraged_ssp"
+
+
+def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
+    """Test to create new SSP with filtering by profile and component definitions"""
+    # Prepare the workspace and generate the markdown
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = f"{markdown_dir}/{test_ssp_output}"
+    args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    ssp_generate = SSPGenerate()
+    assert ssp_generate._run(args) == 0
+
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+
+    authored_ssp.assemble(md_path)
+
+    # Variables for create_new_with_filter
+    ssp_name = "new_ssp"
+    input_ssp = test_ssp_output
+    profile_name = test_prof
+    compdefs = [test_comp]
+
+    # Call create_new_with_filter
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, profile_name, compdefs)
+
+    assert ssp_index.get_profile_by_ssp(ssp_name) == profile_name
+    _, mpath = load_validate_model_name(
+        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
+    )
+    assert mpath.exists()
 
 
 def test_assemble(tmp_trestle_dir: str) -> None:
