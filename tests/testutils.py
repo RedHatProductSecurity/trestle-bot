@@ -59,10 +59,17 @@ def load_from_json(
 
 
 def setup_for_ssp(
-    tmp_trestle_dir: pathlib.Path, prof_name: str, comp_name: str, output_name: str
+    tmp_trestle_dir: pathlib.Path,
+    prof_name: str,
+    comps: List[str],
+    output_name: str,
 ) -> argparse.Namespace:
     """Setup trestle temp directory for ssp testing"""
-    load_from_json(tmp_trestle_dir, comp_name, comp_name, comp.ComponentDefinition)  # type: ignore
+    for comp_name in comps:
+        load_from_json(tmp_trestle_dir, comp_name, comp_name, comp.ComponentDefinition)  # type: ignore
+
+    comp_list = ",".join(comps)
+
     load_from_json(tmp_trestle_dir, prof_name, prof_name, prof.Profile)  # type: ignore
     load_from_json(
         tmp_trestle_dir,
@@ -73,7 +80,7 @@ def setup_for_ssp(
     args = argparse.Namespace(
         trestle_root=tmp_trestle_dir,
         profile=prof_name,
-        compdefs=comp_name,
+        compdefs=comp_list,
         output=output_name,
         verbose=0,
         overwrite_header_values=False,
