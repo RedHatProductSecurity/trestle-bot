@@ -16,6 +16,7 @@
 
 """Test for CLI"""
 
+import logging
 import sys
 from typing import List
 from unittest.mock import patch
@@ -47,7 +48,7 @@ def args_dict_to_list(args_dict: dict) -> List[str]:
     return args
 
 
-def test_invalid_oscal_model(monkeypatch, valid_args_dict, capsys):
+def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
     """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "fake"
@@ -56,14 +57,15 @@ def test_invalid_oscal_model(monkeypatch, valid_args_dict, capsys):
     with pytest.raises(SystemExit):
         cli_main()
 
-    captured = capsys.readouterr()
-    assert (
-        "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
-        in captured.err
+    assert any(
+        record.levelno == logging.ERROR
+        and record.message
+        == "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
+        for record in caplog.records
     )
 
 
-def test_no_ssp_index(monkeypatch, valid_args_dict, capsys):
+def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
     """Test missing index file for ssp"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "ssp"
@@ -73,12 +75,14 @@ def test_no_ssp_index(monkeypatch, valid_args_dict, capsys):
     with pytest.raises(SystemExit):
         cli_main()
 
-    captured = capsys.readouterr()
+    assert any(
+        record.levelno == logging.ERROR
+        and record.message == "Must set ssp_index_path when using SSP as oscal model."
+        for record in caplog.records
+    )
 
-    assert "Must set ssp_index_path when using SSP as oscal model." in captured.err
 
-
-def test_no_markdown_path(monkeypatch, valid_args_dict, capsys):
+def test_no_markdown_path(monkeypatch, valid_args_dict, caplog):
     """Test without a markdown file passed as a flag"""
     args_dict = valid_args_dict
     args_dict["markdown-path"] = ""
@@ -87,12 +91,14 @@ def test_no_markdown_path(monkeypatch, valid_args_dict, capsys):
     with pytest.raises(SystemExit):
         cli_main()
 
-    captured = capsys.readouterr()
+    assert any(
+        record.levelno == logging.ERROR
+        and record.message == "Must set markdown path with oscal model."
+        for record in caplog.records
+    )
 
-    assert "Must set markdown path with oscal model." in captured.err
 
-
-def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
+def test_with_target_branch(monkeypatch, valid_args_dict, caplog):
     """Test with target branch set an an unsupported Git provider"""
     args_dict = valid_args_dict
     args_dict["target-branch"] = "main"
@@ -106,13 +112,11 @@ def test_with_target_branch(monkeypatch, valid_args_dict, capsys):
         with pytest.raises(SystemExit):
             cli_main()
 
-    captured = capsys.readouterr()
-
-    expected_string = (
-        "target-branch flag is set with an unset git provider. "
+    assert any(
+        record.levelno == logging.ERROR
+        and record.message == "target-branch flag is set with an unset git provider. "
         "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
+        for record in caplog.records
     )
-
-    assert expected_string in captured.err
 
     mock_check.assert_called_once()
