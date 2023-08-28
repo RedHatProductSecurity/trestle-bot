@@ -27,7 +27,7 @@ from trestlebot.provider import GitProvider, GitProviderException
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
-logger = logging.getLogger("trestle")
+logger = logging.getLogger(__name__)
 
 
 class RepoException(Exception):

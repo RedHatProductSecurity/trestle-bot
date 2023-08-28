@@ -22,7 +22,9 @@ import logging
 import sys
 from typing import List, Optional
 
-from trestlebot import bot, const, log
+import trestle.common.log as log
+
+from trestlebot import bot, const
 from trestlebot.github import GitHub, is_github_actions
 from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
@@ -32,7 +34,7 @@ from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
-logger = logging.getLogger("trestle")
+logger = logging.getLogger(__name__)
 
 
 def _parse_cli_arguments() -> argparse.Namespace:
