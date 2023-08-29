@@ -21,6 +21,7 @@ import pathlib
 
 import pytest
 from trestle.common import const
+from trestle.common.load_validate import load_validate_model_name
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
@@ -32,7 +33,11 @@ from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 
 
 test_prof = "simplified_nist_profile"
+test_prof_filter = "simplified_filter_profile"
+
 test_comp = "test_comp"
+test_comp_2 = "test_comp_2"
+
 test_ssp_output = "test-ssp"
 markdown_dir = "md_ssp"
 leveraged_ssp = "leveraged_ssp"
@@ -43,7 +48,7 @@ def test_assemble(tmp_trestle_dir: str) -> None:
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = f"{markdown_dir}/{test_ssp_output}"
-    args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
@@ -68,7 +73,7 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = f"{markdown_dir}/{test_ssp_output}"
-    args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
@@ -89,7 +94,7 @@ def test_regenerate(tmp_trestle_dir: str) -> None:
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(markdown_dir, test_ssp_output)
-    _ = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    _ = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
     testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
@@ -109,7 +114,7 @@ def test_regenerate_no_ssp_entry(tmp_trestle_dir: str) -> None:
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(markdown_dir, test_ssp_output)
-    _ = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    _ = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
     testutils.write_index_json(ssp_index_path, "fake", test_prof, [test_comp])
@@ -214,3 +219,55 @@ def test_write_new_ssp_index(tmp_trestle_dir: str) -> None:
     assert ssp_index.get_profile_by_ssp("another_new_ssp") == "test_prof"
     assert "my_comp" in ssp_index.get_comps_by_ssp("another_new_ssp")
     assert ssp_index.get_leveraged_by_ssp("another_new_ssp") == "test_leveraged"
+
+
+def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
+    """Test to create new SSP with filtering by profile"""
+    # Prepare the workspace and input ssp
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = f"{markdown_dir}/{test_ssp_output}"
+    args = testutils.setup_for_ssp(
+        trestle_root, test_prof, [test_comp, test_comp_2], md_path
+    )
+    ssp_generate = SSPGenerate()
+    assert ssp_generate._run(args) == 0
+
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    testutils.write_index_json(
+        ssp_index_path, test_ssp_output, test_prof, [test_comp, test_comp_2]
+    )
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+
+    authored_ssp.assemble(md_path)
+
+    # Import profile for filtering and testing filtering by profile
+    _ = testutils.setup_for_profile(trestle_root, test_prof_filter, test_prof_filter)
+
+    ssp_name = "new_ssp"
+    input_ssp = test_ssp_output
+
+    # Call create_new_with_filter with new profile
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, test_prof_filter, [])
+
+    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof_filter
+    assert test_comp in ssp_index.get_comps_by_ssp(ssp_name)
+    _, mpath = load_validate_model_name(
+        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
+    )
+    assert mpath.exists()
+
+    ssp_name = "new_ssp_2"
+
+    # Call create_new_with_filter with a single compdef
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, "", [test_comp_2])
+
+    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof
+    assert test_comp not in ssp_index.get_comps_by_ssp(ssp_name)
+    assert test_comp_2 in ssp_index.get_comps_by_ssp(ssp_name)
+
+    _, mpath = load_validate_model_name(
+        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
+    )
+    assert mpath.exists()

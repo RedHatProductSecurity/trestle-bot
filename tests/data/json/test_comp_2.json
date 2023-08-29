@@ -1,8 +1,8 @@
 {
   "component-definition": {
-    "uuid": "2652b814-2a6b-4b6d-a0ae-8bc7a007209f",
+    "uuid": "2652b814-2a6b-4b6d-a0ae-8bc7a007209e",
     "metadata": {
-      "title": "comp def a",
+      "title": "comp def b",
       "last-modified": "2021-07-19T14:03:03+00:00",
       "version": "0.21.0",
       "oscal-version": "1.0.2",
@@ -66,8 +66,8 @@
       {
         "uuid": "8220b305-0271-45f9-8a21-40ab6f197f70",
         "type": "Service",
-        "title": "test_comp",
-        "description": "test comp",
+        "title": "test_comp_2",
+        "description": "test comp 2",
         "props": [
           {
             "name": "Rule_Id",
@@ -108,7 +108,7 @@
           {
             "uuid": "76e89b67-3d6b-463d-90df-ec56a46c6069",
             "source": "trestle://profiles/simplified_nist_profile/profile.json",
-            "description": "test comp",
+            "description": "test comp 2",
             "props": [
               {
                 "name": "profile_name",
@@ -184,7 +184,7 @@
               {
                 "uuid": "ca5ea4c5-ba51-4b1d-932a-5606891b7500",
                 "control-id": "ac-1",
-                "description": "imp req prose for ac-1 from comp aa",
+                "description": "imp req prose for ac-1 from comp b",
                 "props": [
                   {
                     "name": "Rule_Id",
@@ -235,7 +235,7 @@
                   {
                     "statement-id": "ac-1_smt.a",
                     "uuid": "2652b814-2a6b-4b6d-a0ae-8bc7a0072200",
-                    "description": "statement prose for part a. from comp aa",
+                    "description": "statement prose for part a. from comp b",
                     "props": [
                       {
                         "name": "Rule_Id",
@@ -251,8 +251,8 @@
               },
               {
                 "uuid": "ca5ea4c5-ba51-4b1d-932a-5606891b7599",
-                "control-id": "ac-3",
-                "description": "imp req prose for ac-3 from comp aa",
+                "control-id": "ac-2",
+                "description": "imp req prose for ac-2 from comp b",
                 "props": [
                   {
                     "name": "Rule_Id",

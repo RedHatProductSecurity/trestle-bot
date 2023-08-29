@@ -126,7 +126,7 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
-    args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
@@ -143,7 +143,7 @@ def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
     """Test ssp assemble at the task level with failure"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
-    args = testutils.setup_for_ssp(trestle_root, test_prof, test_comp, md_path)
+    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
