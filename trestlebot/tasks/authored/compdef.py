@@ -29,10 +29,9 @@ from trestle.common.list_utils import as_list
 from trestle.common.load_validate import load_validate_model_name
 from trestle.common.model_utils import ModelUtils
 from trestle.core.catalog.catalog_interface import CatalogInterface
-from trestle.core.commands.author.component import ComponentAssemble, ComponentGenerate
-from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.models.file_content_type import FileContentType
 from trestle.core.profile_resolver import ProfileResolver
+from trestle.core.repository import AgileAuthoring
 
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
@@ -55,16 +54,17 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
         """Run assemble actions for compdef type at the provided path"""
         trestle_root = pathlib.Path(self.get_trestle_root())
         compdef = os.path.basename(markdown_path)
+
+        authoring = AgileAuthoring(trestle_root)
         try:
-            exit_code = ComponentAssemble.assemble_component(
-                trestle_root=trestle_root,
-                md_name=markdown_path,
-                assem_comp_name=compdef,
-                parent_comp_name="",
+            success = authoring.assemble_component_definition_markdown(
+                name=compdef,
+                output=compdef,
+                markdown_dir=os.path.join(markdown_path, compdef),
                 regenerate=False,
                 version=version_tag,
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while assembling {compdef}"
                 )
@@ -73,18 +73,18 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
 
     def regenerate(self, model_path: str, markdown_path: str) -> None:
         """Run assemble actions for compdef type at the provided path"""
-        trestle_root = self.get_trestle_root()
-        trestle_path = pathlib.Path(trestle_root)
-        comp_generate: ComponentGenerate = ComponentGenerate()
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
 
         comp_name = os.path.basename(model_path)
+
         try:
-            exit_code = comp_generate.component_generate_all(
-                trestle_root=trestle_path,
-                comp_def_name=comp_name,
-                markdown_dir_name=os.path.join(trestle_root, markdown_path, comp_name),
+            success = authoring.generate_component_definition_markdown(
+                name=comp_name,
+                output=markdown_path,
+                force_overwrite=False,
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while regenerating {comp_name}"
                 )
