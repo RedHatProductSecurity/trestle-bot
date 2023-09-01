@@ -1,5 +1,5 @@
-# kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f,b03a748a-542d-44f4-bb86-9199ab4fd2d5
-FROM python:3.9-slim as python-base
+# Use the UBI 8 minimal base image
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest as python-base
 
 ENV PYTHONUNBUFFERED=1 \
     # prevents python creating .pyc files
@@ -29,31 +29,39 @@ ENV PYTHONUNBUFFERED=1 \
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
+RUN microdnf update -y \
+    && microdnf install -y python3.9 \
+    && microdnf clean all \
+    && rm -rf /var/lib/apt/lists/*
+
 FROM python-base as dependencies
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-        # deps for building python deps
-        build-essential \
-        git
+
+RUN microdnf update -y \
+    && microdnf install -y git
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
-     && pip install --no-cache-dir poetry=="$POETRY_VERSION"
+    && pip install --no-cache-dir poetry=="$POETRY_VERSION"
 
 # Cache runtime deps
 WORKDIR $PYSETUP_PATH
-COPY ./ $PYSETUP
+COPY ./ $PYSETUP_PATH
 
-RUN poetry install --without tests,dev
+# Install runtime deps
+RUN poetry install --without tests,dev --no-root
+
+# install the root project in non-editable mode
+RUN  poetry build -f wheel -n && \
+  pip install --no-cache-dir --no-deps dist/*.whl && \
+  rm -rf dist *.egg-info
 
 # final image
 FROM python-base as final
 
 COPY --from=dependencies $PYSETUP_PATH $PYSETUP_PATH
 
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y git \
-    && apt-get clean \
+RUN microdnf install -y git \
+    && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
 COPY ./entrypoint.sh /
@@ -61,4 +69,5 @@ COPY ./entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
+CMD ["--help"]
            
