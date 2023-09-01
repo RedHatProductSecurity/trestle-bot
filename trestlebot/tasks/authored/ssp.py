@@ -34,7 +34,7 @@ from trestlebot.tasks.authored.base_authored import (
 )
 
 
-logger = logging.getLogger("trestle")
+logger = logging.getLogger(__name__)
 
 
 class SSPIndex:
