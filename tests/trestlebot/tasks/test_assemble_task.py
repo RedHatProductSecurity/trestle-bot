@@ -18,6 +18,7 @@
 
 import os
 import pathlib
+from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -68,6 +69,41 @@ def test_assemble_task_isolated(tmp_trestle_dir: str) -> None:
         assert assemble_task.execute() == 0
 
         mock.assemble.assert_called_once_with(markdown_path=md_path)
+
+
+@pytest.mark.parametrize(
+    "skip_list",
+    [
+        ["simplified_nist_catalog"],
+        ["*nist*"],
+        ["simplified_nist_catalog", "simplified_nist_profile"],
+        ["*catalog", "*profile"],
+    ],
+)
+def test_assemble_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -> None:
+    """Test ssp assemble with a skip list"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    args = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+    cat_generate = CatalogGenerate()
+    assert cat_generate._run(args) == 0
+
+    mock = Mock(spec=AuthorObjectBase)
+
+    assemble_task = AssembleTask(
+        working_dir=tmp_trestle_dir,
+        authored_model=AuthoredType.CATALOG.value,
+        markdown_dir=cat_md_dir,
+        skip_model_list=skip_list,
+    )
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_authored_object"
+    ) as mock_get_authored_object:
+        mock_get_authored_object.return_value = mock
+
+        assert assemble_task.execute() == 0
+        mock.assemble.assert_not_called()
 
 
 def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:

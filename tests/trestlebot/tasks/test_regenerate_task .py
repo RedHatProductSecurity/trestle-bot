@@ -19,6 +19,7 @@
 import argparse
 import os
 import pathlib
+from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
@@ -66,6 +67,40 @@ def test_regenerate_task_isolated(tmp_trestle_dir: str) -> None:
         mock.regenerate.assert_called_once_with(
             model_path=f"catalogs/{test_cat}", markdown_path=cat_md_dir
         )
+
+
+@pytest.mark.parametrize(
+    "skip_list",
+    [
+        ["simplified_nist_catalog"],
+        ["*nist*"],
+        ["simplified_nist_catalog", "simplified_nist_profile"],
+        ["*catalog", "*profile"],
+    ],
+)
+def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -> None:
+    """Test the regenerate task isolated from AuthoredObject implementation"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+
+    mock = Mock(spec=AuthorObjectBase)
+
+    regenerate_task = RegenerateTask(
+        working_dir=tmp_trestle_dir,
+        authored_model=AuthoredType.CATALOG.value,
+        markdown_dir=cat_md_dir,
+        skip_model_list=skip_list,
+    )
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_authored_object"
+    ) as mock_get_authored_object:
+        mock_get_authored_object.return_value = mock
+
+        assert regenerate_task.execute() == 0
+
+        mock.regenerate.assert_not_called()
 
 
 def test_catalog_regenerate_task(tmp_trestle_dir: str) -> None:
