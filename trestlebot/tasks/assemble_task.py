@@ -16,8 +16,8 @@
 
 """Trestle Bot Assembly Tasks"""
 
-import pathlib
 import os
+import pathlib
 from typing import List
 
 from trestlebot import const
