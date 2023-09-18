@@ -40,7 +40,7 @@ class TaskBase(ABC):
 
         Args:
             working_dir: Working directory to complete operations in.
-            skip_list: List of glob pattern to be skipped during processing.
+            skip_list: List of glob patterns to be skipped during processing.
         """
         self._working_dir = working_dir
         self._skip_model_list = skip_list
