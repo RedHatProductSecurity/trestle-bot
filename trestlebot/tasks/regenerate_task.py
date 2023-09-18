@@ -17,6 +17,7 @@
 """Trestle Bot Regenerate Tasks"""
 
 import os
+import pathlib
 from typing import List
 
 from trestlebot import const
@@ -55,8 +56,7 @@ class RegenerateTask(TaskBase):
         self._authored_model = authored_model
         self._markdown_dir = markdown_dir
         self._ssp_index_path = ssp_index_path
-        self._skip_model_list = skip_model_list
-        super().__init__(working_dir)
+        super().__init__(working_dir, skip_model_list)
 
     def execute(self) -> int:
         """Execute task"""
@@ -76,10 +76,9 @@ class RegenerateTask(TaskBase):
         model_dir = types.get_trestle_model_dir(self._authored_model)
 
         search_path = os.path.join(self.get_working_dir(), model_dir)
-        for model in os.listdir(search_path):
-            if model in self._skip_model_list or model == ".keep":
-                continue
-            model_path = os.path.join(model_dir, model)
+        for model in self.iterate_models(pathlib.Path(search_path)):
+            model_base_name = os.path.basename(model)
+            model_path = os.path.join(model_dir, model_base_name)
 
             try:
                 authored_object.regenerate(

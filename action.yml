@@ -12,20 +12,20 @@ inputs:
   check_only: 
     description: "Runs tasks and exits with an error if there is a diff. Defaults to false"
     required: false
-    default: false
+    default: "false"
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false
   skip_assemble:
     description: "Skip assembly task. Defaults to false"
     required: false
-    default: false
+    default: "false"
   skip_regenerate:
     description: "Skip regenerate task. Defaults to false."
     required: false
-    default: false
+    default: "false"
   skip_items:
-    description: "Comma-separated list of content by Trestle name to skip during task execution. For example `profile_x,profile_y`."
+    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `profile_x,profile_y*,`."
     required: false
   ssp_index_path:
     description: Path relative to the repository path where the ssp index is located. See project README.md for information about the ssp index.

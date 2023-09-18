@@ -17,6 +17,7 @@
 """Trestle Bot Assembly Tasks"""
 
 import os
+import pathlib
 from typing import List
 
 from trestlebot import const
@@ -55,8 +56,7 @@ class AssembleTask(TaskBase):
         self._authored_model = authored_model
         self._markdown_dir = markdown_dir
         self._ssp_index_path = ssp_index_path
-        self._skip_model_list = skip_model_list
-        super().__init__(working_dir)
+        super().__init__(working_dir, skip_model_list)
 
     def execute(self) -> int:
         """Execute task"""
@@ -73,13 +73,11 @@ class AssembleTask(TaskBase):
             self._authored_model, self.get_working_dir(), self._ssp_index_path
         )
         search_path = os.path.join(self.get_working_dir(), self._markdown_dir)
-        for model in os.listdir(search_path):
+        for model in self.iterate_models(pathlib.Path(search_path)):
             # Construct model path from markdown path. AuthoredObject already has
             # the working dir data as part of object construction.
-            if model in self._skip_model_list or model == ".keep":
-                continue
-            model_path = os.path.join(self._markdown_dir, model)
-
+            model_base_name = os.path.basename(model)
+            model_path = os.path.join(self._markdown_dir, model_base_name)
             try:
                 authored_object.assemble(markdown_path=model_path)
             except AuthoredObjectException as e:

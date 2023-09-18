@@ -69,7 +69,7 @@ def _parse_cli_arguments() -> argparse.Namespace:
         "--skip-items",
         type=str,
         required=False,
-        help="Comma-separated list of items of the chosen model type to skip when running tasks",
+        help="Comma-separated list of glob patterns of the chosen model type to skip when running tasks",
     )
     parser.add_argument(
         "--skip-assemble",
