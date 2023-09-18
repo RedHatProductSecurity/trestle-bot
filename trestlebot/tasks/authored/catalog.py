@@ -20,8 +20,7 @@ import os
 import pathlib
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.catalog import CatalogAssemble, CatalogGenerate
-from trestle.core.commands.common.return_codes import CmdReturnCodes
+from trestle.core.repository import AgileAuthoring
 
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
@@ -44,17 +43,17 @@ class AuthoredCatalog(AuthorObjectBase):
         """Run assemble actions for catalog type at the provided path"""
         trestle_root = pathlib.Path(self.get_trestle_root())
         catalog = os.path.basename(markdown_path)
+        authoring = AgileAuthoring(trestle_root)
         try:
-            exit_code = CatalogAssemble.assemble_catalog(
-                trestle_root=trestle_root,
-                md_name=markdown_path,
-                assem_cat_name=catalog,
-                parent_cat_name="",
-                set_parameters_flag=True,
+            success = authoring.assemble_catalog_markdown(
+                name=catalog,
+                output=catalog,
+                markdown_dir=markdown_path,
+                set_parameters=True,
                 regenerate=False,
                 version=version_tag,
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while assembling {catalog}"
                 )
@@ -63,20 +62,19 @@ class AuthoredCatalog(AuthorObjectBase):
 
     def regenerate(self, model_path: str, markdown_path: str) -> None:
         """Run assemble actions for catalog type at the provided path"""
-        trestle_root = self.get_trestle_root()
-        trestle_path = pathlib.Path(trestle_root)
-        catalog_generate: CatalogGenerate = CatalogGenerate()
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
 
         catalog = os.path.basename(model_path)
         try:
-            exit_code = catalog_generate.generate_markdown(
-                trestle_root=trestle_path,
-                catalog_path=pathlib.Path(trestle_root, model_path, "catalog.json"),
-                markdown_path=pathlib.Path(trestle_root, markdown_path, catalog),
-                yaml_header={},
+            success = authoring.generate_catalog_markdown(
+                name=catalog,
+                output=os.path.join(markdown_path, catalog),
+                force_overwrite=False,
+                yaml_header="",
                 overwrite_header_values=False,
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while regenerating {catalog}"
                 )

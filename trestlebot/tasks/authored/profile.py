@@ -27,9 +27,8 @@ from trestle.common import const
 from trestle.common.err import TrestleError, TrestleNotFoundError
 from trestle.common.load_validate import load_validate_model_name
 from trestle.common.model_utils import ModelUtils
-from trestle.core.commands.author.profile import ProfileAssemble, ProfileGenerate
-from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.models.file_content_type import FileContentType
+from trestle.core.repository import AgileAuthoring
 from trestle.oscal.common import IncludeAll
 
 from trestlebot.tasks.authored.base_authored import (
@@ -52,21 +51,23 @@ class AuthoredProfile(AuthorObjectBase):
     def assemble(self, markdown_path: str, version_tag: str = "") -> None:
         """Run assemble actions for profile type at the provided path"""
         trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
+
         profile = os.path.basename(markdown_path)
+
         try:
-            exit_code = ProfileAssemble.assemble_profile(
-                trestle_root=trestle_root,
-                md_name=markdown_path,
-                assem_prof_name=profile,
-                parent_prof_name="",
-                set_parameters_flag=True,
+            success = authoring.assemble_profile_markdown(
+                name=profile,
+                output=profile,
+                markdown_dir=markdown_path,
+                set_parameters=True,
                 regenerate=False,
                 version=version_tag,
-                allowed_sections=None,
-                required_sections=[],
-                sections_dict={},
+                sections="",
+                required_sections="",
+                allowed_sections="",
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while assembling {profile}"
                 )
@@ -75,22 +76,21 @@ class AuthoredProfile(AuthorObjectBase):
 
     def regenerate(self, model_path: str, markdown_path: str) -> None:
         """Run assemble actions for profile type at the provided path"""
-        trestle_root = self.get_trestle_root()
-        trestle_path = pathlib.Path(trestle_root)
-        profile_generate: ProfileGenerate = ProfileGenerate()
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
 
         profile = os.path.basename(model_path)
         try:
-            exit_code = profile_generate.generate_markdown(
-                trestle_root=trestle_path,
-                profile_path=pathlib.Path(trestle_root, model_path, "profile.json"),
-                markdown_path=pathlib.Path(trestle_root, markdown_path, profile),
-                yaml_header={},
+            success = authoring.generate_profile_markdown(
+                name=profile,
+                output=os.path.join(markdown_path, profile),
+                force_overwrite=False,
+                yaml_header="",
                 overwrite_header_values=False,
-                sections_dict={},
-                required_sections=[],
+                sections="",
+                required_sections="",
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while regenerating {profile}"
                 )

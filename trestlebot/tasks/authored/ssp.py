@@ -16,7 +16,6 @@
 
 """Trestle Bot functions for SSP authoring"""
 
-import argparse
 import json
 import logging
 import os
@@ -24,8 +23,9 @@ import pathlib
 from typing import Any, Dict, List, Optional
 
 from trestle.common.err import TrestleError
-from trestle.core.commands.author.ssp import SSPAssemble, SSPFilter, SSPGenerate
+from trestle.core.commands.author.ssp import SSPFilter
 from trestle.core.commands.common.return_codes import CmdReturnCodes
+from trestle.core.repository import AgileAuthoring
 
 from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
 from trestlebot.tasks.authored.base_authored import (
@@ -137,11 +137,6 @@ class SSPIndex:
             json.dump(data, file, indent=4)
 
 
-# TODO: Move away from using private run to a public function.
-# Done initially because a lot of required high level logic for SSP is private.
-# See - https://github.com/IBM/compliance-trestle/pull/1432
-
-
 class AuthoredSSP(AuthorObjectBase):
     """
     Class for authoring OSCAL SSPs in automation
@@ -156,26 +151,24 @@ class AuthoredSSP(AuthorObjectBase):
 
     def assemble(self, markdown_path: str, version_tag: str = "") -> None:
         """Run assemble actions for ssp type at the provided path"""
-        ssp_assemble: SSPAssemble = SSPAssemble()
         ssp = os.path.basename(markdown_path)
 
         comps = self.ssp_index.get_comps_by_ssp(ssp)
         component_str = ",".join(comps)
 
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
+
         try:
-            args = argparse.Namespace(
-                trestle_root=self.get_trestle_root(),
-                markdown=markdown_path,
+            success = authoring.assemble_ssp_markdown(
+                name=ssp,
                 output=ssp,
-                verbose=0,
+                markdown_dir=markdown_path,
                 regenerate=False,
                 version=version_tag,
-                name=None,
                 compdefs=component_str,
             )
-
-            exit_code = ssp_assemble._run(args)
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while assembling {ssp}"
                 )
@@ -184,30 +177,31 @@ class AuthoredSSP(AuthorObjectBase):
 
     def regenerate(self, model_path: str, markdown_path: str) -> None:
         """Run regenerate actions for ssp type at the provided path"""
-        trestle_root = self.get_trestle_root()
-        trestle_path = pathlib.Path(trestle_root)
-        ssp_generate: SSPGenerate = SSPGenerate()
 
         ssp = os.path.basename(model_path)
         comps = self.ssp_index.get_comps_by_ssp(ssp)
+        component_str = ",".join(comps)
+
         profile = self.ssp_index.get_profile_by_ssp(ssp)
 
         leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp)
         if leveraged_ssp is None:
             leveraged_ssp = ""
 
+        trestle_root = pathlib.Path(self.get_trestle_root())
+        authoring = AgileAuthoring(trestle_root)
+
         try:
-            exit_code = ssp_generate._generate_ssp_markdown(
-                trestle_root=trestle_path,
-                profile_name_or_href=profile,
-                compdef_name_list=comps,
-                md_path=pathlib.Path(trestle_root, markdown_path, ssp),
-                yaml_header={},
-                overwrite_header_values=False,
+            success = authoring.generate_ssp_markdown(
+                output=os.path.join(markdown_path, ssp),
                 force_overwrite=False,
-                leveraged_ssp_name_or_href=leveraged_ssp,
+                yaml_header="",
+                overwrite_header_values=False,
+                compdefs=component_str,
+                profile=profile,
+                leveraged_ssp=leveraged_ssp,
             )
-            if exit_code != CmdReturnCodes.SUCCESS.value:
+            if not success:
                 raise AuthoredObjectException(
                     f"Unknown error occurred while regenerating {ssp}"
                 )
