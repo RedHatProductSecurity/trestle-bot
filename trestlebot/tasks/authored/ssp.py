@@ -156,10 +156,6 @@ class AuthoredSSP(AuthorObjectBase):
         comps = self.ssp_index.get_comps_by_ssp(ssp)
         component_str = ",".join(comps)
 
-        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp)
-        if leveraged_ssp is None:
-            leveraged_ssp = ""
-
         trestle_root = pathlib.Path(self.get_trestle_root())
         authoring = AgileAuthoring(trestle_root)
 
@@ -171,7 +167,6 @@ class AuthoredSSP(AuthorObjectBase):
                 regenerate=False,
                 version=version_tag,
                 compdefs=component_str,
-                leveraged_ssp=leveraged_ssp,
             )
             if not success:
                 raise AuthoredObjectException(

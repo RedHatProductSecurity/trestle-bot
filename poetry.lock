@@ -427,7 +427,7 @@ files = [
 
 [[package]]
 name = "compliance-trestle"
-version = "0.1.dev1106+g7fd10e8"
+version = "0.1.dev1134+g27533b4"
 description = "Tools to manage & autogenerate python objects representing the OSCAL layers/models"
 optional = false
 python-versions = "*"
@@ -458,8 +458,8 @@ dev = ["gitpython", "livereload", "markdown-include", "mkdocs (==1.5.0)", "mkdoc
 [package.source]
 type = "git"
 url = "https://github.com/RedHatProductSecurity/compliance-trestle.git"
-reference = "PSCE-138"
-resolved_reference = "7fd10e86c0d1579b6d957a8dbf4f16fdefd893f9"
+reference = "27533b4c5537c8022cee1671b71bf338afc50e2b"
+resolved_reference = "27533b4c5537c8022cee1671b71bf338afc50e2b"
 
 [[package]]
 name = "coverage"
@@ -575,13 +575,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "datamodel-code-generator"
-version = "0.21.5"
+version = "0.22.0"
 description = "Datamodel Code Generator"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "datamodel_code_generator-0.21.5-py3-none-any.whl", hash = "sha256:b7fe5e83404600a24fec2d653d9db361976c768790729f5c80edbfacdd6d74e5"},
-    {file = "datamodel_code_generator-0.21.5.tar.gz", hash = "sha256:be971a96de2b4e3639fab6b979f1fd538872a5a86bc7b78d710eb3591e4bc3ac"},
+    {file = "datamodel_code_generator-0.22.0-py3-none-any.whl", hash = "sha256:5cf8fc4fb6fe7aa750595a558cd4fcd43e36e862f40b0fa4cc123b4548b16a1e"},
+    {file = "datamodel_code_generator-0.22.0.tar.gz", hash = "sha256:73ebcefa498e39d0f210923856cb4a498bacc3b7bdea140cca7324e25f5c581b"},
 ]
 
 [package.dependencies]
@@ -788,20 +788,20 @@ test = ["betamax (>=0.5.1)", "betamax-matchers (>=0.3.0)", "pytest (>=7.0)", "py
 
 [[package]]
 name = "gitpython"
-version = "3.1.36"
+version = "3.1.37"
 description = "GitPython is a Python library used to interact with Git repositories"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "GitPython-3.1.36-py3-none-any.whl", hash = "sha256:8d22b5cfefd17c79914226982bb7851d6ade47545b1735a9d010a2a4c26d8388"},
-    {file = "GitPython-3.1.36.tar.gz", hash = "sha256:4bb0c2a6995e85064140d31a33289aa5dce80133a23d36fcd372d716c54d3ebf"},
+    {file = "GitPython-3.1.37-py3-none-any.whl", hash = "sha256:5f4c4187de49616d710a77e98ddf17b4782060a1788df441846bddefbb89ab33"},
+    {file = "GitPython-3.1.37.tar.gz", hash = "sha256:f9b9ddc0761c125d5780eab2d64be4873fc6817c2899cbcb34b02344bdc7bc54"},
 ]
 
 [package.dependencies]
 gitdb = ">=4.0.1,<5"
 
 [package.extras]
-test = ["black", "coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mypy", "pre-commit", "pytest", "pytest-cov", "pytest-sugar", "virtualenv"]
+test = ["black", "coverage[toml]", "ddt (>=1.1.1,!=1.4.3)", "mypy", "pre-commit", "pytest", "pytest-cov", "pytest-sugar"]
 
 [[package]]
 name = "h11"
@@ -2141,13 +2141,13 @@ files = [
 
 [[package]]
 name = "urllib3"
-version = "2.0.4"
+version = "2.0.5"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "urllib3-2.0.4-py3-none-any.whl", hash = "sha256:de7df1803967d2c2a98e4b11bb7d6bd9210474c46e8a0401514e3a42a75ebde4"},
-    {file = "urllib3-2.0.4.tar.gz", hash = "sha256:8d22f86aae8ef5e410d4f539fde9ce6b2113a001bb4d189e0aed70642d602b11"},
+    {file = "urllib3-2.0.5-py3-none-any.whl", hash = "sha256:ef16afa8ba34a1f989db38e1dbbe0c302e4289a47856990d0682e374563ce35e"},
+    {file = "urllib3-2.0.5.tar.gz", hash = "sha256:13abf37382ea2ce6fb744d4dad67838eec857c9f4f57009891805e0b5e123594"},
 ]
 
 [package.extras]
@@ -2174,4 +2174,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "f2f8213afdce58b0a1df3c53139f8b06edd04759d58680d8bbe4f547dbce765f"
+content-hash = "5413710151b7b6221b41fdc82eca45e44fbd764508ebf4085c4eeab946af395d"
