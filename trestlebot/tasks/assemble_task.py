@@ -70,9 +70,9 @@ class AssembleTask(TaskBase):
           0 on success, raises an exception if not successful
         """
         authored_object: AuthorObjectBase = types.get_authored_object(
-            self._authored_model, self.get_working_dir(), self._ssp_index_path
+            self._authored_model, self.working_dir, self._ssp_index_path
         )
-        search_path = os.path.join(self.get_working_dir(), self._markdown_dir)
+        search_path = os.path.join(self.working_dir, self._markdown_dir)
         for model in self.iterate_models(pathlib.Path(search_path)):
             # Construct model path from markdown path. AuthoredObject already has
             # the working dir data as part of object construction.

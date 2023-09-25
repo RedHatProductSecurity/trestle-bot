@@ -24,6 +24,7 @@ gitpython = "^3.1.35"
 compliance-trestle = {git = "https://github.com/IBM/compliance-trestle.git", rev = "725f6980f83b040fec4145cfebd4c80af2f7196f"}
 github3-py = "^4.0.1"
 python-gitlab = "^3.15.0"
+ruamel-yaml = "^0.17.32"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
