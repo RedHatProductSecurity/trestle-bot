@@ -14,27 +14,29 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Global constants"""
-
-import trestle.common.const as trestle_const
-
-# Common exit codes
-SUCCESS_EXIT_CODE = 0
-ERROR_EXIT_CODE = 1
+"""Test for YAML to CSV Transformer."""
 
 
-# SSP Index Fields
+def test_csv_builder() -> None:
+    """Test CSV builder on a happy path"""
+    pass
 
-PROFILE_KEY_NAME = "profile"
-COMPDEF_KEY_NAME = "component_definitions"
-LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
 
-# Rule YAML Fields
-RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
-NAME = 'name'
-DESCRIPTION = 'description'
-PARAMETERS = 'parameters'
-PROFILES = 'profiles'
+def test_csv_builder_with_invalid_row() -> None:
+    """Test CSV builder with invalid row."""
+    pass
 
-# Rule CSV Fields
-TRESTLE_RULES_CSV = "rules.csv"
+
+def test_rule_transformer() -> None:
+    """Test rule transformer."""
+    pass
+
+
+def test_rules_transform_with_invalid_format() -> None:
+    """Test rules transform with invalid format."""
+    pass
+
+
+def test_rules_transform_with_incomplete_rule() -> None:
+    """Test rules transform with incomplete rule."""
+    pass

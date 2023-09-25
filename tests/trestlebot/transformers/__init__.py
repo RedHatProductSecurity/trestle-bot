@@ -13,28 +13,4 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-"""Global constants"""
-
-import trestle.common.const as trestle_const
-
-# Common exit codes
-SUCCESS_EXIT_CODE = 0
-ERROR_EXIT_CODE = 1
-
-
-# SSP Index Fields
-
-PROFILE_KEY_NAME = "profile"
-COMPDEF_KEY_NAME = "component_definitions"
-LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
-
-# Rule YAML Fields
-RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
-NAME = 'name'
-DESCRIPTION = 'description'
-PARAMETERS = 'parameters'
-PROFILES = 'profiles'
-
-# Rule CSV Fields
-TRESTLE_RULES_CSV = "rules.csv"
+"""Test transformers package."""

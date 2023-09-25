@@ -14,27 +14,24 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Global constants"""
-
-import trestle.common.const as trestle_const
-
-# Common exit codes
-SUCCESS_EXIT_CODE = 0
-ERROR_EXIT_CODE = 1
+"""Test for Trestle Bot rule transform task"""
 
 
-# SSP Index Fields
+def test_rule_transform_task() -> None:
+    """Test rule transform task."""
+    pass
 
-PROFILE_KEY_NAME = "profile"
-COMPDEF_KEY_NAME = "component_definitions"
-LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
 
-# Rule YAML Fields
-RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
-NAME = 'name'
-DESCRIPTION = 'description'
-PARAMETERS = 'parameters'
-PROFILES = 'profiles'
+def test_rule_transform_task_with_invalid_rule() -> None:
+    """Test rule transform task with invalid rule."""
+    pass
 
-# Rule CSV Fields
-TRESTLE_RULES_CSV = "rules.csv"
+
+def test_rule_transform_task_with_skip() -> None:
+    """Test rule transform task with skip."""
+    pass
+
+
+def test_rule_transform_idempotent() -> None:
+    """Test rule transform task idempotent lifecycle operations."""
+    pass
