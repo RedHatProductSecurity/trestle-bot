@@ -18,6 +18,7 @@
 
 import trestle.common.const as trestle_const
 
+
 # Common exit codes
 SUCCESS_EXIT_CODE = 0
 ERROR_EXIT_CODE = 1
@@ -31,10 +32,13 @@ LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
 
 # Rule YAML Fields
 RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
-NAME = 'name'
-DESCRIPTION = 'description'
-PARAMETERS = 'parameters'
-PROFILES = 'profiles'
+NAME = "name"
+DESCRIPTION = "description"
+PARAMETERS = "parameter"
+PROFILES = "profile"
 
 # Rule CSV Fields
 TRESTLE_RULES_CSV = "rules.csv"
+
+COMPONENT_YAML = "component.yaml"
+COMPONENT_INFO_TAG = trestle_const.TRESTLE_TAG + "component-info"

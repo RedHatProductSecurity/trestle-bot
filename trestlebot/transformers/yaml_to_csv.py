@@ -21,10 +21,11 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
+import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 from ruamel.yaml import YAML
+from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.tasks.csv_to_oscal_cd import CsvColumn
 from trestle.transforms.transformer_factory import TransformerBase
-
 
 from trestlebot import const
 
@@ -45,11 +46,19 @@ class Profile:
 
 
 @dataclass
+class ComponentInfo:
+    name: str
+    type: str
+    description: str
+
+
+@dataclass
 class TrestleRule:
     name: str
     description: str
-    parameters: List[Parameter]
-    profiles: List[Profile]
+    component: ComponentInfo
+    parameter: Parameter
+    profile: Profile
 
 
 class RulesTransformer(TransformerBase):
@@ -60,29 +69,69 @@ class RulesTransformer(TransformerBase):
         """Transform rule data."""
 
 
-class CSVBuilder():
-
+class CSVBuilder:
     def __init__(self) -> None:
         """Initialize."""
         self._csv_columns: CsvColumn = CsvColumn()
         self._rows: List[Dict[str, str]] = []
 
-    def add_to_column(self, column: str, value: str) -> None:
-        """Add a column to the CSV."""
+    def rule_to_csv(self, rule: TrestleRule) -> Dict[str, str]:
+        """Transform rules data to CSV."""
+        rule_dict: Dict[str, str] = {
+            csv_to_oscal_cd.RULE_ID: rule.name,
+            csv_to_oscal_cd.RULE_DESCRIPTION: rule.description,
+            csv_to_oscal_cd.NAMESPACE: TRESTLE_GENERIC_NS,
+        }
+        merged_dict = {
+            **rule_dict,
+            **self._add_profile(rule.profile),
+            **self._add_component_info(rule.component),
+            **self._add_parameter(rule.parameter),
+        }
+        return merged_dict
 
-    def add_row(self, row: Dict[str, str]) -> None:
-        """Add a row to the CSV."""
-        self._rows.append(row)
+    def _add_profile(self, profile: Profile) -> Dict[str, str]:
+        """Add a profile to the CSV Row."""
+        profile_dict: Dict[str, str] = {
+            csv_to_oscal_cd.PROFILE_DESCRIPTION: profile.description,
+            csv_to_oscal_cd.PROFILE_SOURCE: profile.href,
+            csv_to_oscal_cd.CONTROL_ID_LIST: ", ".join(profile.include_controls),
+        }
+        return profile_dict
+
+    def _add_parameter(self, parameter: Parameter) -> Dict[str, str]:
+        """Add a parameter to the CSV Row."""
+        parameter_dict: Dict[str, str] = {
+            csv_to_oscal_cd.PARAMETER_ID: parameter.name,
+            csv_to_oscal_cd.PARAMETER_DESCRIPTION: parameter.description,
+            csv_to_oscal_cd.PARAMETER_VALUE_ALTERNATIVES: f"{parameter.alternative_values}",
+            csv_to_oscal_cd.PARAMETER_VALUE_DEFAULT: parameter.default_value,
+        }
+        return parameter_dict
+
+    def _add_component_info(self, component_info: ComponentInfo) -> Dict[str, str]:
+        """Add a component info to the CSV Row."""
+        comp_dict: Dict[str, str] = {
+            csv_to_oscal_cd.COMPONENT_TITLE: component_info.name,
+            csv_to_oscal_cd.COMPONENT_DESCRIPTION: component_info.description,
+            csv_to_oscal_cd.COMPONENT_TYPE: component_info.type,
+        }
+        return comp_dict
 
     def validate_row(self, row: Dict[str, str]) -> None:
         """Validate a row."""
         for key in self._csv_columns.get_required_column_names():
             if key not in row:
-                raise RuntimeError(f'Row missing key: {key}')
+                raise RuntimeError(f"Row missing key: {key}")
+
+    def add_row(self, row: Dict[str, str]) -> None:
+        """Add a row to the CSV."""
+        self.validate_row(row)
+        self._rows.append(row)
 
     def write_to_file(self, filepath: pathlib.Path) -> None:
         """Write the CSV to file."""
-        with open(filepath, mode='w', newline='') as csv_file:
+        with open(filepath, mode="w", newline="") as csv_file:
             fieldnames: List[str] = []
             fieldnames.extend(self._csv_columns.get_required_column_names())
             fieldnames.extend(self._csv_columns.get_optional_column_names())
@@ -104,39 +153,35 @@ class RulesYAMLToRulesCSVRowTransformer(RulesTransformer):
     def transform(self, blob: str) -> Dict[str, Any]:
         """Rules YAML data into a row of CSV."""
         trestle_rule: TrestleRule = self._ingest_yaml(blob)
-        csv_data: Dict[str, Any] = {
-            'Rule Name': trestle_rule.name,
-            'Rule Description': trestle_rule.description,
-            'Profile Count': len(trestle_rule.profiles),
-            'Parameter Count': len(trestle_rule.parameters),
-        }
-        self._csv_builder.validate_row(csv_data)
+        csv_data = self._csv_builder.rule_to_csv(trestle_rule)
         return csv_data
 
     @staticmethod
     def _ingest_yaml(blob: str) -> TrestleRule:
         """Ingest the YAML blob into a TrestleData object."""
         try:
-            yaml = YAML(typ='safe')
+            yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
         except Exception as e:
             raise RuntimeError(e)
 
         rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
-        # Extract profile data and create a list of Profile instances
-        profile_data = rule_info_data[const.PROFILES]
-        profile_instances: List[Profile] = [Profile(**data) for data in profile_data]
-
-        # Extract parameters from rule info and create a list of Parameter instances
         parameter_data = rule_info_data[const.PARAMETERS]
-        parameter_instances: List[Parameter] = [Parameter(**data) for data in parameter_data]
+        parameter_instance: Parameter = Parameter(**parameter_data)
+
+        profile_data = rule_info_data[const.PROFILES]
+        profile_instance: Profile = Profile(**profile_data)
+
+        component_info_data = yaml_data[const.COMPONENT_INFO_TAG]
+        component_info_instance: ComponentInfo = ComponentInfo(**component_info_data)
 
         rule_info_instance: TrestleRule = TrestleRule(
             name=rule_info_data[const.NAME],
             description=rule_info_data[const.DESCRIPTION],
-            parameters=parameter_instances,
-            profiles=profile_instances
+            component=component_info_instance,
+            parameter=parameter_instance,
+            profile=profile_instance,
         )
 
         return rule_info_instance

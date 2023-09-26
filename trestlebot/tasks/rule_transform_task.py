@@ -21,7 +21,10 @@ from typing import List
 
 import trestlebot.const as const
 from trestlebot.tasks.base_task import TaskBase
-from trestlebot.transformers.yaml_to_csv import CSVBuilder, RulesYAMLToRulesCSVRowTransformer
+from trestlebot.transformers.yaml_to_csv import (
+    CSVBuilder,
+    RulesYAMLToRulesCSVRowTransformer,
+)
 
 
 class RuleTransformTask(TaskBase):
