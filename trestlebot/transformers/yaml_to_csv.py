@@ -32,6 +32,7 @@ from trestlebot import const
 
 @dataclass
 class Parameter:
+    """Parameter dataclass."""
     name: str
     description: str
     alternative_values: dict
@@ -40,6 +41,7 @@ class Parameter:
 
 @dataclass
 class Profile:
+    """Profile dataclass."""
     description: str
     href: str
     include_controls: List[str]
@@ -47,6 +49,7 @@ class Profile:
 
 @dataclass
 class ComponentInfo:
+    """ComponentInfo dataclass."""
     name: str
     type: str
     description: str
@@ -54,6 +57,7 @@ class ComponentInfo:
 
 @dataclass
 class TrestleRule:
+    """TrestleRule dataclass."""
     name: str
     description: str
     component: ComponentInfo
