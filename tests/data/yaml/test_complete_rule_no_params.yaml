@@ -1,0 +1,12 @@
+x-trestle-rule-info:
+  name: example_rule_2
+  description: My rule description for example rule 2
+  profile:
+    description: Simple NIST Profile
+    href: profiles/simplified_nist_profile/profile.json
+    include-controls:
+      - id: ac-1
+x-trestle-component-info:
+  name: Component 1
+  description: Component 1 description
+  type: service

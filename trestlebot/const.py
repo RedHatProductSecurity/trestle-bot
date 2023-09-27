@@ -36,9 +36,12 @@ NAME = "name"
 DESCRIPTION = "description"
 PARAMETERS = "parameter"
 PROFILES = "profile"
-
-# Rule CSV Fields
-TRESTLE_RULES_CSV = "rules.csv"
+HREF = "href"
+INCLUDE_CONTROLS = "include-controls"
+DEFAULT_VALUE = "default-value"
+ALTERNATIVE_VALUES = "alternative-values"
 
 COMPONENT_YAML = "component.yaml"
 COMPONENT_INFO_TAG = trestle_const.TRESTLE_TAG + "component-info"
+
+YAML_EXTENSION = ".yaml"

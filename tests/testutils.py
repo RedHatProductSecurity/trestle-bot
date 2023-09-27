@@ -30,10 +30,16 @@ from trestle.oscal import catalog as cat
 from trestle.oscal import component as comp
 from trestle.oscal import profile as prof
 
-from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
+from trestlebot.const import (
+    COMPDEF_KEY_NAME,
+    LEVERAGED_SSP_KEY_NAME,
+    PROFILE_KEY_NAME,
+    YAML_EXTENSION,
+)
 
 
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
+YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
 
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
@@ -56,6 +62,20 @@ def load_from_json(
     )
     dst_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src_path, dst_path)  # type: ignore
+
+
+def load_from_yaml(
+    rules_path: pathlib.Path,
+    file_prefix: str,
+    dst_name: str = "",
+) -> None:
+    """Load rule from YAML test dir."""
+    if not dst_name:
+        dst_name = file_prefix
+    src_path = YAML_TEST_DATA_PATH / f"{file_prefix}{YAML_EXTENSION}"
+    rules_path = rules_path.joinpath(f"{dst_name}{YAML_EXTENSION}")
+    rules_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src_path, rules_path)  # type: ignore
 
 
 def setup_for_ssp(
@@ -168,6 +188,44 @@ def setup_for_compdef(
     )
 
     return args
+
+
+def setup_rules_view(
+    tmp_trestle_dir: pathlib.Path,
+    output_name: str,
+    rules_dir: str = "rules",
+    comp_name: str = "test_comp",
+    incomplete_rule: bool = False,
+    skip_rules: bool = False,
+) -> None:
+    """Prepare rules view for testing with a single component definition and test component."""
+    load_from_json(
+        tmp_trestle_dir,
+        "simplified_nist_profile",
+        "simplified_nist_profile",
+        prof.Profile,  # type: ignore
+    )
+    load_from_json(
+        tmp_trestle_dir,
+        "simplified_nist_catalog",
+        "simplified_nist_catalog",
+        cat.Catalog,  # type: ignore
+    )
+    rules_path = tmp_trestle_dir.joinpath(rules_dir)
+    compdef_dir = rules_path.joinpath(output_name)
+    comp_dir = compdef_dir.joinpath(comp_name)
+    comp_dir.mkdir(parents=True, exist_ok=True)
+
+    if skip_rules:
+        return
+
+    if incomplete_rule:
+        load_from_yaml(comp_dir, "test_incomplete_rule")
+    else:
+        # Load a complete rule with optional fields
+        load_from_yaml(comp_dir, "test_complete_rule")
+        # Load a complete rule with only required fields
+        load_from_yaml(comp_dir, "test_complete_rule_no_params")
 
 
 def write_index_json(
