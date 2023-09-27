@@ -55,8 +55,7 @@ class RuleTransformTask(TaskBase):
             The rule_view_dir is expected to be a directory containing directories of
             components definitions. Each component definition directory is
             expected to contain a directories separated by component name. Each component directory is
-            expected to contain a rules directory. The rules directory is expected to
-            contain rule files in YAML format.
+            expected to contain rule files in YAML format.
         """
 
         self._rule_view_dir = rules_view_dir
