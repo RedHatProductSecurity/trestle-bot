@@ -24,7 +24,7 @@ from typing import List
 
 import trestle.common.const as trestle_const
 from trestle.tasks.base_task import TaskOutcome
-from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition  # mypy: ignore
+from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition
 
 import trestlebot.const as const
 from trestlebot.tasks.base_task import TaskBase, TaskException

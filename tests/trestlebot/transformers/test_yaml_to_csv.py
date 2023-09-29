@@ -23,16 +23,15 @@ from typing import List
 import pytest
 
 from tests.testutils import YAML_TEST_DATA_PATH
-from trestlebot.transformers.trestle_rule import RulesTransformerException
-from trestlebot.transformers.yaml_to_csv import (
+from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
-    CSVBuilder,
     Parameter,
     Profile,
-    RulesYAMLTransformer,
+    RulesTransformerException,
     TrestleRule,
 )
+from trestlebot.transformers.yaml_to_csv import CSVBuilder, RulesYAMLTransformer
 
 
 test_comp = "my comp"

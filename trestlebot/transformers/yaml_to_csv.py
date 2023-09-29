@@ -20,10 +20,24 @@ import logging
 import pathlib
 from typing import Any, Dict, List
 
-import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 from ruamel.yaml import YAML
 from trestle.common.const import TRESTLE_GENERIC_NS
-from trestle.tasks.csv_to_oscal_cd import CsvColumn
+from trestle.tasks.csv_to_oscal_cd import (
+    COMPONENT_DESCRIPTION,
+    COMPONENT_TITLE,
+    COMPONENT_TYPE,
+    CONTROL_ID_LIST,
+    NAMESPACE,
+    PARAMETER_DESCRIPTION,
+    PARAMETER_ID,
+    PARAMETER_VALUE_ALTERNATIVES,
+    PARAMETER_VALUE_DEFAULT,
+    PROFILE_DESCRIPTION,
+    PROFILE_SOURCE,
+    RULE_DESCRIPTION,
+    RULE_ID,
+    CsvColumn,
+)
 
 from trestlebot import const
 from trestlebot.transformers.trestle_rule import (
@@ -129,9 +143,9 @@ class CSVBuilder:
     def _rule_to_csv(self, rule: TrestleRule) -> Dict[str, str]:
         """Transform rules data to CSV."""
         rule_dict: Dict[str, str] = {
-            csv_to_oscal_cd.RULE_ID: rule.name,
-            csv_to_oscal_cd.RULE_DESCRIPTION: rule.description,
-            csv_to_oscal_cd.NAMESPACE: TRESTLE_GENERIC_NS,
+            RULE_ID: rule.name,
+            RULE_DESCRIPTION: rule.description,
+            NAMESPACE: TRESTLE_GENERIC_NS,
         }
         merged_dict = {
             **rule_dict,
@@ -146,28 +160,28 @@ class CSVBuilder:
         """Add a profile to the CSV Row."""
         controls_list: List[str] = [control.id for control in profile.include_controls]
         profile_dict: Dict[str, str] = {
-            csv_to_oscal_cd.PROFILE_DESCRIPTION: profile.description,
-            csv_to_oscal_cd.PROFILE_SOURCE: profile.href,
-            csv_to_oscal_cd.CONTROL_ID_LIST: ", ".join(controls_list),
+            PROFILE_DESCRIPTION: profile.description,
+            PROFILE_SOURCE: profile.href,
+            CONTROL_ID_LIST: ", ".join(controls_list),
         }
         return profile_dict
 
     def _add_parameter(self, parameter: Parameter) -> Dict[str, str]:
         """Add a parameter to the CSV Row."""
         parameter_dict: Dict[str, str] = {
-            csv_to_oscal_cd.PARAMETER_ID: parameter.name,
-            csv_to_oscal_cd.PARAMETER_DESCRIPTION: parameter.description,
-            csv_to_oscal_cd.PARAMETER_VALUE_ALTERNATIVES: f"{parameter.alternative_values}",
-            csv_to_oscal_cd.PARAMETER_VALUE_DEFAULT: parameter.default_value,
+            PARAMETER_ID: parameter.name,
+            PARAMETER_DESCRIPTION: parameter.description,
+            PARAMETER_VALUE_ALTERNATIVES: f"{parameter.alternative_values}",
+            PARAMETER_VALUE_DEFAULT: parameter.default_value,
         }
         return parameter_dict
 
     def _add_component_info(self, component_info: ComponentInfo) -> Dict[str, str]:
         """Add a component info to the CSV Row."""
         comp_dict: Dict[str, str] = {
-            csv_to_oscal_cd.COMPONENT_TITLE: component_info.name,
-            csv_to_oscal_cd.COMPONENT_DESCRIPTION: component_info.description,
-            csv_to_oscal_cd.COMPONENT_TYPE: component_info.type,
+            COMPONENT_TITLE: component_info.name,
+            COMPONENT_DESCRIPTION: component_info.description,
+            COMPONENT_TYPE: component_info.type,
         }
         return comp_dict
 

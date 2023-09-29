@@ -18,7 +18,7 @@
 
 from abc import abstractmethod
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from trestle.transforms.transformer_factory import TransformerBase
 
@@ -29,7 +29,7 @@ class Parameter:
 
     name: str
     description: str
-    alternative_values: dict
+    alternative_values: Dict[str, Any]
     default_value: str
 
 

@@ -61,7 +61,7 @@ def load_from_json(
         tmp_trestle_dir, model_name, model_type, FileContentType.JSON  # type: ignore
     )
     dst_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src_path, dst_path)  # type: ignore
+    shutil.copy2(src_path, dst_path)
 
 
 def load_from_yaml(
@@ -75,7 +75,7 @@ def load_from_yaml(
     src_path = YAML_TEST_DATA_PATH / f"{file_prefix}{YAML_EXTENSION}"
     rules_path = rules_path.joinpath(f"{dst_name}{YAML_EXTENSION}")
     rules_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src_path, rules_path)  # type: ignore
+    shutil.copy2(src_path, rules_path)
 
 
 def setup_for_ssp(
