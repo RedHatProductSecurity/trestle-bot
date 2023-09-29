@@ -16,72 +16,28 @@
 
 """YAML to CSV transformer for rule authoring."""
 import csv
+import logging
 import pathlib
-from abc import abstractmethod
-from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 from ruamel.yaml import YAML
 from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.tasks.csv_to_oscal_cd import CsvColumn
-from trestle.transforms.transformer_factory import TransformerBase
 
 from trestlebot import const
+from trestlebot.transformers.trestle_rule import (
+    ComponentInfo,
+    Control,
+    Parameter,
+    Profile,
+    RulesTransformer,
+    RulesTransformerException,
+    TrestleRule,
+)
 
 
-@dataclass
-class Parameter:
-    """Parameter dataclass."""
-
-    name: str
-    description: str
-    alternative_values: dict
-    default_value: str
-
-
-@dataclass
-class Control:
-    """Control dataclass."""
-
-    id: str
-
-
-@dataclass
-class Profile:
-    """Profile dataclass."""
-
-    description: str
-    href: str
-    include_controls: List[Control]
-
-
-@dataclass
-class ComponentInfo:
-    """ComponentInfo dataclass."""
-
-    name: str
-    type: str
-    description: str
-
-
-@dataclass
-class TrestleRule:
-    """TrestleRule dataclass."""
-
-    name: str
-    description: str
-    component: ComponentInfo
-    parameter: Optional[Parameter]
-    profile: Profile
-
-
-class RulesTransformer(TransformerBase):
-    """Abstract interface for transformers for rules"""
-
-    @abstractmethod
-    def transform(self, blob: str) -> TrestleRule:
-        """Transform rule data."""
+logger = logging.getLogger(__name__)
 
 
 class RulesYAMLTransformer(RulesTransformer):
@@ -140,7 +96,7 @@ class RulesYAMLTransformer(RulesTransformer):
                 rule_info_instance.parameter = parameter_instance
 
         except KeyError as e:
-            raise RuntimeError(f"Missing key in YAML file: {e}")
+            raise RulesTransformerException(f"Missing key in YAML file: {e}")
         except Exception as e:
             raise RuntimeError(e)
 
@@ -217,6 +173,7 @@ class CSVBuilder:
 
     def write_to_file(self, filepath: pathlib.Path) -> None:
         """Write the CSV to file."""
+        logger.debug(f"Writing CSV to {filepath}")
         with open(filepath, mode="w", newline="") as csv_file:
             fieldnames: List[str] = []
             fieldnames.extend(self._csv_columns.get_required_column_names())

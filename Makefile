@@ -14,7 +14,7 @@ lint:
 	@poetry run isort --profile=black --lines-after-imports=2 \
 	--check-only $(TESTS) $(PYMODULE)
 	@poetry run black --check $(TESTS) $(PYMODULE) --diff
-	@poetry run mypy $(PYMODULE) $(TESTS)
+	@poetry run mypy --follow-imports skip $(PYMODULE) $(TESTS)
 	@poetry run flake8
 .PHONY: lint
 

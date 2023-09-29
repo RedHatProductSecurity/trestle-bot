@@ -23,6 +23,7 @@ from typing import List
 import pytest
 
 from tests.testutils import YAML_TEST_DATA_PATH
+from trestlebot.transformers.trestle_rule import RulesTransformerException
 from trestlebot.transformers.yaml_to_csv import (
     ComponentInfo,
     Control,
@@ -130,6 +131,7 @@ def test_rules_transform_with_invalid_rule() -> None:
     transformer = RulesYAMLTransformer()
 
     with pytest.raises(
-        RuntimeError, match="Missing key in YAML file: 'x-trestle-rule-info'"
+        RulesTransformerException,
+        match="Missing key in YAML file: 'x-trestle-rule-info'",
     ):
         transformer.transform(test_string)

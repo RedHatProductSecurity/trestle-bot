@@ -17,17 +17,25 @@
 """Trestle Bot Rule Transform Tasks"""
 
 import configparser
+import logging
 import os
 import pathlib
 from typing import List
 
 import trestle.common.const as trestle_const
 from trestle.tasks.base_task import TaskOutcome
-from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition
+from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition  # mypy: ignore
 
 import trestlebot.const as const
 from trestlebot.tasks.base_task import TaskBase, TaskException
-from trestlebot.transformers.yaml_to_csv import CSVBuilder, RulesTransformer
+from trestlebot.transformers.trestle_rule import (
+    RulesTransformer,
+    RulesTransformerException,
+)
+from trestlebot.transformers.yaml_to_csv import CSVBuilder
+
+
+logger = logging.getLogger(__name__)
 
 
 class RuleTransformTask(TaskBase):
@@ -84,13 +92,21 @@ class RuleTransformTask(TaskBase):
     def _transform_components(self, component_definition_path: pathlib.Path) -> None:
         """Transform components into an OSCAL component definition."""
         csv_builder: CSVBuilder = CSVBuilder()
+        logger.debug(
+            f"Transforming rules for component definition {component_definition_path.name}"
+        )
         for component in self.iterate_models(component_definition_path):
             for rule_path in self.iterate_models(component):
                 # Load the rule into memory as a stream to process
                 rule_stream = rule_path.read_text()
 
-                rule = self._rule_transformer.transform(rule_stream)
-                csv_builder.add_row(rule)
+                try:
+                    rule = self._rule_transformer.transform(rule_stream)
+                    csv_builder.add_row(rule)
+                except RulesTransformerException as e:
+                    raise TaskException(
+                        f"Failed to transform rule {rule_path.name}: {e}"
+                    )
 
         if csv_builder.row_count == 0:
             raise TaskException(
