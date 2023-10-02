@@ -16,6 +16,9 @@
 
 """Global constants"""
 
+import trestle.common.const as trestle_const
+
+
 # Common exit codes
 SUCCESS_EXIT_CODE = 0
 ERROR_EXIT_CODE = 1
@@ -26,3 +29,19 @@ ERROR_EXIT_CODE = 1
 PROFILE_KEY_NAME = "profile"
 COMPDEF_KEY_NAME = "component_definitions"
 LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
+
+# Rule YAML Fields
+RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
+NAME = "name"
+DESCRIPTION = "description"
+PARAMETERS = "parameter"
+PROFILES = "profile"
+HREF = "href"
+INCLUDE_CONTROLS = "include-controls"
+DEFAULT_VALUE = "default-value"
+ALTERNATIVE_VALUES = "alternative-values"
+
+COMPONENT_YAML = "component.yaml"
+COMPONENT_INFO_TAG = trestle_const.TRESTLE_TAG + "component-info"
+
+YAML_EXTENSION = ".yaml"

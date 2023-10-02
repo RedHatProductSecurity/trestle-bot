@@ -70,12 +70,12 @@ class RegenerateTask(TaskBase):
          0 on success, raises an exception if not successful
         """
         authored_object: AuthorObjectBase = types.get_authored_object(
-            self._authored_model, self.get_working_dir(), self._ssp_index_path
+            self._authored_model, self.working_dir, self._ssp_index_path
         )
 
         model_dir = types.get_trestle_model_dir(self._authored_model)
 
-        search_path = os.path.join(self.get_working_dir(), model_dir)
+        search_path = os.path.join(self.working_dir, model_dir)
         for model in self.iterate_models(pathlib.Path(search_path)):
             model_base_name = os.path.basename(model)
             model_path = os.path.join(model_dir, model_base_name)

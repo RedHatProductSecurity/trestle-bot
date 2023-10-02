@@ -24,6 +24,7 @@ gitpython = "^3.1.35"
 compliance-trestle = {git = "https://github.com/IBM/compliance-trestle.git", rev = "725f6980f83b040fec4145cfebd4c80af2f7196f"}
 github3-py = "^4.0.1"
 python-gitlab = "^3.15.0"
+ruamel-yaml = "^0.17.32"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
@@ -60,6 +61,22 @@ testpaths = [
 ]
 
 [tool.mypy]
+
+plugins = [
+  "pydantic.mypy"
+]
+
+follow_imports = "skip"
+warn_redundant_casts = true
+disallow_any_generics = true
+check_untyped_defs = true
+no_implicit_reexport = true
+disallow_untyped_defs = true
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 [[tool.mypy.overrides]]
 module = "github3.*"

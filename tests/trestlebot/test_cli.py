@@ -18,7 +18,7 @@
 
 import logging
 import sys
-from typing import List
+from typing import Any, Dict, List
 from unittest.mock import patch
 
 import pytest
@@ -27,7 +27,7 @@ from trestlebot.cli import run as cli_main
 
 
 @pytest.fixture
-def valid_args_dict() -> dict:
+def valid_args_dict() -> Dict[str, str]:
     return {
         "branch": "main",
         "markdown-path": "/my/path",
@@ -39,7 +39,7 @@ def valid_args_dict() -> dict:
     }
 
 
-def args_dict_to_list(args_dict: dict) -> List[str]:
+def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
     args = []
     for k, v in args_dict.items():
         args.append(f"--{k}")
@@ -48,7 +48,9 @@ def args_dict_to_list(args_dict: dict) -> List[str]:
     return args
 
 
-def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
+def test_invalid_oscal_model(
+    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
+) -> None:
     """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "fake"
@@ -65,7 +67,9 @@ def test_invalid_oscal_model(monkeypatch, valid_args_dict, caplog):
     )
 
 
-def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
+def test_no_ssp_index(
+    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
+) -> None:
     """Test missing index file for ssp"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "ssp"
@@ -82,7 +86,9 @@ def test_no_ssp_index(monkeypatch, valid_args_dict, caplog):
     )
 
 
-def test_no_markdown_path(monkeypatch, valid_args_dict, caplog):
+def test_no_markdown_path(
+    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
+) -> None:
     """Test without a markdown file passed as a flag"""
     args_dict = valid_args_dict
     args_dict["markdown-path"] = ""
@@ -98,7 +104,9 @@ def test_no_markdown_path(monkeypatch, valid_args_dict, caplog):
     )
 
 
-def test_with_target_branch(monkeypatch, valid_args_dict, caplog):
+def test_with_target_branch(
+    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
+) -> None:
     """Test with target branch set an an unsupported Git provider"""
     args_dict = valid_args_dict
     args_dict["target-branch"] = "main"

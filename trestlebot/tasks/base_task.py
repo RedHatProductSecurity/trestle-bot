@@ -46,7 +46,8 @@ class TaskBase(ABC):
         self._skip_model_list = skip_list
         self._skip_model_list.append(const.TRESTLE_KEEP_FILE)
 
-    def get_working_dir(self) -> str:
+    @property
+    def working_dir(self) -> str:
         """Return the working directory"""
         return self._working_dir
 
