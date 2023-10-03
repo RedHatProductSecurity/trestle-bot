@@ -33,10 +33,12 @@ from trestle.core.models.file_content_type import FileContentType
 from trestle.core.profile_resolver import ProfileResolver
 from trestle.core.repository import AgileAuthoring
 
+from trestlebot.const import RULES_VIEW_DIR
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
+from trestlebot.transformers.csv_to_yaml import YAMLBuilder
 
 
 class AuthoredComponentsDefinition(AuthorObjectBase):
@@ -169,6 +171,18 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
 
         cd_path.parent.mkdir(parents=True, exist_ok=True)
         comp_data.oscal_write(path=cd_path)  # type: ignore
+
+        for component in comp_data.components:
+            ruledir: pathlib.Path = trestle_root.joinpath(
+                RULES_VIEW_DIR,
+                compdef_name,
+                component.title,
+                "rule_template.yaml",
+            )
+            ruledir.parent.mkdir(parents=True, exist_ok=True)
+
+            empty_yaml = YAMLBuilder()
+            empty_yaml.write_empty_trestle_rule_keys(ruledir)
 
 
 def get_control_implementation(
