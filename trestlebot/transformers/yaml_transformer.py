@@ -18,7 +18,7 @@
 import logging
 import pathlib
 from io import StringIO
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pydantic import ValidationError
 from ruamel.yaml import YAML
@@ -35,6 +35,7 @@ from trestlebot.transformers.trestle_rule import (
     Profile,
     TrestleRule,
 )
+from trestlebot.transformers.validations import ValidationHandler, ValidationOutcome
 
 
 logger = logging.getLogger(__name__)
@@ -43,8 +44,9 @@ logger = logging.getLogger(__name__)
 class ToRulesYAMLTransformer(ToRulesTransformer):
     """Interface for YAML transformer to Rules model."""
 
-    def __init__(self) -> None:
+    def __init__(self, validator: Optional[ValidationHandler] = None) -> None:
         """Initialize."""
+        self.validator: Optional[ValidationHandler] = validator
         super().__init__()
 
     def transform(self, blob: str) -> TrestleRule:
@@ -52,6 +54,15 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
         try:
             yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
+
+            logger.debug("Executing pre-validation on YAML data")
+            if self.validator is not None:
+                result = ValidationOutcome(errors=[], valid=True)
+                self.validator.handle(yaml_data, result)
+                if not result.valid:
+                    raise RulesTransformerException(
+                        f"Invalid YAML file: {result.errors}"
+                    )
 
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
