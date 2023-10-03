@@ -38,7 +38,7 @@ dep-cve-check:
 .PHONY: dep-cve-check
 
 security-check:
-	@poetry run bandit -r $(PYMODULE)
+	@pre-commit run semgrep --all-files
 .PHONY: security-check
 
 build: clean-build

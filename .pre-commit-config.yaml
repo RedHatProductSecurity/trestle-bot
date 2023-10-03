@@ -1,0 +1,13 @@
+repos:
+  - repo: https://github.com/returntocorp/semgrep
+    rev: v1.42.0
+    hooks:
+      - id: semgrep
+        name: Semgrep Python
+        types: [python]
+        args: ["--config", "p/python", "--error", --metrics=off]
+      - id: semgrep
+        name: Semgrep Bandit
+        types: [python]
+        exclude: "^tests/.+$"
+        args: ["--config", "p/bandit", "--error", --metrics=off]
