@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""YAML to CSV transformer for rule authoring."""
+"""YAML transformer for rule authoring."""
 import logging
 from io import StringIO
 from typing import Any, Dict

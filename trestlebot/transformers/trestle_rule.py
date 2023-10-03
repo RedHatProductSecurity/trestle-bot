@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Trestle Rule Dataclass."""
+"""Trestle Rule class with pydantic."""
 
 from typing import Any, Dict, List, Optional
 
