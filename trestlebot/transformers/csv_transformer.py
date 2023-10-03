@@ -14,13 +14,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""YAML to CSV transformer for rule authoring."""
 import csv
+import json
 import logging
 import pathlib
-from typing import Any, Dict, List
+from typing import Dict, List, Optional
 
-from ruamel.yaml import YAML
+import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.tasks.csv_to_oscal_cd import (
     COMPONENT_DESCRIPTION,
@@ -40,13 +40,12 @@ from trestle.tasks.csv_to_oscal_cd import (
 )
 
 from trestlebot import const
+from trestlebot.transformers.base_transformer import RulesTransformer
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
     Parameter,
     Profile,
-    RulesTransformer,
-    RulesTransformerException,
     TrestleRule,
 )
 
@@ -54,94 +53,70 @@ from trestlebot.transformers.trestle_rule import (
 logger = logging.getLogger(__name__)
 
 
-class RulesYAMLTransformer(RulesTransformer):
-    """Interface for YAML transformer to Rules model."""
+class RulesCSVTransformer(RulesTransformer):
+    """Interface for CSV transformer to Rules model."""
 
     def __init__(self) -> None:
         """Initialize."""
         super().__init__()
 
-    def transform(self, blob: str) -> TrestleRule:
+    def transform_to_rule(self, row: Dict[str, str]) -> TrestleRule:
+        """Transform a CSV row to a TrestleRule object."""
+        rule_info = self._extract_rule_info(row)
+        profile = self._extract_profile(row)
+        component_info = self._extract_component_info(row)
+        parameter = self._extract_parameter(row)
+
+        return TrestleRule(
+            name=rule_info[const.NAME],
+            description=rule_info[const.DESCRIPTION],
+            component=component_info,
+            parameter=parameter,
+            profile=profile,
+        )
+
+    def _extract_rule_info(self, row: Dict[str, str]) -> Dict[str, str]:
+        """Extract rule information from a CSV row."""
+        return {
+            "name": row.get(csv_to_oscal_cd.RULE_ID, ""),
+            "description": row.get(csv_to_oscal_cd.RULE_DESCRIPTION, ""),
+        }
+
+    def _extract_profile(self, row: Dict[str, str]) -> Profile:
+        """Extract profile information from a CSV row."""
+        controls_list = row.get(csv_to_oscal_cd.CONTROL_ID_LIST, "").split(", ")
+        return Profile(
+            description=row.get(csv_to_oscal_cd.PROFILE_DESCRIPTION, ""),
+            href=row.get(csv_to_oscal_cd.PROFILE_SOURCE, ""),
+            include_controls=[
+                Control(id=control_id.strip()) for control_id in controls_list
+            ],
+        )
+
+    def _extract_parameter(self, row: Dict[str, str]) -> Optional[Parameter]:
+        """Extract parameter information from a CSV row."""
+        parameter_name = row.get(csv_to_oscal_cd.PARAMETER_ID, None)
+        if parameter_name:
+            return Parameter(
+                name=parameter_name,
+                description=row.get(csv_to_oscal_cd.PARAMETER_DESCRIPTION, ""),
+                alternative_values=json.loads(
+                    row.get(csv_to_oscal_cd.PARAMETER_VALUE_ALTERNATIVES, "{}")
+                ),
+                default_value=row.get(csv_to_oscal_cd.PARAMETER_VALUE_DEFAULT, ""),
+            )
+        return None
+
+    def _extract_component_info(self, row: Dict[str, str]) -> ComponentInfo:
+        """Extract component information from a CSV row."""
+        return ComponentInfo(
+            name=row.get(csv_to_oscal_cd.COMPONENT_TITLE, ""),
+            type=row.get(csv_to_oscal_cd.COMPONENT_TYPE, ""),
+            description=row.get(csv_to_oscal_cd.COMPONENT_DESCRIPTION, ""),
+        )
+
+    def transform_from_rule(self, rule: TrestleRule) -> Dict[str, str]:
         """Rules YAML data into a row of CSV."""
-        trestle_rule: TrestleRule = self._ingest_yaml(blob)
-        return trestle_rule
-
-    @staticmethod
-    def _ingest_yaml(blob: str) -> TrestleRule:
-        """Ingest the YAML blob into a TrestleData object."""
-        try:
-            yaml = YAML(typ="safe")
-            yaml_data: Dict[str, Any] = yaml.load(blob)
-
-            rule_info_data = yaml_data[const.RULE_INFO_TAG]
-
-            # Unpack profile data
-            profile_data = rule_info_data[const.PROFILES]
-            profile_instance: Profile = Profile(
-                description=profile_data[const.DESCRIPTION],
-                href=profile_data[const.HREF],
-                include_controls=[
-                    Control(**control)
-                    for control in profile_data[const.INCLUDE_CONTROLS]
-                ],
-            )
-
-            component_info_data = yaml_data[const.COMPONENT_INFO_TAG]
-            component_info_instance: ComponentInfo = ComponentInfo(
-                **component_info_data
-            )
-
-            rule_info_instance: TrestleRule = TrestleRule(
-                name=rule_info_data[const.NAME],
-                description=rule_info_data[const.DESCRIPTION],
-                component=component_info_instance,
-                parameter=None,
-                profile=profile_instance,
-            )
-
-            if const.PARAMETERS in rule_info_data:
-                parameter_data = rule_info_data[const.PARAMETERS]
-                parameter_instance: Parameter = Parameter(
-                    name=parameter_data[const.NAME],
-                    description=parameter_data[const.DESCRIPTION],
-                    alternative_values=parameter_data[const.ALTERNATIVE_VALUES],
-                    default_value=parameter_data[const.DEFAULT_VALUE],
-                )
-                rule_info_instance.parameter = parameter_instance
-
-        except KeyError as e:
-            raise RulesTransformerException(f"Missing key in YAML file: {e}")
-        except Exception as e:
-            raise RuntimeError(e)
-
-        return rule_info_instance
-
-
-class CSVBuilder:
-    def __init__(self) -> None:
-        """Initialize."""
-        self._csv_columns: CsvColumn = CsvColumn()
-        self._rows: List[Dict[str, str]] = []
-
-    @property
-    def row_count(self) -> int:
-        """Return the number of rows."""
-        return len(self._rows)
-
-    def add_row(self, rule: TrestleRule) -> None:
-        """Add a row to the CSV."""
-        row = self._rule_to_csv(rule)
-        self.validate_row(row)
-        self._rows.append(row)
-
-    def validate_row(self, row: Dict[str, str]) -> None:
-        """Validate a row."""
-        for key in self._csv_columns.get_required_column_names():
-            if key not in row:
-                raise RuntimeError(f"Row missing key: {key}")
-
-    def _rule_to_csv(self, rule: TrestleRule) -> Dict[str, str]:
-        """Transform rules data to CSV."""
         rule_dict: Dict[str, str] = {
             RULE_ID: rule.name,
             RULE_DESCRIPTION: rule.description,
@@ -184,6 +159,33 @@ class CSVBuilder:
             COMPONENT_TYPE: component_info.type,
         }
         return comp_dict
+
+
+class CSVBuilder:
+    """Build a Trestle compliant CSV from a list of TrestleRules."""
+
+    def __init__(self) -> None:
+        """Initialize."""
+        self._csv_columns: CsvColumn = CsvColumn()
+        self._transformer: RulesCSVTransformer = RulesCSVTransformer()
+        self._rows: List[Dict[str, str]] = []
+
+    @property
+    def row_count(self) -> int:
+        """Return the number of rows."""
+        return len(self._rows)
+
+    def add_row(self, rule: TrestleRule) -> None:
+        """Add a row to the CSV."""
+        row = self._transformer.transform_from_rule(rule)
+        self.validate_row(row)
+        self._rows.append(row)
+
+    def validate_row(self, row: Dict[str, str]) -> None:
+        """Validate a row."""
+        for key in self._csv_columns.get_required_column_names():
+            if key not in row:
+                raise RuntimeError(f"Row missing key: {key}")
 
     def write_to_file(self, filepath: pathlib.Path) -> None:
         """Write the CSV to file."""

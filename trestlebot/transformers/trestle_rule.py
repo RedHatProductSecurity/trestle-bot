@@ -14,17 +14,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Trestle Rule Dataclass and base transformer."""
+"""Trestle Rule Dataclass."""
 
-from abc import abstractmethod
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from trestle.transforms.transformer_factory import TransformerBase
+from pydantic import BaseModel
 
 
-@dataclass
-class Parameter:
+class Parameter(BaseModel):
     """Parameter dataclass."""
 
     name: str
@@ -33,15 +30,13 @@ class Parameter:
     default_value: str
 
 
-@dataclass
-class Control:
+class Control(BaseModel):
     """Control dataclass."""
 
     id: str
 
 
-@dataclass
-class Profile:
+class Profile(BaseModel):
     """Profile dataclass."""
 
     description: str
@@ -49,8 +44,7 @@ class Profile:
     include_controls: List[Control]
 
 
-@dataclass
-class ComponentInfo:
+class ComponentInfo(BaseModel):
     """ComponentInfo dataclass."""
 
     name: str
@@ -58,8 +52,7 @@ class ComponentInfo:
     description: str
 
 
-@dataclass
-class TrestleRule:
+class TrestleRule(BaseModel):
     """TrestleRule dataclass."""
 
     name: str
@@ -67,15 +60,3 @@ class TrestleRule:
     component: ComponentInfo
     parameter: Optional[Parameter]
     profile: Profile
-
-
-class RulesTransformer(TransformerBase):
-    """Abstract interface for transformers for rules"""
-
-    @abstractmethod
-    def transform(self, blob: str) -> TrestleRule:
-        """Transform rule data."""
-
-
-class RulesTransformerException(Exception):
-    """An error during transformation of a rule"""

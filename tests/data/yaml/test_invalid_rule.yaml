@@ -1,11 +1,16 @@
 x-trestle-rule-info:
-  name: example_rule_2
-  description: My rule description for example rule 2
+  name: example_rule_1
+  description: My rule description for example rule 1
+  parameter:
+    name: prm_1
+    description: prm_1 description
+    alternative_values: "invalid"
+    default_value: true
   profile:
     description: Simple NIST Profile
     href: profiles/simplified_nist_profile/profile.json
     include_controls:
-      - id: ac-1
+      - id: ac-2
 x-trestle-component-info:
   name: Component 1
   description: Component 1 description

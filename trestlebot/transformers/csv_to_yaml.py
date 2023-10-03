@@ -15,28 +15,29 @@
 #    under the License.
 
 import csv
-import json
 import pathlib
-from dataclasses import asdict, fields
-from typing import Dict, List, Optional
+from typing import List
 
 import ruamel.yaml as yaml
-import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 
-from trestlebot import const
+from trestlebot.transformers.csv_transformer import RulesCSVTransformer
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
-    Parameter,
     Profile,
     TrestleRule,
 )
+from trestlebot.transformers.yaml_transformer import RulesYAMLTransformer
 
 
 class YAMLBuilder:
+    """Build Rules View in YAML from a CSV file."""
+
     def __init__(self) -> None:
         """Initialize."""
         self._rules: List[TrestleRule] = []
+        self._yaml_transformer = RulesYAMLTransformer()
+        self._csv_transformer = RulesCSVTransformer()
 
     def read_from_csv(self, filepath: pathlib.Path) -> None:
         """Read from a CSV file and populate self._rules."""
@@ -44,81 +45,41 @@ class YAMLBuilder:
             with open(filepath, mode="r", newline="") as csv_file:
                 reader = csv.DictReader(csv_file)
                 for row in reader:
-                    self._rules.append(self._csv_to_rule(row))
+                    self._rules.append(self._csv_transformer.transform_to_rule(row))
         except Exception as e:
             raise CSVReadError(f"Failed to read from CSV file: {e}")
-
-    def _csv_to_rule(self, row: Dict[str, str]) -> TrestleRule:
-        """Transform a CSV row to a TrestleRule object."""
-        rule_info = self._extract_rule_info(row)
-        profile = self._extract_profile(row)
-        component_info = self._extract_component_info(row)
-        parameter = self._extract_parameter(row)
-
-        return TrestleRule(
-            name=rule_info[const.NAME],
-            description=rule_info[const.DESCRIPTION],
-            component=component_info,
-            parameter=parameter,
-            profile=profile,
-        )
-
-    def _extract_rule_info(self, row: Dict[str, str]) -> Dict[str, str]:
-        """Extract rule information from a CSV row."""
-        return {
-            "name": row.get(csv_to_oscal_cd.RULE_ID, ""),
-            "description": row.get(csv_to_oscal_cd.RULE_DESCRIPTION, ""),
-        }
-
-    def _extract_profile(self, row: Dict[str, str]) -> Profile:
-        """Extract profile information from a CSV row."""
-        controls_list = row.get(csv_to_oscal_cd.CONTROL_ID_LIST, "").split(", ")
-        return Profile(
-            description=row.get(csv_to_oscal_cd.PROFILE_DESCRIPTION, ""),
-            href=row.get(csv_to_oscal_cd.PROFILE_SOURCE, ""),
-            include_controls=[
-                Control(id=control_id.strip()) for control_id in controls_list
-            ],
-        )
-
-    def _extract_parameter(self, row: Dict[str, str]) -> Optional[Parameter]:
-        """Extract parameter information from a CSV row."""
-        parameter_name = row.get(csv_to_oscal_cd.PARAMETER_ID, None)
-        if parameter_name:
-            return Parameter(
-                name=parameter_name,
-                description=row.get(csv_to_oscal_cd.PARAMETER_DESCRIPTION, ""),
-                alternative_values=json.loads(
-                    row.get(csv_to_oscal_cd.PARAMETER_VALUE_ALTERNATIVES, "{}")
-                ),
-                default_value=row.get(csv_to_oscal_cd.PARAMETER_VALUE_DEFAULT, ""),
-            )
-        return None
-
-    def _extract_component_info(self, row: Dict[str, str]) -> ComponentInfo:
-        """Extract component information from a CSV row."""
-        return ComponentInfo(
-            name=row.get(csv_to_oscal_cd.COMPONENT_TITLE, ""),
-            type=row.get(csv_to_oscal_cd.COMPONENT_TYPE, ""),
-            description=row.get(csv_to_oscal_cd.COMPONENT_DESCRIPTION, ""),
-        )
 
     def write_to_yaml(self, filepath: pathlib.Path) -> None:
         """Write the rules to a YAML file."""
         try:
             with open(filepath, "w") as yaml_file:
                 yaml.dump(
-                    [asdict(rule) for rule in self._rules], yaml_file
-                )  # Use Python's built-in asdict
+                    [self._yaml_transformer._write_yaml(rule) for rule in self._rules],
+                    yaml_file,
+                )
         except Exception as e:
             raise YAMLWriteError(f"Failed to write rules to YAML file: {e}")
 
-    def write_empty_trestle_rule_keys(self, filepath: pathlib.Path) -> None:
-        """Write empty TrestleRule keys to a YAML file."""
+    def write_default_trestle_rule_keys(self, filepath: pathlib.Path) -> None:
+        """Write default TrestleRule keys to a YAML file."""
         try:
-            empty_dict = {f.name: "" for f in fields(TrestleRule)}
+            test_rule = TrestleRule(
+                name="example rule",
+                description="example description",
+                component=ComponentInfo(
+                    name="example component",
+                    type="service",
+                    description="example description",
+                ),
+                profile=Profile(
+                    description="example profile",
+                    href="example href",
+                    include_controls=[Control(id="example")],
+                ),
+            )
+            yaml_blob = self._yaml_transformer._write_yaml(test_rule)
             with open(filepath, "w") as yaml_file:
-                yaml.dump(empty_dict, yaml_file)
+                yaml_file.write(yaml_blob)
         except Exception as e:
             raise YAMLWriteError(
                 f"Failed to write empty TrestleRule keys to YAML file: {e}"

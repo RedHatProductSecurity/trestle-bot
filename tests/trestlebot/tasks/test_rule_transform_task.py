@@ -28,7 +28,7 @@ from trestle.tasks.csv_to_oscal_cd import RULE_DESCRIPTION, RULE_ID
 from tests.testutils import setup_rules_view
 from trestlebot.tasks.base_task import TaskException
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
-from trestlebot.transformers.yaml_to_csv import RulesYAMLTransformer
+from trestlebot.transformers.yaml_transformer import RulesYAMLTransformer
 
 
 test_comp = "test_comp"

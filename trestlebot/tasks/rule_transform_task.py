@@ -28,11 +28,11 @@ from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition
 
 import trestlebot.const as const
 from trestlebot.tasks.base_task import TaskBase, TaskException
-from trestlebot.transformers.trestle_rule import (
+from trestlebot.transformers.base_transformer import (
     RulesTransformer,
     RulesTransformerException,
 )
-from trestlebot.transformers.yaml_to_csv import CSVBuilder
+from trestlebot.transformers.csv_transformer import CSVBuilder
 
 
 logger = logging.getLogger(__name__)
@@ -101,7 +101,7 @@ class RuleTransformTask(TaskBase):
                 rule_stream = rule_path.read_text()
 
                 try:
-                    rule = self._rule_transformer.transform(rule_stream)
+                    rule = self._rule_transformer.transform_to_rule(rule_stream)
                     csv_builder.add_row(rule)
                 except RulesTransformerException as e:
                     raise TaskException(

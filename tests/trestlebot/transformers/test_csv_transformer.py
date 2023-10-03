@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Test for YAML to CSV Transformer."""
+"""Test for CSV Transformer."""
 
 import csv
 import pathlib
@@ -22,16 +22,14 @@ from typing import List
 
 import pytest
 
-from tests.testutils import YAML_TEST_DATA_PATH
+from trestlebot.transformers.csv_transformer import CSVBuilder
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
     Parameter,
     Profile,
-    RulesTransformerException,
     TrestleRule,
 )
-from trestlebot.transformers.yaml_to_csv import CSVBuilder, RulesYAMLTransformer
 
 
 test_comp = "my comp"
@@ -44,7 +42,10 @@ def test_csv_builder(tmp_trestle_dir: str) -> None:
         description="test",
         component=ComponentInfo(name=test_comp, type="test", description="test"),
         parameter=Parameter(
-            name="test", description="test", alternative_values={}, default_value="test"
+            name="test",
+            description="test",
+            alternative_values={},
+            default_value="test",
         ),
         profile=Profile(
             description="test", href="test", include_controls=[Control(id="ac-1")]
@@ -89,48 +90,3 @@ def test_validate_row() -> None:
     csv_builder = CSVBuilder()
     with pytest.raises(RuntimeError, match="Row missing key: *"):
         csv_builder.validate_row(row)
-
-
-def test_rule_transformer() -> None:
-    """Test rule transformer."""
-    # load rule from path and close the file
-    # get the file info as a string
-    rule_path = YAML_TEST_DATA_PATH / "test_complete_rule.yaml"
-    rule_file = open(rule_path, "r")
-    rule_file_info = rule_file.read()
-    rule_file.close()
-
-    transformer = RulesYAMLTransformer()
-    rule = transformer.transform(rule_file_info)
-
-    assert rule.name == "example_rule_1"
-    assert rule.description == "My rule description for example rule 1"
-    assert rule.component.name == "Component 1"
-    assert rule.component.type == "service"
-    assert rule.component.description == "Component 1 description"
-    assert rule.parameter is not None
-    assert rule.parameter.name == "prm_1"
-    assert rule.parameter.description == "prm_1 description"
-    assert rule.parameter.alternative_values == {
-        "default": "5%",
-        "5pc": "5%",
-        "10pc": "10%",
-        "15pc": "15%",
-        "20pc": "20%",
-    }
-    assert rule.parameter.default_value == "5%"
-    assert rule.profile.description == "Simple NIST Profile"
-    assert rule.profile.href == "profiles/simplified_nist_profile/profile.json"
-
-
-def test_rules_transform_with_invalid_rule() -> None:
-    """Test rules transform with invalid rule."""
-    # Generate test json string
-    test_string = '{"test_json": "test"}'
-    transformer = RulesYAMLTransformer()
-
-    with pytest.raises(
-        RulesTransformerException,
-        match="Missing key in YAML file: 'x-trestle-rule-info'",
-    ):
-        transformer.transform(test_string)
