@@ -56,7 +56,12 @@ logger = logging.getLogger(__name__)
 
 
 class RulesCSVTransformer(RulesTransformer):
-    """Interface for CSV transformer to Rules model."""
+    """
+    Interface for CSV transformer to Rules model.
+
+    Notes: This will transform individual rows of CSV to and from a
+    Trestle object with row compliance with the Trestle CSV requirements.
+    """
 
     def __init__(self) -> None:
         """Initialize."""
@@ -76,6 +81,22 @@ class RulesCSVTransformer(RulesTransformer):
             parameter=parameter,
             profile=profile,
         )
+
+    def transform_from_rule(self, rule: TrestleRule) -> Dict[str, str]:
+        """Transforms TrestleRule into a row of CSV."""
+        rule_dict: Dict[str, str] = {
+            RULE_ID: rule.name,
+            RULE_DESCRIPTION: rule.description,
+            NAMESPACE: TRESTLE_GENERIC_NS,
+        }
+        merged_dict = {
+            **rule_dict,
+            **self._add_profile(rule.profile),
+            **self._add_component_info(rule.component),
+        }
+        if rule.parameter is not None:
+            merged_dict.update(self._add_parameter(rule.parameter))
+        return merged_dict
 
     def _extract_rule_info(self, row: Dict[str, str]) -> Dict[str, str]:
         """Extract rule information from a CSV row."""
@@ -116,22 +137,6 @@ class RulesCSVTransformer(RulesTransformer):
             type=row.get(csv_to_oscal_cd.COMPONENT_TYPE, ""),
             description=row.get(csv_to_oscal_cd.COMPONENT_DESCRIPTION, ""),
         )
-
-    def transform_from_rule(self, rule: TrestleRule) -> Dict[str, str]:
-        """Rules YAML data into a row of CSV."""
-        rule_dict: Dict[str, str] = {
-            RULE_ID: rule.name,
-            RULE_DESCRIPTION: rule.description,
-            NAMESPACE: TRESTLE_GENERIC_NS,
-        }
-        merged_dict = {
-            **rule_dict,
-            **self._add_profile(rule.profile),
-            **self._add_component_info(rule.component),
-        }
-        if rule.parameter is not None:
-            merged_dict.update(self._add_parameter(rule.parameter))
-        return merged_dict
 
     def _add_profile(self, profile: Profile) -> Dict[str, str]:
         """Add a profile to the CSV Row."""

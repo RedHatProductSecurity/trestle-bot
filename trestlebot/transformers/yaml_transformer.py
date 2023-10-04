@@ -46,20 +46,21 @@ class RulesYAMLTransformer(RulesTransformer):
         super().__init__()
 
     def transform_to_rule(self, blob: str) -> TrestleRule:
-        """Rules YAML data into a row of CSV."""
+        """Transform YAML data into a TrestleRule object."""
         trestle_rule: TrestleRule = self._ingest_yaml(blob)
         return trestle_rule
 
     def transform_from_rule(self, trestle: TrestleRule) -> str:
-        """Rules YAML data into a row of CSV."""
+        """Transform TrestleRule object into YAML data."""
         return self._write_yaml(trestle)
 
     @staticmethod
     def _write_yaml(rule: TrestleRule) -> str:
         """Write the YAML to a string."""
-        yaml = YAML()
-        yaml.default_flow_style = False
-        yaml_data: Dict[str, Any] = {
+        yaml_obj = YAML()
+        yaml_obj.default_flow_style = False
+
+        rule_info: Dict[str, Any] = {
             const.RULE_INFO_TAG: {
                 const.NAME: rule.name,
                 const.DESCRIPTION: rule.description,
@@ -71,12 +72,13 @@ class RulesYAMLTransformer(RulesTransformer):
         }
 
         if rule.parameter is not None:
-            yaml_data[const.RULE_INFO_TAG][const.PARAMETER] = rule.parameter.dict(
+            rule_info[const.RULE_INFO_TAG][const.PARAMETER] = rule.parameter.dict(
                 by_alias=True, exclude_unset=True
             )
 
         yaml_stream = StringIO()
-        yaml.dump(yaml_data, yaml_stream)
+        yaml_obj.dump(rule_info, yaml_stream)
+
         return yaml_stream.getvalue()
 
     @staticmethod
