@@ -42,7 +42,10 @@ from trestle.tasks.csv_to_oscal_cd import (
 )
 
 from trestlebot import const
-from trestlebot.transformers.base_transformer import RulesTransformer
+from trestlebot.transformers.base_transformer import (
+    FromRulesTransformer,
+    ToRulesTransformer,
+)
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
@@ -55,7 +58,7 @@ from trestlebot.transformers.trestle_rule import (
 logger = logging.getLogger(__name__)
 
 
-class RulesCSVTransformer(RulesTransformer):
+class ToRulesCSVTransformer(ToRulesTransformer):
     """
     Interface for CSV transformer to Rules model.
 
@@ -67,7 +70,7 @@ class RulesCSVTransformer(RulesTransformer):
         """Initialize."""
         super().__init__()
 
-    def transform_to_rule(self, row: Dict[str, str]) -> TrestleRule:
+    def transform(self, row: Dict[str, str]) -> TrestleRule:
         """Transform a CSV row to a TrestleRule object."""
         rule_info = self._extract_rule_info(row)
         profile = self._extract_profile(row)
@@ -81,22 +84,6 @@ class RulesCSVTransformer(RulesTransformer):
             parameter=parameter,
             profile=profile,
         )
-
-    def transform_from_rule(self, rule: TrestleRule) -> Dict[str, str]:
-        """Transforms TrestleRule into a row of CSV."""
-        rule_dict: Dict[str, str] = {
-            RULE_ID: rule.name,
-            RULE_DESCRIPTION: rule.description,
-            NAMESPACE: TRESTLE_GENERIC_NS,
-        }
-        merged_dict = {
-            **rule_dict,
-            **self._add_profile(rule.profile),
-            **self._add_component_info(rule.component),
-        }
-        if rule.parameter is not None:
-            merged_dict.update(self._add_parameter(rule.parameter))
-        return merged_dict
 
     def _extract_rule_info(self, row: Dict[str, str]) -> Dict[str, str]:
         """Extract rule information from a CSV row."""
@@ -138,6 +125,35 @@ class RulesCSVTransformer(RulesTransformer):
             description=row.get(csv_to_oscal_cd.COMPONENT_DESCRIPTION, ""),
         )
 
+
+class FromRulesCSVTransformer(FromRulesTransformer):
+    """
+    Interface for CSV transformer from Rules model.
+
+    Notes: This will transform individual rows of CSV to and from a
+    Trestle object with row compliance with the Trestle CSV requirements.
+    """
+
+    def __init__(self) -> None:
+        """Initialize."""
+        super().__init__()
+
+    def transform(self, rule: TrestleRule) -> Dict[str, str]:
+        """Transforms TrestleRule into a row of CSV."""
+        rule_dict: Dict[str, str] = {
+            RULE_ID: rule.name,
+            RULE_DESCRIPTION: rule.description,
+            NAMESPACE: TRESTLE_GENERIC_NS,
+        }
+        merged_dict = {
+            **rule_dict,
+            **self._add_profile(rule.profile),
+            **self._add_component_info(rule.component),
+        }
+        if rule.parameter is not None:
+            merged_dict.update(self._add_parameter(rule.parameter))
+        return merged_dict
+
     def _add_profile(self, profile: Profile) -> Dict[str, str]:
         """Add a profile to the CSV Row."""
         controls_list: List[str] = [control.id for control in profile.include_controls]
@@ -174,7 +190,7 @@ class CSVBuilder:
     def __init__(self) -> None:
         """Initialize."""
         self._csv_columns: CsvColumn = CsvColumn()
-        self._transformer: RulesCSVTransformer = RulesCSVTransformer()
+        self._transformer: FromRulesTransformer = FromRulesCSVTransformer()
         self._rows: List[Dict[str, str]] = []
 
     @property
@@ -184,7 +200,7 @@ class CSVBuilder:
 
     def add_row(self, rule: TrestleRule) -> None:
         """Add a row to the CSV."""
-        row = self._transformer.transform_from_rule(rule)
+        row = self._transformer.transform(rule)
         self.validate_row(row)
         self._rows.append(row)
 

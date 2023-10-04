@@ -19,16 +19,14 @@ import csv
 import pathlib
 from typing import List
 
-import ruamel.yaml as yaml
-
-from trestlebot.transformers.csv_transformer import RulesCSVTransformer
+from trestlebot.transformers.csv_transformer import ToRulesCSVTransformer
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
     Control,
     Profile,
     TrestleRule,
 )
-from trestlebot.transformers.yaml_transformer import RulesYAMLTransformer
+from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
 
 
 class YAMLBuilder:
@@ -37,8 +35,8 @@ class YAMLBuilder:
     def __init__(self) -> None:
         """Initialize."""
         self._rules: List[TrestleRule] = []
-        self._yaml_transformer = RulesYAMLTransformer()
-        self._csv_transformer = RulesCSVTransformer()
+        self._yaml_transformer = FromRulesYAMLTransformer()
+        self._csv_transformer = ToRulesCSVTransformer()
 
     def read_from_csv(self, filepath: pathlib.Path) -> None:
         """Read from a CSV file and populate self._rules."""
@@ -46,21 +44,21 @@ class YAMLBuilder:
             with open(filepath, mode="r", newline="") as csv_file:
                 reader = csv.DictReader(csv_file)
                 for row in reader:
-                    self._rules.append(self._csv_transformer.transform_to_rule(row))
-        except Exception as e:
-            raise CSVReadError(f"Failed to read from CSV file: {e}")
+                    self._rules.append(self._csv_transformer.transform(row))
+        except FileNotFoundError:
+            raise CSVReadError(f"File not found: {filepath}")
+        except csv.Error as e:
+            raise CSVReadError(f"CSV reading error: {e}")
 
     def write_to_yaml(self, filepath: pathlib.Path) -> None:
         """Write the rules to a YAML file."""
         try:
-            with open(filepath, "w") as yaml_file:
-                yaml.dump(
-                    [
-                        self._yaml_transformer.transform_from_rule(rule)
-                        for rule in self._rules
-                    ],
-                    yaml_file,
-                )
+            with open(filepath, mode="w") as yaml_file:
+                yaml_file.write("---\n")
+                for rule in self._rules:
+                    yaml_str = self._yaml_transformer.transform(rule).getvalue()
+                    yaml_file.write(yaml_str)
+                    yaml_file.write("\n")
         except Exception as e:
             raise YAMLWriteError(f"Failed to write rules to YAML file: {e}")
 
@@ -81,9 +79,7 @@ class YAMLBuilder:
                     include_controls=[Control(id="example")],
                 ),
             )
-            yaml_blob = self._yaml_transformer.transform_from_rule(test_rule)
-            with open(filepath, "w") as yaml_file:
-                yaml_file.write(yaml_blob)
+            self._yaml_transformer.write_to_file(test_rule, filepath)
         except Exception as e:
             raise YAMLWriteError(
                 f"Failed to write empty TrestleRule keys to YAML file: {e}"

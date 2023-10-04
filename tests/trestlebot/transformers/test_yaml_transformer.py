@@ -20,7 +20,11 @@ import pytest
 
 from tests.testutils import YAML_TEST_DATA_PATH
 from trestlebot.transformers.base_transformer import RulesTransformerException
-from trestlebot.transformers.yaml_transformer import RulesYAMLTransformer
+from trestlebot.transformers.trestle_rule import TrestleRule
+from trestlebot.transformers.yaml_transformer import (
+    FromRulesYAMLTransformer,
+    ToRulesYAMLTransformer,
+)
 
 
 def test_rule_transformer() -> None:
@@ -32,8 +36,8 @@ def test_rule_transformer() -> None:
     rule_file_info = rule_file.read()
     rule_file.close()
 
-    transformer = RulesYAMLTransformer()
-    rule = transformer.transform_to_rule(rule_file_info)
+    transformer = ToRulesYAMLTransformer()
+    rule = transformer.transform(rule_file_info)
 
     assert rule.name == "example_rule_1"
     assert rule.description == "My rule description for example rule 1"
@@ -59,13 +63,13 @@ def test_rules_transform_with_incomplete_rule() -> None:
     """Test rules transform with incomplete rule."""
     # Generate test json string
     test_string = '{"test_json": "test"}'
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
 
     with pytest.raises(
         RulesTransformerException,
         match="Missing key in YAML file: 'x-trestle-rule-info'",
     ):
-        transformer.transform_to_rule(test_string)
+        transformer.transform(test_string)
 
 
 def test_rules_transform_with_invalid_rule() -> None:
@@ -76,9 +80,23 @@ def test_rules_transform_with_invalid_rule() -> None:
     rule_file = open(rule_path, "r")
     rule_file_info = rule_file.read()
     rule_file.close()
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
 
     with pytest.raises(
         RulesTransformerException, match="Invalid YAML file: 1 validation error .*"
     ):
-        transformer.transform_to_rule(rule_file_info)
+        transformer.transform(rule_file_info)
+
+
+def test_read_write_integration(test_rule: TrestleRule) -> None:
+    """Test read/write integration."""
+    from_rules_transformer = FromRulesYAMLTransformer()
+    to_rules_transformer = ToRulesYAMLTransformer()
+
+    yaml_data = from_rules_transformer.transform(test_rule)
+
+    blob = yaml_data.getvalue()
+
+    read_rule = to_rules_transformer.transform(blob)
+
+    assert read_rule == test_rule

@@ -16,21 +16,27 @@
 
 """Base transformer for rules."""
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any
+
+from trestle.transforms.transformer_factory import TransformerBase
 
 from trestlebot.transformers.trestle_rule import TrestleRule
 
 
-class RulesTransformer(ABC):
-    """Abstract interface for transformers for rules"""
+class ToRulesTransformer(TransformerBase):
+    """Abstract interface for transforming to rule data."""
 
     @abstractmethod
-    def transform_to_rule(self, data: Any) -> TrestleRule:
+    def transform(self, data: Any) -> TrestleRule:
         """Transform to rule data."""
 
+
+class FromRulesTransformer(TransformerBase):
+    """Abstract interface for transforming from rule data."""
+
     @abstractmethod
-    def transform_from_rule(self, rule: TrestleRule) -> Any:
+    def transform(self, rule: TrestleRule) -> Any:
         """Transform from rule data."""
 
 

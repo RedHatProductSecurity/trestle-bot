@@ -28,11 +28,9 @@ from trestle.tasks.csv_to_oscal_cd import CsvToOscalComponentDefinition
 
 import trestlebot.const as const
 from trestlebot.tasks.base_task import TaskBase, TaskException
-from trestlebot.transformers.base_transformer import (
-    RulesTransformer,
-    RulesTransformerException,
-)
+from trestlebot.transformers.base_transformer import RulesTransformerException
 from trestlebot.transformers.csv_transformer import CSVBuilder
+from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
 logger = logging.getLogger(__name__)
@@ -47,7 +45,7 @@ class RuleTransformTask(TaskBase):
         self,
         working_dir: str,
         rules_view_dir: str,
-        rule_transformer: RulesTransformer,
+        rule_transformer: ToRulesYAMLTransformer,
         skip_model_list: List[str] = [],
     ) -> None:
         """
@@ -67,7 +65,7 @@ class RuleTransformTask(TaskBase):
         """
 
         self._rule_view_dir = rules_view_dir
-        self._rule_transformer: RulesTransformer = rule_transformer
+        self._rule_transformer: ToRulesYAMLTransformer = rule_transformer
         super().__init__(working_dir, skip_model_list)
 
     def execute(self) -> int:
@@ -101,7 +99,7 @@ class RuleTransformTask(TaskBase):
                 rule_stream = rule_path.read_text()
 
                 try:
-                    rule = self._rule_transformer.transform_to_rule(rule_stream)
+                    rule = self._rule_transformer.transform(rule_stream)
                     csv_builder.add_row(rule)
                 except RulesTransformerException as e:
                     raise TaskException(

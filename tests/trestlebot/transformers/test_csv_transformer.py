@@ -23,51 +23,29 @@ from typing import List
 import pytest
 
 from trestlebot.transformers.csv_transformer import CSVBuilder
-from trestlebot.transformers.trestle_rule import (
-    ComponentInfo,
-    Control,
-    Parameter,
-    Profile,
-    TrestleRule,
-)
+from trestlebot.transformers.trestle_rule import TrestleRule
 
 
-test_comp = "my comp"
-
-
-def test_csv_builder(tmp_trestle_dir: str) -> None:
+def test_csv_builder(test_rule: TrestleRule, tmp_trestle_dir: str) -> None:
     """Test CSV builder on a happy path"""
-    test_trestle_rule: TrestleRule = TrestleRule(
-        name="test",
-        description="test",
-        component=ComponentInfo(name=test_comp, type="test", description="test"),
-        parameter=Parameter(
-            name="test",
-            description="test",
-            alternative_values={},
-            default_value="test",
-        ),
-        profile=Profile(
-            description="test", href="test", include_controls=[Control(id="ac-1")]
-        ),
-    )
+
     csv_builder = CSVBuilder()
-    csv_builder.add_row(test_trestle_rule)
+    csv_builder.add_row(test_rule)
 
     assert len(csv_builder._rows) == 1
     row = csv_builder._rows[0]
-    assert row["Rule_Id"] == test_trestle_rule.name
-    assert row["Rule_Description"] == test_trestle_rule.description
-    assert row["Component_Title"] == test_trestle_rule.component.name
-    assert row["Component_Type"] == test_trestle_rule.component.type
-    assert row["Component_Description"] == test_trestle_rule.component.description
+    assert row["Rule_Id"] == test_rule.name
+    assert row["Rule_Description"] == test_rule.description
+    assert row["Component_Title"] == test_rule.component.name
+    assert row["Component_Type"] == test_rule.component.type
+    assert row["Component_Description"] == test_rule.component.description
     assert row["Control_Id_List"] == "ac-1"
-    assert row["Parameter_Id"] == test_trestle_rule.parameter.name  # type: ignore
-    assert row["Parameter_Description"] == test_trestle_rule.parameter.description  # type: ignore
+    assert row["Parameter_Id"] == test_rule.parameter.name  # type: ignore
+    assert row["Parameter_Description"] == test_rule.parameter.description  # type: ignore
     assert row["Parameter_Value_Alternatives"] == "{}"
-    assert row["Parameter_Value_Default"] == test_trestle_rule.parameter.default_value  # type: ignore
-    assert row["Profile_Description"] == test_trestle_rule.profile.description
-    assert row["Profile_Source"] == test_trestle_rule.profile.href
+    assert row["Parameter_Value_Default"] == test_rule.parameter.default_value  # type: ignore
+    assert row["Profile_Description"] == test_rule.profile.description
+    assert row["Profile_Source"] == test_rule.profile.href
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     tmp_csv_path = trestle_root.joinpath("test.csv")

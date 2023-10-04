@@ -28,7 +28,7 @@ from trestle.tasks.csv_to_oscal_cd import RULE_DESCRIPTION, RULE_ID
 from tests.testutils import setup_rules_view
 from trestlebot.tasks.base_task import TaskException
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
-from trestlebot.transformers.yaml_transformer import RulesYAMLTransformer
+from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
 test_comp = "test_comp"
@@ -39,7 +39,7 @@ def test_rule_transform_task(tmp_trestle_dir: str) -> None:
     """Test rule transform task."""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     setup_rules_view(trestle_root, test_comp, test_rules_dir)
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
     rule_transform_task = RuleTransformTask(
         tmp_trestle_dir, test_rules_dir, transformer
     )
@@ -70,7 +70,7 @@ def test_rule_transform_task_with_no_rules(tmp_trestle_dir: str) -> None:
     """Test rule transform task with no rules."""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     setup_rules_view(trestle_root, test_comp, test_rules_dir, skip_rules=True)
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
     rule_transform_task = RuleTransformTask(
         tmp_trestle_dir, test_rules_dir, transformer
     )
@@ -85,7 +85,7 @@ def test_rule_transform_task_with_invalid_rule(tmp_trestle_dir: str) -> None:
     """Test rule transform task with invalid rule."""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     setup_rules_view(trestle_root, test_comp, test_rules_dir, incomplete_rule=True)
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
     rule_transform_task = RuleTransformTask(
         tmp_trestle_dir, test_rules_dir, transformer
     )
@@ -100,7 +100,7 @@ def test_rule_transform_task_with_skip(tmp_trestle_dir: str) -> None:
     """Test rule transform task with skip."""
     trestle_root = pathlib.Path(tmp_trestle_dir)
     setup_rules_view(trestle_root, test_comp, test_rules_dir)
-    transformer = RulesYAMLTransformer()
+    transformer = ToRulesYAMLTransformer()
     rule_transform_task = RuleTransformTask(
         tmp_trestle_dir, test_rules_dir, transformer, skip_model_list=[test_comp]
     )
