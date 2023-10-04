@@ -54,11 +54,11 @@ class RulesYAMLTransformer(RulesTransformer):
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
             profile_data = rule_info_data[const.PROFILE]
-            profile_info_instance: Profile = Profile(**profile_data)
+            profile_info_instance: Profile = Profile.parse_obj(profile_data)
 
             component_info_data = yaml_data[const.COMPONENT_INFO_TAG]
-            component_info_instance: ComponentInfo = ComponentInfo(
-                **component_info_data
+            component_info_instance: ComponentInfo = ComponentInfo.parse_obj(
+                component_info_data
             )
 
             rule_info_instance: TrestleRule = TrestleRule(
@@ -71,7 +71,7 @@ class RulesYAMLTransformer(RulesTransformer):
 
             if const.PARAMETER in rule_info_data:
                 parameter_data = rule_info_data[const.PARAMETER]
-                parameter_instance: Parameter = Parameter(**parameter_data)
+                parameter_instance: Parameter = Parameter.parse_obj(parameter_data)
                 rule_info_instance.parameter = parameter_instance
 
         except KeyError as e:

@@ -4,7 +4,7 @@ x-trestle-rule-info:
   profile:
     description: Simple NIST Profile
     href: profiles/simplified_nist_profile/profile.json
-    include_controls:
+    include-controls:
       - id: ac-1
 x-trestle-component-info:
   name: Component 1

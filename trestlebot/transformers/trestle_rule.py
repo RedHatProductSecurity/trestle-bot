@@ -18,7 +18,7 @@
 
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Parameter(BaseModel):
@@ -26,8 +26,11 @@ class Parameter(BaseModel):
 
     name: str
     description: str
-    alternative_values: Dict[str, Any]
-    default_value: str
+    alternative_values: Dict[str, Any] = Field(..., alias="alternative-values")
+    default_value: str = Field(..., alias="default-value")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class Control(BaseModel):
@@ -41,7 +44,10 @@ class Profile(BaseModel):
 
     description: str
     href: str
-    include_controls: List[Control]
+    include_controls: List[Control] = Field(..., alias="include-controls")
+
+    class Config:
+        allow_population_by_field_name = True
 
 
 class ComponentInfo(BaseModel):

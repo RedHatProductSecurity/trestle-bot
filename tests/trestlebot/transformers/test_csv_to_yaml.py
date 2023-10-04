@@ -80,6 +80,9 @@ def test_default_test_trestle_rule_keys(
 ) -> None:
     yaml_file = pathlib.Path(tmp_trestle_dir) / "test.yaml"
     setup_yaml_builder.write_default_trestle_rule_keys(yaml_file)
+
+    # Check that the YAML file written is valid and integrates with the rule
+    # YAML transformer
     transformer = RulesYAMLTransformer()
     rule = transformer.transform_to_rule(yaml_file.read_text())
 

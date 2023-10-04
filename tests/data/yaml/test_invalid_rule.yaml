@@ -4,12 +4,12 @@ x-trestle-rule-info:
   parameter:
     name: prm_1
     description: prm_1 description
-    alternative_values: "invalid"
-    default_value: true
+    alternative-values: "invalid"
+    default-value: true
   profile:
     description: Simple NIST Profile
     href: profiles/simplified_nist_profile/profile.json
-    include_controls:
+    include-controls:
       - id: ac-2
 x-trestle-component-info:
   name: Component 1

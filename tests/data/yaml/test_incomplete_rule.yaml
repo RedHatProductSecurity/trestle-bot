@@ -3,12 +3,12 @@ x-trestle-rule-info:
   parameter:
     name: prm_1
     description: prm_1 description
-    alternative_values: {'default': '5%', '5pc': '5%', '10pc': '10%', '15pc': '15%', '20pc': '20%'}
-    default_value: '5%'
+    alternative-values: {'default': '5%', '5pc': '5%', '10pc': '10%', '15pc': '15%', '20pc': '20%'}
+    default-value: '5%'
   profile:
     description: Simple NIST Profile
     href: profiles/simplified_nist_profile/profile.json
-    include_controls:
+    include-controls:
       - id: ac-2
 x-trestle-component-info:
   name: Component 1
