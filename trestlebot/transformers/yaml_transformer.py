@@ -47,43 +47,6 @@ class RulesYAMLTransformer(RulesTransformer):
 
     def transform_to_rule(self, blob: str) -> TrestleRule:
         """Transform YAML data into a TrestleRule object."""
-        trestle_rule: TrestleRule = self._ingest_yaml(blob)
-        return trestle_rule
-
-    def transform_from_rule(self, trestle: TrestleRule) -> str:
-        """Transform TrestleRule object into YAML data."""
-        return self._write_yaml(trestle)
-
-    @staticmethod
-    def _write_yaml(rule: TrestleRule) -> str:
-        """Write the YAML to a string."""
-        yaml_obj = YAML()
-        yaml_obj.default_flow_style = False
-
-        rule_info: Dict[str, Any] = {
-            const.RULE_INFO_TAG: {
-                const.NAME: rule.name,
-                const.DESCRIPTION: rule.description,
-                const.PROFILE: rule.profile.dict(by_alias=True, exclude_unset=True),
-            },
-            const.COMPONENT_INFO_TAG: rule.component.dict(
-                by_alias=True, exclude_unset=True
-            ),
-        }
-
-        if rule.parameter is not None:
-            rule_info[const.RULE_INFO_TAG][const.PARAMETER] = rule.parameter.dict(
-                by_alias=True, exclude_unset=True
-            )
-
-        yaml_stream = StringIO()
-        yaml_obj.dump(rule_info, yaml_stream)
-
-        return yaml_stream.getvalue()
-
-    @staticmethod
-    def _ingest_yaml(blob: str) -> TrestleRule:
-        """Ingest the YAML blob into a TrestleData object."""
         try:
             yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
@@ -119,3 +82,29 @@ class RulesYAMLTransformer(RulesTransformer):
             raise RuntimeError(e)
 
         return rule_info_instance
+
+    def transform_from_rule(self, rule: TrestleRule) -> str:
+        """Transform TrestleRule object into YAML data."""
+        yaml_obj = YAML()
+        yaml_obj.default_flow_style = False
+
+        rule_info: Dict[str, Any] = {
+            const.RULE_INFO_TAG: {
+                const.NAME: rule.name,
+                const.DESCRIPTION: rule.description,
+                const.PROFILE: rule.profile.dict(by_alias=True, exclude_unset=True),
+            },
+            const.COMPONENT_INFO_TAG: rule.component.dict(
+                by_alias=True, exclude_unset=True
+            ),
+        }
+
+        if rule.parameter is not None:
+            rule_info[const.RULE_INFO_TAG][const.PARAMETER] = rule.parameter.dict(
+                by_alias=True, exclude_unset=True
+            )
+
+        yaml_stream = StringIO()
+        yaml_obj.dump(rule_info, yaml_stream)
+
+        return yaml_stream.getvalue()

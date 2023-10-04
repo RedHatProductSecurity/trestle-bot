@@ -55,7 +55,10 @@ class YAMLBuilder:
         try:
             with open(filepath, "w") as yaml_file:
                 yaml.dump(
-                    [self._yaml_transformer._write_yaml(rule) for rule in self._rules],
+                    [
+                        self._yaml_transformer.transform_from_rule(rule)
+                        for rule in self._rules
+                    ],
                     yaml_file,
                 )
         except Exception as e:
@@ -78,7 +81,7 @@ class YAMLBuilder:
                     include_controls=[Control(id="example")],
                 ),
             )
-            yaml_blob = self._yaml_transformer._write_yaml(test_rule)
+            yaml_blob = self._yaml_transformer.transform_from_rule(test_rule)
             with open(filepath, "w") as yaml_file:
                 yaml_file.write(yaml_blob)
         except Exception as e:
