@@ -4,10 +4,13 @@ TESTS := tests
 all: develop lint test
 .PHONY: all
 
-develop:
+develop: pre-commit
 	@poetry install	
 	@poetry shell
 .PHONY: develop
+
+pre-commit:
+	@poetry run pre-commit install
 
 lint:
 	@poetry lock --check
@@ -38,7 +41,7 @@ dep-cve-check:
 .PHONY: dep-cve-check
 
 security-check:
-	@pre-commit run semgrep --all-files
+	@poetry run pre-commit run semgrep --all-files
 .PHONY: security-check
 
 build: clean-build
