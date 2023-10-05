@@ -23,7 +23,7 @@ from unittest.mock import patch
 
 import pytest
 
-from trestlebot.cli import run as cli_main
+from trestlebot.cli import main as cli_main
 
 
 @pytest.fixture
@@ -114,7 +114,7 @@ def test_with_target_branch(
 
     # Patch is_github_actions since these tests will be running in
     # GitHub Actions
-    with patch("trestlebot.cli.is_github_actions") as mock_check:
+    with patch("trestlebot.cli_base.is_github_actions") as mock_check:
         mock_check.return_value = False
 
         with pytest.raises(SystemExit):
