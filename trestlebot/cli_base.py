@@ -16,7 +16,7 @@
 
 
 """
-This module create reusable common option for Trestle Bot entrypoints.
+This module creates reusable common options for Trestle Bot entrypoints.
 
 All entrypoints should inherit from this class and use reusable_logic for interaction with the top-level
 trestle bot logic located in trestlebot/bot.py.
