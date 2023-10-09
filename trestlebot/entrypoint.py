@@ -15,7 +15,12 @@
 #    under the License.
 
 
-"""This module parses CLI arguments for the Trestle Bot."""
+"""
+This module parses the default entrypoint for the Trestle Bot.
+
+This is the default entrypoint for the Trestle Bot which performs
+autosync operations using compliance-trestle.
+"""
 
 import argparse
 import logging
@@ -25,7 +30,7 @@ from typing import List
 import trestle.common.log as log
 
 from trestlebot import const
-from trestlebot.cli_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase

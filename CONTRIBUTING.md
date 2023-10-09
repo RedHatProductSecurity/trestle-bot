@@ -47,7 +47,7 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 
 #### Code structure
 
-- `cli.py and cli_base.py` - Provides top level logic for entrypoints
+- `entrypoint.py and entrypoint_base.py` - Provides top level logic for entrypoints
 - `entrypoint.sh` - Bash entrypoint script that is used exclusively with the GitHub Action
 - `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
