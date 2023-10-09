@@ -1,4 +1,58 @@
-## Contributing
+# Contributing to trestlebot
+
+Thank you for your interest in the trestlebot project.
+
+Before you start contributing, please take a moment to read through the guide below.
+
+> WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
+
+### How To Contribute
+
+Some initial contributions could be:
+
+- Improving the documentation
+- Adding test coverage
+- Try out issues that have the label `good first issue`
+- Opening an issue for bugs or feature requests
+
+## Opening a Pull Request
+
+When submitting a pull request, please follow these guidelines:
+
+1. Ensure that you have an issue submitted first and reference it in your pull request.
+2. Ensure that your code passes all CI tests.
+3. Please keep the pull request focused on a single issue or feature, if possible.
+
+## License
+
+This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
+
+## Developer Guide
+
+## Prerequisites
+
+- [Python](https://www.python.org/downloads/) - v3.8+
+- [Poetry](https://python-poetry.org/)
+- [Podman](https://podman.io/docs/installation)
+
+### How It Works
+
+For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` folder.
+
+#### Components
+
+1. CI Provider - Runs or builds and runs trestle-bot container
+2. Trestle Bot - Provides logic for managing workspace and containerized environment for use in workflows
+3. Compliance-Trestle - Upstream library that provided core logic for how OSCAL content is managed
+
+#### Code structure
+
+- `cli.py and cli_base.py` - Provides top level logic for entrypoints
+- `entrypoint.sh` - Bash entrypoint script that is used exclusively with the GitHub Action
+- `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations
+- `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
+- `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
+- `transformers` - This contains data transformation logic; specifically for rules. 
 
 ### Format and Styling
 
