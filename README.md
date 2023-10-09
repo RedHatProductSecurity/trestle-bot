@@ -1,6 +1,6 @@
 # trestle-bot
 
-trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in automated workflows or [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
+trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in automated workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
 

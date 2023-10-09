@@ -20,7 +20,7 @@ import trestlebot.cli
 def init() -> None:
     """Initialize trestlebot"""
     if __name__ == "__main__":
-        trestlebot.cli.run()
+        trestlebot.cli.main()
 
 
 init()
