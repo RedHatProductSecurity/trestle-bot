@@ -16,13 +16,12 @@
 
 import csv
 import pathlib
-from dataclasses import fields
 
 import pytest
-import ruamel.yaml as yaml
+from ruamel.yaml import YAML
 
 from trestlebot.transformers.csv_to_yaml import YAMLBuilder
-from trestlebot.transformers.trestle_rule import TrestleRule
+from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
 @pytest.fixture(scope="function")
@@ -71,18 +70,29 @@ def test_write_to_yaml(setup_yaml_builder: YAMLBuilder, tmp_trestle_dir: str) ->
     write_sample_csv(csv_file)
     setup_yaml_builder.read_from_csv(csv_file)
     setup_yaml_builder.write_to_yaml(yaml_file)
+    yaml = YAML(typ="safe")
     with open(yaml_file, "r") as f:
-        data = yaml.safe_load(f)
-    assert len(data) == 1
+        data = yaml.load(f)
+    # The file will contain a separate YAML document for each rule
+    assert len(data) == 2
 
 
-def test_write_empty_trestle_rule_keys(
+def test_default_test_trestle_rule_keys(
     setup_yaml_builder: YAMLBuilder, tmp_trestle_dir: str
 ) -> None:
     yaml_file = pathlib.Path(tmp_trestle_dir) / "test.yaml"
-    setup_yaml_builder.write_empty_trestle_rule_keys(yaml_file)
-    with open(yaml_file, "r") as f:
-        data = yaml.safe_load(f)
-    assert all(value == "" for value in data.values())
-    expected_keys = {field.name for field in fields(TrestleRule)}
-    assert expected_keys == set(data.keys())
+    setup_yaml_builder.write_default_trestle_rule_keys(yaml_file)
+
+    # Check that the YAML file written is valid and integrates with the rule
+    # YAML transformer
+    transformer = ToRulesYAMLTransformer()
+    rule = transformer.transform(yaml_file.read_text())
+
+    assert rule.name == "example rule"
+    assert rule.description == "example description"
+    assert rule.component.name == "example component"
+    assert rule.component.description == "example description"
+    assert rule.component.type == "service"
+    assert rule.profile.description == "example profile"
+    assert rule.profile.href == "example href"
+    assert len(rule.profile.include_controls) == 1

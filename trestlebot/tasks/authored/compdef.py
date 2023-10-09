@@ -182,7 +182,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
             ruledir.parent.mkdir(parents=True, exist_ok=True)
 
             empty_yaml = YAMLBuilder()
-            empty_yaml.write_empty_trestle_rule_keys(ruledir)
+            empty_yaml.write_default_trestle_rule_keys(ruledir)
 
 
 def get_control_implementation(
