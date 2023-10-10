@@ -81,7 +81,7 @@ outputs:
 
 runs:
   using: "docker"
-  image: "Dockerfile"
+  image: "quay.io/continuouscompliance/trestlebot:latest"
   entrypoint: "/entrypoint.sh"
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}

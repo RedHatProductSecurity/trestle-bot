@@ -64,9 +64,9 @@ RUN microdnf install -y git \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./entrypoint.sh /
+COPY ./trestlebot/infra/entrypoints/* /entrypoints/
 
-RUN chmod +x /entrypoint.sh
+RUN for f in /entrypoints/*; do chmod +x $f; done
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
 CMD ["--help"]
