@@ -20,7 +20,7 @@ from typing import List
 
 import trestle.common.log as log
 
-from trestlebot.entrypoint_base import EntrypointBase
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.validations import ValidationHandler, parameter_validation
@@ -45,13 +45,13 @@ class RulesTransformEntrypoint(EntrypointBase):
             "--rules-view-path",
             required=True,
             type=str,
-            help="Path to Trestle markdown files",
+            help="Path to top-level rules-view directory",
         )
         self.parser.add_argument(
             "--skip-items",
             type=str,
             required=False,
-            help="Comma-separated list of glob patterns of the chosen model type to skip when running \
+            help="Comma-separated list of glob patterns for directories to skip when running \
                 tasks",
         )
 
@@ -60,6 +60,7 @@ class RulesTransformEntrypoint(EntrypointBase):
 
         log.set_log_level_from_args(args=args)
 
+        # Configure the YAML Transformer for the task
         validation_handler: ValidationHandler = ValidationHandler(parameter_validation)
         transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(validation_handler)
 
@@ -67,7 +68,7 @@ class RulesTransformEntrypoint(EntrypointBase):
             args.working_dir,
             args.rules_view_path,
             transformer,
-            args.skip_items,
+            comma_sep_to_list(args.skip_items),
         )
         pre_tasks: List[TaskBase] = [rule_transform_task]
 

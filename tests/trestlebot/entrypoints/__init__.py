@@ -13,16 +13,4 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-# Default entrypoint for trestlebot is autosync mode
-
-from trestlebot.entrypoints.autosync import main as autosync_main
-
-
-def init() -> None:
-    """Initialize trestlebot"""
-    if __name__ == "__main__":
-        autosync_main()
-
-
-init()
+"""Test package for entrypoints."""

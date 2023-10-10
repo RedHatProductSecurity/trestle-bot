@@ -30,7 +30,7 @@ from typing import List
 import trestle.common.log as log
 
 from trestlebot import const
-from trestlebot.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
@@ -84,12 +84,6 @@ class AutoSyncEntrypoint(EntrypointBase):
             help="Skip regenerate task. Defaults to false.",
         )
         self.parser.add_argument(
-            "--check-only",
-            required=False,
-            action="store_true",
-            help="Runs tasks and exits with an error if there is a diff",
-        )
-        self.parser.add_argument(
             "--ssp-index-path",
             required=False,
             type=str,
@@ -112,7 +106,7 @@ class AutoSyncEntrypoint(EntrypointBase):
             if args.oscal_model not in authored_list:
                 logger.error(
                     f"Invalid value {args.oscal_model} for oscal model. "
-                    f"Please use catalog, profile, compdef, or ssp."
+                    f"Please use one of {authored_list}"
                 )
                 sys.exit(const.ERROR_EXIT_CODE)
 
@@ -158,6 +152,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Workflow automation bot for compliance-trestle"
     )
+
     auto_sync = AutoSyncEntrypoint(parser=parser)
 
     args = parser.parse_args()

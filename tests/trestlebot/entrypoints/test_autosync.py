@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 import pytest
 
-from trestlebot.entrypoint import main as cli_main
+from trestlebot.entrypoints.autosync import main as cli_main
 
 
 @pytest.fixture
@@ -51,7 +51,6 @@ def test_invalid_oscal_model(valid_args_dict: Dict[str, str], caplog: Any) -> No
     """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "fake"
-
     with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
         with pytest.raises(SystemExit, match="2"):
             cli_main()
@@ -95,9 +94,9 @@ def test_with_target_branch(valid_args_dict: Dict[str, str], caplog: Any) -> Non
 
     # Patch is_github_actions since these tests will be running in
     # GitHub Actions
-    with patch("trestlebot.entrypoint_base.is_github_actions") as mock_check, patch(
-        "sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]
-    ):
+    with patch(
+        "trestlebot.entrypoints.entrypoint_base.is_github_actions"
+    ) as mock_check, patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
         mock_check.return_value = False
 
         with pytest.raises(SystemExit):
