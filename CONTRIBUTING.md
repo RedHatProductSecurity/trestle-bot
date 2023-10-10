@@ -47,9 +47,9 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 
 #### Code structure
 
-- `entrypoint.py and entrypoint_base.py` - Provides top level logic for entrypoints
-- `entrypoint.sh` - Bash entrypoint script that is used exclusively with the GitHub Action
-- `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations
+- `actions` - Provides specific logic for `trestle-bot` tasks that are packaged as Actions. See [README.md](./actions/README.md) for more information.
+- `entrypoints` - Provides top level logic for specific tasks. These tasks are not necessarily related in any so they are not organized into a hierarchical command structure, but they do inherit logic and flag from a base class.
+- `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations for interacting with the API.
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
 - `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
 - `transformers` - This contains data transformation logic; specifically for rules. 
