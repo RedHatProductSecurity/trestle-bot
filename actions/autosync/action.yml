@@ -1,6 +1,6 @@
-name: "trestle-bot"
+name: "trestle-bot-autosync"
 author: "Red Hat Product Security"
-description: "A workflow automation manager for OSCAL formatted compliance content"
+description: "An action to perform automatic synchronization of Trestle markdown files to OSCAL."
 
 inputs:
   markdown_path: 
@@ -82,7 +82,7 @@ outputs:
 runs:
   using: "docker"
   image: "Dockerfile"
-  entrypoint: "/entrypoint.sh"
+  entrypoint: "/auto-sync-entrypoint.sh"
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 

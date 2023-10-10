@@ -64,9 +64,11 @@ RUN microdnf install -y git \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./entrypoint.sh /
+COPY ./actions/autosync/auto-sync-entrypoint.sh /
+RUN chmod +x /auto-sync-entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+COPY ./actions/rules-transform/rules-transform-entrypoint.sh /
+RUN chmod +x /rules-transform-entrypoint.sh
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
 CMD ["--help"]
