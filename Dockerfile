@@ -67,6 +67,7 @@ RUN microdnf install -y git \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
+# Add wrappers for entrypoints that provide support the actions
 COPY ./actions/autosync/auto-sync-entrypoint.sh /
 RUN chmod +x /auto-sync-entrypoint.sh
 

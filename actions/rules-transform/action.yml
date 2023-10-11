@@ -62,7 +62,7 @@ outputs:
 
 runs:
   using: "docker"
-  image: "../Dockerfile"
+  image: "../../Dockerfile"
   entrypoint: "/rules-transform-entrypoint.sh"
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}

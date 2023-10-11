@@ -20,7 +20,7 @@ else
 fi
 
 # Initialize the command variable
-command="python3.9 /trestle-bot/trestlebot/entrypoints/rules-tranform.py \
+command="trestlebot-rules-transform \
         --rules-view-path=\"${INPUT_RULES_VIEW_PATH}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
         --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
@@ -34,10 +34,6 @@ command="python3.9 /trestle-bot/trestlebot/entrypoints/rules-tranform.py \
         --target-branch=\"${INPUT_TARGET_BRANCH}\" \
         --skip-items=\"${INPUT_SKIP_ITEMS}\""
 
-
-if [[ ${INPUT_CHECK_ONLY} == true ]]; then
-    command+=" --check-only"
-fi
 
 # Only set the token value when is a target branch so pull requests can be created
 if [[ -n ${INPUT_TARGET_BRANCH} ]]; then

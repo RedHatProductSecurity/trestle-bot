@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# Default entrypoint for trestlebot is autosync mode
+# Default entrypoint for trestlebot is autosync mode when run with python -m trestlebot
 
 from trestlebot.entrypoints.autosync import main as autosync_main
 
