@@ -1,12 +1,12 @@
 # trestle-bot
 
-trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in automated workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
+trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
 
 ## Getting Started
 
-## GitHub Actions
+### GitHub Actions
 
 For detailed documentation on how to use each action see the README.md each each folder under [actions](./actions/).
 
@@ -18,8 +18,29 @@ The `rules-transform` actions can be used when managing [OSCAL Component Definit
 
 > Coming Soon
 
+### Run as a Container
+
+Build and run the container locally:
+
+```bash
+podman build -f Dockerfile -t trestle-bot .
+podman run -v $(pwd):/data -w /data trestle-bot
+```
+
+Container images are available in `quay.io`:
+
+```bash
+podman run -v $(pwd):/data -w /data quay.io/continuouscompliance/trestle-bot:<tag>
+```
+
 ## Contributing
 
-For information about contributing to trestle-bot see the [contributing guide](./CONTRIBUTING.md)
+For information about contributing to trestle-bot see the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
 
-See `TROUBLESHOOTING.md` for additional information.
+## License
+
+This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
+
+## Troubleshooting
+
+See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for troubleshooting tips.

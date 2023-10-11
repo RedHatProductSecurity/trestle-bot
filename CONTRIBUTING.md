@@ -23,10 +23,6 @@ When submitting a pull request, please follow these guidelines:
 2. Ensure that your code passes all CI tests.
 3. Please keep the pull request focused on a single issue or feature, if possible.
 
-## License
-
-This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
-
 ## Developer Guide
 
 ## Prerequisites
@@ -68,7 +64,10 @@ make test
 
 ### Run with poetry
 ```
-poetry run trestle-bot
+poetry shell
+poetry install
+poetry run trestlebot-autosync
+poetry run trestlebot-rules-transform
 ```
 
 ### Local testing
@@ -125,4 +124,4 @@ podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=GITH
 
 ### Adding a new action
 
-First, create an entrypoint script for the new action in the `trestlebot/infra` directory. Then add the action by creating a new directory in the `actions` directory with an `action.yml` that references your new entrypoint.
+First, create an entrypoint script for the new action in the `trestlebot/entrypoints` directory. Then add the action by creating a new directory in the `actions` directory with an `action.yml` that references your new entrypoint.
