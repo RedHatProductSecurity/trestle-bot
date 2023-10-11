@@ -17,7 +17,6 @@
 """Test for CLI"""
 
 import logging
-import sys
 from typing import Any, Dict, List
 from unittest.mock import patch
 
@@ -48,36 +47,24 @@ def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
     return args
 
 
-def test_invalid_oscal_model(
-    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
-) -> None:
+def test_invalid_oscal_model(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test invalid oscal model"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "fake"
-    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
 
-    with pytest.raises(SystemExit):
-        cli_main()
-
-    assert any(
-        record.levelno == logging.ERROR
-        and record.message
-        == "Invalid value fake for oscal model. Please use catalog, profile, compdef, or ssp."
-        for record in caplog.records
-    )
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit, match="2"):
+            cli_main()
 
 
-def test_no_ssp_index(
-    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
-) -> None:
+def test_no_ssp_index(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test missing index file for ssp"""
     args_dict = valid_args_dict
     args_dict["oscal-model"] = "ssp"
     args_dict["ssp-index-path"] = ""
-    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
-
-    with pytest.raises(SystemExit):
-        cli_main()
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit):
+            cli_main()
 
     assert any(
         record.levelno == logging.ERROR
@@ -86,16 +73,13 @@ def test_no_ssp_index(
     )
 
 
-def test_no_markdown_path(
-    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
-) -> None:
+def test_no_markdown_path(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test without a markdown file passed as a flag"""
     args_dict = valid_args_dict
     args_dict["markdown-path"] = ""
-    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
-
-    with pytest.raises(SystemExit):
-        cli_main()
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit):
+            cli_main()
 
     assert any(
         record.levelno == logging.ERROR
@@ -104,17 +88,16 @@ def test_no_markdown_path(
     )
 
 
-def test_with_target_branch(
-    monkeypatch: Any, valid_args_dict: Dict[str, str], caplog: Any
-) -> None:
+def test_with_target_branch(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test with target branch set an an unsupported Git provider"""
     args_dict = valid_args_dict
     args_dict["target-branch"] = "main"
-    monkeypatch.setattr(sys, "argv", ["trestlebot", *args_dict_to_list(args_dict)])
 
     # Patch is_github_actions since these tests will be running in
     # GitHub Actions
-    with patch("trestlebot.cli_base.is_github_actions") as mock_check:
+    with patch("trestlebot.cli_base.is_github_actions") as mock_check, patch(
+        "sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]
+    ):
         mock_check.return_value = False
 
         with pytest.raises(SystemExit):

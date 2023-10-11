@@ -56,7 +56,8 @@ class AutoSyncEntrypoint(EntrypointBase):
             "--oscal-model",
             required=True,
             type=str,
-            help="OSCAL model type to run tasks on. Values can be catalog, profile, compdef, or ssp",
+            choices=["catalog", "profile", "compdef", "ssp"],
+            help="OSCAL model type to run tasks on.",
         )
         self.parser.add_argument(
             "--skip-items",
