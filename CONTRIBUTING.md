@@ -121,7 +121,3 @@ cat my-token.txt | podman secret create repo-secret -
 ```bash
 podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=GITHUB_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
 ```
-
-### Adding a new action
-
-First, create an entrypoint script for the new action in the `trestlebot/entrypoints` directory. Then add the action by creating a new directory in the `actions` directory with an `action.yml` that references your new entrypoint.
