@@ -14,9 +14,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Test fixtures"""
+"""Common test fixtures."""
 
 import argparse
+import logging
 import os
 import pathlib
 from tempfile import TemporaryDirectory
@@ -27,6 +28,7 @@ from git.repo import Repo
 from trestle.common.err import TrestleError
 from trestle.core.commands.init import InitCmd
 
+from tests.testutils import clean
 from trestlebot import const
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
@@ -38,21 +40,21 @@ from trestlebot.transformers.trestle_rule import (
 
 
 T = TypeVar("T")
-
 YieldFixture = Generator[T, None, None]
 
 _TEST_CONTENTS = """
 test file
 """
-
 _TEST_FILENAME = "test.txt"
+_TEST_PREFIX = "trestlebot_tests"
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
     """Create a temporary git repository"""
-    with TemporaryDirectory(prefix="trestlebot_tests") as tmpdir:
-        with open(os.path.join(tmpdir, _TEST_FILENAME), "x", encoding="utf8") as file:
+    with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
+        test_file = os.path.join(tmpdir, _TEST_FILENAME)
+        with open(test_file, "x", encoding="utf8") as file:
             file.write(_TEST_CONTENTS)
         repo = Repo.init(tmpdir)
         with repo.config_writer() as config:
@@ -62,11 +64,16 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
         repo.index.commit("Initial commit")
         yield tmpdir, repo
 
+        try:
+            clean(tmpdir, repo)
+        except Exception as e:
+            logging.error(f"Failed to clean up temporary git repository: {e}")
 
-@pytest.fixture
+
+@pytest.fixture(scope="function")
 def tmp_trestle_dir() -> YieldFixture[str]:
     """Create an initialized temporary trestle directory"""
-    with TemporaryDirectory(prefix="trestlebot_tests") as tmpdir:
+    with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
         tmp_path = pathlib.Path(tmpdir)
         try:
             args = argparse.Namespace(

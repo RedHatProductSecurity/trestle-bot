@@ -22,7 +22,11 @@ from typing import List
 
 import pytest
 
-from trestlebot.transformers.csv_transformer import CSVBuilder
+from trestlebot.transformers.csv_transformer import (
+    CSVBuilder,
+    FromRulesCSVTransformer,
+    ToRulesCSVTransformer,
+)
 from trestlebot.transformers.trestle_rule import TrestleRule
 
 
@@ -68,3 +72,14 @@ def test_validate_row() -> None:
     csv_builder = CSVBuilder()
     with pytest.raises(RuntimeError, match="Row missing key: *"):
         csv_builder.validate_row(row)
+
+
+def test_read_write_integration(test_rule: TrestleRule) -> None:
+    """Test read/write integration."""
+    from_rules_transformer = FromRulesCSVTransformer()
+    to_rules_transformer = ToRulesCSVTransformer()
+
+    csv_row_data = from_rules_transformer.transform(test_rule)
+    read_rule = to_rules_transformer.transform(csv_row_data)
+
+    assert read_rule == test_rule

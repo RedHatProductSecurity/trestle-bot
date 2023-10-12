@@ -25,8 +25,8 @@ from git import GitCommandError
 from git.repo import Repo
 
 import trestlebot.bot as bot
-from tests.testutils import clean
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
 def check_lists_equal(list1: List[str], list2: List[str]) -> bool:
@@ -67,8 +67,6 @@ def test_stage_files(
 
     assert check_lists_equal(staged_files, expected_files) is True
 
-    clean(repo_path, repo)
-
 
 def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     """Test local commit function"""
@@ -98,8 +96,6 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
 
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
-
-    clean(repo_path, repo)
 
 
 def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
@@ -132,8 +128,6 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
 
-    clean(repo_path, repo)
-
 
 def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     """Test setting author for commits"""
@@ -165,8 +159,6 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
 
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
-
-    clean(repo_path, repo)
 
 
 def test_run(tmp_repo: Tuple[str, Repo]) -> None:
@@ -208,8 +200,6 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
         # Verify that the file is tracked by the commit
         assert os.path.basename(test_file_path) in commit.stats.files
 
-    clean(repo_path, repo)
-
 
 def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with dry run"""
@@ -240,8 +230,6 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
 
         mock_push.assert_not_called()
 
-    clean(repo_path, repo)
-
 
 def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     """Test running bot with no file updates"""
@@ -261,8 +249,6 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     )
     assert commit_sha == ""
     assert pr_number == 0
-
-    clean(repo_path, repo)
 
 
 def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
@@ -290,8 +276,6 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
             dry_run=True,
             check_only=True,
         )
-
-    clean(repo_path, repo)
 
 
 def push_side_effect(refspec: str) -> None:
@@ -338,7 +322,34 @@ def test_run_with_exception(
                 dry_run=False,
             )
 
-    clean(repo_path, repo)
+
+def test_run_with_failed_pre_task(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test bot run with mocked task that fails"""
+    repo_path, repo = tmp_repo
+
+    # Create a test file
+    test_file_path = os.path.join(repo_path, "test.txt")
+    with open(test_file_path, "w") as f:
+        f.write("Test content")
+
+    mock = Mock(spec=TaskBase)
+    mock.execute.side_effect = TaskException("example")
+
+    repo.create_remote("origin", url="git.test.com/test/repo.git")
+
+    with pytest.raises(bot.RepoException, match="Bot pre-tasks failed: example"):
+        _ = bot.run(
+            working_dir=repo_path,
+            branch="main",
+            commit_name="Test User",
+            commit_email="test@example.com",
+            commit_message="Test commit message",
+            author_name="The Author",
+            author_email="author@test.com",
+            patterns=["*.txt"],
+            dry_run=True,
+            pre_tasks=[mock],
+        )
 
 
 def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
@@ -396,8 +407,6 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         )
         mock_push.assert_called_once_with(refspec="HEAD:test")
 
-    clean(repo_path, repo)
-
 
 def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with customer pull request title"""
@@ -453,5 +462,3 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
             body="",
         )
         mock_push.assert_called_once_with(refspec="HEAD:test")
-
-    clean(repo_path, repo)
