@@ -93,6 +93,10 @@ class RuleTransformTask(TaskBase):
         logger.debug(
             f"Transforming rules for component definition {component_definition_path.name}"
         )
+
+        # To report all rule errors at once, we collect them in a list and
+        # pretty print them in a raised exception
+        transformation_errors: List[str] = []
         for component in self.iterate_models(component_definition_path):
             for rule_path in self.iterate_models(component):
                 # Load the rule into memory as a stream to process
@@ -102,9 +106,15 @@ class RuleTransformTask(TaskBase):
                     rule = self._rule_transformer.transform(rule_stream)
                     csv_builder.add_row(rule)
                 except RulesTransformerException as e:
-                    raise TaskException(
+                    transformation_errors.append(
                         f"Failed to transform rule {rule_path.name}: {e}"
                     )
+
+        if len(transformation_errors) > 0:
+            raise TaskException(
+                f"Failed to transform rules for component definition {component_definition_path.name}: \
+                    \n{', '.join(transformation_errors)}"
+            )
 
         if csv_builder.row_count == 0:
             raise TaskException(
