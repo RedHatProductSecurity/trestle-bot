@@ -18,27 +18,27 @@
 
 import os
 import pathlib
-import shutil
-from typing import List, Optional, Type
+from typing import List
 
-import trestle.core.generators as gens
-import trestle.oscal.component as comp
 import trestle.oscal.profile as prof
-from trestle.common.err import TrestleError, TrestleNotFoundError
-from trestle.common.list_utils import as_list
-from trestle.common.load_validate import load_validate_model_name
+from trestle.common.err import TrestleError
 from trestle.common.model_utils import ModelUtils
 from trestle.core.catalog.catalog_interface import CatalogInterface
-from trestle.core.models.file_content_type import FileContentType
 from trestle.core.profile_resolver import ProfileResolver
 from trestle.core.repository import AgileAuthoring
 
-from trestlebot.const import RULES_VIEW_DIR
+from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
-from trestlebot.transformers.csv_to_yaml import YAMLBuilder
+from trestlebot.transformers.trestle_rule import (
+    ComponentInfo,
+    Control,
+    Profile,
+    TrestleRule,
+)
+from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
 
 
 class AuthoredComponentsDefinition(AuthorObjectBase):
@@ -103,7 +103,20 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
         comp_description: str,
         comp_type: str,
     ) -> None:
-        """Create the new component definition with default info"""
+        """
+        Create the new component definition with default info.
+
+        Args:
+            profile_name: Name of the profile to use for the component definition
+            compdef_name: Name of the component definition
+            comp_title: Title of the component
+            comp_description: Description of the component
+            comp_type: Type of the component
+
+        Notes:
+            The beginning of the Component Definition workflow is to create a new
+            rules view. After completed the rules view transformation task can be used for management.
+        """
         trestle_root: pathlib.Path = pathlib.Path(self.get_trestle_root())
 
         existing_profile_path = ModelUtils.get_model_path_for_name_and_class(
@@ -115,109 +128,59 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
                 f"Profile {profile_name} does not exist in the workspace"
             )
 
+        rule_dir: pathlib.Path = trestle_root.joinpath(RULES_VIEW_DIR, compdef_name)
+        rule_dir.parent.mkdir(parents=True, exist_ok=True)
+
+        component_info: ComponentInfo = ComponentInfo(
+            name=comp_title, description=comp_description, type=comp_type
+        )
+
+        rules_view_builder = RulesViewBuilder(trestle_root)
+        rules_view_builder.add_rules_for_profile(existing_profile_path, component_info)
+        rules_view_builder.write_to_yaml(rule_dir)
+
+
+class RulesViewBuilder:
+    """Write TrestleRule objects to YAML files in rules view."""
+
+    def __init__(self, trestle_root: pathlib.Path) -> None:
+        """Initialize."""
+        self._trestle_root = trestle_root
+        self._rules: List[TrestleRule] = []
+        self._yaml_transformer = FromRulesYAMLTransformer()
+
+    def add_rules_for_profile(
+        self, profile_path: pathlib.Path, component_info: ComponentInfo
+    ) -> None:
+        """Add rules for a profile to the builder."""
         catalog = ProfileResolver.get_resolved_profile_catalog(
-            trestle_root,
-            existing_profile_path.as_posix(),
+            self._trestle_root, profile_path=profile_path
         )
 
         controls = CatalogInterface.get_control_ids_from_catalog(catalog)
 
-        comp_data: Type[comp.ComponentDefinition]
-        existing_comp_data_path: Optional[pathlib.Path]
-
-        # Attempt to load the existing compdef if not found create a new instance
-        try:
-            comp_data, comp_data_path = load_validate_model_name(
-                trestle_root,
-                compdef_name,
-                comp.ComponentDefinition,
-                FileContentType.JSON,
+        for control_id in controls:
+            rule = TrestleRule(
+                component=component_info,
+                name=f"rule-{control_id}",
+                description=f"Rule for {control_id}",
+                profile=Profile(
+                    href=str(profile_path.relative_to(self._trestle_root)),
+                    description=catalog.metadata.title,
+                    include_controls=[Control(id=control_id)],
+                ),
             )
-            existing_comp_data_path = pathlib.Path(comp_data_path)
-        except TrestleNotFoundError:
-            comp_data = gens.generate_sample_model(comp.ComponentDefinition)  # type: ignore
-            existing_comp_data_path = ModelUtils.get_model_path_for_name_and_class(
-                trestle_root,
-                compdef_name,
-                comp.ComponentDefinition,
-                FileContentType.JSON,
+            self.add_rule(rule)
+
+    def add_rule(self, rule: TrestleRule) -> None:
+        """Add a rule to the builder."""
+        self._rules.append(rule)
+
+    def write_to_yaml(self, compdef_path: pathlib.Path) -> None:
+        """Write the rules to YAML files in the rules view."""
+        for rule in self._rules:
+            rule_path: pathlib.Path = compdef_path.joinpath(
+                rule.component.name, rule.name + YAML_EXTENSION
             )
-            if existing_comp_data_path is None:
-                raise AuthoredObjectException(
-                    f"Error defining workspace name for component {compdef_name}"
-                )
-
-        component = gens.generate_sample_model(comp.DefinedComponent)
-        component.type = comp_type
-        component.title = comp_title
-        component.description = comp_description
-        component.control_implementations = []
-
-        get_control_implementation(
-            component=component,
-            source=existing_profile_path.as_posix(),
-            description="",
-            controls=controls,
-        )
-
-        comp_data.components = as_list(comp_data.components)
-        comp_data.components.append(component)
-
-        cd_path = pathlib.Path(existing_comp_data_path)
-        if cd_path.parent.exists():
-            shutil.rmtree(str(cd_path.parent))
-
-        ModelUtils.update_last_modified(comp_data)  # type: ignore
-
-        cd_path.parent.mkdir(parents=True, exist_ok=True)
-        comp_data.oscal_write(path=cd_path)  # type: ignore
-
-        for component in comp_data.components:
-            ruledir: pathlib.Path = trestle_root.joinpath(
-                RULES_VIEW_DIR,
-                compdef_name,
-                component.title,
-                "rule_template.yaml",
-            )
-            ruledir.parent.mkdir(parents=True, exist_ok=True)
-
-            empty_yaml = YAMLBuilder()
-            empty_yaml.write_default_trestle_rule_keys(ruledir)
-
-
-def get_control_implementation(
-    component: comp.DefinedComponent, source: str, description: str, controls: List[str]
-) -> comp.ControlImplementation:
-    """Find or create control implementation."""
-
-    component.control_implementations = as_list(component.control_implementations)
-    for control_implementation in component.control_implementations:
-        if (
-            control_implementation.source == source
-            and control_implementation.description == description
-        ):
-            return control_implementation
-
-    control_implementation = gens.generate_sample_model(comp.ControlImplementation)
-    control_implementation.source = source
-    control_implementation.description = description
-    control_implementation.implemented_requirements = []
-
-    for control_id in controls:
-        get_implemented_requirement(control_implementation, control_id)
-
-    component.control_implementations.append(control_implementation)
-    return control_implementation
-
-
-def get_implemented_requirement(
-    control_implementation: comp.ControlImplementation, control_id: str
-) -> comp.ImplementedRequirement:
-    """Find or create implemented requirement."""
-    for implemented_requirement in control_implementation.implemented_requirements:
-        if implemented_requirement.control_id == control_id:
-            return implemented_requirement
-    implemented_requirement = gens.generate_sample_model(comp.ImplementedRequirement)
-    implemented_requirement.control_id = control_id
-    control_implementation.implemented_requirements.append(implemented_requirement)
-    return implemented_requirement
+            rule_path.parent.mkdir(parents=True, exist_ok=True)
+            self._yaml_transformer.write_to_file(rule, rule_path)

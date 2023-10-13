@@ -113,9 +113,6 @@ def test_read_write_integration(test_rule: TrestleRule) -> None:
     to_rules_transformer = ToRulesYAMLTransformer()
 
     yaml_data = from_rules_transformer.transform(test_rule)
-
-    blob = yaml_data.getvalue()
-
-    read_rule = to_rules_transformer.transform(blob)
+    read_rule = to_rules_transformer.transform(yaml_data)
 
     assert read_rule == test_rule
