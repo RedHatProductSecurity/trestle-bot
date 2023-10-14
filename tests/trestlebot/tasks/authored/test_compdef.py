@@ -17,6 +17,7 @@
 """Test for Trestle Bot Authored Compdef."""
 
 import pathlib
+import re
 
 import pytest
 
@@ -52,8 +53,11 @@ def test_create_new_default(tmp_trestle_dir: str) -> None:
     yaml_files = list(comp_dir.glob(f"*{YAML_EXTENSION}"))
     assert len(yaml_files) == 12
 
+    rule_file = next((file for file in yaml_files if re.search(r'ac-5', file.stem)), None)
+    assert rule_file is not None
+
     # Read one of the files and check the content
-    rule_path = pathlib.Path(yaml_files[0])
+    rule_path = pathlib.Path(rule_file)
     rule_stream = rule_path.read_text()
 
     transformer = ToRulesYAMLTransformer()
