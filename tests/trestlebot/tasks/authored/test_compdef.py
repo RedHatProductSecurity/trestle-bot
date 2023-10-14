@@ -53,7 +53,9 @@ def test_create_new_default(tmp_trestle_dir: str) -> None:
     yaml_files = list(comp_dir.glob(f"*{YAML_EXTENSION}"))
     assert len(yaml_files) == 12
 
-    rule_file = next((file for file in yaml_files if re.search(r'ac-5', file.stem)), None)
+    rule_file = next(
+        (file for file in yaml_files if re.search(r"ac-5", file.stem)), None
+    )
     assert rule_file is not None
 
     # Read one of the files and check the content
