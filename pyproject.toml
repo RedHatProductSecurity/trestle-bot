@@ -16,7 +16,8 @@ readme = 'README.md'
 repository = 'https://github.com/RedHatProductSecurity/trestle-bot'
 
 [tool.poetry.scripts]
-trestle-bot = "trestlebot.cli:main"
+trestlebot-autosync = "trestlebot.entrypoints.autosync:main"
+trestlebot-rules-transform = "trestlebot.entrypoints.rule_transform:main"
 
 [tool.poetry.dependencies]
 python = '^3.8.1'

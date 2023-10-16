@@ -43,7 +43,7 @@ YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
 
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
-    # Clean up the temporary Git repository
+    """Clean up the temporary Git repository."""
     if repo is not None:
         repo.close()
     shutil.rmtree(repo_path)

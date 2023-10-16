@@ -39,6 +39,8 @@ from trestlebot.tasks.base_task import TaskBase
 
 logger = logging.getLogger(__name__)
 
+# TODO: Consider adding support for a config file or environment variables to set these values
+
 
 class EntrypointBase:
     """Base class for all entrypoints."""
@@ -108,6 +110,12 @@ class EntrypointBase:
             required=False,
             type=str,
             help="Email for commit author if differs from committer",
+        )
+        self.parser.add_argument(
+            "--check-only",
+            required=False,
+            action="store_true",
+            help="Runs tasks and exits with an error if there is a diff",
         )
         self.parser.add_argument(
             "--target-branch",

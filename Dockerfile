@@ -44,14 +44,17 @@ RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir poetry=="$POETRY_VERSION"
 
 # Cache runtime deps
-WORKDIR $PYSETUP_PATH
-COPY ./ $PYSETUP_PATH
+WORKDIR "/build"
+COPY . "/build"
 
 # Install runtime deps
-RUN poetry install --without tests,dev --no-root
+RUN python -m venv $VENV_PATH && \
+  . $VENV_PATH/bin/activate && \
+  poetry install --without tests,dev --no-root
 
 # install the root project in non-editable mode
-RUN  poetry build -f wheel -n && \
+RUN . $VENV_PATH/bin/activate && \
+  poetry build -f wheel -n && \
   pip install --no-cache-dir --no-deps dist/*.whl && \
   rm -rf dist *.egg-info
 
@@ -64,9 +67,12 @@ RUN microdnf install -y git \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
-COPY ./entrypoint.sh /
+# Add wrappers for entrypoints that provide support the actions
+COPY ./actions/autosync/auto-sync-entrypoint.sh /
+RUN chmod +x /auto-sync-entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+COPY ./actions/rules-transform/rules-transform-entrypoint.sh /
+RUN chmod +x /rules-transform-entrypoint.sh
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
 CMD ["--help"]

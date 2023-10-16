@@ -16,6 +16,8 @@
 
 """Base transformer for rules."""
 
+# TODO: Evaluate if this should be contributed back to trestle
+
 from abc import abstractmethod
 from typing import Any
 

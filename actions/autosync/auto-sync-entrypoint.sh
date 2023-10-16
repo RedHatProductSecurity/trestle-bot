@@ -20,7 +20,7 @@ else
 fi
 
 # Initialize the command variable
-command="python3.9 -m trestlebot \
+command="trestlebot-autosync \
         --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
         --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
         --ssp-index-path=\"${INPUT_SSP_INDEX_PATH}\" \

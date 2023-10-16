@@ -1,0 +1,72 @@
+name: "trestle-bot-rules-transform"
+author: "Red Hat Product Security"
+description: "A rules transform action to convert trestle rules in YAML format to OSCAL"
+
+inputs:
+  rules_view_path: 
+    description: Path relative to the repository path where the Trestle markdown files are located. See project README.md for more information.
+    required: true
+  github_token:
+    description: "GitHub token used to make authenticated API requests"
+    required: false
+  skip_items:
+    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `profile_x,profile_y*,`."
+    required: false
+  commit_message:
+    description: Commit message
+    required: false
+    default: "Sync automatic updates"
+  pull_request_title:
+    description: Custom pull request title
+    required: false
+    default: "Automatic updates from trestlebot"
+  branch:
+    description: Name of the Git branch to which modifications should be pushed. Required if Action is used on the `pull_request` event.
+    required: false
+    default: ${{ github.ref_name }}
+  target_branch:
+    description: Target branch (or base branch) to create a pull request against. If unset, no pull request will be created. If set, a pull request will be created using the `branch` field as the head branch.
+    required: false
+  file_pattern:
+    description: Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
+    required: false
+    default: '.'
+  repository:
+    description: Local file path to the git repository. Defaults to the current directory (`.`)
+    required: false
+    default: '.'
+  commit_user_name:
+    description: Name used for the commit user
+    required: false
+    default: github-actions[bot]
+  commit_user_email:
+    description: Email address used for the commit user
+    required: false
+    default: 41898282+github-actions[bot]@users.noreply.github.com
+  commit_author_name:
+    description: Name used for the commit author. Defaults to the username of whoever triggered this workflow run.
+    required: false
+    default: ${{ github.actor }}
+  commit_author_email:
+    description: Email address used for the commit author. Defaults to the email of whoever triggered this workflow run.
+    required: false
+    default: ${{ github.actor }}@users.noreply.github.com
+
+outputs:
+  changes:
+    description: Value is "true" if changes were committed back to the repository.
+  commit:
+    description: Full hash of the created commit. Only present if the "changes" output is "true".
+  pr_number:
+    description: Number of the submitted pull request. Only present if a pull request is submitted.
+
+runs:
+  using: "docker"
+  image: "../../Dockerfile"
+  entrypoint: "/rules-transform-entrypoint.sh"
+  env:
+    GITHUB_TOKEN: ${{ inputs.github_token }}
+
+branding:
+  icon: "check"
+  color: "green"
