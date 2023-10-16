@@ -100,29 +100,32 @@ class FromRulesYAMLTransformer(FromRulesTransformer):
     Interface for YAML transformer from Rules model.
     """
 
-    def transform(self, rule: TrestleRule) -> StringIO:
+    def transform(self, rule: TrestleRule) -> str:
         """
         Transform TrestleRule object into YAML data.
 
         Notes:
             Currently, this method is for simply transforming
             TrestleRule objects in memory into YAML data. The data structure
-            is small so this should have minimal performance impact. This is done to
-            comply with the contract of the RulesTransformer interface.
+            is small so this should have minimal performance impact. This converts
+            to a string for further processing. The write_to_file method
+            is available for writing to a file directly.
         """
 
         rule_info: Dict[str, Any] = self._to_rule_info(rule)
-        yaml_obj = YAML()
+        yaml_obj = YAML(typ="safe")
         yaml_obj.default_flow_style = False
         yaml_stream = StringIO()
         yaml_obj.dump(rule_info, yaml_stream)
+        yaml_str = yaml_stream.getvalue()
+        yaml_stream.close()
 
-        return yaml_stream
+        return yaml_str
 
     def write_to_file(self, rule: TrestleRule, file_path: pathlib.Path) -> None:
         """Write TrestleRule object to YAML file."""
         rule_info: Dict[str, Any] = self._to_rule_info(rule)
-        yaml_obj = YAML()
+        yaml_obj = YAML(typ="safe")
         yaml_obj.default_flow_style = False
         yaml_obj.dump(rule_info, file_path)
 
