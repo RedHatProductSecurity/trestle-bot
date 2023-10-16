@@ -66,3 +66,21 @@ class TrestleRule(BaseModel):
     component: ComponentInfo
     parameter: Optional[Parameter]
     profile: Profile
+
+
+def get_default_rule() -> TrestleRule:
+    """Create a default rule for template purposes."""
+    return TrestleRule(
+        name="example rule",
+        description="example description",
+        component=ComponentInfo(
+            name="example component",
+            type="service",
+            description="example description",
+        ),
+        profile=Profile(
+            description="example profile",
+            href="example href",
+            include_controls=[Control(id="example")],
+        ),
+    )

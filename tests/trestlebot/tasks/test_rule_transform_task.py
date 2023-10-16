@@ -54,11 +54,22 @@ def test_rule_transform_task(tmp_trestle_dir: str) -> None:
     assert orig_comp is not None
     assert orig_comp.metadata.title == "Component definition for test_comp"
     assert orig_comp.components is not None
-    assert len(orig_comp.components) == 1
+    assert len(orig_comp.components) == 2
 
     component = orig_comp.components[0]
 
     assert component.props is not None
+    assert component.title == "Component 2"
+    assert len(component.props) == 2
+    assert component.props[0].name == RULE_ID
+    assert component.props[0].value == "example_rule_2"
+    assert component.props[1].name == RULE_DESCRIPTION
+    assert component.props[1].value == "My rule description for example rule 2"
+
+    component = orig_comp.components[1]
+
+    assert component.props is not None
+    assert component.title == "Component 1"
     assert len(component.props) == 5
     assert component.props[0].name == RULE_ID
     assert component.props[0].value == "example_rule_1"
