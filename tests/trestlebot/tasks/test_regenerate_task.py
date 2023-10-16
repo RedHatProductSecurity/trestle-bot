@@ -151,7 +151,7 @@ def test_profile_regenerate_task(tmp_trestle_dir: str) -> None:
 def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
     """Test compdef regenerate at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = os.path.join(compdef_md_dir, test_comp)
+    md_path = os.path.join(compdef_md_dir, test_comp, test_comp)
     _ = testutils.setup_for_compdef(trestle_root, test_comp, md_path)
 
     regenerate_task = RegenerateTask(

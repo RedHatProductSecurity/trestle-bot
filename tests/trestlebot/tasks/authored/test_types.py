@@ -27,7 +27,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
-from trestlebot.tasks.authored.compdef import AuthoredComponentsDefinition
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.authored.ssp import AuthoredSSP
 
@@ -69,7 +69,7 @@ def test_get_authored_compdef(tmp_trestle_dir: str) -> None:
     )
 
     assert authored_object.get_trestle_root() == tmp_trestle_dir
-    assert isinstance(authored_object, AuthoredComponentsDefinition)
+    assert isinstance(authored_object, AuthoredComponentDefinition)
 
 
 def test_get_authored_ssp(tmp_trestle_dir: str) -> None:
