@@ -22,10 +22,15 @@ from typing import List
 from unittest.mock import Mock, patch
 
 import pytest
+from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.catalog import CatalogGenerate
 from trestle.core.commands.author.component import ComponentGenerate
 from trestle.core.commands.author.profile import ProfileGenerate
 from trestle.core.commands.author.ssp import SSPGenerate
+from trestle.core.models.file_content_type import FileContentType
+from trestle.oscal import catalog as oscal_cat
+from trestle.oscal import component as oscal_comp
+from trestle.oscal import profile as oscal_prof
 
 from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
@@ -114,6 +119,12 @@ def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:
     cat_generate = CatalogGenerate()
     assert cat_generate._run(args) == 0
 
+    # Get original last modified time
+    cat, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_cat, oscal_cat.Catalog, FileContentType.JSON
+    )
+    orig_time = cat.metadata.last_modified
+
     assemble_task = AssembleTask(
         tmp_trestle_dir,
         AuthoredType.CATALOG.value,
@@ -121,6 +132,12 @@ def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:
         "",
     )
     assert assemble_task.execute() == 0
+
+    # Get new last modified time and verify catalog was modified
+    cat, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_cat, oscal_cat.Catalog, FileContentType.JSON
+    )
+    assert orig_time != cat.metadata.last_modified
 
 
 def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
@@ -130,6 +147,13 @@ def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
     args = testutils.setup_for_profile(trestle_root, test_prof, md_path)
     profile_generate = ProfileGenerate()
     assert profile_generate._run(args) == 0
+
+    # Get original last modified time
+    prof, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_prof, oscal_prof.Profile, FileContentType.JSON
+    )
+    orig_time = prof.metadata.last_modified
+
     assemble_task = AssembleTask(
         tmp_trestle_dir,
         AuthoredType.PROFILE.value,
@@ -137,6 +161,12 @@ def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
         "",
     )
     assert assemble_task.execute() == 0
+
+    # Get new last modified time adn verify profile was modified
+    prof, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_prof, oscal_prof.Profile, FileContentType.JSON
+    )
+    assert orig_time != prof.metadata.last_modified
 
 
 def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
@@ -146,6 +176,18 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
     args = testutils.setup_for_compdef(trestle_root, test_comp, md_path)
     comp_generate = ComponentGenerate()
     assert comp_generate._run(args) == 0
+
+    # Get ac-1 markdown file
+    comp_path = os.path.join(trestle_root, compdef_md_dir, test_comp, test_comp)
+    ac1_md_path = os.path.join(comp_path, test_prof, "ac", "ac-1.md")
+    testutils.replace_string_in_file(ac1_md_path, "partial", "implemented")
+
+    # Get original last modified time
+    comp, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_comp, oscal_comp.ComponentDefinition, FileContentType.JSON
+    )
+    orig_time = comp.metadata.last_modified
+
     assemble_task = AssembleTask(
         tmp_trestle_dir,
         AuthoredType.COMPDEF.value,
@@ -153,6 +195,12 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
         "",
     )
     assert assemble_task.execute() == 0
+
+    # Get new last modified time and verify component was modified
+    comp, _ = ModelUtils.load_model_for_class(
+        trestle_root, test_comp, oscal_comp.ComponentDefinition, FileContentType.JSON
+    )
+    assert orig_time != comp.metadata.last_modified
 
 
 def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
@@ -173,6 +221,10 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
         ssp_index_path,
     )
     assert assemble_task.execute() == 0
+
+    assert os.path.exists(
+        os.path.join(tmp_trestle_dir, "system-security-plans", test_ssp_output)
+    )
 
 
 def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
