@@ -39,12 +39,12 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 
 1. CI Provider - Runs or builds and runs trestle-bot container
 2. Trestle Bot - Provides logic for managing workspace and containerized environment for use in workflows
-3. Compliance-Trestle - Upstream library that provided core logic for how OSCAL content is managed
+3. Compliance-Trestle - Upstream library that provides core logic for how OSCAL content is managed
 
 #### Code structure
 
 - `actions` - Provides specific logic for `trestle-bot` tasks that are packaged as Actions. See [README.md](./actions/README.md) for more information.
-- `entrypoints` - Provides top level logic for specific tasks. These tasks are not necessarily related in any so they are not organized into a hierarchical command structure, but they do inherit logic and flag from a base class.
+- `entrypoints` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related in any way so they are not organized into a hierarchical command structure, but they do inherit logic and flags from a base class.
 - `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations for interacting with the API.
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
 - `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
