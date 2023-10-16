@@ -7,6 +7,6 @@ x-trestle-rule-info:
     include-controls:
       - id: ac-1
 x-trestle-component-info:
-  name: Component 1
-  description: Component 1 description
+  name: Component 2
+  description: Component 2 description
   type: service

@@ -52,6 +52,7 @@ from trestlebot.transformers.trestle_rule import (
     Parameter,
     Profile,
     TrestleRule,
+    get_default_rule,
 )
 
 
@@ -218,7 +219,13 @@ class CSVBuilder:
             fieldnames.extend(self._csv_columns.get_required_column_names())
             fieldnames.extend(self._csv_columns.get_optional_column_names())
 
+            # The trestle csv_to_oscal_cd task skips the header row and the
+            # first row which is meant to have descriptions. We will just write a default right now.
+            default_rule: TrestleRule = get_default_rule()
+            example_row = self._transformer.transform(default_rule)
+
             writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
             writer.writeheader()
+            writer.writerow(example_row)
             for row in self._rows:
                 writer.writerow(row)
