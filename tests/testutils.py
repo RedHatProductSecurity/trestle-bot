@@ -245,3 +245,17 @@ def write_index_json(
 
     with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
+
+
+def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> None:
+    """Replace a string in a file."""
+    # Read the content of the file
+    with open(file_path, "r") as file:
+        file_content = file.read()
+
+    # Replace the old string with the new string
+    updated_content = file_content.replace(old_string, new_string)
+
+    # Write the updated content back to the file
+    with open(file_path, "w") as file:
+        file.write(updated_content)

@@ -24,7 +24,7 @@ import pytest
 from tests import testutils
 from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import AuthoredObjectException
-from trestlebot.tasks.authored.compdef import AuthoredComponentsDefinition
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
@@ -37,7 +37,7 @@ def test_create_new_default(tmp_trestle_dir: str) -> None:
     # Prepare the workspace
     trestle_root = pathlib.Path(tmp_trestle_dir)
     _ = testutils.setup_for_profile(trestle_root, test_prof, "")
-    authored_comp = AuthoredComponentsDefinition(tmp_trestle_dir)
+    authored_comp = AuthoredComponentDefinition(tmp_trestle_dir)
 
     authored_comp.create_new_default(test_prof, test_comp, "test", "My desc", "service")
 
@@ -75,7 +75,9 @@ def test_create_new_default(tmp_trestle_dir: str) -> None:
         "NIST Special Publication 800-53 Revision 5 MODERATE IMPACT \
 BASELINE"
     )
-    assert rule.profile.href == "profiles/simplified_nist_profile/profile.json"
+    assert (
+        rule.profile.href == "trestle://profiles/simplified_nist_profile/profile.json"
+    )
     assert rule.profile.include_controls is not None
     assert len(rule.profile.include_controls) == 1
     assert rule.profile.include_controls[0].id == "ac-5"
@@ -87,7 +89,7 @@ def test_create_new_default_no_profile(tmp_trestle_dir: str) -> None:
     trestle_root = pathlib.Path(tmp_trestle_dir)
     _ = testutils.setup_for_compdef(trestle_root, test_comp, "")
 
-    authored_comp = AuthoredComponentsDefinition(tmp_trestle_dir)
+    authored_comp = AuthoredComponentDefinition(tmp_trestle_dir)
 
     with pytest.raises(
         AuthoredObjectException, match="Profile fake does not exist in the workspace"

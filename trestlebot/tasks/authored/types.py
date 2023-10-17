@@ -25,7 +25,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthorObjectBase,
 )
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
-from trestlebot.tasks.authored.compdef import AuthoredComponentsDefinition
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 
@@ -48,7 +48,7 @@ def get_authored_object(
     elif input_type == AuthoredType.PROFILE.value:
         return AuthoredProfile(working_dir)
     elif input_type == AuthoredType.COMPDEF.value:
-        return AuthoredComponentsDefinition(working_dir)
+        return AuthoredComponentDefinition(working_dir)
     elif input_type == AuthoredType.SSP.value:
         ssp_index: SSPIndex = SSPIndex(ssp_index_path)
         return AuthoredSSP(working_dir, ssp_index)

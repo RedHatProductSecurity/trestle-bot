@@ -151,6 +151,7 @@ def test_profile_regenerate_task(tmp_trestle_dir: str) -> None:
 def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
     """Test compdef regenerate at the task level"""
     trestle_root = pathlib.Path(tmp_trestle_dir)
+
     md_path = os.path.join(compdef_md_dir, test_comp)
     _ = testutils.setup_for_compdef(trestle_root, test_comp, md_path)
 
@@ -161,7 +162,9 @@ def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
         "",
     )
     assert regenerate_task.execute() == 0
-    assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
+
+    # The compdef is a special case where each component has a separate markdown directory
+    assert os.path.exists(os.path.join(tmp_trestle_dir, md_path, test_comp))
 
 
 def test_ssp_regenerate_task(tmp_trestle_dir: str) -> None:

@@ -20,6 +20,7 @@ import os
 import pathlib
 from typing import List
 
+import trestle.common.const as const
 import trestle.oscal.profile as prof
 from trestle.common.err import TrestleError
 from trestle.common.model_utils import ModelUtils
@@ -41,7 +42,7 @@ from trestlebot.transformers.trestle_rule import (
 from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
 
 
-class AuthoredComponentsDefinition(AuthorObjectBase):
+class AuthoredComponentDefinition(AuthorObjectBase):
     """
     Class for authoring OSCAL Component Definitions in automation
     """
@@ -62,7 +63,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
             success = authoring.assemble_component_definition_markdown(
                 name=compdef,
                 output=compdef,
-                markdown_dir=os.path.join(markdown_path, compdef),
+                markdown_dir=markdown_path,
                 regenerate=False,
                 version=version_tag,
             )
@@ -83,7 +84,7 @@ class AuthoredComponentsDefinition(AuthorObjectBase):
         try:
             success = authoring.generate_component_definition_markdown(
                 name=comp_name,
-                output=markdown_path,
+                output=os.path.join(markdown_path, comp_name),
                 force_overwrite=False,
             )
             if not success:
@@ -165,7 +166,8 @@ class RulesViewBuilder:
                 name=f"rule-{control_id}",
                 description=f"Rule for {control_id}",
                 profile=Profile(
-                    href=str(profile_path.relative_to(self._trestle_root)),
+                    href=const.TRESTLE_HREF_HEADING
+                    + str(profile_path.relative_to(self._trestle_root)),
                     description=catalog.metadata.title,
                     include_controls=[Control(id=control_id)],
                 ),
