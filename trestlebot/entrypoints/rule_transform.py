@@ -18,9 +18,11 @@ import argparse
 import logging
 from typing import List
 
-import trestle.common.log as log
-
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoints.entrypoint_base import (
+    EntrypointBase,
+    comma_sep_to_list,
+)
+from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.validations import ValidationHandler, parameter_validation
@@ -58,7 +60,7 @@ class RulesTransformEntrypoint(EntrypointBase):
     def run(self, args: argparse.Namespace) -> None:
         """Run the rule transform entrypoint."""
 
-        log.set_log_level_from_args(args=args)
+        set_log_level_from_args(args)
 
         # Configure the YAML Transformer for the task
         validation_handler: ValidationHandler = ValidationHandler(parameter_validation)

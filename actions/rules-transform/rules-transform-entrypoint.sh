@@ -34,6 +34,10 @@ command="trestlebot-rules-transform \
         --target-branch=\"${INPUT_TARGET_BRANCH}\" \
         --skip-items=\"${INPUT_SKIP_ITEMS}\""
 
+# Conditionally include flags
+if [[ ${INPUT_VERBOSE} == true ]]; then
+    command+=" --verbose"
+fi
 
 # Only set the token value when is a target branch so pull requests can be created
 if [[ -n ${INPUT_TARGET_BRANCH} ]]; then
