@@ -20,6 +20,10 @@ import pathlib
 import re
 
 import pytest
+from trestle.common.model_utils import ModelUtils
+from trestle.core.catalog.catalog_interface import CatalogInterface
+from trestle.core.profile_resolver import ProfileResolver
+from trestle.oscal import profile as prof
 
 from tests import testutils
 from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
@@ -81,6 +85,43 @@ BASELINE"
     assert rule.profile.include_controls is not None
     assert len(rule.profile.include_controls) == 1
     assert rule.profile.include_controls[0].id == "ac-5"
+
+
+def test_create_new_default_with_filter(tmp_trestle_dir: str) -> None:
+    """Test creating new default component definition with filter"""
+    # Prepare the workspace
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    _ = testutils.setup_for_profile(trestle_root, test_prof, "")
+    authored_comp = AuthoredComponentDefinition(tmp_trestle_dir)
+
+    profile_path = ModelUtils.get_model_path_for_name_and_class(
+        trestle_root, test_prof, prof.Profile
+    )
+
+    catalog = ProfileResolver.get_resolved_profile_catalog(
+        trestle_root, profile_path=profile_path
+    )
+
+    catalog_interface = CatalogInterface(catalog)
+    catalog_interface.delete_control("ac-5")
+
+    authored_comp.create_new_default(
+        test_prof, test_comp, "test", "My desc", "service", catalog_interface
+    )
+
+    rules_view_dir = trestle_root / RULES_VIEW_DIR
+    assert rules_view_dir.exists()
+
+    compdef_dir = rules_view_dir / test_comp
+    assert compdef_dir.exists()
+
+    comp_dir = compdef_dir / "test"
+    assert comp_dir.exists()
+
+    # Verity that the number of rules YAML files has been reduced
+    # from 12 to 11.
+    yaml_files = list(comp_dir.glob(f"*{YAML_EXTENSION}"))
+    assert len(yaml_files) == 11
 
 
 def test_create_new_default_no_profile(tmp_trestle_dir: str) -> None:
