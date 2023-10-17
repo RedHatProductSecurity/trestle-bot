@@ -28,10 +28,7 @@ import sys
 from typing import List
 
 from trestlebot import const
-from trestlebot.entrypoints.entrypoint_base import (
-    EntrypointBase,
-    comma_sep_to_list,
-)
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types

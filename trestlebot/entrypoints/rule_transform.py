@@ -18,10 +18,7 @@ import argparse
 import logging
 from typing import List
 
-from trestlebot.entrypoints.entrypoint_base import (
-    EntrypointBase,
-    comma_sep_to_list,
-)
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask

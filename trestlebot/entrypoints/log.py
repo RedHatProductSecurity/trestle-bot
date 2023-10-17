@@ -22,7 +22,8 @@ import sys
 
 import trestle.common.log as log
 
-_logger = logging.getLogger('trestlebot')
+
+_logger = logging.getLogger("trestlebot")
 
 
 def set_log_level_from_args(args: argparse.Namespace) -> None:
@@ -50,7 +51,7 @@ def configure_logger(level: int = logging.INFO) -> None:
     stderr_handler.setLevel(logging.ERROR)
 
     # Create a formatter and set it on both handlers
-    log_formatter = logging.Formatter('%(name)s:%(lineno)d %(levelname)s: %(message)s')
+    log_formatter = logging.Formatter("%(name)s:%(lineno)d %(levelname)s: %(message)s")
     stdout_handler.setFormatter(log_formatter)
     stderr_handler.setFormatter(log_formatter)
 
