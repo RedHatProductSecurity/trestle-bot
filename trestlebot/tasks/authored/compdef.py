@@ -18,7 +18,7 @@
 
 import os
 import pathlib
-from typing import List
+from typing import Callable, List, Optional
 
 import trestle.common.const as const
 import trestle.oscal.profile as prof
@@ -103,6 +103,7 @@ class AuthoredComponentDefinition(AuthorObjectBase):
         comp_title: str,
         comp_description: str,
         comp_type: str,
+        filter_controls: Optional[CatalogInterface] = None,
     ) -> None:
         """
         Create the new component definition with default info.
@@ -113,6 +114,7 @@ class AuthoredComponentDefinition(AuthorObjectBase):
             comp_title: Title of the component
             comp_description: Description of the component
             comp_type: Type of the component
+            filter_controls: Optional catalog to filter the controls to include from the profile
 
         Notes:
             The beginning of the Component Definition workflow is to create a new
@@ -137,8 +139,27 @@ class AuthoredComponentDefinition(AuthorObjectBase):
         )
 
         rules_view_builder = RulesViewBuilder(trestle_root)
-        rules_view_builder.add_rules_for_profile(existing_profile_path, component_info)
+
+        filter_func: Optional[Callable[[str], bool]] = None
+        if filter_controls is not None:
+            filter_func = FilterByCatalog(filter_controls)
+
+        rules_view_builder.add_rules_for_profile(
+            existing_profile_path, component_info, filter_func
+        )
         rules_view_builder.write_to_yaml(rule_dir)
+
+
+class FilterByCatalog:
+    """Filter controls by catalog."""
+
+    def __init__(self, catalog: CatalogInterface) -> None:
+        """Initialize."""
+        self._catalog = catalog
+
+    def __call__(self, control_id: str) -> bool:
+        """Filter controls by catalog."""
+        return control_id in self._catalog.get_control_ids()
 
 
 class RulesViewBuilder:
@@ -151,9 +172,19 @@ class RulesViewBuilder:
         self._yaml_transformer = FromRulesYAMLTransformer()
 
     def add_rules_for_profile(
-        self, profile_path: pathlib.Path, component_info: ComponentInfo
+        self,
+        profile_path: pathlib.Path,
+        component_info: ComponentInfo,
+        criteria: Optional[Callable[[str], bool]] = None,
     ) -> None:
-        """Add rules for a profile to the builder."""
+        """
+        Add rules for a profile to the builder.
+
+        Args:
+            profile_path: Path to the profile
+            component_info: Component info to use for the rules
+            criteria: Optional criteria to filter the controls to include in the rules
+        """
         catalog = ProfileResolver.get_resolved_profile_catalog(
             self._trestle_root, profile_path=profile_path
         )
@@ -161,6 +192,9 @@ class RulesViewBuilder:
         controls = CatalogInterface.get_control_ids_from_catalog(catalog)
 
         for control_id in controls:
+            if criteria is not None and not criteria(control_id):
+                continue
+
             rule = TrestleRule(
                 component=component_info,
                 name=f"rule-{control_id}",
