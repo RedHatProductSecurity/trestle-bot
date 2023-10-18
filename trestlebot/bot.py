@@ -180,7 +180,7 @@ def run(
                     )
                     # Parse remote url to get repository information for pull request
                     namespace, repo_name = git_provider.parse_repository(remote.url)
-                    logger.debug("Detected namespace {namespace} and {repo_name}")
+                    logger.debug(f"Detected namespace {namespace} and {repo_name}")
 
                     pr_number = git_provider.create_pull_request(
                         ns=namespace,
