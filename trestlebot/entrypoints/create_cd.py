@@ -24,6 +24,7 @@ from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
+from trestlebot.const import RULES_VIEW_DIR
 
 
 class CreateCDEntrypoint(EntrypointBase):
@@ -54,6 +55,19 @@ class CreateCDEntrypoint(EntrypointBase):
             default="service",
             help="Type of component definition",
         )
+        self.parser.add_argument(
+            "--generate",
+            required=False,
+            default=False,
+            help="Generate markdown and ssp index",
+        )
+        self.parser.add_argument(
+            "--transform-rules",
+            required=False,
+            default=False,
+            help="Transform rules to YAML",
+        )
+            
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
@@ -66,25 +80,25 @@ class CreateCDEntrypoint(EntrypointBase):
             args.comp_description,
             args.cd_type,
         )
-
-        transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
-
-        rule_transform_task: RuleTransformTask = RuleTransformTask(
-            args.working_dir,
-            args.rules_view_path,
-            transformer,
-            comma_sep_to_list(args.skip_items),
-        )
-        pre_tasks: List[TaskBase] = [rule_transform_task]
-
-        regenerate_task = RegenerateTask(
-            args.working_dir,
-            args.oscal_model,
-            args.markdown_path,
-            args.ssp_index_path,
-            comma_sep_to_list(args.skip_items),
-        )
-        pre_tasks.append(regenerate_task)
+        pre_tasks: List[TaskBase] = []
+        if args.transform_rules:
+            transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
+            rule_transform_task: RuleTransformTask = RuleTransformTask(
+                args.working_dir,
+                args.RULES_VIEW_DIR,
+                transformer,
+                comma_sep_to_list(args.skip_items),
+            )
+            pre_tasks: List[TaskBase] = [rule_transform_task]
+        if args.generate:
+            regenerate_task = RegenerateTask(
+                args.working_dir,
+                "compdef",
+                args.markdown_path,
+                args.ssp_index_path,
+                comma_sep_to_list(args.skip_items),
+            )
+            pre_tasks.append(regenerate_task)
 
         super().run_base(args, pre_tasks)
 
