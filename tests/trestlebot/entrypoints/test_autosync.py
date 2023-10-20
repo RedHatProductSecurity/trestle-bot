@@ -17,11 +17,12 @@
 """Test for CLI"""
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict
 from unittest.mock import patch
 
 import pytest
 
+from tests.testutils import args_dict_to_list
 from trestlebot.entrypoints.autosync import main as cli_main
 
 
@@ -36,15 +37,6 @@ def valid_args_dict() -> Dict[str, str]:
         "working-dir": "tmp",
         "file-patterns": ".",
     }
-
-
-def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
-    args = []
-    for k, v in args_dict.items():
-        args.append(f"--{k}")
-        if v is not None:
-            args.append(v)
-    return args
 
 
 def test_invalid_oscal_model(valid_args_dict: Dict[str, str], caplog: Any) -> None:

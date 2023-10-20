@@ -20,7 +20,7 @@ import argparse
 import json
 import pathlib
 import shutil
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from git.repo import Repo
 from trestle.common.model_utils import ModelUtils
@@ -259,3 +259,12 @@ def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> 
     # Write the updated content back to the file
     with open(file_path, "w") as file:
         file.write(updated_content)
+
+
+def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
+    args = []
+    for k, v in args_dict.items():
+        args.append(f"--{k}")
+        if v is not None:
+            args.append(v)
+    return args
