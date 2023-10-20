@@ -20,7 +20,7 @@ import argparse
 import json
 import pathlib
 import shutil
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from git.repo import Repo
 from trestle.common.model_utils import ModelUtils
@@ -47,6 +47,16 @@ def clean(repo_path: str, repo: Optional[Repo]) -> None:
     if repo is not None:
         repo.close()
     shutil.rmtree(repo_path)
+
+
+def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
+    """Transform dictionary of args to a list of args."""
+    args = []
+    for k, v in args_dict.items():
+        args.append(f"--{k}")
+        if v is not None:
+            args.append(v)
+    return args
 
 
 def load_from_json(
