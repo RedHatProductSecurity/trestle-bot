@@ -18,6 +18,7 @@ import argparse
 from typing import List
 
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
@@ -56,6 +57,7 @@ class CreateCDEntrypoint(EntrypointBase):
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
+        set_log_level_from_args(args)
         authored_comp = AuthoredComponentDefinition(args.working_dir)
         authored_comp.create_new_default(
             args.profile_name,

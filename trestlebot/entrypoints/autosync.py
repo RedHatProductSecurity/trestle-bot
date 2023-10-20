@@ -27,10 +27,9 @@ import logging
 import sys
 from typing import List
 
-import trestle.common.log as log
-
 from trestlebot import const
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.base_task import TaskBase
@@ -94,7 +93,7 @@ class AutoSyncEntrypoint(EntrypointBase):
     def run(self, args: argparse.Namespace) -> None:
         """Run the autosync entrypoint."""
 
-        log.set_log_level_from_args(args=args)
+        set_log_level_from_args(args)
 
         pre_tasks: List[TaskBase] = []
 

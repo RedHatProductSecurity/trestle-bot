@@ -52,7 +52,11 @@ class EntrypointBase:
     def setup_common_arguments(self) -> None:
         """Setup arguments for the entrypoint."""
         self.parser.add_argument(
-            "-v", "--verbose", action="store_true", help="Enable verbose mode"
+            "-v",
+            "--verbose",
+            help="Display verbose output",
+            action="count",
+            default=0,
         )
         self.parser.add_argument(
             "--branch",
