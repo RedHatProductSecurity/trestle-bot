@@ -14,6 +14,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+"""E2E tests for the rules transform command."""
+
 import argparse
 import pathlib
 import subprocess
@@ -32,7 +34,7 @@ image_name = "localhost/trestlebot:latest"
 mock_server_image_name = "localhost/mock-server:latest"
 pod_name = "trestlebot-e2e-pod"
 e2e_context = "tests/e2e"
-file = "Dockerfile"
+container_file = "Dockerfile"
 
 
 # Define test cases and expected outcomes
@@ -86,7 +88,7 @@ def podman_setup() -> YieldFixture[int]:
             "podman",
             "build",
             "-f",
-            file,
+            container_file,
             "-t",
             image_name,
         ],
@@ -99,7 +101,7 @@ def podman_setup() -> YieldFixture[int]:
             "podman",
             "build",
             "-f",
-            f"{e2e_context}/{file}",
+            f"{e2e_context}/{container_file}",
             "-t",
             mock_server_image_name,
             e2e_context,

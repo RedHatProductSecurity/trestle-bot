@@ -1,32 +1,47 @@
-# End to End Testing
+# End-to-End Testing
 
-The end to end tests are used to verify the CLI from a user perspective running trestle-bot in a container.
-
-Podman is used to build and manage the deployed containers.
-The trestlebot container image and container image for the mock API server are built and the mock API server is started in the pod.
-WireMock is used to mock the Git server endpoints.
-
-## TODO
-- Have the option to use pre-built trestle-bot container images from a registry instead of building them locally.
+End-to-end tests are used to verify the CLI functionality of trestle-bot from a user's perspective, running in a containerized environment.
 
 ## Prerequisites
 
-- [Podman](https://podman.io/docs/installation)
-- [Python 3](https://www.python.org/downloads/)
-- [Poetry](https://python-poetry.org/docs/#installation)
+Before running the end-to-end tests, ensure you have the following prerequisites installed:
+
+- [Podman](https://podman.io/docs/installation) - Container management tool
+- [Python 3](https://www.python.org/downloads/) - Required for test automation
+- [Poetry](https://python-poetry.org/docs/#installation) - Dependency management
 
 ## Resources
 
-- `mappings` - Contains JSON mappings used with WireMock to mock the Git server endpoints.
-- `play-kube.yml` - Contains the Kubernetes resources used to deploy the mock API server in a pod.
-- `Dockerfile` - Contains the Dockerfile used to build the mock server container image.
+- **`mappings`**: This directory contains JSON mappings used with WireMock to mock the Git server endpoints.
+- **`play-kube.yml`**: This file includes Kubernetes resources for deploying the mock API server in a pod.
+- **`Dockerfile`**: The Dockerfile used to build the mock server container image.
 
-## Running the tests
+## Running the Tests
 
-> Note: This must be run from the project root directory.
+To run the end-to-end tests, follow these steps:
 
-### Run all tests
+1. Clone the project repository:
 
-```bash
-make test-e2e
-```
+   ```bash
+   git clone https://github.com/RedHatProductSecurity/trestle-bot.git
+   cd trestle-bot
+   ```
+
+2. Install the project dependencies:
+
+   ```bash
+   poetry install --without dev --no-root
+   ```
+
+3. Run the tests:
+
+   ```bash
+    make test-e2e
+   ```
+
+   > **Note:** This should always be run from the root of the project directory.
+
+## Additional Notes
+- The WireMock tool is used to mock Git server endpoints for testing.
+- Podman is used for container and pod management and to build the container image for the mock API server.
+- In the future, we plan to provide an option to use pre-built trestle-bot container images from a registry instead of building them locally.
