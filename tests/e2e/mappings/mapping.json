@@ -1,0 +1,48 @@
+{
+    "mappings": [
+      {
+        "request": {
+          "method": "GET",
+          "url": "/test.git/HEAD"
+        },
+        "response": {
+          "status": 200,
+          "body": "ref: refs/heads/test\n",
+          "headers": {
+            "Content-Type": "application/x-git-advertisement"
+          }
+        }
+      },
+      {
+        "request": {
+          "method": "GET",
+          "urlPattern": "/test.git/info/refs.*",
+          "queryParameters": {
+            "service": {
+              "equalTo": "git-receive-pack"
+            }
+          }
+        },
+        "response": {
+          "status": 200,
+          "body": "3e84c924d2574c95e8a7e8d7a76530b95d16f784\trefs/heads/test\n",
+          "headers": {
+            "Content-Type": "application/x-git-advertisement"
+          }
+        }
+      },
+      {
+        "request": {
+          "method": "POST",
+          "url": "/test.git/git-receive-pack"
+        },
+        "response": {
+          "status": 200,
+          "body": "0000ACK refs/heads/test\n0000",
+          "headers": {
+            "Content-Type": "application/x-git-receive-pack-result"
+          }
+        }
+      }
+    ]
+  }

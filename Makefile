@@ -1,4 +1,5 @@
 PYMODULE := trestlebot
+E2E := e2e
 TESTS := tests
 
 all: develop lint test
@@ -29,6 +30,14 @@ format:
 test:
 	@poetry run pytest --cov --cov-config=pyproject.toml --cov-report=xml
 .PHONY: test
+
+test-slow:
+	@poetry run pytest --slow --cov --cov-config=pyproject.toml --cov-report=xml
+.PHONY: test-slow
+
+test-e2e:
+	@poetry run pytest $(TESTS)/$(E2E) --slow --cov --cov-config=pyproject.toml --cov-report=xml
+.PHONY: test-e2e
 
 test-code-cov:
 	@poetry run pytest --cov=trestlebot --exitfirst --cov-config=pyproject.toml --cov-report=xml --cov-fail-under=80

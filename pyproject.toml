@@ -2,6 +2,7 @@
 requires = ['poetry-core>=1.2.0', 'wheel',]
 build-backend = 'poetry.core.masonry.api'
 
+
 [tool.poetry]
 name = 'trestlebot'
 version = '0.1.0'
@@ -10,10 +11,12 @@ description = "trestle-bot assists users in leveraging Compliance-Trestle in aut
 authors = ["Jennifer Power <jpower@redhat.com>",]
 
 include = ['LICENSE']
+exclude = ['tests/', 'docs/']
 license = 'Apache-2.0'
 readme = 'README.md'
 
 repository = 'https://github.com/RedHatProductSecurity/trestle-bot'
+
 
 [tool.poetry.scripts]
 trestlebot-autosync = "trestlebot.entrypoints.autosync:main"
@@ -40,6 +43,7 @@ pre-commit = "^3.4.0"
 [tool.poetry.group.tests.dependencies]
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
+pytest-skip-slow = "^0.0.5"
 
 [tool.coverage.run]
 branch = true

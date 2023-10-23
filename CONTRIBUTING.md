@@ -52,14 +52,19 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 
 ### Format and Styling
 
-```
+```bash
 make format
 make lint
 ```
 
 ### Running tests
-```
+```bash
+# Run all tests
 make test
+make test-slow
+
+# Run specific tests
+make test-e2e
 ```
 
 ### Run with poetry
