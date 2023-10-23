@@ -32,7 +32,7 @@ from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
-from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
@@ -113,35 +113,43 @@ class AutoSyncEntrypoint(EntrypointBase):
                 logger.error("Must set markdown path with oscal model.")
                 sys.exit(const.ERROR_EXIT_CODE)
 
-            if args.oscal_model == "ssp" and args.ssp_index_path == "":
+            if (
+                args.oscal_model == types.AuthoredType.SSP.value
+                and args.ssp_index_path == ""
+            ):
                 logger.error("Must set ssp_index_path when using SSP as oscal model.")
                 sys.exit(const.ERROR_EXIT_CODE)
+
+            filter: ModelFilter = ModelFilter(
+                skip_patterns=comma_sep_to_list(args.skip_items),
+                include_patterns=["."],
+            )
 
             # Assuming an edit has occurred assemble would be run before regenerate.
             # Adding this to the list first
             if not args.skip_assemble:
                 assemble_task = AssembleTask(
-                    args.working_dir,
-                    args.oscal_model,
-                    args.markdown_path,
-                    args.ssp_index_path,
-                    comma_sep_to_list(args.skip_items),
+                    working_dir=args.working_dir,
+                    authored_model=args.oscal_model,
+                    markdown_dir=args.markdown_path,
+                    ssp_index_path=args.ssp_index_path,
+                    filter=filter,
                 )
                 pre_tasks.append(assemble_task)
             else:
-                logger.info("Assemble task skipped")
+                logger.info("Assemble task skipped.")
 
             if not args.skip_regenerate:
                 regenerate_task = RegenerateTask(
-                    args.working_dir,
-                    args.oscal_model,
-                    args.markdown_path,
-                    args.ssp_index_path,
-                    comma_sep_to_list(args.skip_items),
+                    working_dir=args.working_dir,
+                    authored_model=args.oscal_model,
+                    markdown_dir=args.markdown_path,
+                    ssp_index_path=args.ssp_index_path,
+                    filter=filter,
                 )
                 pre_tasks.append(regenerate_task)
             else:
-                logger.info("Regeneration task skipped")
+                logger.info("Regeneration task skipped.")
 
             super().run_base(args, pre_tasks)
 

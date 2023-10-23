@@ -73,8 +73,9 @@ class EntrypointBase:
         )
         self.parser.add_argument(
             "--file-patterns",
-            required=True,
+            required=False,
             type=str,
+            default=".",
             help="Comma-separated list of file patterns to be used with `git add` in repository updates",
         )
         self.parser.add_argument(

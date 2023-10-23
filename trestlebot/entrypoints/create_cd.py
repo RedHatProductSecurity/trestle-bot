@@ -14,89 +14,109 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+"""
+Entrypoint for component definition bootstrapping.
+
+This will create a rules-view directory in the working directory, create a component
+definition in JSON format with the initially generated rules and initial trestle control markdown.
+"""
+
 import argparse
+import logging
 from typing import List
 
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase
+from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
-from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.authored.types import AuthoredType
+from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
-from trestlebot.const import RULES_VIEW_DIR
+
+
+logger = logging.getLogger(__name__)
 
 
 class CreateCDEntrypoint(EntrypointBase):
-    """Entrypoint for setting default component fields."""
+    """Entrypoint for component definition bootstrapping."""
 
     def __init__(self, parser: argparse.ArgumentParser) -> None:
         """Initialize."""
         super().__init__(parser)
-        self.setup_set_default_component_fields_arguments()
+        self.setup_create_cd_arguments()
 
-    def setup_set_default_component_fields_arguments(self) -> None:
+    def setup_create_cd_arguments(self) -> None:
         """Setup specific arguments for this entrypoint."""
         self.parser.add_argument(
-            "--profile-name", required=True, help="Name of profile"
+            "--profile-name",
+            required=True,
+            help="Name of profile in the trestle workspace to use with the component definition.",
         )
         self.parser.add_argument(
             "--compdef-name", required=True, help="Name of component definition"
         )
         self.parser.add_argument(
-            "--comp-title", required=True, help="Title of component"
+            "--component-title", required=True, help="Title of initial component"
         )
         self.parser.add_argument(
-            "--comp-description", required=True, help="Description of component"
+            "--component-description",
+            required=True,
+            help="Description of initial component",
         )
         self.parser.add_argument(
-            "--cd-type",
+            "--markdown-path",
+            required=True,
+            type=str,
+            help="Path to create markdown files in.",
+        )
+        self.parser.add_argument(
+            "--component-definition-type",
             required=False,
+            type=str,
+            choices=["service", "validation"],
             default="service",
             help="Type of component definition",
         )
-        self.parser.add_argument(
-            "--generate",
-            required=False,
-            default=False,
-            help="Generate markdown and ssp index",
-        )
-        self.parser.add_argument(
-            "--transform-rules",
-            required=False,
-            default=False,
-            help="Transform rules to YAML",
-        )
-            
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
+
+        set_log_level_from_args(args)
+        pre_tasks: List[TaskBase] = []
+
+        # In this case we only want to do the transformation and generation for this component
+        # definition, so we skip all other component definitions and components.
+        filter: ModelFilter = ModelFilter(
+            [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
+        )
+
         authored_comp = AuthoredComponentDefinition(args.working_dir)
         authored_comp.create_new_default(
             args.profile_name,
             args.compdef_name,
-            args.comp_title,
-            args.comp_description,
-            args.cd_type,
+            args.component_title,
+            args.component_description,
+            args.component_definition_type,
         )
-        pre_tasks: List[TaskBase] = []
-        if args.transform_rules:
-            transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
-            rule_transform_task: RuleTransformTask = RuleTransformTask(
-                args.working_dir,
-                args.RULES_VIEW_DIR,
-                transformer,
-                comma_sep_to_list(args.skip_items),
-            )
-            pre_tasks: List[TaskBase] = [rule_transform_task]
-        if args.generate:
-            regenerate_task = RegenerateTask(
-                args.working_dir,
-                "compdef",
-                args.markdown_path,
-                args.ssp_index_path,
-                comma_sep_to_list(args.skip_items),
-            )
-            pre_tasks.append(regenerate_task)
+
+        transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
+        rule_transform_task: RuleTransformTask = RuleTransformTask(
+            working_dir=args.working_dir,
+            rules_view_dir=RULES_VIEW_DIR,
+            rule_transformer=transformer,
+            filter=filter,
+        )
+        pre_tasks.append(rule_transform_task)
+
+        regenerate_task = RegenerateTask(
+            working_dir=args.working_dir,
+            authored_model=AuthoredType.COMPDEF.value,
+            markdown_dir=args.markdown_path,
+            filter=filter,
+        )
+        pre_tasks.append(regenerate_task)
 
         super().run_base(args, pre_tasks)
 
@@ -104,7 +124,7 @@ class CreateCDEntrypoint(EntrypointBase):
 def main() -> None:
     """Run the CLI."""
     parser = argparse.ArgumentParser(
-        description="Set default component fields entrypoint for trestle."
+        description="Create new component definition with defaults."
     )
     set_default_component_fields = CreateCDEntrypoint(parser=parser)
 

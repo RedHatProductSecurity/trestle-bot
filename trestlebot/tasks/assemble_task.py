@@ -18,7 +18,7 @@
 
 import os
 import pathlib
-from typing import List
+from typing import Optional
 
 from trestlebot import const
 from trestlebot.tasks.authored import types
@@ -26,7 +26,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
 )
-from trestlebot.tasks.base_task import TaskBase, TaskException
+from trestlebot.tasks.base_task import ModelFilter, TaskBase, TaskException
 
 
 class AssembleTask(TaskBase):
@@ -40,7 +40,7 @@ class AssembleTask(TaskBase):
         authored_model: str,
         markdown_dir: str,
         ssp_index_path: str = "",
-        skip_model_list: List[str] = [],
+        filter: Optional[ModelFilter] = None,
     ) -> None:
         """
         Initialize assemble task.
@@ -50,13 +50,13 @@ class AssembleTask(TaskBase):
             authored_model: String representation of model type
             markdown_dir: Location of directory to write Markdown in
             ssp_index_path: Path of ssp index JSON in the workspace
-            skip_model_list: List of model names to be skipped during processing
+            filter: Optional filter to apply to the task to include or exclude models from processing
         """
 
         self._authored_model = authored_model
         self._markdown_dir = markdown_dir
         self._ssp_index_path = ssp_index_path
-        super().__init__(working_dir, skip_model_list)
+        super().__init__(working_dir, filter)
 
     def execute(self) -> int:
         """Execute task"""

@@ -28,7 +28,7 @@ from trestle.core.catalog.catalog_interface import CatalogInterface
 from trestle.core.profile_resolver import ProfileResolver
 from trestle.core.repository import AgileAuthoring
 
-from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
+from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
@@ -197,7 +197,7 @@ class RulesViewBuilder:
 
             rule = TrestleRule(
                 component=component_info,
-                name=f"rule-{control_id}",
+                name=f"{RULE_PREFIX}{control_id}",
                 description=f"Rule for {control_id}",
                 profile=Profile(
                     href=const.TRESTLE_HREF_HEADING
