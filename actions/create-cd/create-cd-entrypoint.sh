@@ -20,11 +20,15 @@ else
 fi
 
 # Initialize the command variable
-command="trestlebot-autosync \
+command="trestlebot-create-cd \
+        --profile-name=\"${INPUT_PROFILE_NAME}\" \
+        --compdef-name=\"${INPUT_COMPONENT_DEFINITION_NAME}\" \
+        --component-title=\"${INPUT_COMPONENT_TITLE}\" \
+        --component-description=\"${INPUT_COMPONENT_DESCRIPTION}\" \
+        --component-definition-type=\"${INPUT_COMPONENT_TYPE}\" \
         --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
-        --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
-        --ssp-index-path=\"${INPUT_SSP_INDEX_PATH}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
+        --filter-by-profile=\"${INPUT_FILTER_BY_PEOFILE}\" \
         --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
         --file-patterns=\"${INPUT_FILE_PATTERN}\" \
@@ -33,22 +37,9 @@ command="trestlebot-autosync \
         --author-name=\"${INPUT_COMMIT_AUTHOR_NAME}\" \
         --author-email=\"${INPUT_COMMIT_AUTHOR_EMAIL}\" \
         --working-dir=\"${INPUT_REPOSITORY}\" \
-        --target-branch=\"${INPUT_TARGET_BRANCH}\" \
-        --skip-items=\"${INPUT_SKIP_ITEMS}\""
+        --target-branch=\"${INPUT_TARGET_BRANCH}\""
 
 # Conditionally include flags
-if [[ ${INPUT_SKIP_ASSEMBLE} == true ]]; then
-    command+=" --skip-assemble"
-fi
-
-if [[ ${INPUT_SKIP_REGENERATE} == true ]]; then
-    command+=" --skip-regenerate"
-fi
-
-if [[ ${INPUT_CHECK_ONLY} == true ]]; then
-    command+=" --check-only"
-fi
-
 if [[ ${INPUT_VERBOSE} == true ]]; then
     command+=" --verbose"
 fi

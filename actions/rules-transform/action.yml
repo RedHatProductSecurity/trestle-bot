@@ -4,13 +4,14 @@ description: "A rules transform action to convert trestle rules in YAML format t
 
 inputs:
   rules_view_path: 
-    description: Path relative to the repository path where the Trestle markdown files are located. See project README.md for more information.
-    required: true
+    description: Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`.
+    required: false
+    default: "rules/"
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false
   skip_items:
-    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `profile_x,profile_y*,`."
+    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `compdef_x,compdef_y*,`."
     required: false
   commit_message:
     description: Commit message

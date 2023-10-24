@@ -25,19 +25,19 @@ ENV PYTHONUNBUFFERED=1 \
     PYSETUP_PATH="/trestle-bot" \
     VENV_PATH="/trestle-bot/.venv"
 
+LABEL maintainer="Red Hat Product Security" \
+      summary="Trestle Bot"
+
 
 # prepend poetry and venv to path
 ENV PATH="$POETRY_HOME/bin:$VENV_PATH/bin:$PATH"
 
 RUN microdnf update -y \
-    && microdnf install -y python3.9 \
+    && microdnf install -y python3.9 git \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
 FROM python-base as dependencies
-
-RUN microdnf update -y \
-    && microdnf install -y git
 
 # install poetry - respects $POETRY_VERSION & $POETRY_HOME
 RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
@@ -47,13 +47,10 @@ RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
 WORKDIR "/build"
 COPY . "/build"
 
-# Install runtime deps
+# Install runtime deps and install the project in non-editable mode.
 RUN python -m venv $VENV_PATH && \
   . $VENV_PATH/bin/activate && \
-  poetry install --without tests,dev --no-root
-
-# install the root project in non-editable mode
-RUN . $VENV_PATH/bin/activate && \
+  poetry install --without tests,dev --no-root && \
   poetry build -f wheel -n && \
   pip install --no-cache-dir --no-deps dist/*.whl && \
   rm -rf dist *.egg-info
@@ -63,17 +60,11 @@ FROM python-base as final
 
 COPY --from=dependencies $PYSETUP_PATH $PYSETUP_PATH
 
-RUN microdnf install -y git \
-    && microdnf clean all \
-    && rm -rf /var/lib/apt/lists/*
-
 # Add wrappers for entrypoints that provide support the actions
 COPY ./actions/autosync/auto-sync-entrypoint.sh /
-RUN chmod +x /auto-sync-entrypoint.sh
-
 COPY ./actions/rules-transform/rules-transform-entrypoint.sh /
-RUN chmod +x /rules-transform-entrypoint.sh
+COPY ./actions/create-cd/create-cd-entrypoint.sh /
+RUN chmod +x /auto-sync-entrypoint.sh /rules-transform-entrypoint.sh /create-cd-entrypoint.sh
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
 CMD ["--help"]
-           
