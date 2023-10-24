@@ -23,12 +23,16 @@ definition in JSON format with the initially generated rules and initial trestle
 
 import argparse
 import logging
-from typing import List
+import pathlib
+from typing import List, Optional
 
 from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase
 from trestlebot.entrypoints.log import set_log_level_from_args
-from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.authored.compdef import (
+    AuthoredComponentDefinition,
+    FilterByProfile,
+)
 from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
@@ -79,18 +83,23 @@ class CreateCDEntrypoint(EntrypointBase):
             default="service",
             help="Type of component definition",
         )
+        self.parser.add_argument(
+            "--filter-by-profile",
+            required=False,
+            type=str,
+            help="Optionally filter the controls in the component definition by a profile.",
+        )
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
 
         set_log_level_from_args(args)
         pre_tasks: List[TaskBase] = []
+        filter_by_profile: Optional[FilterByProfile] = None
+        trestle_root: pathlib.Path = pathlib.Path(args.working_dir)
 
-        # In this case we only want to do the transformation and generation for this component
-        # definition, so we skip all other component definitions and components.
-        filter: ModelFilter = ModelFilter(
-            [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
-        )
+        if args.filter_by_profile:
+            filter_by_profile = FilterByProfile(trestle_root, args.filter_by_profile)
 
         authored_comp = AuthoredComponentDefinition(args.working_dir)
         authored_comp.create_new_default(
@@ -99,14 +108,22 @@ class CreateCDEntrypoint(EntrypointBase):
             args.component_title,
             args.component_description,
             args.component_definition_type,
+            filter_by_profile,
         )
 
         transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
+
+        # In this case we only want to do the transformation and generation for this component
+        # definition, so we skip all other component definitions and components.
+        workspace_filter: ModelFilter = ModelFilter(
+            [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
+        )
+
         rule_transform_task: RuleTransformTask = RuleTransformTask(
             working_dir=args.working_dir,
             rules_view_dir=RULES_VIEW_DIR,
             rule_transformer=transformer,
-            filter=filter,
+            filter=workspace_filter,
         )
         pre_tasks.append(rule_transform_task)
 
@@ -114,7 +131,7 @@ class CreateCDEntrypoint(EntrypointBase):
             working_dir=args.working_dir,
             authored_model=AuthoredType.COMPDEF.value,
             markdown_dir=args.markdown_path,
-            filter=filter,
+            filter=workspace_filter,
         )
         pre_tasks.append(regenerate_task)
 

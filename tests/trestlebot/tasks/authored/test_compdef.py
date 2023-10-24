@@ -20,15 +20,16 @@ import pathlib
 import re
 
 import pytest
-from trestle.common.model_utils import ModelUtils
-from trestle.core.catalog.catalog_interface import CatalogInterface
-from trestle.core.profile_resolver import ProfileResolver
-from trestle.oscal import profile as prof
+from trestle.common.err import TrestleError
+from trestle.oscal.profile import Profile
 
 from tests import testutils
 from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import AuthoredObjectException
-from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.authored.compdef import (
+    AuthoredComponentDefinition,
+    FilterByProfile,
+)
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
@@ -89,24 +90,18 @@ BASELINE"
 
 def test_create_new_default_with_filter(tmp_trestle_dir: str) -> None:
     """Test creating new default component definition with filter"""
+
+    filter_profile = "filter_profile"
     # Prepare the workspace
     trestle_root = pathlib.Path(tmp_trestle_dir)
     _ = testutils.setup_for_profile(trestle_root, test_prof, "")
+    testutils.load_from_json(trestle_root, filter_profile, filter_profile, Profile)
     authored_comp = AuthoredComponentDefinition(tmp_trestle_dir)
 
-    profile_path = ModelUtils.get_model_path_for_name_and_class(
-        trestle_root, test_prof, prof.Profile
-    )
-
-    catalog = ProfileResolver.get_resolved_profile_catalog(
-        trestle_root, profile_path=profile_path
-    )
-
-    catalog_interface = CatalogInterface(catalog)
-    catalog_interface.delete_control("ac-5")
+    filter_by_profile = FilterByProfile(trestle_root, filter_profile)
 
     authored_comp.create_new_default(
-        test_prof, test_comp, "test", "My desc", "service", catalog_interface
+        test_prof, test_comp, "test", "My desc", "service", filter_by_profile
     )
 
     rules_view_dir = trestle_root / RULES_VIEW_DIR
@@ -138,3 +133,13 @@ def test_create_new_default_no_profile(tmp_trestle_dir: str) -> None:
         authored_comp.create_new_default(
             "fake", test_comp, "test", "My desc", "service"
         )
+
+
+def test_filter_by_profile_with_no_profile(tmp_trestle_dir: str) -> None:
+    """Test creating a profile filter with a non-existent profile"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+
+    with pytest.raises(
+        TrestleError, match="Profile fake does not exist in the workspace"
+    ):
+        _ = FilterByProfile(trestle_root, "fake")
