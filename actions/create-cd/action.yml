@@ -21,8 +21,7 @@ inputs:
     default: "service"
   component_description:
     description: Description of the component to create
-    required: false
-    default: "A component definition for the ${{ inputs.component_title }} component"
+    required: true
   filter_by_profile:
     description: Name of the profile in the workspace to filter controls by
     required: false

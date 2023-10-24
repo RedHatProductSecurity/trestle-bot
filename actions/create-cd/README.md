@@ -17,6 +17,7 @@ name: Example Workflow
           profile_name: "profile"
           component_definition_name: "component-definition"
           component_title: "My Component Title"
+          component_description: "My Component Description"
 ```
 
 ## Inputs and Outputs
@@ -40,6 +41,11 @@ The purpose of this action is to create a new component definition and commit ch
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/create-cd@main
       with:
+        markdown_path: "markdown/components"
+        profile_name: "profile"
+        component_definition_name: "component-definition"
+        component_title: "My Component Title"
+        component_description: "My Component Description"
         branch: "another-branch"
 ```
 
@@ -52,6 +58,11 @@ The purpose of this action is to create a new component definition and commit ch
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/create-cd@main
       with:
+        markdown_path: "markdown/components"
+        profile_name: "profile"
+        component_definition_name: "component-definition"
+        component_title: "My Component Title"
+        component_description: "My Component Description"
         branch: "create-cd-${{ github.run_id }}"
         target_branch: "main"
         github_token: ${{ secret.GITHUB_TOKEN }}
