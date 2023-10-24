@@ -34,6 +34,7 @@ from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
 test_prof = "simplified_nist_profile"
+test_filter_prof = "simplified_filter_profile"
 test_comp = "test_comp"
 
 
@@ -91,14 +92,13 @@ BASELINE"
 def test_create_new_default_with_filter(tmp_trestle_dir: str) -> None:
     """Test creating new default component definition with filter"""
 
-    filter_profile = "filter_profile"
     # Prepare the workspace
     trestle_root = pathlib.Path(tmp_trestle_dir)
     _ = testutils.setup_for_profile(trestle_root, test_prof, "")
-    testutils.load_from_json(trestle_root, filter_profile, filter_profile, Profile)
+    testutils.load_from_json(trestle_root, test_filter_prof, test_filter_prof, Profile)
     authored_comp = AuthoredComponentDefinition(tmp_trestle_dir)
 
-    filter_by_profile = FilterByProfile(trestle_root, filter_profile)
+    filter_by_profile = FilterByProfile(trestle_root, test_filter_prof)
 
     authored_comp.create_new_default(
         test_prof, test_comp, "test", "My desc", "service", filter_by_profile
@@ -114,9 +114,9 @@ def test_create_new_default_with_filter(tmp_trestle_dir: str) -> None:
     assert comp_dir.exists()
 
     # Verity that the number of rules YAML files has been reduced
-    # from 12 to 11.
+    # from 12 to 7.
     yaml_files = list(comp_dir.glob(f"*{YAML_EXTENSION}"))
-    assert len(yaml_files) == 11
+    assert len(yaml_files) == 7
 
 
 def test_create_new_default_no_profile(tmp_trestle_dir: str) -> None:
