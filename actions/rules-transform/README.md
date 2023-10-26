@@ -24,7 +24,7 @@ With custom rules directory:
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
       with:
-        rules_dir: "custom-rules-dir"
+        rules_view_path: "custom-rules-dir/"
   ```
 
 ## Action Behavior
