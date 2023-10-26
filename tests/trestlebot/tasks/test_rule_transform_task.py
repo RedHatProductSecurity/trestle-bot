@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Test for Trestle Bot rule transform task"""
+"""Test for Trestle Bot rule transform task."""
 
 import pathlib
 
@@ -26,7 +26,7 @@ from trestle.core.models.file_content_type import FileContentType
 from trestle.tasks.csv_to_oscal_cd import RULE_DESCRIPTION, RULE_ID
 
 from tests.testutils import setup_rules_view
-from trestlebot.tasks.base_task import TaskException
+from trestlebot.tasks.base_task import ModelFilter, TaskException
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
@@ -116,8 +116,10 @@ def test_rule_transform_task_with_skip(tmp_trestle_dir: str) -> None:
     trestle_root = pathlib.Path(tmp_trestle_dir)
     setup_rules_view(trestle_root, test_comp, test_rules_dir)
     transformer = ToRulesYAMLTransformer()
+
+    filter = ModelFilter([test_comp], [])
     rule_transform_task = RuleTransformTask(
-        tmp_trestle_dir, test_rules_dir, transformer, skip_model_list=[test_comp]
+        tmp_trestle_dir, test_rules_dir, transformer, filter=filter
     )
     return_code = rule_transform_task.execute()
     assert return_code == 0

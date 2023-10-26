@@ -46,3 +46,4 @@ COMPONENT_INFO_TAG = trestle_const.TRESTLE_TAG + "component-info"
 YAML_EXTENSION = ".yaml"
 
 RULES_VIEW_DIR = "rules"
+RULE_PREFIX = "rule-"

@@ -28,6 +28,7 @@ from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 from tests import testutils
 from trestlebot.tasks.authored.base_authored import AuthorObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
+from trestlebot.tasks.base_task import ModelFilter
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
@@ -86,11 +87,13 @@ def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -
 
     mock = Mock(spec=AuthorObjectBase)
 
+    filter = ModelFilter(skip_list, ["."])
+
     regenerate_task = RegenerateTask(
         working_dir=tmp_trestle_dir,
         authored_model=AuthoredType.CATALOG.value,
         markdown_dir=cat_md_dir,
-        skip_model_list=skip_list,
+        filter=filter,
     )
 
     with patch(
@@ -117,19 +120,6 @@ def test_catalog_regenerate_task(tmp_trestle_dir: str) -> None:
     )
     assert regenerate_task.execute() == 0
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
-
-
-def test_catalog_regenerate_task_with_skip(tmp_trestle_dir: str) -> None:
-    """Test catalog regenerate at the task level"""
-    trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = os.path.join(cat_md_dir, test_cat)
-    _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
-
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir, AuthoredType.CATALOG.value, cat_md_dir, "", [test_cat]
-    )
-    assert regenerate_task.execute() == 0
-    assert not os.path.exists(os.path.join(tmp_trestle_dir, md_path))
 
 
 def test_profile_regenerate_task(tmp_trestle_dir: str) -> None:

@@ -36,6 +36,7 @@ from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored.base_authored import AuthorObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
+from trestlebot.tasks.base_task import ModelFilter
 
 
 test_prof = "simplified_nist_profile"
@@ -95,11 +96,13 @@ def test_assemble_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -> 
 
     mock = Mock(spec=AuthorObjectBase)
 
+    filter = ModelFilter(skip_list, ["."])
+
     assemble_task = AssembleTask(
         working_dir=tmp_trestle_dir,
         authored_model=AuthoredType.CATALOG.value,
         markdown_dir=cat_md_dir,
-        skip_model_list=skip_list,
+        filter=filter,
     )
 
     with patch(

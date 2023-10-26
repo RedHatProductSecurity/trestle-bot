@@ -28,7 +28,7 @@ from trestle.core.catalog.catalog_interface import CatalogInterface
 from trestle.core.profile_resolver import ProfileResolver
 from trestle.core.repository import AgileAuthoring
 
-from trestlebot.const import RULES_VIEW_DIR, YAML_EXTENSION
+from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
     AuthorObjectBase,
@@ -40,6 +40,30 @@ from trestlebot.transformers.trestle_rule import (
     TrestleRule,
 )
 from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
+
+
+class FilterByProfile:
+    """Filter controls by a profile."""
+
+    def __init__(self, trestle_root: pathlib.Path, profile_name: str) -> None:
+        """Initialize."""
+        filter_profile_path = ModelUtils.get_model_path_for_name_and_class(
+            trestle_root, profile_name, prof.Profile
+        )
+
+        if filter_profile_path is None:
+            raise TrestleError(
+                f"Profile {profile_name} does not exist in the workspace"
+            )
+
+        catalog = ProfileResolver.get_resolved_profile_catalog(
+            trestle_root, filter_profile_path
+        )
+        self._control_ids = CatalogInterface(catalog).get_control_ids()
+
+    def __call__(self, control_id: str) -> bool:
+        """Filter controls by catalog."""
+        return control_id in self._control_ids
 
 
 class AuthoredComponentDefinition(AuthorObjectBase):
@@ -103,7 +127,7 @@ class AuthoredComponentDefinition(AuthorObjectBase):
         comp_title: str,
         comp_description: str,
         comp_type: str,
-        filter_controls: Optional[CatalogInterface] = None,
+        filter_by_profile: Optional[FilterByProfile] = None,
     ) -> None:
         """
         Create the new component definition with default info.
@@ -114,7 +138,8 @@ class AuthoredComponentDefinition(AuthorObjectBase):
             comp_title: Title of the component
             comp_description: Description of the component
             comp_type: Type of the component
-            filter_controls: Optional catalog to filter the controls to include from the profile
+            filter_by_profile: Optional filter to use for the component definition control
+            implementation controls
 
         Notes:
             The beginning of the Component Definition workflow is to create a new
@@ -128,7 +153,7 @@ class AuthoredComponentDefinition(AuthorObjectBase):
 
         if existing_profile_path is None:
             raise AuthoredObjectException(
-                f"Profile {profile_name} does not exist in the workspace"
+                f"Profile {profile_name} does not exist in the workspace."
             )
 
         rule_dir: pathlib.Path = trestle_root.joinpath(RULES_VIEW_DIR, compdef_name)
@@ -140,26 +165,10 @@ class AuthoredComponentDefinition(AuthorObjectBase):
 
         rules_view_builder = RulesViewBuilder(trestle_root)
 
-        filter_func: Optional[Callable[[str], bool]] = None
-        if filter_controls is not None:
-            filter_func = FilterByCatalog(filter_controls)
-
         rules_view_builder.add_rules_for_profile(
-            existing_profile_path, component_info, filter_func
+            existing_profile_path, component_info, filter_by_profile
         )
         rules_view_builder.write_to_yaml(rule_dir)
-
-
-class FilterByCatalog:
-    """Filter controls by catalog."""
-
-    def __init__(self, catalog: CatalogInterface) -> None:
-        """Initialize."""
-        self._catalog = catalog
-
-    def __call__(self, control_id: str) -> bool:
-        """Filter controls by catalog."""
-        return control_id in self._catalog.get_control_ids()
 
 
 class RulesViewBuilder:
@@ -197,7 +206,7 @@ class RulesViewBuilder:
 
             rule = TrestleRule(
                 component=component_info,
-                name=f"rule-{control_id}",
+                name=f"{RULE_PREFIX}{control_id}",
                 description=f"Rule for {control_id}",
                 profile=Profile(
                     href=const.TRESTLE_HREF_HEADING

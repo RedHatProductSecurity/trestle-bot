@@ -20,7 +20,7 @@ from typing import List
 
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
 from trestlebot.entrypoints.log import set_log_level_from_args
-from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.validations import ValidationHandler, parameter_validation
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
@@ -63,11 +63,16 @@ class RulesTransformEntrypoint(EntrypointBase):
         validation_handler: ValidationHandler = ValidationHandler(parameter_validation)
         transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(validation_handler)
 
+        filter: ModelFilter = ModelFilter(
+            skip_patterns=comma_sep_to_list(args.skip_items),
+            include_patterns=["."],
+        )
+
         rule_transform_task: RuleTransformTask = RuleTransformTask(
-            args.working_dir,
-            args.rules_view_path,
-            transformer,
-            comma_sep_to_list(args.skip_items),
+            working_dir=args.working_dir,
+            rules_view_dir=args.rules_view_path,
+            rule_transformer=transformer,
+            filter=filter,
         )
         pre_tasks: List[TaskBase] = [rule_transform_task]
 
