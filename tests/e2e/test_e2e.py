@@ -24,7 +24,10 @@ from typing import Dict, List, Tuple
 
 import pytest
 from git.repo import Repo
+from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.init import InitCmd
+from trestle.core.models.file_content_type import FileContentType
+from trestle.oscal.component import ComponentDefinition
 from trestle.oscal.profile import Profile
 
 from tests.conftest import YieldFixture
@@ -34,7 +37,12 @@ from tests.testutils import (
     setup_for_profile,
     setup_rules_view,
 )
-from trestlebot.const import RULES_VIEW_DIR
+from trestlebot.const import (
+    ERROR_EXIT_CODE,
+    INVALID_ARGS_EXIT_CODE,
+    RULES_VIEW_DIR,
+    SUCCESS_EXIT_CODE,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -48,6 +56,16 @@ container_file = "Dockerfile"
 
 test_prof = "simplified_nist_profile"
 test_filter_prof = "simplified_filter_profile"
+test_comp_name = "test-comp"
+
+
+def image_exists(image_name: str) -> bool:
+    """Check if the image already exists."""
+    try:
+        subprocess.check_output(["podman", "image", "inspect", image_name])
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 
 def build_transform_command(data_path: str, command_args: Dict[str, str]) -> List[str]:
@@ -88,35 +106,59 @@ def build_create_cd_command(data_path: str, command_args: Dict[str, str]) -> Lis
     ]
 
 
+def build_trestlebot_image() -> bool:
+    """
+    Build the trestlebot image.
+
+    Returns:
+        Returns true if the image was built, false if it already exists.
+    """
+    if not image_exists(image_name):
+        subprocess.run(
+            [
+                "podman",
+                "build",
+                "-f",
+                container_file,
+                "-t",
+                image_name,
+            ],
+            check=True,
+        )
+        return True
+    return False
+
+
+def build_mock_server_image() -> bool:
+    """
+    Build the mock server image.
+
+    Returns:
+        Returns true if the image was built, false if it already exists.
+    """
+    if not image_exists(mock_server_image_name):
+        subprocess.run(
+            [
+                "podman",
+                "build",
+                "-f",
+                f"{e2e_context}/{container_file}",
+                "-t",
+                mock_server_image_name,
+                e2e_context,
+            ],
+            check=True,
+        )
+        return True
+    return False
+
+
 @pytest.fixture(scope="module")
 def podman_setup() -> YieldFixture[int]:
     """Build the trestlebot container image and run the mock server in a pod."""
-    # Build the container image
-    subprocess.run(
-        [
-            "podman",
-            "build",
-            "-f",
-            container_file,
-            "-t",
-            image_name,
-        ],
-        check=True,
-    )
 
-    # Build mock server container image
-    subprocess.run(
-        [
-            "podman",
-            "build",
-            "-f",
-            f"{e2e_context}/{container_file}",
-            "-t",
-            mock_server_image_name,
-            e2e_context,
-        ],
-        check=True,
-    )
+    cleanup_trestlebot_image = build_trestlebot_image()
+    cleanup_mock_server_image = build_mock_server_image()
 
     # Create a pod
     response = subprocess.run(
@@ -130,8 +172,10 @@ def podman_setup() -> YieldFixture[int]:
             ["podman", "play", "kube", "--down", f"{e2e_context}/play-kube.yml"],
             check=True,
         )
-        subprocess.run(["podman", "rmi", image_name], check=True)
-        subprocess.run(["podman", "rmi", mock_server_image_name], check=True)
+        if cleanup_trestlebot_image:
+            subprocess.run(["podman", "rmi", image_name], check=True)
+        if cleanup_mock_server_image:
+            subprocess.run(["podman", "rmi", mock_server_image_name], check=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"Failed to clean up podman resources: {e}")
 
@@ -148,7 +192,18 @@ def podman_setup() -> YieldFixture[int]:
                 "committer-name": "test",
                 "committer-email": "test@email.com",
             },
-            0,
+            SUCCESS_EXIT_CODE,
+        ),
+        (
+            "success/happy path with model skipping",
+            {
+                "branch": "test",
+                "rules-view-path": RULES_VIEW_DIR,
+                "committer-name": "test",
+                "committer-email": "test",
+                "skip-items": test_comp_name,
+            },
+            SUCCESS_EXIT_CODE,
         ),
         (
             "failure/missing args",
@@ -156,7 +211,7 @@ def podman_setup() -> YieldFixture[int]:
                 "branch": "test",
                 "rules-view-path": RULES_VIEW_DIR,
             },
-            2,
+            INVALID_ARGS_EXIT_CODE,
         ),
     ],
 )
@@ -190,19 +245,30 @@ def test_rules_transform_e2e(
     init._run(args)
 
     # Setup the rules directory
-    setup_rules_view(tmp_repo_path, "test-comp")
+    setup_rules_view(tmp_repo_path, test_comp_name)
 
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    # Build the command to be run in the shell
     command = build_transform_command(tmp_repo_str, command_args)
-
-    # Run the command
-    run_response = subprocess.run(command, cwd=tmp_repo_path)
-
-    # Get subprocess response
+    run_response = subprocess.run(command, capture_output=True)
     assert run_response.returncode == response
+
+    # Check that the component definition was created
+    if response == SUCCESS_EXIT_CODE:
+        if "skip-items" in command_args:
+            assert "input: test-comp.csv" not in run_response.stdout.decode("utf-8")
+        else:
+            comp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
+                tmp_repo_path, test_comp_name, ComponentDefinition, FileContentType.JSON
+            )
+            assert comp_path.exists()
+            assert "input: test-comp.csv" in run_response.stdout.decode("utf-8")
+        branch = command_args["branch"]
+        assert (
+            f"Changes pushed to {branch} successfully."
+            in run_response.stdout.decode("utf-8")
+        )
 
 
 @pytest.mark.slow
@@ -221,7 +287,7 @@ def test_rules_transform_e2e(
                 "committer-name": "test",
                 "committer-email": "test@email.com",
             },
-            0,
+            SUCCESS_EXIT_CODE,
         ),
         (
             "success/happy path with filtering",
@@ -236,7 +302,7 @@ def test_rules_transform_e2e(
                 "committer-email": "test@email.com",
                 "filter-by-profile": test_filter_prof,
             },
-            0,
+            SUCCESS_EXIT_CODE,
         ),
         (
             "failure/missing args",
@@ -249,7 +315,7 @@ def test_rules_transform_e2e(
                 "committer-name": "test",
                 "committer-email": "test@email.com",
             },
-            2,
+            INVALID_ARGS_EXIT_CODE,
         ),
         (
             "failure/missing profile",
@@ -263,7 +329,22 @@ def test_rules_transform_e2e(
                 "committer-name": "test",
                 "committer-email": "test@email.com",
             },
-            1,
+            ERROR_EXIT_CODE,
+        ),
+        (
+            "failure/missing filter profile",
+            {
+                "profile-name": test_prof,
+                "component-title": "test-comp",
+                "compdef-name": "test-compdef",
+                "component-description": "test",
+                "markdown-path": "markdown",
+                "branch": "test",
+                "committer-name": "test",
+                "committer-email": "test",
+                "filter-by-profile": "fake",
+            },
+            ERROR_EXIT_CODE,
         ),
     ],
 )
@@ -303,11 +384,23 @@ def test_create_cd_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    # Build the command to be run in the shell
     command = build_create_cd_command(tmp_repo_str, command_args)
-
-    # Run the command
-    run_response = subprocess.run(command, cwd=tmp_repo_path)
-
-    # Get subprocess response
+    run_response = subprocess.run(command, cwd=tmp_repo_path, capture_output=True)
     assert run_response.returncode == response
+
+    # Check that all expected files were created
+    if response == SUCCESS_EXIT_CODE:
+        comp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
+            tmp_repo_path,
+            command_args["compdef-name"],
+            ComponentDefinition,
+            FileContentType.JSON,
+        )
+        assert comp_path.exists()
+        assert (tmp_repo_path / command_args["markdown-path"]).exists()
+        assert (
+            tmp_repo_path
+            / RULES_VIEW_DIR
+            / command_args["compdef-name"]
+            / command_args["component-title"]
+        ).exists()
