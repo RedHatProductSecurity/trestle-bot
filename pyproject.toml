@@ -30,7 +30,7 @@ compliance-trestle = {git = "https://github.com/IBM/compliance-trestle.git", rev
 github3-py = "^4.0.1"
 python-gitlab = "^3.15.0"
 ruamel-yaml = "^0.17.32"
-pydantic = "1.10.2"
+pydantic = "1.10.13"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"

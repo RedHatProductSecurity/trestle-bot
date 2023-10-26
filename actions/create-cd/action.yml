@@ -1,36 +1,33 @@
-name: "trestle-bot-autosync"
+name: "trestle-bot-create-cd"
 author: "Red Hat Product Security"
-description: "An action to perform automatic synchronization of Trestle markdown files to OSCAL."
+description: "An action for component definition bootstrapping"
 
 inputs:
   markdown_path: 
-    description: Path relative to the repository path where the Trestle markdown files are located. See action README.md for more information.
+    description: Path relative to the repository path to create markdown files. See action README.md for more information.
     required: true
-  oscal_model:
-    description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
+  profile_name:
+    description: Name of the Trestle profile to use for the component definition
     required: true
-  check_only: 
-    description: "Runs tasks and exits with an error if there is a diff. Defaults to false"
+  component_definition_name:
+    description: Name of the component definition to create
+    required: true
+  component_title:
+    description: Name of the component to create
+    required: true
+  component_type:
+    description: Type of the component to create
     required: false
-    default: "false"
+    default: "service"
+  component_description:
+    description: Description of the component to create
+    required: true
+  filter_by_profile:
+    description: Name of the profile in the workspace to filter controls by
+    required: false
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false
-  skip_assemble:
-    description: "Skip assembly task. Defaults to false"
-    required: false
-    default: "false"
-  skip_regenerate:
-    description: "Skip regenerate task. Defaults to false."
-    required: false
-    default: "false"
-  skip_items:
-    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `profile_x,profile_y*,`."
-    required: false
-  ssp_index_path:
-    description: Path relative to the repository path where the ssp index is located. See action README.md for information about the ssp index.
-    required: false
-    default: "ssp-index.json"
   commit_message:
     description: Commit message
     required: false
@@ -86,7 +83,7 @@ outputs:
 runs:
   using: "docker"
   image: "../../Dockerfile"
-  entrypoint: "/auto-sync-entrypoint.sh"
+  entrypoint: "/create-cd-entrypoint.sh"
   env:
     GITHUB_TOKEN: ${{ inputs.github_token }}
 

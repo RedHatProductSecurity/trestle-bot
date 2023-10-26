@@ -12,7 +12,9 @@ For detailed documentation on how to use each action, see the README.md in each 
 
 The `autosync` action will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory when the action is run will be transformed. This action supports all top-level models [supported by compliance-trestle for authoring](https://ibm.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
-The `rules-transform` actions can be used when managing [OSCAL Component Definitions](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) in a trestle workspace. The action will transform rules defined in the rules YAML view to an OSCAL Component Definition JSON file.
+The `rules-transform` action can be used when managing [OSCAL Component Definitions](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) in a trestle workspace. The action will transform rules defined in the rules YAML view to an OSCAL Component Definition JSON file.
+
+The `create-cd` action can be used to create a new [OSCAL Component Definition](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) in a trestle workspace. The action will create a new Component Definition JSON file and corresponding directories that contain rules YAML files and trestle-generated Markdown files. This action prepares the workspace for use with the `rules-transform` and `autosync` actions.
 
 ### GitLab CI
 

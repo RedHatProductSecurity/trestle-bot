@@ -13,9 +13,19 @@ name: Example Workflow
       - name: Run trestlebot
         id: trestlebot
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
-        with:
-          rules_view_path: "rules/"
 ```
+
+With custom rules directory:
+  
+```yaml 
+  steps:
+    - uses: actions/checkout@v3
+    - name: Run trestlebot
+      id: trestlebot
+      uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
+      with:
+        rules_view_path: "custom-rules-dir/"
+  ```
 
 ## Action Behavior
 
@@ -30,7 +40,6 @@ The purpose of this action is to sync the rules view data in YAML to OSCAL with 
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
       with:
-        rules_view_path: "rules/"
         branch: "another-branch"
 ```
 
@@ -43,7 +52,6 @@ The purpose of this action is to sync the rules view data in YAML to OSCAL with 
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
       with:
-        rules_view_path: "rules/"
         branch: "transform-${{ github.run_id }}"
         target_branch: "main"
         github_token: ${{ secret.GITHUB_TOKEN }}

@@ -15,7 +15,7 @@ fi
 if [ -z ${INPUT_REPOSITORY+x} ]; then
     echo "Skipping setting working directory as safe directory"
 else
-   echo "Setting git safe.directory default: $INPUT_REPOSITORY..."
+   echo "Setting git safe.directory default: $INPUT_REPOSITORY ..."
    git config --global --add safe.directory "$INPUT_REPOSITORY"
 fi
 
