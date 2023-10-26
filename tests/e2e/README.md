@@ -44,4 +44,8 @@ To run the end-to-end tests, follow these steps:
 ## Additional Notes
 - The WireMock tool is used to mock Git server endpoints for testing.
 - Podman is used for container and pod management and to build the container image for the mock API server.
-- In the future, we plan to provide an option to use pre-built trestle-bot container images from a registry instead of building them locally.
+
+## Future Improvements
+- Provide an option to use pre-built trestle-bot container images from a registry instead of building them locally.
+- Create endpoints that mock GitHub and GitLab API calls for pull request creation.
+- Add more end-to-end tests to cover more use cases.
