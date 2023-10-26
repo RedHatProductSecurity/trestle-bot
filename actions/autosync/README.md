@@ -71,7 +71,7 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         github_token: ${{ secret.GITHUB_TOKEN }}
 ```
 
-- When `check_only` is set, the trestle `assemble` and `regenerate` tasks are run and the repository is checked for changes. If changes exists, the action with exit with an error.
+- When `check_only` is set, the trestle `assemble` and `regenerate` tasks are run and the repository is checked for changes. If changes exists, the action with exit with an error. This can be useful if you only want to check that the content is in sync without making any changes to the remote repository.
 
 ```yaml
     steps:
