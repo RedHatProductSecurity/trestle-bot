@@ -63,7 +63,8 @@ class RulesTransformEntrypoint(EntrypointBase):
         validation_handler: ValidationHandler = ValidationHandler(parameter_validation)
         transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(validation_handler)
 
-        filter: ModelFilter = ModelFilter(
+        # Allow any model to be skipped from the args, by default include all
+        model_filter: ModelFilter = ModelFilter(
             skip_patterns=comma_sep_to_list(args.skip_items),
             include_patterns=["*"],
         )
@@ -72,7 +73,7 @@ class RulesTransformEntrypoint(EntrypointBase):
             working_dir=args.working_dir,
             rules_view_dir=args.rules_view_path,
             rule_transformer=transformer,
-            filter=filter,
+            model_filter=model_filter,
         )
         pre_tasks: List[TaskBase] = [rule_transform_task]
 

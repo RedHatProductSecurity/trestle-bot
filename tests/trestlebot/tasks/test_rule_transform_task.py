@@ -117,9 +117,9 @@ def test_rule_transform_task_with_skip(tmp_trestle_dir: str) -> None:
     setup_rules_view(trestle_root, test_comp, test_rules_dir)
     transformer = ToRulesYAMLTransformer()
 
-    filter = ModelFilter([test_comp], [])
+    model_filter = ModelFilter([test_comp], [])
     rule_transform_task = RuleTransformTask(
-        tmp_trestle_dir, test_rules_dir, transformer, filter=filter
+        tmp_trestle_dir, test_rules_dir, transformer, model_filter=model_filter
     )
     return_code = rule_transform_task.execute()
     assert return_code == 0
