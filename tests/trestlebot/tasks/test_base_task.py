@@ -29,18 +29,19 @@ from trestlebot.tasks.base_task import ModelFilter
     [
         [["simplified_nist_catalog"], [], "simplified_nist_catalog", True],
         [[], ["simplified_nist_catalog"], "simplified_nist_catalog", False],
-        [["simplified*"], ["."], "simplified_nist_catalog", True],
+        [["simplified*"], ["*"], "simplified_nist_catalog", True],
         [
             ["simplified_nist_catalog"],
             ["simplified*"],
             "simplified_nist_profile",
             False,
         ],
+        [[], [], "simplified_nist_catalog", True],
+        [[], ["*"], "simplified_nist_catalog", False]
     ],
 )
-def test_is_skipped(
-    skip_list: List[str], include_list: List[str], model_name: str, expected: str
-) -> None:
+def test_is_skipped(skip_list: List[str], include_list: List[str],
+                    model_name: str, expected: str) -> None:
     """Test skip logic."""
     model_path = pathlib.Path(model_name)
     model_filter = ModelFilter(skip_list, include_list)

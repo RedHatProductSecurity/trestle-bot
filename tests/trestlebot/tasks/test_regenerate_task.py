@@ -87,7 +87,7 @@ def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -
 
     mock = Mock(spec=AuthorObjectBase)
 
-    filter = ModelFilter(skip_list, ["."])
+    filter = ModelFilter(skip_list, ["*"])
 
     regenerate_task = RegenerateTask(
         working_dir=tmp_trestle_dir,
