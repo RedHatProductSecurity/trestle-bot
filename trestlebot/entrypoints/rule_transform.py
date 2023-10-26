@@ -65,7 +65,7 @@ class RulesTransformEntrypoint(EntrypointBase):
 
         filter: ModelFilter = ModelFilter(
             skip_patterns=comma_sep_to_list(args.skip_items),
-            include_patterns=["."],
+            include_patterns=["*"],
         )
 
         rule_transform_task: RuleTransformTask = RuleTransformTask(

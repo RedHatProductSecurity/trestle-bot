@@ -29,13 +29,15 @@ from trestlebot.tasks.base_task import ModelFilter
     [
         [["simplified_nist_catalog"], [], "simplified_nist_catalog", True],
         [[], ["simplified_nist_catalog"], "simplified_nist_catalog", False],
-        [["simplified*"], ["."], "simplified_nist_catalog", True],
+        [["simplified*"], ["*"], "simplified_nist_catalog", True],
         [
             ["simplified_nist_catalog"],
             ["simplified*"],
             "simplified_nist_profile",
             False,
         ],
+        [[], [], "simplified_nist_catalog", True],
+        [[], ["*"], "simplified_nist_catalog", False],
     ],
 )
 def test_is_skipped(

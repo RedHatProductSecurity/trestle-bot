@@ -122,7 +122,7 @@ class AutoSyncEntrypoint(EntrypointBase):
 
             filter: ModelFilter = ModelFilter(
                 skip_patterns=comma_sep_to_list(args.skip_items),
-                include_patterns=["."],
+                include_patterns=["*"],
             )
 
             # Assuming an edit has occurred assemble would be run before regenerate.
