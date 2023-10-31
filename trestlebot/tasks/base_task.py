@@ -66,16 +66,16 @@ class TaskBase(ABC):
     Abstract base class for tasks with a work directory.
     """
 
-    def __init__(self, working_dir: str, filter: Optional[ModelFilter]) -> None:
+    def __init__(self, working_dir: str, model_filter: Optional[ModelFilter]) -> None:
         """
         Initialize base task.
 
         Args:
             working_dir: Working directory to complete operations in.
-            filter: Model filter to use for this task.
+            model_filter: Model filter to use for this task.
         """
         self._working_dir = working_dir
-        self.filter: Optional[ModelFilter] = filter
+        self.filter: Optional[ModelFilter] = model_filter
 
     @property
     def working_dir(self) -> str:

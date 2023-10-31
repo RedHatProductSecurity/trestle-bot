@@ -87,13 +87,13 @@ def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -
 
     mock = Mock(spec=AuthorObjectBase)
 
-    filter = ModelFilter(skip_list, ["*"])
+    model_filter = ModelFilter(skip_list, ["*"])
 
     regenerate_task = RegenerateTask(
         working_dir=tmp_trestle_dir,
         authored_model=AuthoredType.CATALOG.value,
         markdown_dir=cat_md_dir,
-        filter=filter,
+        model_filter=model_filter,
     )
 
     with patch(

@@ -115,7 +115,7 @@ class CreateCDEntrypoint(EntrypointBase):
 
         # In this case we only want to do the transformation and generation for this component
         # definition, so we skip all other component definitions and components.
-        workspace_filter: ModelFilter = ModelFilter(
+        model_filter: ModelFilter = ModelFilter(
             [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
         )
 
@@ -123,7 +123,7 @@ class CreateCDEntrypoint(EntrypointBase):
             working_dir=args.working_dir,
             rules_view_dir=RULES_VIEW_DIR,
             rule_transformer=transformer,
-            filter=workspace_filter,
+            model_filter=model_filter,
         )
         pre_tasks.append(rule_transform_task)
 
@@ -131,7 +131,7 @@ class CreateCDEntrypoint(EntrypointBase):
             working_dir=args.working_dir,
             authored_model=AuthoredType.COMPDEF.value,
             markdown_dir=args.markdown_path,
-            filter=workspace_filter,
+            model_filter=model_filter,
         )
         pre_tasks.append(regenerate_task)
 

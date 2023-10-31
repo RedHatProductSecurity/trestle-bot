@@ -46,7 +46,7 @@ class RuleTransformTask(TaskBase):
         working_dir: str,
         rules_view_dir: str,
         rule_transformer: ToRulesYAMLTransformer,
-        filter: Optional[ModelFilter] = None,
+        model_filter: Optional[ModelFilter] = None,
     ) -> None:
         """
         Initialize transform task.
@@ -55,7 +55,8 @@ class RuleTransformTask(TaskBase):
             working_dir: Working directory to complete operations in
             rule_view_dir: Location of directory containing components with to read rules from
             rule_transformer: Transformer to use for rule transformation to TrestleRule
-            filter: Optional filter to apply to the task to include or exclude models from processing.
+            model_filter: Optional filter to apply to the task to include or exclude models
+            from processing.
 
         Notes:
             The rule_view_dir is expected to be a directory containing directories of
@@ -66,7 +67,7 @@ class RuleTransformTask(TaskBase):
 
         self._rule_view_dir = rules_view_dir
         self._rule_transformer: ToRulesYAMLTransformer = rule_transformer
-        super().__init__(working_dir, filter)
+        super().__init__(working_dir, model_filter)
 
     def execute(self) -> int:
         """Execute task"""

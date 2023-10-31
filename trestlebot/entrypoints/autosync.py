@@ -120,7 +120,8 @@ class AutoSyncEntrypoint(EntrypointBase):
                 logger.error("Must set ssp_index_path when using SSP as oscal model.")
                 sys.exit(const.ERROR_EXIT_CODE)
 
-            filter: ModelFilter = ModelFilter(
+            # Allow any model to be skipped from the args, by default include all
+            model_filter: ModelFilter = ModelFilter(
                 skip_patterns=comma_sep_to_list(args.skip_items),
                 include_patterns=["*"],
             )
@@ -133,7 +134,7 @@ class AutoSyncEntrypoint(EntrypointBase):
                     authored_model=args.oscal_model,
                     markdown_dir=args.markdown_path,
                     ssp_index_path=args.ssp_index_path,
-                    filter=filter,
+                    model_filter=model_filter,
                 )
                 pre_tasks.append(assemble_task)
             else:
@@ -145,7 +146,7 @@ class AutoSyncEntrypoint(EntrypointBase):
                     authored_model=args.oscal_model,
                     markdown_dir=args.markdown_path,
                     ssp_index_path=args.ssp_index_path,
-                    filter=filter,
+                    model_filter=model_filter,
                 )
                 pre_tasks.append(regenerate_task)
             else:

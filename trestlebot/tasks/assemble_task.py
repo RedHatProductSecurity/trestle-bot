@@ -40,7 +40,7 @@ class AssembleTask(TaskBase):
         authored_model: str,
         markdown_dir: str,
         ssp_index_path: str = "",
-        filter: Optional[ModelFilter] = None,
+        model_filter: Optional[ModelFilter] = None,
     ) -> None:
         """
         Initialize assemble task.
@@ -50,13 +50,14 @@ class AssembleTask(TaskBase):
             authored_model: String representation of model type
             markdown_dir: Location of directory to write Markdown in
             ssp_index_path: Path of ssp index JSON in the workspace
-            filter: Optional filter to apply to the task to include or exclude models from processing
+            model_filter: Optional filter to apply to the task to include or exclude models
+            from processing
         """
 
         self._authored_model = authored_model
         self._markdown_dir = markdown_dir
         self._ssp_index_path = ssp_index_path
-        super().__init__(working_dir, filter)
+        super().__init__(working_dir, model_filter)
 
     def execute(self) -> int:
         """Execute task"""
