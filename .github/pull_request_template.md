@@ -11,7 +11,7 @@ Fixes # (issue)
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] This change requires a documentation update
+- [ ] Documentation only change
 
 ## How has this been tested?
 
@@ -27,7 +27,7 @@ Fixes # (issue)
 - Toolchain:
 - SDK:
 
-## Checklist
+## Author Checklist
 
 - [ ] My code follows the style guidelines of this project
 - [ ] I have performed a self-review of my own code
@@ -37,3 +37,12 @@ Fixes # (issue)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published in downstream modules
+
+## Reviewer Checklist
+
+- [ ] Implementation matches the proposed design, or proposal is updated to match implementation
+- [ ] Sufficient unit test coverage
+- [ ] Sufficient end-to-end test coverage
+- [ ] Docs updated or added, if needed
+- [ ] Commit messages sensible and descriptive
+- [ ] Any tests specified as manual have been performed and verified as successful
