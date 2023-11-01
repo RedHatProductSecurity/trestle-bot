@@ -11,7 +11,7 @@ This document provides instructions and examples for creating and using GitHub A
 
 ## Adding a New Action
 
-Contributors should limit the exposure of actions to workspace management and checks. To add a new action:
+Contributors should scope trestle-bot actions to workspace management and checks. To add a new action:
 
 1. Create an entrypoint script for the action in the `trestlebot/entrypoints` directory.
 2. Create a new directory in the `trestlebot/actions` directory.
