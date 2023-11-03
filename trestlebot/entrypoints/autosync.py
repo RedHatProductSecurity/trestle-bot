@@ -80,7 +80,7 @@ class AutoSyncEntrypoint(EntrypointBase):
             "--skip-regenerate",
             required=False,
             action="store_true",
-            help="Skip regenerate task. Defaults to false.",
+            help="Skip regenerate task. Defaults to false",
         )
         self.parser.add_argument(
             "--ssp-index-path",
