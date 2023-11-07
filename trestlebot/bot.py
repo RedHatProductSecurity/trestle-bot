@@ -168,7 +168,7 @@ class TrestleBot:
     ) -> Tuple[str, int]:
         """
         Run Trestle Bot and returns commit and pull request information.
-        
+
         Args:
                 patterns: List of file patterns for `git add`
                 git_provider: Optional configured git provider for interacting with the API
