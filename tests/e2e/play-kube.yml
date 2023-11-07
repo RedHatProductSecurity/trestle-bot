@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -8,5 +9,12 @@ spec:
   containers:
   - name: mock-server-container
     image: localhost/mock-server:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+            drop:
+              - ALL
+            add:
+              - NET_BIND_SERVICE
     ports:
     - containerPort: 8080
