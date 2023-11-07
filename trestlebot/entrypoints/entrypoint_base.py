@@ -39,8 +39,6 @@ from trestlebot.tasks.base_task import TaskBase
 
 logger = logging.getLogger(__name__)
 
-# TODO: Consider adding support for a config file or environment variables to set these values
-
 
 class EntrypointBase:
     """Base class for all entrypoints."""
