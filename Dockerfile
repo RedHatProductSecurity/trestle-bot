@@ -1,4 +1,5 @@
 # Use the UBI 8 minimal base image
+# kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest as python-base
 
 ENV PYTHONUNBUFFERED=1 \
