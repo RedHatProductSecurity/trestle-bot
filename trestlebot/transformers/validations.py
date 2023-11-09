@@ -59,10 +59,6 @@ class ValidationHandler:
             self.next_handler.handle(data, result)
 
 
-# TODO(jpower432): Create a class for Profile validation to ensure unique
-# entries exists in the workspace.
-
-
 def parameter_validation(data: Dict[str, Any], result: ValidationOutcome) -> None:
     """Parameter logic additions validation."""
     rule_info: Dict[str, Any] = data.get(const.RULE_INFO_TAG, {})
