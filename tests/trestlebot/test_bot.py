@@ -24,7 +24,7 @@ import pytest
 from git import GitCommandError
 from git.repo import Repo
 
-import trestlebot.bot as bot
+from trestlebot.bot import RepoException, TrestleBot
 from trestlebot.provider import GitProvider, GitProviderException
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
@@ -60,6 +60,12 @@ def test_stage_files(
         f.write("test,")
 
     # Stage the files
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+    )
     bot._stage_files(repo, file_patterns)
 
     # Verify that files are staged
@@ -80,10 +86,14 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+    )
     commit_sha = bot._local_commit(
         repo,
-        commit_user="Test User",
-        commit_email="test@example.com",
         commit_message="Test commit message",
     )
     assert commit_sha != ""
@@ -110,10 +120,16 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        author_name="Test Commit User",
+        author_email="test-committer@example.com",
+    )
     commit_sha = bot._local_commit(
         repo,
-        commit_user="Test Commit User",
-        commit_email="test-committer@example.com",
         commit_message="Test commit message",
     )
 
@@ -141,13 +157,17 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     repo.index.add(test_file_path)
 
     # Commit the test file
-    commit_sha = bot._local_commit(
-        repo,
-        commit_user="Test User",
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
         commit_email="test@example.com",
-        commit_message="Test commit message",
         author_name="The Author",
         author_email="author@test.com",
+    )
+    commit_sha = bot._local_commit(
+        repo,
+        commit_message="Test commit message",
     )
     assert commit_sha != ""
 
@@ -176,14 +196,16 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha, pr_number = bot.run(
+        bot = TrestleBot(
             working_dir=repo_path,
             branch="main",
             commit_name="Test User",
             commit_email="test@example.com",
-            commit_message="Test commit message",
             author_name="The Author",
             author_email="author@test.com",
+        )
+        commit_sha, pr_number = bot.run(
+            commit_message="Test commit message",
             patterns=["*.txt"],
             dry_run=False,
         )
@@ -214,14 +236,14 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha, pr_number = bot.run(
+        bot = TrestleBot(
             working_dir=repo_path,
             branch="main",
             commit_name="Test User",
             commit_email="test@example.com",
+        )
+        commit_sha, pr_number = bot.run(
             commit_message="Test commit message",
-            author_name="The Author",
-            author_email="author@test.com",
             patterns=["*.txt"],
             dry_run=True,
         )
@@ -236,14 +258,14 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, repo = tmp_repo
 
     # Test running the bot
-    commit_sha, pr_number = bot.run(
+    bot = TrestleBot(
         working_dir=repo_path,
         branch="main",
         commit_name="Test User",
         commit_email="test@example.com",
+    )
+    commit_sha, pr_number = bot.run(
         commit_message="Test commit message",
-        author_name="The Author",
-        author_email="author@test.com",
         patterns=["*.txt"],
         dry_run=True,
     )
@@ -260,18 +282,19 @@ def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
     with open(test_file_path, "w") as f:
         f.write("Test content")
 
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+    )
+
     with pytest.raises(
-        bot.RepoException,
+        RepoException,
         match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
     ):
         _, _ = bot.run(
-            working_dir=repo_path,
-            branch="main",
-            commit_name="Test User",
-            commit_email="test@example.com",
             commit_message="Test commit message",
-            author_name="The Author",
-            author_email="author@test.com",
             patterns=["*.txt"],
             dry_run=True,
             check_only=True,
@@ -306,18 +329,19 @@ def test_run_with_exception(
 
     repo.create_remote("origin", url="git.test.com/test/repo.git")
 
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+    )
+
     with patch("git.remote.Remote.push") as mock_push:
         mock_push.side_effect = side_effect
 
-        with pytest.raises(bot.RepoException, match=msg):
+        with pytest.raises(RepoException, match=msg):
             _ = bot.run(
-                working_dir=repo_path,
-                branch="main",
-                commit_name="Test User",
-                commit_email="test@example.com",
                 commit_message="Test commit message",
-                author_name="The Author",
-                author_email="author@test.com",
                 patterns=["*.txt"],
                 dry_run=False,
             )
@@ -337,15 +361,16 @@ def test_run_with_failed_pre_task(tmp_repo: Tuple[str, Repo]) -> None:
 
     repo.create_remote("origin", url="git.test.com/test/repo.git")
 
-    with pytest.raises(bot.RepoException, match="Bot pre-tasks failed: example"):
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="main",
+        commit_name="Test User",
+        commit_email="test@example.com",
+    )
+
+    with pytest.raises(RepoException, match="Bot pre-tasks failed: example"):
         _ = bot.run(
-            working_dir=repo_path,
-            branch="main",
-            commit_name="Test User",
-            commit_email="test@example.com",
             commit_message="Test commit message",
-            author_name="The Author",
-            author_email="author@test.com",
             patterns=["*.txt"],
             dry_run=True,
             pre_tasks=[mock],
@@ -367,21 +392,24 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
 
     repo.create_remote("origin", url="git.test.com/test/repo.git")
 
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="test",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        author_name="The Author",
+        author_email="author@test.com",
+        target_branch="main",
+    )
+
     with patch("git.remote.Remote.push") as mock_push:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
         commit_sha, pr_number = bot.run(
-            working_dir=repo_path,
-            branch="test",
-            commit_name="Test User",
-            commit_email="test@example.com",
             commit_message="Test commit message",
-            author_name="The Author",
-            author_email="author@test.com",
             patterns=["*.txt"],
             git_provider=mock,
-            target_branch="main",
             dry_run=False,
         )
         assert commit_sha != ""
@@ -423,21 +451,24 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
 
     repo.create_remote("origin", url="git.test.com/test/repo.git")
 
+    bot = TrestleBot(
+        working_dir=repo_path,
+        branch="test",
+        commit_name="Test User",
+        commit_email="test@example.com",
+        author_name="The Author",
+        author_email="author@test.com",
+        target_branch="main",
+    )
+
     with patch("git.remote.Remote.push") as mock_push:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
         commit_sha = bot.run(
-            working_dir=repo_path,
-            branch="test",
-            commit_name="Test User",
-            commit_email="test@example.com",
             commit_message="Test commit message",
-            author_name="The Author",
-            author_email="author@test.com",
             patterns=["*.txt"],
             git_provider=mock,
-            target_branch="main",
             pull_request_title="Test",
             dry_run=False,
         )

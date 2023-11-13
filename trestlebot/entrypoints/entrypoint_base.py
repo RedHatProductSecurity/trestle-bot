@@ -30,7 +30,8 @@ import logging
 import sys
 from typing import List, Optional
 
-from trestlebot import bot, const
+from trestlebot import const
+from trestlebot.bot import TrestleBot
 from trestlebot.github import GitHub, is_github_actions
 from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
@@ -167,18 +168,20 @@ class EntrypointBase:
         # Assume it is a successful run, if the bot
         # throws an exception update the exit code accordingly
         try:
-            commit_sha, pr_number = bot.run(
+            bot = TrestleBot(
                 working_dir=args.working_dir,
                 branch=args.branch,
                 commit_name=args.committer_name,
                 commit_email=args.committer_email,
-                commit_message=args.commit_message,
                 author_name=args.author_name,
                 author_email=args.author_email,
+                target_branch=args.target_branch,
+            )
+            commit_sha, pr_number = bot.run(
+                commit_message=args.commit_message,
                 pre_tasks=pre_tasks,
                 patterns=comma_sep_to_list(args.file_patterns),
                 git_provider=git_provider,
-                target_branch=args.target_branch,
                 pull_request_title=args.pull_request_title,
                 check_only=args.check_only,
             )
