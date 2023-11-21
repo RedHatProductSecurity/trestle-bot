@@ -29,6 +29,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     permissions:
       contents: read
+      # kics-scan ignore-line
       id-token: write # needed for signing the images with GitHub OIDC Token
     outputs:
       skip_tests: ${{ steps.check_event.outputs.event_type == 'release' ||
