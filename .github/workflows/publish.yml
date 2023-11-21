@@ -35,7 +35,7 @@ jobs:
       skip_tests: ${{ steps.check_event.outputs.event_type == 'release' ||
                   (steps.check_event.outputs.event_type == 'workflow_dispatch' &&
                   github.event.inputs.skip_tests == 'true') }}
-      image:  ${{ steps.set_image_repo.outputs.image_repo }}@${{ steps.build-and-push.outputs.digest }}
+      image: ${{ steps.set_image_repo.outputs.image_repo }}@${{ steps.build-and-push.outputs.digest }}
     steps:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -114,11 +114,13 @@ jobs:
           IMAGE: ${{ steps.set_image_repo.outputs.image_repo }}
 
       - name: Verify image
-        run: cosign verify "$IMAGE@$DIGEST"
+        run: |
+          cosign verify "$IMAGE@$DIGEST" --certificate-identity-regexp="$SUBJECT" \
+          --certificate-oidc-issuer=https://token.actions.githubusercontent.com
         env:
-          IMAGE: ${{ steps.set_image_repo.outputs.image_repo }}}
+          SUBJECT: https://github\.com/${{ github.repository_owner }}/trestle-bot/\.github/.+
+          IMAGE: ${{ steps.set_image_repo.outputs.image_repo }}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
-
 
   test:
     permissions:
