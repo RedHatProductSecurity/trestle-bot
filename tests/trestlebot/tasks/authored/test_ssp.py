@@ -206,7 +206,7 @@ def test_write_new_ssp_index(tmp_trestle_dir: str) -> None:
     ssp_index.write_out()
 
     # Reread the ssp index from JSON
-    ssp_index = SSPIndex(ssp_index_path)
+    ssp_index.reload()
 
     assert ssp_index.get_profile_by_ssp(test_ssp_output) == test_prof
     assert test_comp in ssp_index.get_comps_by_ssp(test_ssp_output)

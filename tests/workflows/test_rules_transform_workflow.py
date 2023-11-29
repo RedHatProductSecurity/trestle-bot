@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Component test the rules transformation workflow."""
+"""Test the rules transformation workflow."""
 
 import os
 import pathlib
