@@ -1,0 +1,35 @@
+{
+	"name": "TrestleBot Dev Environment ",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.linting.enabled": true,
+				"python.defaultInterpreterPath": "/home/trestlebot/trestle-bot/.venv/bin/python3"
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.mypy-type-checker",
+				"ms-python.flake8",
+				"ms-python.isort",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	},
+	"updateRemoteUserUID": true,
+	"containerUser": "trestlebot",
+	"containerEnv": {
+		"HOME": "/home/trestlebot",
+		"PIP_NO_CACHE_DIR": "off",
+		"PIP_DISABLE_PIP_VERSION_CHECK": "on",
+		"PIP_DEFAULT_TIMEOUT": "100",
+		"POETRY_VIRTUALENVS_IN_PROJECT": "true"
+	},
+	"updateContentCommand": "python3 -m venv $VENV_PATH && source $VENV_PATH/bin/activate && poetry install --no-root --no-interaction",
+	"postCreateCommand": "echo \"source $VENV_PATH/bin/activate\" >> $HOME/.bashrc",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+	"workspaceFolder": "/workspace"
+}
