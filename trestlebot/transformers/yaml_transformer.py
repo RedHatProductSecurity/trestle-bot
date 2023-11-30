@@ -66,26 +66,25 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
 
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
-            profile_data = rule_info_data[const.PROFILE]
-            profile_info_instance: Profile = Profile.parse_obj(profile_data)
+            profile_info_instance = Profile.parse_obj(rule_info_data[const.PROFILE])
 
-            component_info_data = yaml_data[const.COMPONENT_INFO_TAG]
-            component_info_instance: ComponentInfo = ComponentInfo.parse_obj(
-                component_info_data
+            component_info_instance = ComponentInfo.parse_obj(
+                yaml_data[const.COMPONENT_INFO_TAG]
             )
+
+            parameter_instance: Optional[Parameter] = None
+            if const.PARAMETER in rule_info_data:
+                parameter_instance = Parameter.parse_obj(
+                    rule_info_data[const.PARAMETER]
+                )
 
             rule_info_instance: TrestleRule = TrestleRule(
                 name=rule_info_data[const.NAME],
                 description=rule_info_data[const.DESCRIPTION],
                 component=component_info_instance,
-                parameter=None,
+                parameter=parameter_instance,
                 profile=profile_info_instance,
             )
-
-            if const.PARAMETER in rule_info_data:
-                parameter_data = rule_info_data[const.PARAMETER]
-                parameter_instance: Parameter = Parameter.parse_obj(parameter_data)
-                rule_info_instance.parameter = parameter_instance
 
         except KeyError as e:
             raise RulesTransformerException(f"Missing key in YAML file: {e}")
