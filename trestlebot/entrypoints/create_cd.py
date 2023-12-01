@@ -33,7 +33,6 @@ from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
     FilterByProfile,
 )
-from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
@@ -128,8 +127,7 @@ class CreateCDEntrypoint(EntrypointBase):
         pre_tasks.append(rule_transform_task)
 
         regenerate_task = RegenerateTask(
-            working_dir=args.working_dir,
-            authored_model=AuthoredType.COMPDEF.value,
+            authored_object=authored_comp,
             markdown_dir=args.markdown_path,
             model_filter=model_filter,
         )

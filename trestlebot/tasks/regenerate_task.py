@@ -36,27 +36,23 @@ class RegenerateTask(TaskBase):
 
     def __init__(
         self,
-        working_dir: str,
-        authored_model: str,
+        authored_object: AuthoredObjectBase,
         markdown_dir: str,
-        ssp_index_path: str = "",
         model_filter: Optional[ModelFilter] = None,
     ) -> None:
         """
         Initialize regenerate task.
 
         Args:
-            working_dir: Working directory to complete operations in
-            authored_model: String representation of model type
+            authored_object: Object that can regenerate Markdown content from JSON
             markdown_dir: Location of directory to write Markdown in
-            ssp_index_path: Path of ssp index JSON in the workspace
             model_filter: Optional filter to apply to the task to include or exclude models
             from processing.
         """
 
-        self._authored_model = authored_model
+        self._authored_object = authored_object
         self._markdown_dir = markdown_dir
-        self._ssp_index_path = ssp_index_path
+        working_dir = self._authored_object.get_trestle_root()
         super().__init__(working_dir, model_filter)
 
     def execute(self) -> int:
@@ -70,11 +66,7 @@ class RegenerateTask(TaskBase):
         Returns:
          0 on success, raises an exception if not successful
         """
-        authored_object: AuthoredObjectBase = types.get_authored_object(
-            self._authored_model, self.working_dir, self._ssp_index_path
-        )
-
-        model_dir = types.get_trestle_model_dir(self._authored_model)
+        model_dir = types.get_trestle_model_dir(self._authored_object)
 
         search_path = os.path.join(self.working_dir, model_dir)
         for model in self.iterate_models(pathlib.Path(search_path)):
@@ -82,7 +74,7 @@ class RegenerateTask(TaskBase):
             model_path = os.path.join(model_dir, model_base_name)
 
             try:
-                authored_object.regenerate(
+                self._authored_object.regenerate(
                     model_path=model_path, markdown_path=self._markdown_dir
                 )
             except AuthoredObjectException as e:

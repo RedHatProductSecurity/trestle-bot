@@ -27,7 +27,10 @@ from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 
 from tests import testutils
 from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
-from trestlebot.tasks.authored.types import AuthoredType
+from trestlebot.tasks.authored.catalog import AuthoredCatalog
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.authored.profile import AuthoredProfile
+from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 from trestlebot.tasks.base_task import ModelFilter
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
@@ -50,18 +53,13 @@ def test_regenerate_task_isolated(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
 
     mock = Mock(spec=AuthoredObjectBase)
-
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.CATALOG.value,
-        cat_md_dir,
-        "",
-    )
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    regenerate_task = RegenerateTask(mock, cat_md_dir)
 
     with patch(
-        "trestlebot.tasks.authored.types.get_authored_object"
-    ) as mock_get_authored_object:
-        mock_get_authored_object.return_value = mock
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        mock_get_trestle_model_dir.return_value = "catalogs"
 
         assert regenerate_task.execute() == 0
 
@@ -86,20 +84,16 @@ def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -
     _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
 
     mock = Mock(spec=AuthoredObjectBase)
-
+    mock.get_trestle_root.return_value = tmp_trestle_dir
     model_filter = ModelFilter(skip_list, ["*"])
-
     regenerate_task = RegenerateTask(
-        working_dir=tmp_trestle_dir,
-        authored_model=AuthoredType.CATALOG.value,
-        markdown_dir=cat_md_dir,
-        model_filter=model_filter,
+        mock, markdown_dir=cat_md_dir, model_filter=model_filter
     )
 
     with patch(
-        "trestlebot.tasks.authored.types.get_authored_object"
-    ) as mock_get_authored_object:
-        mock_get_authored_object.return_value = mock
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        mock_get_trestle_model_dir.return_value = "catalogs"
 
         assert regenerate_task.execute() == 0
 
@@ -112,12 +106,9 @@ def test_catalog_regenerate_task(tmp_trestle_dir: str) -> None:
     md_path = os.path.join(cat_md_dir, test_cat)
     _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
 
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.CATALOG.value,
-        cat_md_dir,
-        "",
-    )
+    catalog = AuthoredCatalog(tmp_trestle_dir)
+    regenerate_task = RegenerateTask(catalog, cat_md_dir)
+
     assert regenerate_task.execute() == 0
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
 
@@ -128,12 +119,9 @@ def test_profile_regenerate_task(tmp_trestle_dir: str) -> None:
     md_path = os.path.join(prof_md_dir, test_prof)
     _ = testutils.setup_for_profile(trestle_root, test_prof, md_path)
 
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.PROFILE.value,
-        prof_md_dir,
-        "",
-    )
+    profile = AuthoredProfile(tmp_trestle_dir)
+    regenerate_task = RegenerateTask(profile, prof_md_dir)
+
     assert regenerate_task.execute() == 0
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
 
@@ -145,12 +133,9 @@ def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
     md_path = os.path.join(compdef_md_dir, test_comp)
     _ = testutils.setup_for_compdef(trestle_root, test_comp, md_path)
 
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.COMPDEF.value,
-        compdef_md_dir,
-        "",
-    )
+    compdef = AuthoredComponentDefinition(tmp_trestle_dir)
+    regenerate_task = RegenerateTask(compdef, compdef_md_dir)
+
     assert regenerate_task.execute() == 0
 
     # The compdef is a special case where each component has a separate markdown directory
@@ -184,45 +169,9 @@ def test_ssp_regenerate_task(tmp_trestle_dir: str) -> None:
     )
     assert ssp_assemble._run(args) == 0
 
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.SSP.value,
-        ssp_md_dir,
-        ssp_index_path,
-    )
+    ssp_index = SSPIndex(ssp_index_path)
+    ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+    regenerate_task = RegenerateTask(ssp, ssp_md_dir)
+
     assert regenerate_task.execute() == 0
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
-
-
-def test_ssp_regenerate_task_no_index_path(tmp_trestle_dir: str) -> None:
-    """Test ssp regenerate at the task level with failure"""
-    trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = os.path.join(ssp_md_dir, test_ssp_output)
-
-    # Create initial SSP for testing
-    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
-    ssp_generate = SSPGenerate()
-    assert ssp_generate._run(args) == 0
-
-    # create ssp from the markdown
-    ssp_assemble = SSPAssemble()
-    args = argparse.Namespace(
-        trestle_root=tmp_trestle_dir,
-        markdown=md_path,
-        output=test_ssp_output,
-        verbose=0,
-        name=None,
-        version=None,
-        regenerate=False,
-        compdefs=args.compdefs,
-    )
-    assert ssp_assemble._run(args) == 0
-    regenerate_task = RegenerateTask(
-        tmp_trestle_dir,
-        AuthoredType.SSP.value,
-        ssp_md_dir,
-        "",
-    )
-
-    with pytest.raises(FileNotFoundError):
-        regenerate_task.execute()
