@@ -23,9 +23,11 @@ import pathlib
 from typing import Any, Dict, List, Optional
 
 from trestle.common.err import TrestleError
+from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPFilter
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.repository import AgileAuthoring
+from trestle.oscal.component import ComponentDefinition
 
 from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
 from trestlebot.tasks.authored.base_authored import (
@@ -251,20 +253,29 @@ class AuthoredSSP(AuthorObjectBase):
         self,
         ssp_name: str,
         input_ssp: str,
-        profile_name: str,
-        compdefs: List[str],
+        version: str = "",
+        markdown_path: str = "",
+        profile_name: str = "",
+        compdefs: Optional[List[str]] = None,
+        implementation_status: Optional[List[str]] = None,
+        control_origination: Optional[List[str]] = None,
     ) -> None:
         """
-        Create new ssp from an ssp with filtering by profile and component definitions
+        Create new ssp from an ssp with filters.
 
         Args:
             ssp_name: Output name for ssp
             input_ssp: Input ssp to filter
-            profile_name: Profile to filter by
-            compdefs: List of component definitions to filter by
+            profile_name:  Optional profile to filter by
+            compdefs: Optional list of component definitions to filter by
+            implementation_status: Optional implementation status to filter by
+            control_origination: Optional control origination to filter by
+            markdown_path: Optional top-level markdown path to write to for continued editing.
 
         Notes:
-            This will generate SSP markdown and an index entry for a new managed SSP.
+            This will transform the SSP with filters. If markdown_path is provided, it will
+            also generate SSP markdown and an index entry for a new managed SSP for continued
+            management in the workspace.
         """
 
         # Create new ssp by filtering input ssp
@@ -272,17 +283,28 @@ class AuthoredSSP(AuthorObjectBase):
         trestle_path = pathlib.Path(trestle_root)
         ssp_filter: SSPFilter = SSPFilter()
 
+        components_title: Optional[List[str]] = None
+        if compdefs:
+            components_title = []
+            for comp_def_name in compdefs:
+                comp_def, _ = ModelUtils.load_model_for_class(
+                    trestle_path, comp_def_name, ComponentDefinition
+                )
+                components_title.extend(
+                    [component.title for component in comp_def.components]
+                )
+
         try:
             exit_code = ssp_filter.filter_ssp(
                 trestle_root=trestle_path,
                 ssp_name=input_ssp,
                 profile_name=profile_name,
                 out_name=ssp_name,
-                regenerate=False,
-                components=compdefs,
-                version="",
-                implementation_status=None,
-                control_origination=None,
+                regenerate=True,
+                components=components_title,
+                version=version,
+                implementation_status=implementation_status,
+                control_origination=control_origination,
             )
 
             if exit_code != CmdReturnCodes.SUCCESS.value:
@@ -294,17 +316,22 @@ class AuthoredSSP(AuthorObjectBase):
                 f"Trestle filtering failed for {input_ssp}: {e}"
             )
 
-        # Retrieve index information from existing ssp
-        if not profile_name:
-            profile_name = self.ssp_index.get_profile_by_ssp(input_ssp)
+        # If markdown_path is provided, create a new managed ssp.
+        # this will eventually need to have a JSON to MD recovery to
+        # reduce manual editing.
+        if markdown_path:
+            if not profile_name:
+                profile_name = self.ssp_index.get_profile_by_ssp(input_ssp)
 
-        if not compdefs:
-            compdefs = self.ssp_index.get_comps_by_ssp(input_ssp)
+            if not compdefs:
+                compdefs = self.ssp_index.get_comps_by_ssp(input_ssp)
 
-        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(input_ssp)
+            leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(input_ssp)
 
-        # Add new information to index
-        self.ssp_index.add_new_ssp(ssp_name, profile_name, compdefs, leveraged_ssp)
-
-        # Write out index
-        self.ssp_index.write_out()
+            self.create_new_default(
+                ssp_name,
+                profile_name,
+                compdefs,
+                markdown_path,
+                leveraged_ssp,
+            )
