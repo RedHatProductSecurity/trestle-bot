@@ -28,6 +28,7 @@ JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
 YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
 TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "test_ssp_index.json"
 INVALID_TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "invalid_test_ssp_index.json"
+TEST_YAML_HEADER = YAML_TEST_DATA_PATH / "extra_yaml_header.yaml"
 
 # E2E test constants
 TRESTLEBOT_TEST_IMAGE_NAME = "localhost/trestlebot:latest"
