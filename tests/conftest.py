@@ -30,11 +30,11 @@ from trestle.common.err import TrestleError
 from trestle.core.commands.init import InitCmd
 
 from tests.testutils import (
+    CONTAINER_FILE_NAME,
     E2E_BUILD_CONTEXT,
     MOCK_SERVER_IMAGE_NAME,
     TRESTLEBOT_TEST_IMAGE_NAME,
-    build_mock_server_image,
-    build_trestlebot_image,
+    build_test_image,
     clean,
 )
 from trestlebot import const
@@ -199,17 +199,29 @@ def test_rule() -> TrestleRule:
 
 
 @pytest.fixture(scope="package")
-def podman_setup() -> YieldFixture[int]:
-    """Build the trestlebot container image and run the mock server in a pod."""
+def podman_setup() -> YieldFixture[Tuple[int, str]]:
+    """
+    Build the trestlebot container image and run the mock server in a pod.
 
-    cleanup_trestlebot_image = build_trestlebot_image()
-    cleanup_mock_server_image = build_mock_server_image()
+    Yields:
+        Tuple[int, str]: The return code from the podman play command and the trestlebot image name.
+    """
+
+    # Get the image information from the environment, if present
+    trestlebot_image = os.environ.get("TRESTLEBOT_IMAGE", TRESTLEBOT_TEST_IMAGE_NAME)
+
+    cleanup_trestlebot_image = build_test_image(trestlebot_image)
+    cleanup_mock_server_image = build_test_image(
+        MOCK_SERVER_IMAGE_NAME,
+        f"{E2E_BUILD_CONTEXT}/{CONTAINER_FILE_NAME}",
+        E2E_BUILD_CONTEXT,
+    )
 
     # Create a pod
     response = subprocess.run(
         ["podman", "play", "kube", f"{E2E_BUILD_CONTEXT}/play-kube.yml"], check=True
     )
-    yield response.returncode
+    yield response.returncode, trestlebot_image
 
     # Clean up the container image, pod and mock server
     try:
@@ -218,7 +230,7 @@ def podman_setup() -> YieldFixture[int]:
             check=True,
         )
         if cleanup_trestlebot_image:
-            subprocess.run(["podman", "rmi", TRESTLEBOT_TEST_IMAGE_NAME], check=True)
+            subprocess.run(["podman", "rmi", trestlebot_image], check=True)
         if cleanup_mock_server_image:
             subprocess.run(["podman", "rmi", MOCK_SERVER_IMAGE_NAME], check=True)
     except subprocess.CalledProcessError as e:

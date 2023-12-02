@@ -279,9 +279,6 @@ def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> 
         file.write(updated_content)
 
 
-# E2E test utils
-
-
 def _image_exists(image_name: str) -> bool:
     """Check if the image already exists."""
     try:
@@ -291,46 +288,27 @@ def _image_exists(image_name: str) -> bool:
         return False
 
 
-def build_trestlebot_image() -> bool:
+def build_test_image(
+    image_name: str,
+    container_file: str = CONTAINER_FILE_NAME,
+    build_context: str = ".",
+) -> bool:
     """
-    Build the trestlebot image.
+    Build an image for testing image.
 
     Returns:
         Returns true if the image was built, false if it already exists.
     """
-    if not _image_exists(TRESTLEBOT_TEST_IMAGE_NAME):
+    if not _image_exists(image_name):
         subprocess.run(
             [
                 "podman",
                 "build",
                 "-f",
-                CONTAINER_FILE_NAME,
+                container_file,
                 "-t",
-                TRESTLEBOT_TEST_IMAGE_NAME,
-            ],
-            check=True,
-        )
-        return True
-    return False
-
-
-def build_mock_server_image() -> bool:
-    """
-    Build the mock server image.
-
-    Returns:
-        Returns true if the image was built, false if it already exists.
-    """
-    if not _image_exists(MOCK_SERVER_IMAGE_NAME):
-        subprocess.run(
-            [
-                "podman",
-                "build",
-                "-f",
-                f"{E2E_BUILD_CONTEXT}/{CONTAINER_FILE_NAME}",
-                "-t",
-                MOCK_SERVER_IMAGE_NAME,
-                E2E_BUILD_CONTEXT,
+                image_name,
+                build_context,
             ],
             check=True,
         )
@@ -339,7 +317,10 @@ def build_mock_server_image() -> bool:
 
 
 def build_test_command(
-    data_path: str, command_name: str, command_args: Dict[str, str]
+    data_path: str,
+    command_name: str,
+    command_args: Dict[str, str],
+    image_name: str = TRESTLEBOT_TEST_IMAGE_NAME,
 ) -> List[str]:
     """Build a command to be run in the shell for trestlebot"""
     return [
@@ -354,6 +335,6 @@ def build_test_command(
         f"{data_path}:/trestle",
         "-w",
         "/trestle",
-        TRESTLEBOT_TEST_IMAGE_NAME,
+        image_name,
         *args_dict_to_list(command_args),
     ]
