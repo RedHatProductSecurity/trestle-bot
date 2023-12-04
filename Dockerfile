@@ -1,6 +1,6 @@
 # Use the UBI 8 minimal base image
 # kics-scan disable=fd54f200-402c-4333-a5a4-36ef6709af2f
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest as python-base
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest AS python-base
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -21,7 +21,7 @@ RUN microdnf update -y \
     && microdnf clean all \
     && rm -rf /var/lib/apt/lists/*
 
-FROM python-base as dependencies
+FROM python-base AS dependencies
 
 ARG POETRY_VERSION=1.5.1
 
@@ -40,15 +40,15 @@ WORKDIR "/build"
 COPY . "/build"
 
 # Install runtime deps and install the project in non-editable mode.
-RUN python3.9 -m venv $VENV_PATH && \
-  . $VENV_PATH/bin/activate && \
+RUN python3.9 -m venv "$VENV_PATH" && \
+  . "$VENV_PATH"/bin/activate && \
   poetry install --without tests,dev --no-root && \
   poetry build -f wheel -n && \
   pip install --no-cache-dir --no-deps dist/*.whl && \
-  rm -rf dist *.egg-info
+  rm -rf dist ./*.egg-info
 
 
-FROM python-base as final
+FROM python-base AS final
 
 COPY --from=dependencies $PYSETUP_PATH $PYSETUP_PATH
 
