@@ -62,6 +62,20 @@ jobs:
         run: echo "TAG=$INPUT_VERSION" >> "$GITHUB_ENV"
         env:
           INPUT_VERSION: ${{ github.event.inputs.tag }}
+      
+      - name: Build and export to Docker
+        uses: docker/build-push-action@v5
+        with:
+          load: true
+          tags: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+      
+      - name: Pre-push Image Scan
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          exit-code: 1
+          scanners: secret
+          severity: HIGH,CRITICAL,MEDIUM
 
       - name: Build and Push
         uses: docker/build-push-action@v5
