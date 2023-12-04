@@ -1,0 +1,19 @@
+# Configuration files
+.github/**
+.mega-linter.yml
+.pre-commit-config.yaml
+.flake8
+sonar-project.properties
+
+# Docs
+docs/
+CONTRIBUTING.md
+TROUBLESHOOTING.md
+
+# Local files
+.git
+.cache
+.env
+**/.venv/**
+.coverage
+.coverage.*
