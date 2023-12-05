@@ -22,7 +22,7 @@ RUN mkdir -p "$PYSETUP_PATH"
 # Installing poetry and pipx.
 RUN python3 -m pip install --no-cache-dir --upgrade pip \
     && python3 -m pip install --no-cache-dir pipx \
-    && python3 -m pipx install poetry==$POETRY_VERSION
+    && python3 -m pipx install poetry=="$POETRY_VERSION"
 
 # set permissions
 RUN chown trestlebot:trestlebot -R /home/trestlebot
