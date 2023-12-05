@@ -14,13 +14,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""E2E tests for the rules transform command."""
+"""E2E tests for commands for component definition authoring."""
 
 import argparse
 import logging
 import pathlib
 import subprocess
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import pytest
 from git.repo import Repo
@@ -30,9 +30,8 @@ from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.component import ComponentDefinition
 from trestle.oscal.profile import Profile
 
-from tests.conftest import YieldFixture
 from tests.testutils import (
-    args_dict_to_list,
+    build_test_command,
     load_from_json,
     setup_for_profile,
     setup_rules_view,
@@ -48,136 +47,9 @@ from trestlebot.const import (
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-image_name = "localhost/trestlebot:latest"
-mock_server_image_name = "localhost/mock-server:latest"
-pod_name = "trestlebot-e2e-pod"
-e2e_context = "tests/e2e"
-container_file = "Dockerfile"
-
 test_prof = "simplified_nist_profile"
 test_filter_prof = "simplified_filter_profile"
-test_comp_name = "test-comp"
-
-
-def image_exists(image_name: str) -> bool:
-    """Check if the image already exists."""
-    try:
-        subprocess.check_output(["podman", "image", "inspect", image_name])
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-
-def build_transform_command(data_path: str, command_args: Dict[str, str]) -> List[str]:
-    """Build a command to be run in the shell for rules transform."""
-    return [
-        "podman",
-        "run",
-        "--pod",
-        pod_name,
-        "--entrypoint",
-        "trestlebot-rules-transform",
-        "--rm",
-        "-v",
-        f"{data_path}:/trestle",
-        "-w",
-        "/trestle",
-        image_name,
-        *args_dict_to_list(command_args),
-    ]
-
-
-def build_create_cd_command(data_path: str, command_args: Dict[str, str]) -> List[str]:
-    """Build a command to be run in the shell for create cd."""
-    return [
-        "podman",
-        "run",
-        "--pod",
-        pod_name,
-        "--entrypoint",
-        "trestlebot-create-cd",
-        "--rm",
-        "-v",
-        f"{data_path}:/trestle",
-        "-w",
-        "/trestle",
-        image_name,
-        *args_dict_to_list(command_args),
-    ]
-
-
-def build_trestlebot_image() -> bool:
-    """
-    Build the trestlebot image.
-
-    Returns:
-        Returns true if the image was built, false if it already exists.
-    """
-    if not image_exists(image_name):
-        subprocess.run(
-            [
-                "podman",
-                "build",
-                "-f",
-                container_file,
-                "-t",
-                image_name,
-            ],
-            check=True,
-        )
-        return True
-    return False
-
-
-def build_mock_server_image() -> bool:
-    """
-    Build the mock server image.
-
-    Returns:
-        Returns true if the image was built, false if it already exists.
-    """
-    if not image_exists(mock_server_image_name):
-        subprocess.run(
-            [
-                "podman",
-                "build",
-                "-f",
-                f"{e2e_context}/{container_file}",
-                "-t",
-                mock_server_image_name,
-                e2e_context,
-            ],
-            check=True,
-        )
-        return True
-    return False
-
-
-@pytest.fixture(scope="module")
-def podman_setup() -> YieldFixture[int]:
-    """Build the trestlebot container image and run the mock server in a pod."""
-
-    cleanup_trestlebot_image = build_trestlebot_image()
-    cleanup_mock_server_image = build_mock_server_image()
-
-    # Create a pod
-    response = subprocess.run(
-        ["podman", "play", "kube", f"{e2e_context}/play-kube.yml"], check=True
-    )
-    yield response.returncode
-
-    # Clean up the container image, pod and mock server
-    try:
-        subprocess.run(
-            ["podman", "play", "kube", "--down", f"{e2e_context}/play-kube.yml"],
-            check=True,
-        )
-        if cleanup_trestlebot_image:
-            subprocess.run(["podman", "rmi", image_name], check=True)
-        if cleanup_mock_server_image:
-            subprocess.run(["podman", "rmi", mock_server_image_name], check=True)
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to clean up podman resources: {e}")
+test_comp_name = "test_comp"
 
 
 @pytest.mark.slow
@@ -250,20 +122,22 @@ def test_rules_transform_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    command = build_transform_command(tmp_repo_str, command_args)
+    command = build_test_command(tmp_repo_str, "rules-transform", command_args)
     run_response = subprocess.run(command, capture_output=True)
     assert run_response.returncode == response
 
     # Check that the component definition was created
     if response == SUCCESS_EXIT_CODE:
         if "skip-items" in command_args:
-            assert "input: test-comp.csv" not in run_response.stdout.decode("utf-8")
+            assert f"input: {test_comp_name}.csv" not in run_response.stdout.decode(
+                "utf-8"
+            )
         else:
             comp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
                 tmp_repo_path, test_comp_name, ComponentDefinition, FileContentType.JSON
             )
             assert comp_path.exists()
-            assert "input: test-comp.csv" in run_response.stdout.decode("utf-8")
+            assert f"input: {test_comp_name}.csv" in run_response.stdout.decode("utf-8")
         branch = command_args["branch"]
         assert (
             f"Changes pushed to {branch} successfully."
@@ -384,7 +258,7 @@ def test_create_cd_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    command = build_create_cd_command(tmp_repo_str, command_args)
+    command = build_test_command(tmp_repo_str, "create-cd", command_args)
     run_response = subprocess.run(command, cwd=tmp_repo_path, capture_output=True)
     assert run_response.returncode == response
 

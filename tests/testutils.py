@@ -20,6 +20,7 @@ import argparse
 import json
 import pathlib
 import shutil
+import subprocess
 from typing import Dict, List, Optional
 
 from git.repo import Repo
@@ -40,6 +41,13 @@ from trestlebot.const import (
 
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
 YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
+
+# E2E test constants
+TRESTLEBOT_TEST_IMAGE_NAME = "localhost/trestlebot:latest"
+MOCK_SERVER_IMAGE_NAME = "localhost/mock-server:latest"
+TRESTLEBOT_TEST_POD_NAME = "trestlebot-e2e-pod"
+E2E_BUILD_CONTEXT = "tests/e2e"
+CONTAINER_FILE_NAME = "Dockerfile"
 
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
@@ -269,3 +277,83 @@ def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> 
     # Write the updated content back to the file
     with open(file_path, "w") as file:
         file.write(updated_content)
+
+
+# E2E test utils
+
+
+def _image_exists(image_name: str) -> bool:
+    """Check if the image already exists."""
+    try:
+        subprocess.check_output(["podman", "image", "inspect", image_name])
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+
+def build_trestlebot_image() -> bool:
+    """
+    Build the trestlebot image.
+
+    Returns:
+        Returns true if the image was built, false if it already exists.
+    """
+    if not _image_exists(TRESTLEBOT_TEST_IMAGE_NAME):
+        subprocess.run(
+            [
+                "podman",
+                "build",
+                "-f",
+                CONTAINER_FILE_NAME,
+                "-t",
+                TRESTLEBOT_TEST_IMAGE_NAME,
+            ],
+            check=True,
+        )
+        return True
+    return False
+
+
+def build_mock_server_image() -> bool:
+    """
+    Build the mock server image.
+
+    Returns:
+        Returns true if the image was built, false if it already exists.
+    """
+    if not _image_exists(MOCK_SERVER_IMAGE_NAME):
+        subprocess.run(
+            [
+                "podman",
+                "build",
+                "-f",
+                f"{E2E_BUILD_CONTEXT}/{CONTAINER_FILE_NAME}",
+                "-t",
+                MOCK_SERVER_IMAGE_NAME,
+                E2E_BUILD_CONTEXT,
+            ],
+            check=True,
+        )
+        return True
+    return False
+
+
+def build_test_command(
+    data_path: str, command_name: str, command_args: Dict[str, str]
+) -> List[str]:
+    """Build a command to be run in the shell for trestlebot"""
+    return [
+        "podman",
+        "run",
+        "--pod",
+        TRESTLEBOT_TEST_POD_NAME,
+        "--entrypoint",
+        f"trestlebot-{command_name}",
+        "--rm",
+        "-v",
+        f"{data_path}:/trestle",
+        "-w",
+        "/trestle",
+        TRESTLEBOT_TEST_IMAGE_NAME,
+        *args_dict_to_list(command_args),
+    ]

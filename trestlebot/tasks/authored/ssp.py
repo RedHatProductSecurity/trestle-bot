@@ -51,11 +51,14 @@ class SSPIndex:
         self.profile_by_ssp: Dict[str, str] = {}
         self.comps_by_ssp: Dict[str, List[str]] = {}
         self.leveraged_ssp_by_ssp: Dict[str, str] = {}
+        self._load()
 
+    def _load(self) -> None:
+        """Load the index from the index file"""
         # Try to load the current file. If it does not exist,
         # create an empty JSON file.
         try:
-            with open(index_path, "r") as file:
+            with open(self._index_path, "r") as file:
                 json_data = json.load(file)
 
             for ssp_name, ssp_info in json_data.items():
@@ -77,8 +80,15 @@ class SSPIndex:
                     ]
 
         except FileNotFoundError:
-            with open(index_path, "w") as file:
+            with open(self._index_path, "w") as file:
                 json.dump({}, file)
+
+    def reload(self) -> None:
+        """Reload the index from the index file"""
+        self.profile_by_ssp = {}
+        self.comps_by_ssp = {}
+        self.leveraged_ssp_by_ssp = {}
+        self._load()
 
     def get_comps_by_ssp(self, ssp_name: str) -> List[str]:
         """Return list of compdefs associated with the SSP"""
