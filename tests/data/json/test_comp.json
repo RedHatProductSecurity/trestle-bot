@@ -64,7 +64,7 @@
     },
     "components": [
       {
-        "uuid": "8220b305-0271-45f9-8a21-40ab6f197f70",
+        "uuid": "8220b305-0271-45f9-8a21-40ab6f197f78",
         "type": "Service",
         "title": "test_comp",
         "description": "test comp",
