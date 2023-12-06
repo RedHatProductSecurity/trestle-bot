@@ -94,7 +94,7 @@ test_ssp_name = "test_ssp"
 )
 def test_ssp_editing_e2e(
     tmp_repo: Tuple[str, Repo],
-    podman_setup: int,
+    podman_setup: Tuple[int, str],
     test_name: str,
     command_args: Dict[str, str],
     response: int,
@@ -103,7 +103,8 @@ def test_ssp_editing_e2e(
     """Test the trestlebot autosync command with SSPs."""
     # Check that the container image was built successfully
     # and the mock server is running
-    assert podman_setup == 0
+    exit_code, image_name = podman_setup
+    assert exit_code == 0
 
     logger.info(f"Running test: {test_name}")
 
@@ -151,7 +152,7 @@ def test_ssp_editing_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    command = build_test_command(tmp_repo_str, "autosync", command_args)
+    command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
     run_response = subprocess.run(command, capture_output=True)
     assert run_response.returncode == response
 

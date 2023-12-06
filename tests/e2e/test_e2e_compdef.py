@@ -89,7 +89,7 @@ test_comp_name = "test_comp"
 )
 def test_rules_transform_e2e(
     tmp_repo: Tuple[str, Repo],
-    podman_setup: int,
+    podman_setup: Tuple[int, str],
     test_name: str,
     command_args: Dict[str, str],
     response: int,
@@ -97,7 +97,8 @@ def test_rules_transform_e2e(
     """Test the trestlebot rules transform command."""
     # Check that the container image was built successfully
     # and the mock server is running
-    assert podman_setup == 0
+    exit_code, image_name = podman_setup
+    assert exit_code == 0
 
     logger.info(f"Running test: {test_name}")
 
@@ -122,7 +123,9 @@ def test_rules_transform_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    command = build_test_command(tmp_repo_str, "rules-transform", command_args)
+    command = build_test_command(
+        tmp_repo_str, "rules-transform", command_args, image_name
+    )
     run_response = subprocess.run(command, capture_output=True)
     assert run_response.returncode == response
 
@@ -224,7 +227,7 @@ def test_rules_transform_e2e(
 )
 def test_create_cd_e2e(
     tmp_repo: Tuple[str, Repo],
-    podman_setup: int,
+    podman_setup: Tuple[int, str],
     test_name: str,
     command_args: Dict[str, str],
     response: int,
@@ -232,7 +235,8 @@ def test_create_cd_e2e(
     """Test the trestlebot rules transform command."""
     # Check that the container image was built successfully
     # and the mock server is running
-    assert podman_setup == 0
+    exit_code, image_name = podman_setup
+    assert exit_code == 0
 
     logger.info(f"Running test: {test_name}")
 
@@ -258,7 +262,7 @@ def test_create_cd_e2e(
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
 
-    command = build_test_command(tmp_repo_str, "create-cd", command_args)
+    command = build_test_command(tmp_repo_str, "create-cd", command_args, image_name)
     run_response = subprocess.run(command, cwd=tmp_repo_path, capture_output=True)
     assert run_response.returncode == response
 

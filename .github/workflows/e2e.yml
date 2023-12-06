@@ -1,0 +1,36 @@
+name: E2E
+
+on:
+  workflow_call:
+    inputs:
+      image:
+        description: "Name of the trestlebot image you want to test."
+        type: string
+        required: true
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      
+      - name: Set up poetry and install
+        uses: ./.github/actions/setup-poetry
+        with:
+          python-version: "3.9"
+
+      # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+      - name: Pull the image
+        run: |
+            podman pull "${IMAGE}"
+            echo "TRESTLEBOT_IMAGE=${IMAGE}" >> "$GITHUB_ENV"
+        env:
+          IMAGE: ${{ inputs.image }}
+
+      - name: Run tests
+        run: make test-e2e

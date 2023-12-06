@@ -9,16 +9,26 @@ on:
         description: "Name of the tag for the published image"
         type: string
         required: true
+      skip_tests:
+        description: "Skip end to end tests when publishing an image."
+        type: boolean
+        required: false
+        default: false
 env:
     IMAGE_NAME: trestle-bot
     IMAGE_REGISTRY: quay.io
 
 jobs:
+
   publish-image:
     runs-on: 'ubuntu-latest'
     permissions:
       contents: read
-      packages: write
+    outputs:
+      skip_tests: ${{ steps.check_event.outputs.event_type == 'release'
+                    || (steps.check_event.outputs.event_type == 'workflow_dispatch'
+                      && github.event.inputs.skip_tests == 'true') }}
+      image: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}@${{ steps.build-image.outputs.digest }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,21 +52,45 @@ jobs:
         
       # Using intermediary variable to process event based input
       - name: Set TAG environment variable for Release
-        if: steps.check_event.outputs.event_type == 'release'
+        if: ${{ steps.check_event.outputs.event_type == 'release' }}
         run: echo "TAG=$RELEASE_VERSION" >> "$GITHUB_ENV"
         env:
           RELEASE_VERSION: ${{ github.event.release.tag_name }}
 
       - name: Set TAG environment variable for Workflow Dispatch
-        if: steps.check_event.outputs.event_type == 'workflow_dispatch'
+        if: ${{ steps.check_event.outputs.event_type == 'workflow_dispatch' }}
         run: echo "TAG=$INPUT_VERSION" >> "$GITHUB_ENV"
         env:
           INPUT_VERSION: ${{ github.event.inputs.tag }}
       
-      - name: Build and Push
+      - name: Build and export to Docker
         uses: docker/build-push-action@v5
         with:
-          push: true
+          load: true
           tags: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+      
+      - name: Pre-push Image Scan
+        uses: aquasecurity/trivy-action@0.14.0
+        with:
+          image-ref: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+          exit-code: 1
+          scanners: secret
+          severity: HIGH,CRITICAL,MEDIUM
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        id: build-image
+        with:
+          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          tags: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
+
+  test:
+    permissions:
+        contents: read
+    needs: publish-image
+    if: ${{ needs.publish-image.outputs.skip_tests != 'true' }}
+    uses: ./.github/workflows/e2e.yml
+    with:
+      image: ${{ needs.publish-image.outputs.image }}

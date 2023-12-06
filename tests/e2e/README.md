@@ -49,11 +49,14 @@ To run the end-to-end tests, follow these steps:
   ```bash
   podman build -t localhost/mock-server:latest -f tests/e2e/Dockerfile tests/e2e
   podman build -t localhost/trestlebot:latest -f Dockerfile .
+
+  # Use a prebuilt image from quay.io
+  podman pull quay.io/continuouscompliance/trestle-bot:latest
+  export TRESTLEBOT_IMAGE=quay.io/continuouscompliance/trestle-bot:latest
   ```
 
 - When created tests that push to a branch, ensure the name is "test". This is because the mock API server is configured to only allow pushes to a branch named "test".
 
 ## Future Improvements
-- Provide an option to use pre-built trestle-bot container images from a registry instead of building them locally.
 - Create endpoints that mock GitHub and GitLab API calls for pull request creation.
 - Add more end-to-end tests to cover more use cases.
