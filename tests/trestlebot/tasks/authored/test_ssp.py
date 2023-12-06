@@ -47,7 +47,7 @@ def test_assemble(tmp_trestle_dir: str) -> None:
     """Test to test assemble functionality for SSPs"""
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = f"{markdown_dir}/{test_ssp_output}"
+    md_path = os.path.join(markdown_dir, test_ssp_output)
     args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
@@ -72,7 +72,7 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
     """Test to trigger failure for missing SSP index"""
     # Prepare the workspace and generate the markdown
     trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = f"{markdown_dir}/{test_ssp_output}"
+    md_path = os.path.join(markdown_dir, test_ssp_output)
     args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
@@ -225,7 +225,7 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     """Test to create new SSP with filtering by profile"""
     # Prepare the workspace and input ssp
     trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = f"{markdown_dir}/{test_ssp_output}"
+    md_path = os.path.join(markdown_dir, test_ssp_output)
     args = testutils.setup_for_ssp(
         trestle_root, test_prof, [test_comp, test_comp_2], md_path
     )
@@ -246,7 +246,7 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_profile(trestle_root, test_prof_filter, test_prof_filter)
 
     ssp_name = "new_ssp"
-    new_md_path = f"{markdown_dir}/{ssp_name}"
+    new_md_path = os.path.join(markdown_dir, ssp_name)
     input_ssp = test_ssp_output
 
     # Call create_new_with_filter with new profile
@@ -264,7 +264,7 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     assert model_path.exists()
 
     ssp_name = "new_ssp_2"
-    new_md_path = f"{markdown_dir}/{ssp_name}"
+    new_md_path = os.path.join(markdown_dir, ssp_name)
 
     # Call create_new_with_filter with a single compdef
     authored_ssp.create_new_with_filter(
