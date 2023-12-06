@@ -289,7 +289,7 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     assert test_comp_2 in component_names
     assert test_comp not in component_names
 
-    # Check that without model path the ssp_index is not updated
+    # Check that without markdown path the ssp_index is not updated
     ssp_name = "new_ssp_3"
     authored_ssp.create_new_with_filter(
         ssp_name, input_ssp, implementation_status=["implemented"]
