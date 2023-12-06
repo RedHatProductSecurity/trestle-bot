@@ -31,8 +31,8 @@ from trestle.oscal.component import ComponentDefinition
 
 from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 
 
@@ -149,7 +149,7 @@ class SSPIndex:
             json.dump(data, file, indent=4)
 
 
-class AuthoredSSP(AuthorObjectBase):
+class AuthoredSSP(AuthoredObjectBase):
     """
     Class for authoring OSCAL SSPs in automation
     """

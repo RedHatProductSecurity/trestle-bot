@@ -23,8 +23,8 @@ from typing import Optional
 from trestlebot import const
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 from trestlebot.tasks.base_task import ModelFilter, TaskBase, TaskException
 
@@ -70,7 +70,7 @@ class AssembleTask(TaskBase):
         Returns:
           0 on success, raises an exception if not successful
         """
-        authored_object: AuthorObjectBase = types.get_authored_object(
+        authored_object: AuthoredObjectBase = types.get_authored_object(
             self._authored_model, self.working_dir, self._ssp_index_path
         )
         search_path = os.path.join(self.working_dir, self._markdown_dir)

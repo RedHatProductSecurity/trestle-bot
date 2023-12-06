@@ -32,12 +32,12 @@ from trestle.core.repository import AgileAuthoring
 from trestle.oscal.common import IncludeAll
 
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 
 
-class AuthoredProfile(AuthorObjectBase):
+class AuthoredProfile(AuthoredObjectBase):
     """
     Class for authoring OSCAL Profiles in automation
     """

@@ -26,7 +26,7 @@ import pytest
 from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 
 from tests import testutils
-from trestlebot.tasks.authored.base_authored import AuthorObjectBase
+from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.base_task import ModelFilter
 from trestlebot.tasks.regenerate_task import RegenerateTask
@@ -49,7 +49,7 @@ def test_regenerate_task_isolated(tmp_trestle_dir: str) -> None:
     md_path = os.path.join(cat_md_dir, test_cat)
     _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
 
-    mock = Mock(spec=AuthorObjectBase)
+    mock = Mock(spec=AuthoredObjectBase)
 
     regenerate_task = RegenerateTask(
         tmp_trestle_dir,
@@ -85,7 +85,7 @@ def test_regenerate_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -
     md_path = os.path.join(cat_md_dir, test_cat)
     _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
 
-    mock = Mock(spec=AuthorObjectBase)
+    mock = Mock(spec=AuthoredObjectBase)
 
     model_filter = ModelFilter(skip_list, ["*"])
 

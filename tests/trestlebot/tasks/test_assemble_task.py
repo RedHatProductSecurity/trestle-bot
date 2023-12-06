@@ -34,7 +34,7 @@ from trestle.oscal import profile as oscal_prof
 
 from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
-from trestlebot.tasks.authored.base_authored import AuthorObjectBase
+from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
 from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.base_task import ModelFilter
 
@@ -58,7 +58,7 @@ def test_assemble_task_isolated(tmp_trestle_dir: str) -> None:
     cat_generate = CatalogGenerate()
     assert cat_generate._run(args) == 0
 
-    mock = Mock(spec=AuthorObjectBase)
+    mock = Mock(spec=AuthoredObjectBase)
 
     assemble_task = AssembleTask(
         tmp_trestle_dir,
@@ -94,7 +94,7 @@ def test_assemble_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -> 
     cat_generate = CatalogGenerate()
     assert cat_generate._run(args) == 0
 
-    mock = Mock(spec=AuthorObjectBase)
+    mock = Mock(spec=AuthoredObjectBase)
 
     model_filter = ModelFilter(skip_list, ["*"])
 

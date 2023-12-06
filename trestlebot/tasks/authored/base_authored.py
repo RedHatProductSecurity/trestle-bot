@@ -23,7 +23,7 @@ class AuthoredObjectException(Exception):
     """An error during object authoring"""
 
 
-class AuthorObjectBase(ABC):
+class AuthoredObjectBase(ABC):
     """
     Abstract base class for OSCAL objects that are authored.
     """

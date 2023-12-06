@@ -21,8 +21,8 @@ from enum import Enum
 from trestle.common import const
 
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
@@ -41,7 +41,7 @@ class AuthoredType(Enum):
 
 def get_authored_object(
     input_type: str, working_dir: str, ssp_index_path: str = ""
-) -> AuthorObjectBase:
+) -> AuthoredObjectBase:
     """Determine and configure author object context"""
     if input_type == AuthoredType.CATALOG.value:
         return AuthoredCatalog(working_dir)
