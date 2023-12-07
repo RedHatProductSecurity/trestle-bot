@@ -29,35 +29,58 @@ When submitting a pull request, please follow these guidelines:
 
 - [Python](https://www.python.org/downloads/) - v3.8+
 - [Poetry](https://python-poetry.org/)
-- [Podman](https://podman.io/docs/installation)
+- [Podman](https://podman.io/docs/installation) (Optional) - For testing locally and end-to-end tests
 
-### How It Works
+## Development Environment
+
+For a reproducible development environment, we use Dev Containers. See [devcontainer.json](./.devcontainer/devcontainer.json) for more information. Note that this does not include the `podman` installation to avoid the requirement for containers with elevated privileges.
+
+## How It Works
 
 For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` folder.
 
-#### Components
+### Components
 
 1. CI Provider - Runs or builds and runs trestle-bot container
 2. Trestle Bot - Provides logic for managing workspace and containerized environment for use in workflows
 3. Compliance-Trestle - Upstream library that provides core logic for how OSCAL content is managed
 
-#### Code structure
+### Code structure
 
 - `actions` - Provides specific logic for `trestle-bot` tasks that are packaged as Actions. See [README.md](./actions/README.md) for more information.
 - `entrypoints` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related in any way so they are not organized into a hierarchical command structure, but they do inherit logic and flags from a base class.
 - `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations for interacting with the API.
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
 - `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
-- `transformers` - This contains data transformation logic; specifically for rules. 
+- `transformers` - This contains data transformation logic; specifically for rules.
 
-### Format and Styling
+
+## Format and Styling
+
+This project uses `black` and `isort` for formatting and `flake8` for linting. You can run these commands to format and lint your code.
+They are also run as part as a pre-commit hook.
 
 ```bash
 make format
 make lint
 ```
 
-### Running tests
+For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](./.github/megalinter.yaml) for more information.
+
+## Type Hints and Static Type Checking
+
+We encourage the use of type hints in Python code to enhance readability, maintainability, and robustness of the codebase. Type hints serve as documentation and aid in catching potential errors during development. For static type analysis, we utilize `mypy`. Running `make lint` will run `mypy` checks on the codebase.
+
+## Analysis Tools
+
+- [SonarCloud](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot) - We use SonarCloud to analyze code quality, coverage, and security. To not break GitHub security model, this will not run on a forked repository.
+- [Semgrep](https://semgrep.dev/docs/extensions/overview/#pre-commit) - Identify issues in the local development environment before committing code. These checks are also run in CI.
+
+## Running tests
+
+Run all tests with `make test` or `make test-slow` to run all tests including end-to-end.
+For information on end-to-end tests, see [README.md](./tests/e2e/README.md).
+
 ```bash
 # Run all tests
 make test
@@ -69,10 +92,10 @@ make test-e2e
 
 ### Run with poetry
 ```
-poetry shell
-poetry install
+make develop
 poetry run trestlebot-autosync
 poetry run trestlebot-rules-transform
+poetry run trestlebot-create-cd
 ```
 
 ### Local testing
