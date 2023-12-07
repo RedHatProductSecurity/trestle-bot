@@ -45,6 +45,8 @@ pre-commit = "^3.4.0"
 pytest = "^7.3.2"
 pytest-cov = "^4.1.0"
 pytest-skip-slow = "^0.0.5"
+responses = "^0.24.1"
+
 
 [tool.coverage.run]
 branch = true
