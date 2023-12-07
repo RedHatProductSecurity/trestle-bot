@@ -14,7 +14,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-"""Test for CLI"""
+"""Test for Autosync CLI"""
 
 import logging
 from typing import Any, Dict
@@ -34,7 +34,7 @@ def valid_args_dict() -> Dict[str, str]:
         "oscal-model": "profile",
         "committer-name": "test",
         "committer-email": "test@email.com",
-        "working-dir": "tmp",
+        "working-dir": ".",
         "file-patterns": ".",
     }
 
@@ -54,12 +54,13 @@ def test_no_ssp_index(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     args_dict["oscal-model"] = "ssp"
     args_dict["ssp-index-path"] = ""
     with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
-        with pytest.raises(SystemExit):
+        with pytest.raises(SystemExit, match="2"):
             cli_main()
 
     assert any(
         record.levelno == logging.ERROR
-        and record.message == "Must set ssp_index_path when using SSP as oscal model."
+        and "Invalid args --ssp-index-path: Must set ssp index path when using SSP as "
+        "oscal model." in record.message
         for record in caplog.records
     )
 
@@ -69,12 +70,27 @@ def test_no_markdown_path(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     args_dict = valid_args_dict
     args_dict["markdown-path"] = ""
     with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
-        with pytest.raises(SystemExit):
+        with pytest.raises(SystemExit, match="2"):
             cli_main()
 
     assert any(
         record.levelno == logging.ERROR
-        and record.message == "Must set markdown path with oscal model."
+        and "Invalid args --markdown-path: Markdown path must be set." in record.message
+        for record in caplog.records
+    )
+
+
+def test_non_existent_working_dir(valid_args_dict: Dict[str, str], caplog: Any) -> None:
+    """Test with a non-existent working directory"""
+    args_dict = valid_args_dict
+    args_dict["working-dir"] = "tmp"
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit, match="1"):
+            cli_main()
+
+    assert any(
+        record.levelno == logging.ERROR
+        and "Root path tmp does not exist" in record.message
         for record in caplog.records
     )
 
@@ -91,13 +107,14 @@ def test_with_target_branch(valid_args_dict: Dict[str, str], caplog: Any) -> Non
     ) as mock_check, patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
         mock_check.return_value = False
 
-        with pytest.raises(SystemExit):
+        with pytest.raises(SystemExit, match="2"):
             cli_main()
 
     assert any(
         record.levelno == logging.ERROR
-        and record.message == "target-branch flag is set with an unset git provider. "
-        "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
+        and "Invalid args --target-branch: target-branch flag is set with an "
+        "unset git provider. To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
+        in record.message
         for record in caplog.records
     )
 

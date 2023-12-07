@@ -16,9 +16,14 @@
 
 import argparse
 import logging
+import sys
 from typing import List
 
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.entrypoints.entrypoint_base import (
+    EntrypointBase,
+    comma_sep_to_list,
+    handle_exception,
+)
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
@@ -56,28 +61,37 @@ class RulesTransformEntrypoint(EntrypointBase):
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the rule transform entrypoint."""
+        exit_code = 0
+        try:
+            set_log_level_from_args(args)
 
-        set_log_level_from_args(args)
+            # Configure the YAML Transformer for the task
+            validation_handler: ValidationHandler = ValidationHandler(
+                parameter_validation
+            )
+            transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(
+                validation_handler
+            )
 
-        # Configure the YAML Transformer for the task
-        validation_handler: ValidationHandler = ValidationHandler(parameter_validation)
-        transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(validation_handler)
+            # Allow any model to be skipped from the args, by default include all
+            model_filter: ModelFilter = ModelFilter(
+                skip_patterns=comma_sep_to_list(args.skip_items),
+                include_patterns=["*"],
+            )
 
-        # Allow any model to be skipped from the args, by default include all
-        model_filter: ModelFilter = ModelFilter(
-            skip_patterns=comma_sep_to_list(args.skip_items),
-            include_patterns=["*"],
-        )
+            rule_transform_task: RuleTransformTask = RuleTransformTask(
+                working_dir=args.working_dir,
+                rules_view_dir=args.rules_view_path,
+                rule_transformer=transformer,
+                model_filter=model_filter,
+            )
+            pre_tasks: List[TaskBase] = [rule_transform_task]
 
-        rule_transform_task: RuleTransformTask = RuleTransformTask(
-            working_dir=args.working_dir,
-            rules_view_dir=args.rules_view_path,
-            rule_transformer=transformer,
-            model_filter=model_filter,
-        )
-        pre_tasks: List[TaskBase] = [rule_transform_task]
+            super().run_base(args, pre_tasks)
+        except Exception as e:
+            exit_code = handle_exception(e)
 
-        super().run_base(args, pre_tasks)
+        sys.exit(exit_code)
 
 
 def main() -> None:
