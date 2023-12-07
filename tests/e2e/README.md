@@ -56,7 +56,3 @@ To run the end-to-end tests, follow these steps:
   ```
 
 - When created tests that push to a branch, ensure the name is "test". This is because the mock API server is configured to only allow pushes to a branch named "test".
-
-## Future Improvements
-- Create endpoints that mock GitHub and GitLab API calls for pull request creation.
-- Add more end-to-end tests to cover more use cases.
