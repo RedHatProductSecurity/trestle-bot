@@ -135,7 +135,7 @@ def resp_merge_requests() -> Generator[RequestsMock, None, None]:
             url=re.compile(r"http://localhost/api/v4/projects/1/merge_requests"),
             json=mr_content,
             content_type="application/json",
-            status=200,
+            status=201,
         )
         rsps.add(
             method=GET,
