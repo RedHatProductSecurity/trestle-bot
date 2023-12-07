@@ -70,7 +70,7 @@ jobs:
           tags: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
       
       - name: Pre-push Image Scan
-        uses: aquasecurity/trivy-action@0.14.0
+        uses: aquasecurity/trivy-action@0.15.0
         with:
           image-ref: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
           exit-code: 1
