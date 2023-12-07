@@ -16,7 +16,6 @@
 
 """Test for GitLab provider logic"""
 
-import re
 from typing import Callable, Generator, Tuple
 from unittest.mock import patch
 
@@ -132,14 +131,14 @@ def resp_merge_requests() -> Generator[RequestsMock, None, None]:
     with RequestsMock() as rsps:
         rsps.add(
             method=POST,
-            url=re.compile(r"http://localhost/api/v4/projects/1/merge_requests"),
+            url="http://localhost/api/v4/projects/1/merge_requests",
             json=mr_content,
             content_type="application/json",
             status=201,
         )
         rsps.add(
             method=GET,
-            url=re.compile(r"http://localhost/api/v4/projects/owner%2Frepo"),
+            url="http://localhost/api/v4/projects/owner%2Frepo",
             json={"name": "name", "id": 1},
             content_type="application/json",
             status=200,

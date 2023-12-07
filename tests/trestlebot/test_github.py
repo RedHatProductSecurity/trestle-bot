@@ -17,7 +17,6 @@
 """Test for GitHub provider logic"""
 
 import json
-import re
 from typing import Generator, Tuple
 from unittest.mock import patch
 
@@ -88,14 +87,14 @@ def resp_merge_requests() -> Generator[RequestsMock, None, None]:
     with RequestsMock() as rsps:
         rsps.add(
             method=POST,
-            url=re.compile(r"https://api.github.com/repos/owner/repo/pulls"),
+            url="https://api.github.com/repos/owner/repo/pulls",
             json=pr_content,
             content_type="application/json",
             status=201,
         )
         rsps.add(
             method=GET,
-            url=re.compile(r"https://api.github.com/repos/owner/repo"),
+            url="https://api.github.com/repos/owner/repo",
             json=repo_content,
             content_type="application/json",
             status=200,
