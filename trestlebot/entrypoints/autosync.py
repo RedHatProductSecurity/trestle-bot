@@ -32,6 +32,7 @@ from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
+from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
@@ -124,7 +125,7 @@ class AutoSyncEntrypoint(EntrypointBase):
             include_patterns=["*"],
         )
 
-        authored_object = types.get_authored_object(
+        authored_object: AuthoredObjectBase = types.get_authored_object(
             args.oscal_model, args.working_dir, args.ssp_index_path
         )
 
