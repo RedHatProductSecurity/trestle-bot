@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/returntocorp/semgrep
-    rev: v1.42.0
+    rev: v1.51.0
     hooks:
       - id: semgrep
         name: Semgrep Python
@@ -11,3 +11,11 @@ repos:
         types: [python]
         exclude: "^tests/.+$"
         args: ["--config", "p/bandit", "--error", --metrics=off]
+  - repo: local
+    hooks:
+      - id: lint
+        language: script
+        name: Check formatting and lint
+        entry: make lint
+        stages: [commit]
+        types: [python]
