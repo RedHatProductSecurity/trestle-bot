@@ -23,8 +23,8 @@ import pytest
 from tests import testutils
 from trestlebot.tasks.authored import types
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
@@ -41,7 +41,7 @@ markdown_dir = "md_ssp"
 def test_get_authored_catalog(tmp_trestle_dir: str) -> None:
     """Test get authored type for catalogs"""
 
-    authored_object: AuthorObjectBase = types.get_authored_object(
+    authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.CATALOG.value, tmp_trestle_dir, ""
     )
 
@@ -52,7 +52,7 @@ def test_get_authored_catalog(tmp_trestle_dir: str) -> None:
 def test_get_authored_profile(tmp_trestle_dir: str) -> None:
     """Test get authored type for catalogs"""
 
-    authored_object: AuthorObjectBase = types.get_authored_object(
+    authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.PROFILE.value, tmp_trestle_dir, ""
     )
 
@@ -64,7 +64,7 @@ def test_get_authored_compdef(tmp_trestle_dir: str) -> None:
     """Test get authored type for catalogs"""
 
     # Test with profile
-    authored_object: AuthorObjectBase = types.get_authored_object(
+    authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.COMPDEF.value, tmp_trestle_dir, ""
     )
 
@@ -83,7 +83,7 @@ def test_get_authored_ssp(tmp_trestle_dir: str) -> None:
         _ = types.get_authored_object(types.AuthoredType.SSP.value, tmp_trestle_dir, "")
 
     # Test with profile
-    authored_object: AuthorObjectBase = types.get_authored_object(
+    authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.SSP.value, tmp_trestle_dir, ssp_index_path
     )
 

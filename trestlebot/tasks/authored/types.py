@@ -21,8 +21,8 @@ from enum import Enum
 from trestle.common import const
 
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
@@ -41,7 +41,7 @@ class AuthoredType(Enum):
 
 def get_authored_object(
     input_type: str, working_dir: str, ssp_index_path: str = ""
-) -> AuthorObjectBase:
+) -> AuthoredObjectBase:
     """Determine and configure author object context"""
     if input_type == AuthoredType.CATALOG.value:
         return AuthoredCatalog(working_dir)
@@ -56,15 +56,15 @@ def get_authored_object(
         raise AuthoredObjectException(f"Invalid authored type {input_type}")
 
 
-def get_trestle_model_dir(input_type: str) -> str:
+def get_trestle_model_dir(authored_object: AuthoredObjectBase) -> str:
     """Determine directory for JSON content in trestle"""
-    if input_type == AuthoredType.CATALOG.value:
+    if isinstance(authored_object, AuthoredCatalog):
         return const.MODEL_DIR_CATALOG
-    elif input_type == AuthoredType.PROFILE.value:
+    elif isinstance(authored_object, AuthoredProfile):
         return const.MODEL_DIR_PROFILE
-    elif input_type == AuthoredType.COMPDEF.value:
+    elif isinstance(authored_object, AuthoredComponentDefinition):
         return const.MODEL_DIR_COMPDEF
-    elif input_type == AuthoredType.SSP.value:
+    elif isinstance(authored_object, AuthoredSSP):
         return const.MODEL_DIR_SSP
     else:
-        raise AuthoredObjectException(f"Invalid authored type {input_type}")
+        raise AuthoredObjectException(f"Invalid authored object {authored_object}")

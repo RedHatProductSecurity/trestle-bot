@@ -26,7 +26,6 @@ import trestlebot.const as const
 from tests.testutils import setup_for_profile
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
-from trestlebot.tasks.authored.types import AuthoredType
 from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
@@ -82,9 +81,7 @@ def test_rules_transform_workflow(tmp_trestle_dir: str) -> None:
     last_modified = compdef.metadata.last_modified
 
     # Run regenerate
-    regenerate = RegenerateTask(
-        tmp_trestle_dir, AuthoredType.COMPDEF.value, test_md_path
-    )
+    regenerate = RegenerateTask(authored_compdef, test_md_path)
     regenerate.execute()
 
     assert os.path.exists(
@@ -92,7 +89,7 @@ def test_rules_transform_workflow(tmp_trestle_dir: str) -> None:
     )
 
     # Run assemble
-    assemble = AssembleTask(tmp_trestle_dir, AuthoredType.COMPDEF.value, test_md_path)
+    assemble = AssembleTask(authored_compdef, test_md_path)
     assemble.execute()
 
     # Load the component definition

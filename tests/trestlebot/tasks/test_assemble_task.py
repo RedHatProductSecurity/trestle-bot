@@ -34,8 +34,11 @@ from trestle.oscal import profile as oscal_prof
 
 from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
-from trestlebot.tasks.authored.base_authored import AuthorObjectBase
-from trestlebot.tasks.authored.types import AuthoredType
+from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
+from trestlebot.tasks.authored.catalog import AuthoredCatalog
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.authored.profile import AuthoredProfile
+from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 from trestlebot.tasks.base_task import ModelFilter
 
 
@@ -58,23 +61,20 @@ def test_assemble_task_isolated(tmp_trestle_dir: str) -> None:
     cat_generate = CatalogGenerate()
     assert cat_generate._run(args) == 0
 
-    mock = Mock(spec=AuthorObjectBase)
-
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.CATALOG.value,
-        cat_md_dir,
-        "",
-    )
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    assemble_task = AssembleTask(mock, cat_md_dir, "1.0.0")
 
     with patch(
-        "trestlebot.tasks.authored.types.get_authored_object"
-    ) as mock_get_authored_object:
-        mock_get_authored_object.return_value = mock
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        mock_get_trestle_model_dir.return_value = "catalogs"
 
         assert assemble_task.execute() == 0
 
-        mock.assemble.assert_called_once_with(markdown_path=md_path)
+        mock.assemble.assert_called_once_with(
+            markdown_path=md_path, version_tag="1.0.0"
+        )
 
 
 @pytest.mark.parametrize(
@@ -94,21 +94,16 @@ def test_assemble_task_with_skip(tmp_trestle_dir: str, skip_list: List[str]) -> 
     cat_generate = CatalogGenerate()
     assert cat_generate._run(args) == 0
 
-    mock = Mock(spec=AuthorObjectBase)
-
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
     model_filter = ModelFilter(skip_list, ["*"])
 
-    assemble_task = AssembleTask(
-        working_dir=tmp_trestle_dir,
-        authored_model=AuthoredType.CATALOG.value,
-        markdown_dir=cat_md_dir,
-        model_filter=model_filter,
-    )
+    assemble_task = AssembleTask(mock, cat_md_dir, cat_md_dir, model_filter)
 
     with patch(
-        "trestlebot.tasks.authored.types.get_authored_object"
-    ) as mock_get_authored_object:
-        mock_get_authored_object.return_value = mock
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        mock_get_trestle_model_dir.return_value = "catalogs"
 
         assert assemble_task.execute() == 0
         mock.assemble.assert_not_called()
@@ -128,12 +123,9 @@ def test_catalog_assemble_task(tmp_trestle_dir: str) -> None:
     )
     orig_time = cat.metadata.last_modified
 
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.CATALOG.value,
-        cat_md_dir,
-        "",
-    )
+    catalog = AuthoredCatalog(tmp_trestle_dir)
+    assemble_task = AssembleTask(catalog, cat_md_dir)
+
     assert assemble_task.execute() == 0
 
     # Get new last modified time and verify catalog was modified
@@ -157,12 +149,9 @@ def test_profile_assemble_task(tmp_trestle_dir: str) -> None:
     )
     orig_time = prof.metadata.last_modified
 
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.PROFILE.value,
-        prof_md_dir,
-        "",
-    )
+    profile = AuthoredProfile(tmp_trestle_dir)
+    assemble_task = AssembleTask(profile, prof_md_dir)
+
     assert assemble_task.execute() == 0
 
     # Get new last modified time adn verify profile was modified
@@ -191,12 +180,9 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
     )
     orig_time = comp.metadata.last_modified
 
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.COMPDEF.value,
-        compdef_md_dir,
-        "",
-    )
+    compdef = AuthoredComponentDefinition(tmp_trestle_dir)
+    assemble_task = AssembleTask(compdef, compdef_md_dir)
+
     assert assemble_task.execute() == 0
 
     # Get new last modified time and verify component was modified
@@ -217,32 +203,13 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
     ssp_generate = SSPGenerate()
     assert ssp_generate._run(args) == 0
 
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.SSP.value,
-        ssp_md_dir,
-        ssp_index_path,
-    )
+    ssp_index = SSPIndex(ssp_index_path)
+
+    ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+    assemble_task = AssembleTask(ssp, ssp_md_dir)
+
     assert assemble_task.execute() == 0
 
     assert os.path.exists(
         os.path.join(tmp_trestle_dir, "system-security-plans", test_ssp_output)
     )
-
-
-def test_ssp_assemble_task_no_index_path(tmp_trestle_dir: str) -> None:
-    """Test ssp assemble at the task level with failure"""
-    trestle_root = pathlib.Path(tmp_trestle_dir)
-    md_path = os.path.join(ssp_md_dir, test_ssp_output)
-    args = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
-    ssp_generate = SSPGenerate()
-    assert ssp_generate._run(args) == 0
-
-    assemble_task = AssembleTask(
-        tmp_trestle_dir,
-        AuthoredType.SSP.value,
-        ssp_md_dir,
-        "",
-    )
-    with pytest.raises(FileNotFoundError):
-        assemble_task.execute()

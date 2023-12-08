@@ -23,12 +23,12 @@ from trestle.common.err import TrestleError
 from trestle.core.repository import AgileAuthoring
 
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 
 
-class AuthoredCatalog(AuthorObjectBase):
+class AuthoredCatalog(AuthoredObjectBase):
     """
     Class for authoring OSCAL catalogs in automation
     """

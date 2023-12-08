@@ -30,8 +30,8 @@ from trestle.core.repository import AgileAuthoring
 
 from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
     AuthoredObjectException,
-    AuthorObjectBase,
 )
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
@@ -66,7 +66,7 @@ class FilterByProfile:
         return control_id in self._control_ids
 
 
-class AuthoredComponentDefinition(AuthorObjectBase):
+class AuthoredComponentDefinition(AuthoredObjectBase):
     """
     Class for authoring OSCAL Component Definitions in automation
     """
