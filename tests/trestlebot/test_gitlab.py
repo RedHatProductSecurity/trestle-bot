@@ -16,12 +16,13 @@
 
 """Test for GitLab provider logic"""
 
-from typing import Callable, Tuple
+from typing import Callable, Generator, Tuple
 from unittest.mock import patch
 
 import pytest
 from git.repo import Repo
 from gitlab.exceptions import GitlabAuthenticationError, GitlabCreateError
+from responses import GET, POST, RequestsMock
 
 from tests.testutils import clean
 from trestlebot.gitlab import GitLab
@@ -109,6 +110,49 @@ def test_parse_repository_with_incorrect_name() -> None:
         match="https://notgitlab.com/owner/repo.git is an invalid repo URL",
     ):
         gl.parse_repository("https://notgitlab.com/owner/repo.git")
+
+
+mr_content = {
+    "id": 123,
+    "title": "Example Merge Request",
+    "description": "This is an example merge request description.",
+    "state": "opened",
+    "created_at": "2023-12-06T08:30:00Z",
+    "updated_at": "2023-12-06T09:15:00Z",
+    "source_branch": "feature-branch",
+    "target_branch": "main",
+    "author": {"id": 789, "name": "Jane Doe", "username": "janedoe"},
+    "merge_status": "can_be_merged",
+}
+
+
+@pytest.fixture
+def resp_merge_requests() -> Generator[RequestsMock, None, None]:
+    with RequestsMock() as rsps:
+        rsps.add(
+            method=POST,
+            url="http://localhost/api/v4/projects/1/merge_requests",
+            json=mr_content,
+            content_type="application/json",
+            status=201,
+        )
+        rsps.add(
+            method=GET,
+            url="http://localhost/api/v4/projects/owner%2Frepo",
+            json={"name": "name", "id": 1},
+            content_type="application/json",
+            status=200,
+        )
+        yield rsps
+
+
+def test_create_pull_request(resp_merge_requests: RequestsMock) -> None:
+    """Test creating a pull request"""
+    gl = GitLab("fake", "http://localhost")
+    pr_number = gl.create_pull_request(
+        "owner", "repo", "main", "test", "My PR", "Has Changes"
+    )
+    assert pr_number == 123
 
 
 def create_side_effect(name: str) -> None:

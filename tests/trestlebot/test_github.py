@@ -16,13 +16,15 @@
 
 """Test for GitHub provider logic"""
 
-from typing import Tuple
+import json
+from typing import Generator, Tuple
 from unittest.mock import patch
 
 import pytest
 from git.repo import Repo
+from responses import GET, POST, RequestsMock
 
-from tests.testutils import clean
+from tests.testutils import JSON_TEST_DATA_PATH, clean
 from trestlebot.github import GitHub
 from trestlebot.provider import GitProviderException
 
@@ -71,6 +73,42 @@ def test_parse_repository_with_incorrect_name() -> None:
         match="https://notgithub.com/owner/repo.git is an invalid GitHub repo URL",
     ):
         gh.parse_repository("https://notgithub.com/owner/repo.git")
+
+
+@pytest.fixture
+def resp_merge_requests() -> Generator[RequestsMock, None, None]:
+    """Mock the GitHub API for pull request creation"""
+    repo_content = json.load(
+        open(JSON_TEST_DATA_PATH / "github_example_repo_response.json")
+    )
+    pr_content = json.load(
+        open(JSON_TEST_DATA_PATH / "github_example_pull_response.json")
+    )
+    with RequestsMock() as rsps:
+        rsps.add(
+            method=POST,
+            url="https://api.github.com/repos/owner/repo/pulls",
+            json=pr_content,
+            content_type="application/json",
+            status=201,
+        )
+        rsps.add(
+            method=GET,
+            url="https://api.github.com/repos/owner/repo",
+            json=repo_content,
+            content_type="application/json",
+            status=200,
+        )
+        yield rsps
+
+
+def test_create_pull_request(resp_merge_requests: RequestsMock) -> None:
+    """Test creating a pull request"""
+    gh = GitHub("fake")
+    pr_number = gh.create_pull_request(
+        "owner", "repo", "main", "test", "My PR", "Has Changes"
+    )
+    assert pr_number == 123
 
 
 def test_create_pull_request_invalid_repo() -> None:
