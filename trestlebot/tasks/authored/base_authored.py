@@ -16,6 +16,7 @@
 
 """Trestle Bot base authored object"""
 
+import os
 from abc import ABC, abstractmethod
 
 
@@ -30,6 +31,8 @@ class AuthoredObjectBase(ABC):
 
     def __init__(self, trestle_root: str) -> None:
         """Initialize task base and store trestle root path"""
+        if not os.path.exists(trestle_root):
+            raise AuthoredObjectException(f"Root path {trestle_root} does not exist")
         self._trestle_root = trestle_root
 
     def get_trestle_root(self) -> str:
