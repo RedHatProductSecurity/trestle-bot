@@ -24,10 +24,11 @@ definition in JSON format with the initially generated rules and initial trestle
 import argparse
 import logging
 import pathlib
+import sys
 from typing import List, Optional
 
-from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase
+from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, SUCCESS_EXIT_CODE
+from trestlebot.entrypoints.entrypoint_base import EntrypointBase, handle_exception
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
@@ -91,49 +92,58 @@ class CreateCDEntrypoint(EntrypointBase):
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
+        exit_code: int = SUCCESS_EXIT_CODE
+        try:
+            set_log_level_from_args(args)
+            pre_tasks: List[TaskBase] = []
+            filter_by_profile: Optional[FilterByProfile] = None
+            trestle_root: pathlib.Path = pathlib.Path(args.working_dir)
 
-        set_log_level_from_args(args)
-        pre_tasks: List[TaskBase] = []
-        filter_by_profile: Optional[FilterByProfile] = None
-        trestle_root: pathlib.Path = pathlib.Path(args.working_dir)
+            if args.filter_by_profile:
+                filter_by_profile = FilterByProfile(
+                    trestle_root, args.filter_by_profile
+                )
 
-        if args.filter_by_profile:
-            filter_by_profile = FilterByProfile(trestle_root, args.filter_by_profile)
+            authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
+                args.working_dir
+            )
+            authored_comp.create_new_default(
+                args.profile_name,
+                args.compdef_name,
+                args.component_title,
+                args.component_description,
+                args.component_definition_type,
+                filter_by_profile,
+            )
 
-        authored_comp = AuthoredComponentDefinition(args.working_dir)
-        authored_comp.create_new_default(
-            args.profile_name,
-            args.compdef_name,
-            args.component_title,
-            args.component_description,
-            args.component_definition_type,
-            filter_by_profile,
-        )
+            transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
 
-        transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
+            # In this case we only want to do the transformation and generation for this component
+            # definition, so we skip all other component definitions and components.
+            model_filter: ModelFilter = ModelFilter(
+                [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
+            )
 
-        # In this case we only want to do the transformation and generation for this component
-        # definition, so we skip all other component definitions and components.
-        model_filter: ModelFilter = ModelFilter(
-            [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
-        )
+            rule_transform_task: RuleTransformTask = RuleTransformTask(
+                working_dir=args.working_dir,
+                rules_view_dir=RULES_VIEW_DIR,
+                rule_transformer=transformer,
+                model_filter=model_filter,
+            )
+            pre_tasks.append(rule_transform_task)
 
-        rule_transform_task: RuleTransformTask = RuleTransformTask(
-            working_dir=args.working_dir,
-            rules_view_dir=RULES_VIEW_DIR,
-            rule_transformer=transformer,
-            model_filter=model_filter,
-        )
-        pre_tasks.append(rule_transform_task)
+            regenerate_task: RegenerateTask = RegenerateTask(
+                authored_object=authored_comp,
+                markdown_dir=args.markdown_path,
+                model_filter=model_filter,
+            )
+            pre_tasks.append(regenerate_task)
 
-        regenerate_task = RegenerateTask(
-            authored_object=authored_comp,
-            markdown_dir=args.markdown_path,
-            model_filter=model_filter,
-        )
-        pre_tasks.append(regenerate_task)
+            super().run_base(args, pre_tasks)
+        except Exception as e:
+            exit_code = handle_exception(e)
 
-        super().run_base(args, pre_tasks)
+        sys.exit(exit_code)
 
 
 def main() -> None:

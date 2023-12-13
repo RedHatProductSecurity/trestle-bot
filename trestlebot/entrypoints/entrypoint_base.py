@@ -139,13 +139,15 @@ class EntrypointBase:
         )
 
     @staticmethod
-    def run_base(args: argparse.Namespace, pre_tasks: List[TaskBase]) -> None:
-        """Reusable logic for all entrypoints."""
+    def set_git_provider(args: argparse.Namespace) -> Optional[GitProvider]:
+        """Get the git provider based on the environment and args."""
         git_provider: Optional[GitProvider] = None
         if args.target_branch:
             if not args.with_token:
-                logger.error("with-token value cannot be empty")
-                sys.exit(const.ERROR_EXIT_CODE)
+                raise EntrypointInvalidArgException(
+                    "--with-token",
+                    "with-token flag must be set when using target-branch",
+                )
 
             if is_github_actions():
                 git_provider = GitHub(access_token=args.with_token.read().strip())
@@ -155,49 +157,46 @@ class EntrypointBase:
                     api_token=args.with_token.read().strip(), server_url=server_api_url
                 )
             else:
-                logger.error(
+                raise EntrypointInvalidArgException(
+                    "--target-branch",
                     (
                         "target-branch flag is set with an unset git provider. "
                         "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
-                    )
+                    ),
                 )
-                sys.exit(const.ERROR_EXIT_CODE)
+        return git_provider
 
-        exit_code: int = const.SUCCESS_EXIT_CODE
+    def run_base(self, args: argparse.Namespace, pre_tasks: List[TaskBase]) -> None:
+        """Reusable logic for all entrypoints."""
 
-        # Assume it is a successful run, if the bot
-        # throws an exception update the exit code accordingly
-        try:
-            bot = TrestleBot(
-                working_dir=args.working_dir,
-                branch=args.branch,
-                commit_name=args.committer_name,
-                commit_email=args.committer_email,
-                author_name=args.author_name,
-                author_email=args.author_email,
-                target_branch=args.target_branch,
-            )
-            commit_sha, pr_number = bot.run(
-                commit_message=args.commit_message,
-                pre_tasks=pre_tasks,
-                patterns=comma_sep_to_list(args.file_patterns),
-                git_provider=git_provider,
-                pull_request_title=args.pull_request_title,
-                check_only=args.check_only,
-            )
+        git_provider: Optional[GitProvider] = self.set_git_provider(args)
 
-            # Print the full commit sha
-            if commit_sha:
-                print(f"Commit Hash: {commit_sha}")  # noqa: T201
+        # Configure and run the bot
+        bot = TrestleBot(
+            working_dir=args.working_dir,
+            branch=args.branch,
+            commit_name=args.committer_name,
+            commit_email=args.committer_email,
+            author_name=args.author_name,
+            author_email=args.author_email,
+            target_branch=args.target_branch,
+        )
+        commit_sha, pr_number = bot.run(
+            commit_message=args.commit_message,
+            pre_tasks=pre_tasks,
+            patterns=comma_sep_to_list(args.file_patterns),
+            git_provider=git_provider,
+            pull_request_title=args.pull_request_title,
+            check_only=args.check_only,
+        )
 
-            # Print the pr number
-            if pr_number:
-                print(f"Pull Request Number: {pr_number}")  # noqa: T201
+        # Print the full commit sha
+        if commit_sha:
+            print(f"Commit Hash: {commit_sha}")  # noqa: T201
 
-        except Exception as e:
-            exit_code = handle_exception(e)
-
-        sys.exit(exit_code)
+        # Print the pr number
+        if pr_number:
+            print(f"Pull Request Number: {pr_number}")  # noqa: T201
 
 
 def comma_sep_to_list(string: str) -> List[str]:
@@ -206,10 +205,20 @@ def comma_sep_to_list(string: str) -> List[str]:
     return list(map(str.strip, string.split(","))) if string else []
 
 
+class EntrypointInvalidArgException(Exception):
+    """Custom exception for handling invalid arguments."""
+
+    def __init__(self, arg: str, msg: str):
+        super().__init__(f"Invalid args {arg}: {msg}")
+
+
 def handle_exception(
     exception: Exception, msg: str = "Exception occurred during execution"
 ) -> int:
     """Log the exception and return the exit code"""
     logger.error(msg + f": {exception}", exc_info=True)
+
+    if isinstance(exception, EntrypointInvalidArgException):
+        return const.INVALID_ARGS_EXIT_CODE
 
     return const.ERROR_EXIT_CODE

@@ -27,8 +27,13 @@ import logging
 import sys
 from typing import List
 
-from trestlebot import const
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase, comma_sep_to_list
+from trestlebot.const import SUCCESS_EXIT_CODE
+from trestlebot.entrypoints.entrypoint_base import (
+    EntrypointBase,
+    EntrypointInvalidArgException,
+    comma_sep_to_list,
+    handle_exception,
+)
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
@@ -95,63 +100,71 @@ class AutoSyncEntrypoint(EntrypointBase):
         """Validate the arguments for the autosync entrypoint."""
         authored_list: List[str] = [model.value for model in types.AuthoredType]
         if args.oscal_model not in authored_list:
-            logger.error(
-                f"Invalid value {args.oscal_model} for oscal model. "
-                f"Please use one of {authored_list}"
+            raise EntrypointInvalidArgException(
+                "--oscal-model",
+                f"Value {args.oscal_model} is not valid."
+                f"Please use one of {authored_list}",
             )
-            sys.exit(const.ERROR_EXIT_CODE)
 
         if not args.markdown_path:
-            logger.error("Must set markdown path with oscal model.")
-            sys.exit(const.ERROR_EXIT_CODE)
+            raise EntrypointInvalidArgException(
+                "--markdown-path", "Markdown path must be set."
+            )
 
         if (
             args.oscal_model == types.AuthoredType.SSP.value
             and args.ssp_index_path == ""
         ):
-            logger.error("Must set ssp_index_path when using SSP as oscal model.")
-            sys.exit(const.ERROR_EXIT_CODE)
+            raise EntrypointInvalidArgException(
+                "--ssp-index-path",
+                "Must set ssp index path when using SSP as oscal model.",
+            )
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the autosync entrypoint."""
+        exit_code: int = SUCCESS_EXIT_CODE
+        try:
+            set_log_level_from_args(args)
+            self.validate_args(args)
 
-        set_log_level_from_args(args)
-        self.validate_args(args)
-
-        pre_tasks: List[TaskBase] = []
-        # Allow any model to be skipped from the args, by default include all
-        model_filter: ModelFilter = ModelFilter(
-            skip_patterns=comma_sep_to_list(args.skip_items),
-            include_patterns=["*"],
-        )
-
-        authored_object: AuthoredObjectBase = types.get_authored_object(
-            args.oscal_model, args.working_dir, args.ssp_index_path
-        )
-
-        # Assuming an edit has occurred assemble would be run before regenerate.
-        # Adding this to the list first
-        if not args.skip_assemble:
-            assemble_task = AssembleTask(
-                authored_object=authored_object,
-                markdown_dir=args.markdown_path,
-                model_filter=model_filter,
+            pre_tasks: List[TaskBase] = []
+            # Allow any model to be skipped from the args, by default include all
+            model_filter: ModelFilter = ModelFilter(
+                skip_patterns=comma_sep_to_list(args.skip_items),
+                include_patterns=["*"],
             )
-            pre_tasks.append(assemble_task)
-        else:
-            logger.info("Assemble task skipped.")
 
-        if not args.skip_regenerate:
-            regenerate_task = RegenerateTask(
-                authored_object=authored_object,
-                markdown_dir=args.markdown_path,
-                model_filter=model_filter,
+            authored_object: AuthoredObjectBase = types.get_authored_object(
+                args.oscal_model, args.working_dir, args.ssp_index_path
             )
-            pre_tasks.append(regenerate_task)
-        else:
-            logger.info("Regeneration task skipped.")
 
-        super().run_base(args, pre_tasks)
+            # Assuming an edit has occurred assemble would be run before regenerate.
+            # Adding this to the list first
+            if not args.skip_assemble:
+                assemble_task: AssembleTask = AssembleTask(
+                    authored_object=authored_object,
+                    markdown_dir=args.markdown_path,
+                    model_filter=model_filter,
+                )
+                pre_tasks.append(assemble_task)
+            else:
+                logger.info("Assemble task skipped.")
+
+            if not args.skip_regenerate:
+                regenerate_task: RegenerateTask = RegenerateTask(
+                    authored_object=authored_object,
+                    markdown_dir=args.markdown_path,
+                    model_filter=model_filter,
+                )
+                pre_tasks.append(regenerate_task)
+            else:
+                logger.info("Regeneration task skipped.")
+
+            super().run_base(args, pre_tasks)
+        except Exception as e:
+            exit_code = handle_exception(e)
+
+        sys.exit(exit_code)
 
 
 def main() -> None:
