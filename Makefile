@@ -14,7 +14,7 @@ pre-commit:
 	@poetry run pre-commit install
 
 lint:
-	@poetry lock --check
+	@poetry check --lock
 	@poetry run isort --profile=black --lines-after-imports=2 \
 	--check-only $(TESTS) $(PYMODULE)
 	@poetry run black --check $(TESTS) $(PYMODULE) --diff
