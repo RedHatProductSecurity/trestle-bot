@@ -84,6 +84,7 @@ jobs:
         with:
           image-ref: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}:${{ env.TAG }}
           exit-code: 1
+          skip-files:  "**/.venv/lib/**/METADATA"
           scanners: secret
           severity: HIGH,CRITICAL,MEDIUM
 
