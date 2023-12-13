@@ -34,12 +34,15 @@ from trestle.oscal import profile as oscal_prof
 
 from tests import testutils
 from trestlebot.tasks.assemble_task import AssembleTask
-from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
+from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
+    AuthoredObjectException,
+)
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
-from trestlebot.tasks.base_task import ModelFilter
+from trestlebot.tasks.base_task import ModelFilter, TaskException
 
 
 test_prof = "simplified_nist_profile"
@@ -75,6 +78,39 @@ def test_assemble_task_isolated(tmp_trestle_dir: str) -> None:
         mock.assemble.assert_called_once_with(
             markdown_path=md_path, version_tag="1.0.0"
         )
+
+
+def test_assemble_task_with_authored_object_failure(tmp_trestle_dir: str) -> None:
+    """Test the assemble task with failing AuthoredObject implementation"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    args = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+    cat_generate = CatalogGenerate()
+    assert cat_generate._run(args) == 0
+
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    mock.assemble.side_effect = AuthoredObjectException("Test exception")
+    assemble_task = AssembleTask(mock, cat_md_dir, "1.0.0")
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        with pytest.raises(TaskException, match="Test exception"):
+            mock_get_trestle_model_dir.return_value = "catalogs"
+            assemble_task.execute()
+
+
+def test_assemble_task_with_non_existent_markdown(tmp_trestle_dir: str) -> None:
+    """Test the assemble task with failing AuthoredObject implementation"""
+
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    mock.assemble.side_effect = AuthoredObjectException("Test exception")
+    assemble_task = AssembleTask(mock, cat_md_dir, "1.0.0")
+
+    with pytest.raises(TaskException, match="Markdown directory .* does not exist"):
+        assemble_task.execute()
 
 
 @pytest.mark.parametrize(
@@ -192,10 +228,20 @@ def test_compdef_assemble_task(tmp_trestle_dir: str) -> None:
     assert orig_time != comp.metadata.last_modified
 
 
-def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
-    """Test ssp assemble at the task level"""
+@pytest.mark.parametrize(
+    "write_ssp_index",
+    [
+        True,
+        False,
+    ],
+)
+def test_ssp_assemble_task(tmp_trestle_dir: str, write_ssp_index: bool) -> None:
+    """Test ssp assemble at the task level with and without an index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    if write_ssp_index:
+        testutils.write_index_json(
+            ssp_index_path, test_ssp_output, test_prof, [test_comp]
+        )
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
@@ -208,8 +254,13 @@ def test_ssp_assemble_task(tmp_trestle_dir: str) -> None:
     ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
     assemble_task = AssembleTask(ssp, ssp_md_dir)
 
-    assert assemble_task.execute() == 0
-
-    assert os.path.exists(
-        os.path.join(tmp_trestle_dir, "system-security-plans", test_ssp_output)
-    )
+    if write_ssp_index:
+        assert assemble_task.execute() == 0
+        assert os.path.exists(
+            os.path.join(tmp_trestle_dir, "system-security-plans", test_ssp_output)
+        )
+    else:
+        with pytest.raises(
+            TaskException, match=".*: SSP my-ssp does not exists in the index"
+        ):
+            assemble_task.execute()

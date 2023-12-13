@@ -26,12 +26,15 @@ import pytest
 from trestle.core.commands.author.ssp import SSPAssemble, SSPGenerate
 
 from tests import testutils
-from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
+from trestlebot.tasks.authored.base_authored import (
+    AuthoredObjectBase,
+    AuthoredObjectException,
+)
 from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
-from trestlebot.tasks.base_task import ModelFilter
+from trestlebot.tasks.base_task import ModelFilter, TaskException
 from trestlebot.tasks.regenerate_task import RegenerateTask
 
 
@@ -66,6 +69,25 @@ def test_regenerate_task_isolated(tmp_trestle_dir: str) -> None:
         mock.regenerate.assert_called_once_with(
             model_path=f"catalogs/{test_cat}", markdown_path=cat_md_dir
         )
+
+
+def test_regenerate_task_with_authored_object_failure(tmp_trestle_dir: str) -> None:
+    """Test the regenerate task isolated with failing AuthoredObject implementation"""
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    md_path = os.path.join(cat_md_dir, test_cat)
+    _ = testutils.setup_for_catalog(trestle_root, test_cat, md_path)
+
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    mock.regenerate.side_effect = AuthoredObjectException("Test exception")
+    regenerate_task = RegenerateTask(mock, cat_md_dir)
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        with pytest.raises(TaskException, match="Test exception"):
+            mock_get_trestle_model_dir.return_value = "catalogs"
+            regenerate_task.execute()
 
 
 @pytest.mark.parametrize(
@@ -142,10 +164,20 @@ def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
     assert os.path.exists(os.path.join(tmp_trestle_dir, md_path, test_comp))
 
 
-def test_ssp_regenerate_task(tmp_trestle_dir: str) -> None:
-    """Test ssp regenerate at the task level"""
+@pytest.mark.parametrize(
+    "write_ssp_index",
+    [
+        True,
+        False,
+    ],
+)
+def test_ssp_regenerate_task(tmp_trestle_dir: str, write_ssp_index: bool) -> None:
+    """Test ssp regenerate at the task level with and without an index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    if write_ssp_index:
+        testutils.write_index_json(
+            ssp_index_path, test_ssp_output, test_prof, [test_comp]
+        )
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
@@ -173,5 +205,11 @@ def test_ssp_regenerate_task(tmp_trestle_dir: str) -> None:
     ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
     regenerate_task = RegenerateTask(ssp, ssp_md_dir)
 
-    assert regenerate_task.execute() == 0
-    assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
+    if write_ssp_index:
+        assert regenerate_task.execute() == 0
+        assert os.path.exists(os.path.join(tmp_trestle_dir, md_path))
+    else:
+        with pytest.raises(
+            TaskException, match="SSP my-ssp does not exists in the index"
+        ):
+            regenerate_task.execute()

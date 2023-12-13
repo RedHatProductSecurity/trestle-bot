@@ -68,6 +68,9 @@ class AssembleTask(TaskBase):
           0 on success, raises an exception if not successful
         """
         search_path = os.path.join(self.working_dir, self._markdown_dir)
+        if not os.path.exists(search_path):
+            raise TaskException(f"Markdown directory {search_path} does not exist")
+
         for model in self.iterate_models(pathlib.Path(search_path)):
             # Construct model path from markdown path. AuthoredObject already has
             # the working dir data as part of object construction.
