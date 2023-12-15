@@ -91,3 +91,14 @@ def test_set_git_provider_with_none() -> None:
     args = argparse.Namespace(target_branch=None, with_token=None)
     provider = EntrypointBase.set_git_provider(args=args)
     assert provider is None
+
+
+def test_set_provider_with_no_token() -> None:
+    """Test set_git_provider function with no token"""
+    args = argparse.Namespace(target_branch="main", with_token=None)
+    with pytest.raises(
+        EntrypointInvalidArgException,
+        match="Invalid args --with-token: "
+        "with-token flag must be set when using target-branch",
+    ):
+        EntrypointBase.set_git_provider(args=args)
