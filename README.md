@@ -1,5 +1,12 @@
 # trestle-bot
 
+![[Pre-commit](https://github.com/pre-commit/pre-commit)](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
+![[License](http://www.apache.org/licenses/LICENSE-2.0.html)](https://img.shields.io/badge/license-apache-blue.svg)
+![[Code Coverage](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot)](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=coverage)
+![[Quality gate](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot)](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=alert_status)
+
+
+
 trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
