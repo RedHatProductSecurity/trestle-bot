@@ -67,3 +67,12 @@ jobs:
 
       - name: Run tests
         run: make test
+
+  # Image is for testing and not pushing to a registry
+  e2e-test:
+    permissions:
+      contents: read
+    uses: ./.github/workflows/e2e.yml
+    with:
+      image: localhost/trestle-bot:${{ github.sha }}
+      build: true
