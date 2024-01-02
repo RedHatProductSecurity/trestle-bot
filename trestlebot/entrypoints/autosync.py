@@ -52,6 +52,7 @@ class AutoSyncEntrypoint(EntrypointBase):
         """Initialize."""
         # Setup base arguments
         super().__init__(parser)
+        self.supported_models: List[str] = [model.value for model in types.AuthoredType]
         self.setup_autosync_arguments()
 
     def setup_autosync_arguments(self) -> None:
@@ -66,7 +67,7 @@ class AutoSyncEntrypoint(EntrypointBase):
             "--oscal-model",
             required=True,
             type=str,
-            choices=["catalog", "profile", "compdef", "ssp"],
+            choices=self.supported_models,
             help="OSCAL model type to run tasks on.",
         )
         self.parser.add_argument(
@@ -98,12 +99,12 @@ class AutoSyncEntrypoint(EntrypointBase):
 
     def validate_args(self, args: argparse.Namespace) -> None:
         """Validate the arguments for the autosync entrypoint."""
-        authored_list: List[str] = [model.value for model in types.AuthoredType]
-        if args.oscal_model not in authored_list:
+        supported_models_str = ", ".join(self.supported_models)
+        if args.oscal_model not in self.supported_models:
             raise EntrypointInvalidArgException(
                 "--oscal-model",
-                f"Value {args.oscal_model} is not valid."
-                f"Please use one of {authored_list}",
+                f"Invalid value {args.oscal_model}. "
+                f"Please use one of {supported_models_str}",
             )
 
         if not args.markdown_path:

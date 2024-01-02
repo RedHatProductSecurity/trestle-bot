@@ -17,6 +17,7 @@
 """Test author types for Trestlebot"""
 
 import os
+from unittest.mock import Mock
 
 import pytest
 
@@ -98,3 +99,13 @@ def test_invalid_authored_type(tmp_trestle_dir: str) -> None:
         match="Invalid authored type fake",
     ):
         _ = types.get_authored_object("fake", tmp_trestle_dir, "")
+
+
+def test_get_model_dir_with_invalid_type() -> None:
+    """Test triggering an error with an invalid type when getting the model dir."""
+    with pytest.raises(
+        AuthoredObjectException,
+        match="Invalid authored object <class 'unittest.mock.Mock'>",
+    ):
+        mock = Mock(spec=AuthoredObjectBase)
+        _ = types.get_trestle_model_dir(mock)

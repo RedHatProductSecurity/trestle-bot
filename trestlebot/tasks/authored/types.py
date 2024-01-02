@@ -67,4 +67,6 @@ def get_trestle_model_dir(authored_object: AuthoredObjectBase) -> str:
     elif isinstance(authored_object, AuthoredSSP):
         return const.MODEL_DIR_SSP
     else:
-        raise AuthoredObjectException(f"Invalid authored object {authored_object}")
+        raise AuthoredObjectException(
+            f"Invalid authored object {type(authored_object)}"
+        )

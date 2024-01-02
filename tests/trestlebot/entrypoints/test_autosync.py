@@ -16,6 +16,7 @@
 
 """Test for Autosync CLI"""
 
+import argparse
 import logging
 from typing import Any, Dict
 from unittest.mock import patch
@@ -23,7 +24,9 @@ from unittest.mock import patch
 import pytest
 
 from tests.testutils import args_dict_to_list
+from trestlebot.entrypoints.autosync import AutoSyncEntrypoint
 from trestlebot.entrypoints.autosync import main as cli_main
+from trestlebot.entrypoints.entrypoint_base import EntrypointInvalidArgException
 
 
 @pytest.fixture
@@ -46,6 +49,26 @@ def test_invalid_oscal_model(valid_args_dict: Dict[str, str]) -> None:
     with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
         with pytest.raises(SystemExit, match="2"):
             cli_main()
+
+
+def test_validate_args_invalid_model(valid_args_dict: Dict[str, str]) -> None:
+    """
+    Test invalid oscal model with validate args function.
+    This is a separate test from test_invalid_oscal_model because
+    it args are make invalid after the args are parsed.
+    """
+    args_dict = valid_args_dict
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(
+            EntrypointInvalidArgException,
+            match="Invalid args --oscal-model: Invalid value fake. "
+            "Please use one of catalog, profile, ssp, compdef",
+        ):
+            parser = argparse.ArgumentParser()
+            auto_sync = AutoSyncEntrypoint(parser=parser)
+            args = parser.parse_args()
+            args.oscal_model = "fake"
+            auto_sync.validate_args(args)
 
 
 def test_no_ssp_index(valid_args_dict: Dict[str, str], caplog: Any) -> None:
