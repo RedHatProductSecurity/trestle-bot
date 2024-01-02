@@ -6,7 +6,22 @@ Before you start contributing, please take a moment to read through the guide be
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
 
-### How To Contribute
+- [Contributing to trestlebot](#contributing-to-trestlebot)
+  - [How To Contribute](#how-to-contribute)
+  - [Opening a Pull Request](#opening-a-pull-request)
+  - [Developer Guide](#developer-guide)
+  - [Prerequisites](#prerequisites)
+    - [How It Works](#how-it-works)
+      - [Components](#components)
+      - [Code structure](#code-structure)
+    - [Format and Styling](#format-and-styling)
+    - [Update the `actions` files](#update-the-actions-files)
+    - [Running tests](#running-tests)
+    - [Run with poetry](#run-with-poetry)
+    - [Local testing](#local-testing)
+
+
+## How To Contribute
 
 Some initial contributions could be:
 
@@ -62,7 +77,20 @@ They are also run as part as a pre-commit hook.
 
 ```bash
 make format
-make lint
+make lint- [Contributing to trestlebot](#contributing-to-trestlebot)
+    - [How To Contribute](#how-to-contribute)
+  - [Opening a Pull Request](#opening-a-pull-request)
+  - [Developer Guide](#developer-guide)
+  - [Prerequisites](#prerequisites)
+    - [How It Works](#how-it-works)
+      - [Components](#components)
+      - [Code structure](#code-structure)
+    - [Format and Styling](#format-and-styling)
+    - [Update the `actions` files](#update-the-actions-files)
+    - [Running tests](#running-tests)
+    - [Run with poetry](#run-with-poetry)
+    - [Local testing](#local-testing)
+
 ```
 
 For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](./.github/megalinter.yaml) for more information.
