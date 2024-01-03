@@ -14,7 +14,7 @@ repos:
   - repo: local
     hooks:
       - id: lint
-        language: script
+        language: system
         name: Check formatting and lint
         entry: make lint
         stages: [commit]
