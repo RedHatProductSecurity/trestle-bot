@@ -1,9 +1,9 @@
 # trestle-bot
 
-![[Pre-commit](https://github.com/pre-commit/pre-commit)](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)
-![[License](http://www.apache.org/licenses/LICENSE-2.0.html)](https://img.shields.io/badge/license-apache-blue.svg)
-![[Code Coverage](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot)](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=coverage)
-![[Quality gate](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot)](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=alert_status)
+[![Pre commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![License](https://img.shields.io/badge/license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=coverage)](https://sonarcloud.io/summary/new_code?id=rh-psce_trestle-bot)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rh-psce_trestle-bot)
 
 
 
