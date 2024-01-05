@@ -78,6 +78,8 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
             config.set_value("user", "name", "Test User")
         repo.git.add(all=True)
         repo.index.commit("Initial commit")
+        # Create a default branch (main)
+        repo.git.checkout("-b", "main")
         yield tmpdir, repo
 
         try:
