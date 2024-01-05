@@ -118,10 +118,29 @@ def test_non_existent_working_dir(valid_args_dict: Dict[str, str], caplog: Any) 
     )
 
 
-def test_with_target_branch(valid_args_dict: Dict[str, str], caplog: Any) -> None:
+def test_invalid_working_dir(valid_args_dict: Dict[str, str], caplog: Any) -> None:
+    """Test with directory that is not a trestle project root"""
+    args_dict = valid_args_dict
+    args_dict["working-dir"] = "."
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit, match="1"):
+            cli_main()
+
+    assert any(
+        record.levelno == logging.ERROR
+        and "Root path . is not a valid trestle project root" in record.message
+        for record in caplog.records
+    )
+
+
+def test_with_target_branch(
+    tmp_trestle_dir: str, valid_args_dict: Dict[str, str], caplog: Any
+) -> None:
     """Test with target branch set an an unsupported Git provider"""
     args_dict = valid_args_dict
+
     args_dict["target-branch"] = "main"
+    args_dict["working-dir"] = tmp_trestle_dir
 
     # Patch is_github_actions since these tests will be running in
     # GitHub Actions

@@ -16,7 +16,6 @@
 
 """E2E tests for commands for component definition authoring."""
 
-import argparse
 import logging
 import pathlib
 import subprocess
@@ -25,7 +24,6 @@ from typing import Dict, Tuple
 import pytest
 from git.repo import Repo
 from trestle.common.model_utils import ModelUtils
-from trestle.core.commands.init import InitCmd
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.component import ComponentDefinition
 from trestle.oscal.profile import Profile
@@ -103,19 +101,7 @@ def test_rules_transform_e2e(
     logger.info(f"Running test: {test_name}")
 
     tmp_repo_str, repo = tmp_repo
-
     tmp_repo_path = pathlib.Path(tmp_repo_str)
-
-    # Create a trestle workspace in the temporary git repository
-    args = argparse.Namespace(
-        verbose=0,
-        trestle_root=tmp_repo_path,
-        full=True,
-        local=False,
-        govdocs=False,
-    )
-    init = InitCmd()
-    init._run(args)
 
     # Setup the rules directory
     setup_rules_view(tmp_repo_path, test_comp_name)
@@ -241,19 +227,7 @@ def test_create_cd_e2e(
     logger.info(f"Running test: {test_name}")
 
     tmp_repo_str, repo = tmp_repo
-
     tmp_repo_path = pathlib.Path(tmp_repo_str)
-
-    # Create a trestle workspace in the temporary git repository
-    args = argparse.Namespace(
-        verbose=0,
-        trestle_root=tmp_repo_path,
-        full=True,
-        local=False,
-        govdocs=False,
-    )
-    init = InitCmd()
-    init._run(args)
 
     # Load profiles into the environment
     _ = setup_for_profile(tmp_repo_path, test_prof, "")
