@@ -73,3 +73,7 @@ publish:
 
 build-and-publish: build publish
 .PHONY: build-and-publish
+
+update-action-readmes:
+	@poetry run python scripts/update_action_readmes.py
+.PHONY: update-action-readmes
