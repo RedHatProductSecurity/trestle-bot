@@ -142,6 +142,8 @@ class SyncUpstreamsTask(TaskBase):
     ) -> None:
         """Copy models from upstream source to trestle workspace."""
         model_search_path = source_trestle_root.joinpath(model_dir)
+        # The model directories are created by default with trestle init, but
+        # they can be deleted.
         if not model_search_path.exists():
             return
         logger.debug(f"Copying models from {model_search_path}")
@@ -159,9 +161,9 @@ class SyncUpstreamsTask(TaskBase):
                         f"Model {model_path} from {model_search_path} is not valid"
                     )
 
-            # Write to model to disk as JSON
+            # Write model to disk as JSON.
             # The only format supported by the trestle authoring
-            # process is JSON
+            # process is JSON.
             model_name = model_path.name
             ModelUtils.save_top_level_model(
                 model, destination_trestle_root, model_name, FileContentType.JSON
