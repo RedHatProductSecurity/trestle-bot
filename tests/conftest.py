@@ -36,6 +36,7 @@ from tests.testutils import (
     TRESTLEBOT_TEST_IMAGE_NAME,
     build_test_image,
     clean,
+    repo_setup,
 )
 from trestlebot import const
 from trestlebot.transformers.trestle_rule import (
@@ -58,28 +59,7 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
     """Create a temporary git repository with an initialized trestle workspace root"""
     with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
         tmp_path = pathlib.Path(tmpdir)
-        try:
-            args = argparse.Namespace(
-                verbose=0,
-                trestle_root=tmp_path,
-                full=True,
-                local=False,
-                govdocs=False,
-            )
-            init = InitCmd()
-            init._run(args)
-        except Exception as e:
-            raise TrestleError(
-                f"Initialization failed for temporary trestle directory: {e}."
-            )
-        repo = Repo.init(tmpdir)
-        with repo.config_writer() as config:
-            config.set_value("user", "email", "test@example.com")
-            config.set_value("user", "name", "Test User")
-        repo.git.add(all=True)
-        repo.index.commit("Initial commit")
-        # Create a default branch (main)
-        repo.git.checkout("-b", "main")
+        repo: Repo = repo_setup(tmp_path)
         yield tmpdir, repo
 
         try:

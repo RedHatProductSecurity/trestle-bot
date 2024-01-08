@@ -21,11 +21,14 @@ import json
 import pathlib
 import shutil
 import subprocess
+import tempfile
 from typing import Dict, List, Optional
 
 from git.repo import Repo
+from trestle.common.err import TrestleError
 from trestle.common.model_utils import ModelUtils
 from trestle.core.base_model import OscalBaseModel
+from trestle.core.commands.init import InitCmd
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal import catalog as cat
 from trestle.oscal import component as comp
@@ -49,12 +52,42 @@ TRESTLEBOT_TEST_POD_NAME = "trestlebot-e2e-pod"
 E2E_BUILD_CONTEXT = "tests/e2e"
 CONTAINER_FILE_NAME = "Dockerfile"
 
+# Location the upstream repo is mounted to in the container
+UPSTREAM_REPO = "/upstream"
+
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
     """Clean up the temporary Git repository."""
     if repo is not None:
         repo.close()
     shutil.rmtree(repo_path)
+
+
+def repo_setup(repo_path: pathlib.Path) -> Repo:
+    """Create a temporary Git repository."""
+    try:
+        args = argparse.Namespace(
+            verbose=0,
+            trestle_root=repo_path,
+            full=True,
+            local=False,
+            govdocs=False,
+        )
+        init = InitCmd()
+        init._run(args)
+    except Exception as e:
+        raise TrestleError(
+            f"Initialization failed for temporary trestle directory: {e}."
+        )
+    repo = Repo.init(repo_path)
+    with repo.config_writer() as config:
+        config.set_value("user", "email", "test@example.com")
+        config.set_value("user", "name", "Test User")
+    repo.git.add(all=True)
+    repo.index.commit("Initial commit")
+    # Create a default branch (main)
+    repo.git.checkout("-b", "main")
+    return repo
 
 
 def args_dict_to_list(args_dict: Dict[str, str]) -> List[str]:
@@ -321,9 +354,22 @@ def build_test_command(
     command_name: str,
     command_args: Dict[str, str],
     image_name: str = TRESTLEBOT_TEST_IMAGE_NAME,
+    upstream_repo: str = "",
 ) -> List[str]:
-    """Build a command to be run in the shell for trestlebot"""
-    return [
+    """
+    Build a command to be run in the shell for trestlebot
+
+    Args:
+        data_path (str): Path to the data directory. This is the working directory/trestle_root.
+        command_name (str): Name of the command to run. It should be a trestlebot command.
+        command_args (Dict[str, str]): Arguments to pass to the command
+        image_name (str, optional): Name of the image to run. Defaults to TRESTLEBOT_TEST_IMAGE_NAME.
+        upstream_repo (str, optional): Path to the upstream repo. Defaults to "" and is not mounted.
+
+    Returns:
+        List[str]: Command to be run in the shell
+    """
+    command = [
         "podman",
         "run",
         "--pod",
@@ -331,10 +377,39 @@ def build_test_command(
         "--entrypoint",
         f"trestlebot-{command_name}",
         "--rm",
-        "-v",
-        f"{data_path}:/trestle",
-        "-w",
-        "/trestle",
-        image_name,
-        *args_dict_to_list(command_args),
     ]
+
+    # Add mounts
+    if upstream_repo:
+        # Add a volume and mount it to the container
+        command.extend(["-v", f"{upstream_repo}:{UPSTREAM_REPO}"])
+    command.extend(
+        [
+            "-v",
+            f"{data_path}:/trestle",
+            "-w",
+            "/trestle",
+            image_name,
+            *args_dict_to_list(command_args),
+        ]
+    )
+    return command
+
+
+def prepare_upstream_repo() -> str:
+    """Prepare a temporary upstream repo for testing."""
+    tmp_dir = pathlib.Path(tempfile.mkdtemp())
+    repo: Repo = repo_setup(tmp_dir)
+    load_from_json(
+        tmp_dir, "simplified_nist_catalog", "simplified_nist_catalog", cat.Catalog
+    )
+    load_from_json(
+        tmp_dir,
+        "simplified_nist_profile_upstream",
+        "simplified_nist_profile",
+        prof.Profile,
+    )
+    repo.git.add(all=True)
+    repo.index.commit("Add updated profile")
+    repo.close()
+    return str(tmp_dir)
