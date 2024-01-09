@@ -76,34 +76,24 @@ class SyncUpstreamsTask(TaskBase):
         super().__init__(working_dir, model_filter)
 
     def execute(self) -> int:
-        """Execute task"""
+        """
+        Execute task
+        Returns:
+            0 on success, raises an exception if not successful
+        """
         logger.info(f"Syncing from {len(self.sources)} source(s) to {self.working_dir}")
         for source in self.sources:
-            try:
-                self._fetch_oscal_content(source)
-            except ValueError as e:
-                raise TaskException(f"Invalid source {source}: {e}")
-            except GitCommandError as e:
-                raise TaskException(
-                    f"Git error occurred while fetching content from {source}: {e}"
-                )
-            except TrestleError as e:
-                raise TaskException(
-                    f"Trestle error occurred while fetching content from {source}: {e}"
-                )
-            except Exception as e:
-                raise TaskException(
-                    f"Unexpected error while fetching content from {source}: {e}"
-                )
+            self._fetch_oscal_content(source)
         return const.SUCCESS_EXIT_CODE
 
     def _fetch_oscal_content(self, source: str) -> None:
         """Fetch OSCAL content from upstream sources."""
-        with tempfile.TemporaryDirectory(dir=self.working_dir) as temporary_git_dir:
-            self.validate_source(source)
-            repo_url, ref = source.split("@")
-            repo: Optional[Repo] = None
-            try:
+        repo: Optional[Repo] = None
+        logger.info(f"Syncing content from {source}")
+        try:
+            with tempfile.TemporaryDirectory(dir=self.working_dir) as temporary_git_dir:
+                self.validate_source(source)
+                repo_url, ref = source.split("@")
                 upstream_trestle_workspace: pathlib.Path = pathlib.Path(
                     temporary_git_dir
                 )
@@ -124,9 +114,23 @@ class SyncUpstreamsTask(TaskBase):
                         validator,
                     )
                 logger.info(f"Successfully copied from {source}")
-            finally:
-                if repo is not None:
-                    repo.close()
+        except ValueError as e:
+            raise TaskException(f"Invalid source {source}: {e}")
+        except GitCommandError as e:
+            raise TaskException(
+                f"Git error occurred while fetching content from {source}: {e}"
+            )
+        except TrestleError as e:
+            raise TaskException(
+                f"Trestle error occurred while fetching content from {source}: {e}"
+            )
+        except Exception as e:
+            raise TaskException(
+                f"Unexpected error while fetching content from {source}: {e}"
+            )
+        finally:
+            if repo is not None:
+                repo.close()
 
     def validate_source(self, source: str) -> None:
         """Validate the source string."""
