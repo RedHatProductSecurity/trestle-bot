@@ -1,6 +1,6 @@
 FROM quay.io/fedora/fedora:37
 
-ARG POETRY_VERSION=1.5.1
+ARG POETRY_VERSION=1.7.1
 
 RUN dnf -y update && \
     yum -y reinstall shadow-utils && \

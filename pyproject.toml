@@ -26,7 +26,7 @@ trestlebot-create-cd = "trestlebot.entrypoints.create_cd:main"
 [tool.poetry.dependencies]
 python = '^3.8.1'
 gitpython = "^3.1.35"
-compliance-trestle = {git = "https://github.com/IBM/compliance-trestle.git", rev = "725f6980f83b040fec4145cfebd4c80af2f7196f"}
+compliance-trestle = "2.5.0"
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"

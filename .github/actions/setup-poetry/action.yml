@@ -5,7 +5,7 @@ inputs:
   poetry-version:
     required: false
     description: "The poetry version to use"
-    default: "1.5.1"
+    default: "1.7.1"
   python-version:
      required: false
      description: "The python version to use"

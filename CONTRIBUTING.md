@@ -91,14 +91,14 @@ make update-action-readmes
 #### Format and Styling
 
 This project uses `black` and `isort` for formatting and `flake8` for linting. You can run these commands to format and lint your code.
-They are also run as part as a pre-commit hook.
+Linting checks can be run as a pre-commit hook and are verified in CI.
 
 ```bash
 make format
 make lint
 ```
 
-For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](./.github/megalinter.yaml) for more information.
+For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](https://github.com/RedHatProductSecurity/trestle-bot/blob/main/.mega-linter.yml) for more information.
 
 #### Type Hints and Static Type Checking
 
