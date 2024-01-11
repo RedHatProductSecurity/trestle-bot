@@ -14,7 +14,7 @@ pre-commit:
 	@poetry run pre-commit install
 
 lint:
-	@poetry lock --check
+	@poetry check --lock
 	@poetry run isort --profile=black --lines-after-imports=2 \
 	--check-only $(TESTS) $(PYMODULE)
 	@poetry run black --check $(TESTS) $(PYMODULE) --diff
@@ -73,3 +73,7 @@ publish:
 
 build-and-publish: build publish
 .PHONY: build-and-publish
+
+update-action-readmes:
+	@poetry run python scripts/update_action_readmes.py
+.PHONY: update-action-readmes

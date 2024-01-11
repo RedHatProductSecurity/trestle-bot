@@ -15,10 +15,14 @@ Before you start contributing, please take a moment to read through the guide be
     - [How It Works](#how-it-works)
       - [Components](#components)
       - [Code structure](#code-structure)
-    - [Format and Styling](#format-and-styling)
-    - [Type Hints and Static Type Checking](#type-hints-and-static-type-checking)
-    - [Analysis Tools](#analysis-tools)
+    - [Documentation](#documentation)
+      - [Update the `actions` files](#update-the-actions-files)
+    - [Tools](#tools)
+      - [Format and Styling](#format-and-styling)
+      - [Type Hints and Static Type Checking](#type-hints-and-static-type-checking)
+      - [Analysis Tools](#analysis-tools)
     - [Running tests](#running-tests)
+      - [Running tests with make](#running-tests-with-make)
       - [Run with poetry](#run-with-poetry)
       - [Local testing](#local-testing)
 
@@ -72,23 +76,35 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 - `transformers` - This contains data transformation logic; specifically for rules.
 
 
-### Format and Styling
+### Documentation
+
+#### Update the `actions` files
+
+Each `README.md` under the `actions` directory have an Actions Inputs and Action Outputs section. These sections are generated from the `action.yml` file in the directory. To update the `README.md` files, run the following command:
+
+```bash
+make update-action-readmes
+```
+
+### Tools
+
+#### Format and Styling
 
 This project uses `black` and `isort` for formatting and `flake8` for linting. You can run these commands to format and lint your code.
-They are also run as part as a pre-commit hook.
+Linting checks can be run as a pre-commit hook and are verified in CI.
 
 ```bash
 make format
 make lint
 ```
 
-For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](./.github/megalinter.yaml) for more information.
+For non-Python files, we use [Megalinter](https://github.com/oxsecurity/megalinter) to lint in a CI task. See [megalinter.yaml](https://github.com/RedHatProductSecurity/trestle-bot/blob/main/.mega-linter.yml) for more information.
 
-### Type Hints and Static Type Checking
+#### Type Hints and Static Type Checking
 
 We encourage the use of type hints in Python code to enhance readability, maintainability, and robustness of the codebase. Type hints serve as documentation and aid in catching potential errors during development. For static type analysis, we utilize `mypy`. Running `make lint` will run `mypy` checks on the codebase.
 
-### Analysis Tools
+#### Analysis Tools
 
 - [SonarCloud](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot) - We use SonarCloud to analyze code quality, coverage, and security. To not break GitHub security model, this will not run on a forked repository.
 - [Semgrep](https://semgrep.dev/docs/extensions/overview/#pre-commit) - Identify issues in the local development environment before committing code. These checks are also run in CI.
@@ -98,6 +114,7 @@ We encourage the use of type hints in Python code to enhance readability, mainta
 Run all tests with `make test` or `make test-slow` to run all tests including end-to-end.
 For information on end-to-end tests, see [README.md](./tests/e2e/README.md).
 
+#### Running tests with make
 ```bash
 # Run all tests
 make test

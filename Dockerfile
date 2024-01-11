@@ -23,7 +23,7 @@ RUN microdnf update -y \
 
 FROM python-base AS dependencies
 
-ARG POETRY_VERSION=1.5.1
+ARG POETRY_VERSION=1.7.1
 
 # https://python-poetry.org/docs/configuration/#using-environment-variables
 ENV POETRY_HOME="/opt/poetry" \
