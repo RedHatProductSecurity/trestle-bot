@@ -29,8 +29,6 @@ ARG POETRY_VERSION=1.7.1
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1
 
-ENV PATH="$POETRY_HOME/bin:$PATH"
-
 # install poetry globally just for this intermediate build stage
 RUN python3.9 -m pip install --no-cache-dir --upgrade pip setuptools && \
     python3.9 -m pip install --no-cache-dir "poetry==$POETRY_VERSION"
