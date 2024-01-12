@@ -397,18 +397,30 @@ def build_test_command(
 
 
 def prepare_upstream_repo() -> str:
-    """Prepare a temporary upstream repo for testing."""
+    """
+    Prepare a temporary upstream repo for testing.
+
+    The include the test NIST catalog and a modified profile.
+    """
     tmp_dir = pathlib.Path(tempfile.mkdtemp())
     repo: Repo = repo_setup(tmp_dir)
     load_from_json(
         tmp_dir, "simplified_nist_catalog", "simplified_nist_catalog", cat.Catalog
     )
-    load_from_json(
-        tmp_dir,
-        "simplified_nist_profile_upstream",
-        "simplified_nist_profile",
-        prof.Profile,
+
+    # Modify the profile to include an additional control and write it out
+    src_path = JSON_TEST_DATA_PATH / "simplified_nist_profile.json"
+    dst_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
+        tmp_dir, "simplified_nist_profile", prof.Profile, FileContentType.JSON  # type: ignore
     )
+    dst_path.parent.mkdir(parents=True, exist_ok=True)
+
+    test_profile: prof.Profile = prof.Profile.oscal_read(src_path)
+
+    prof_import: prof.Import = test_profile.imports[0]
+    prof_import.include_controls[0].with_ids.append(prof.WithId(__root__="ac-6"))
+    test_profile.oscal_write(dst_path)
+
     repo.git.add(all=True)
     repo.index.commit("Add updated profile")
     repo.close()
