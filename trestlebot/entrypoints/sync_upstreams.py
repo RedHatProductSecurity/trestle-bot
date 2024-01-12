@@ -59,17 +59,17 @@ class SyncUpstreamsEntrypoint(EntrypointBase):
                 of the form <repo_url>@<ref> where ref is a git ref such as a tag or branch.",
         )
         self.parser.add_argument(
-            "--include-models",
+            "--include-model-names",
             type=str,
             required=False,
-            help="Comma-separated list of glob patterns for models by name to include when running \
+            help="Comma-separated list of glob patterns for model names to include when running \
                 tasks (e.g. --include-models=component_x,profile_y*)",
         )
         self.parser.add_argument(
-            "--exclude-models",
+            "--exclude-model-names",
             type=str,
             required=False,
-            help="Comma-separated list of glob patterns for models by name to exclude when running \
+            help="Comma-separated list of glob patterns for model names to exclude when running \
                 tasks (e.g. --exclude-models=component_x,profile_y*)",
         )
         self.parser.add_argument(
@@ -88,13 +88,13 @@ class SyncUpstreamsEntrypoint(EntrypointBase):
                     "--sources", "Must set at least one source to sync from."
                 )
 
-            # Assume that if exclude_models is not set, then
-            # skip nothing and if include_models is not set, then include all.
+            # Assume that if exclude_model_names is not set, then
+            # skip nothing and if include_model_names is not set, then include all.
             include_model_list: List[str] = ["*"]
-            if args.include_models:
-                include_model_list = comma_sep_to_list(args.include_models)
+            if args.include_model_names:
+                include_model_list = comma_sep_to_list(args.include_model_names)
             model_filter: ModelFilter = ModelFilter(
-                skip_patterns=comma_sep_to_list(args.exclude_models),
+                skip_patterns=comma_sep_to_list(args.exclude_model_names),
                 include_patterns=include_model_list,
             )
 

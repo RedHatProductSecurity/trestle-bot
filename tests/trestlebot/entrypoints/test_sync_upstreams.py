@@ -77,15 +77,15 @@ def test_sync_upstreams(
     clean(source, None)
 
 
-def test_with_include_models(
+def test_with_include_model_names(
     tmp_repo: Tuple[str, Repo], valid_args_dict: Dict[str, str]
 ) -> None:
-    """Test sync upstreams with include models flag."""
+    """Test sync upstreams with include model names flag."""
     repo_path, repo = tmp_repo
     repo.create_remote("origin", url=test_repo_url)
 
     args_dict = valid_args_dict
-    args_dict["include-models"] = test_cat
+    args_dict["include-model-names"] = test_cat
     args_dict["working-dir"] = repo_path
 
     source: str = prepare_upstream_repo()
@@ -108,15 +108,15 @@ def test_with_include_models(
     clean(source, None)
 
 
-def test_with_exclude_models(
+def test_with_exclude_model_names(
     tmp_repo: Tuple[str, Repo], valid_args_dict: Dict[str, str]
 ) -> None:
-    """Test sync upstreams with exclude models flag."""
+    """Test sync upstreams with exclude model names flag."""
     repo_path, repo = tmp_repo
     repo.create_remote("origin", url=test_repo_url)
 
     args_dict = valid_args_dict
-    args_dict["exclude-models"] = test_prof
+    args_dict["exclude-model-names"] = test_prof
     args_dict["working-dir"] = repo_path
 
     source: str = prepare_upstream_repo()
