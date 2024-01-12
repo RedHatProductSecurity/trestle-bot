@@ -3,7 +3,7 @@
 set -eu
 
 # shellcheck disable=SC1091
-source ./common.sh
+source /common.sh
 
 set_git_safe_directory
 
