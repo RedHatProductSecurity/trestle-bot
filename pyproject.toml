@@ -25,7 +25,7 @@ trestlebot-create-cd = "trestlebot.entrypoints.create_cd:main"
 
 [tool.poetry.dependencies]
 python = '^3.8.1'
-gitpython = "^3.1.35"
+gitpython = "^3.1.41"
 compliance-trestle = "2.5.0"
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"

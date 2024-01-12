@@ -21,7 +21,6 @@ Notes that this should be the only E2E for auto-syncing since the UX is the same
 Any model specific test should be under workflows.
 """
 
-import argparse
 import logging
 import os
 import pathlib
@@ -32,7 +31,6 @@ import pytest
 from git.repo import Repo
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPGenerate
-from trestle.core.commands.init import InitCmd
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.ssp import SystemSecurityPlan
 
@@ -109,19 +107,7 @@ def test_ssp_editing_e2e(
     logger.info(f"Running test: {test_name}")
 
     tmp_repo_str, repo = tmp_repo
-
     tmp_repo_path = pathlib.Path(tmp_repo_str)
-
-    # Create a trestle workspace in the temporary git repository
-    args = argparse.Namespace(
-        verbose=0,
-        trestle_root=tmp_repo_path,
-        full=True,
-        local=False,
-        govdocs=False,
-    )
-    init = InitCmd()
-    init._run(args)
 
     args = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
 
