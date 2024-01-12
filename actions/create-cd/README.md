@@ -20,9 +20,43 @@ name: Example Workflow
           component_description: "My Component Description"
 ```
 
-## Inputs and Outputs
+## Action Inputs
 
-Checkout [`action.yml`](./action.yml) for a full list of supported inputs and outputs.
+<!-- START_ACTION_INPUTS -->
+| Name | Description | Default | Required |
+| --- | --- | --- | --- |
+| markdown_path | Path relative to the repository path to create markdown files. See action README.md for more information. | None | True |
+| profile_name | Name of the Trestle profile to use for the component definition | None | True |
+| component_definition_name | Name of the component definition to create | None | True |
+| component_title | Name of the component to create | None | True |
+| component_type | Type of the component to create | service | False |
+| component_description | Description of the component to create | None | True |
+| filter_by_profile | Name of the profile in the workspace to filter controls by | None | False |
+| github_token | GitHub token used to make authenticated API requests | None | False |
+| commit_message | Commit message | Sync automatic updates | False |
+| pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |
+| branch | Name of the Git branch to which modifications should be pushed. Required if Action is used on the `pull_request` event. | ${{ github.ref_name }} | False |
+| target_branch | Target branch (or base branch) to create a pull request against. If unset, no pull request will be created. If set, a pull request will be created using the `branch` field as the head branch. | None | False |
+| file_pattern | Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`) | . | False |
+| repository | Local file path to the git repository. Defaults to the current directory (`.`) | . | False |
+| commit_user_name | Name used for the commit user | github-actions[bot] | False |
+| commit_user_email | Email address used for the commit user | 41898282+github-actions[bot]@users.noreply.github.com | False |
+| commit_author_name | Name used for the commit author. Defaults to the username of whoever triggered this workflow run. | ${{ github.actor }} | False |
+| commit_author_email | Email address used for the commit author. Defaults to the email of whoever triggered this workflow run. | ${{ github.actor }}@users.noreply.github.com | False |
+| verbose | Enable verbose logging | false | False |
+
+<!-- END_ACTION_INPUTS -->
+
+## Action Outputs
+
+<!-- START_ACTION_OUTPUTS -->
+| Name | Description |
+| --- | --- |
+| changes | Value is "true" if changes were committed back to the repository. |
+| commit | Full hash of the created commit. Only present if the "changes" output is "true". |
+| pr_number | Number of the submitted pull request. Only present if a pull request is submitted. |
+
+<!-- END_ACTION_OUTPUTS -->
 
 ### Additional information on workflow inputs
 
