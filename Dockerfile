@@ -26,22 +26,21 @@ FROM python-base AS dependencies
 ARG POETRY_VERSION=1.7.1
 
 # https://python-poetry.org/docs/configuration/#using-environment-variables
-ENV POETRY_HOME="/opt/poetry" \
-    POETRY_VIRTUALENVS_IN_PROJECT=true \
+ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
     POETRY_NO_INTERACTION=1
 
-ENV PATH="$POETRY_HOME/bin:$PATH"
-
-# install poetry - respects $POETRY_HOME
-RUN  python3.9 -m pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir poetry=="$POETRY_VERSION"
+# install poetry globally just for this intermediate build stage
+RUN python3.9 -m pip install --no-cache-dir --upgrade pip setuptools && \
+    python3.9 -m pip install --no-cache-dir "poetry==$POETRY_VERSION"
 
 WORKDIR "/build"
 COPY . "/build"
 
 # Install runtime deps and install the project in non-editable mode.
+# Ensure pip and setuptools are updated in the virtualenv as well.
 RUN python3.9 -m venv "$VENV_PATH" && \
   . "$VENV_PATH"/bin/activate && \
+  python3.9 -m pip install --no-cache-dir --upgrade pip setuptools && \
   poetry install --without tests,dev --no-root && \
   poetry build -f wheel -n && \
   pip install --no-cache-dir --no-deps dist/*.whl && \
