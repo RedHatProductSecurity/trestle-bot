@@ -19,6 +19,13 @@ E2E tests for SSP creation and autosync workflow.
 
 Notes that this should be the only E2E for auto-syncing since the UX is the same for each model.
 The SSP model is used here as a stand-in for all models because it is the most complex process.
+
+The tests here are based on the following workflow:
+1. Create new SSP
+2. Autosync SSP to create initial Markdown
+3. Run autosync again to check that no changes are pushed
+4. Update the profile with sync-upstreams
+5. Autosync again to check that the changes are pushed
 """
 
 import logging

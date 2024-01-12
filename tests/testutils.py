@@ -400,7 +400,13 @@ def prepare_upstream_repo() -> str:
     """
     Prepare a temporary upstream repo for testing.
 
-    The include the test NIST catalog and a modified profile.
+    Returns:
+        str: Path to the upstream repo
+
+    Notes:
+    This includes the test NIST catalog and a modified profile.
+    It modifies the simplified_nist_profile to simulate upstream
+    changes for testing.
     """
     tmp_dir = pathlib.Path(tempfile.mkdtemp())
     repo: Repo = repo_setup(tmp_dir)

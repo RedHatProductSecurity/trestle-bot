@@ -88,8 +88,8 @@ class SyncUpstreamsEntrypoint(EntrypointBase):
                     "--sources", "Must set at least one source to sync from."
                 )
 
-            # Assume that is skip_items is not set, then
-            # skip nothing and if include items is not set, then include all.
+            # Assume that if exclude_models is not set, then
+            # skip nothing and if include_models is not set, then include all.
             include_model_list: List[str] = ["*"]
             if args.include_models:
                 include_model_list = comma_sep_to_list(args.include_models)
@@ -98,7 +98,6 @@ class SyncUpstreamsEntrypoint(EntrypointBase):
                 include_patterns=include_model_list,
             )
 
-            # Should be false is skip_validation is true
             validate: bool = not args.skip_validation
 
             sync_upstreams_task: TaskBase = SyncUpstreamsTask(
