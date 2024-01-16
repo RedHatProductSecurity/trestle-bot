@@ -18,7 +18,14 @@
 E2E tests for SSP creation and autosync workflow.
 
 Notes that this should be the only E2E for auto-syncing since the UX is the same for each model.
-Any model specific test should be under workflows.
+The SSP model is used here as a stand-in for all models because it is the most complex process.
+
+The tests here are based on the following workflow:
+1. Create new SSP
+2. Autosync SSP to create initial Markdown
+3. Run autosync again to check that no changes are pushed
+4. Update the profile with sync-upstreams
+5. Autosync again to check that the changes are pushed
 """
 
 import logging
@@ -34,7 +41,13 @@ from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.ssp import SystemSecurityPlan
 
-from tests.testutils import build_test_command, setup_for_ssp
+from tests.testutils import (
+    UPSTREAM_REPO,
+    build_test_command,
+    clean,
+    prepare_upstream_repo,
+    setup_for_ssp,
+)
 from trestlebot.const import ERROR_EXIT_CODE, INVALID_ARGS_EXIT_CODE, SUCCESS_EXIT_CODE
 from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
 
@@ -112,7 +125,6 @@ def test_ssp_editing_e2e(
     args = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
 
     # Create or generate the SSP
-
     if not skip_create:
         index_path = os.path.join(tmp_repo_str, "ssp-index.json")
         ssp_index = SSPIndex(index_path)
@@ -157,3 +169,44 @@ def test_ssp_editing_e2e(
         assert ssp_index.get_comps_by_ssp(test_ssp_name) == [test_comp_name]
         assert ssp_index.get_leveraged_by_ssp(test_ssp_name) is None
         assert ssp_path.exists()
+
+        # Check that if run again, the ssp is not pushed again
+        command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
+        run_response = subprocess.run(command, capture_output=True)
+        assert run_response.returncode == SUCCESS_EXIT_CODE
+        assert "Nothing to commit" in run_response.stdout.decode("utf-8")
+
+        # Check that if the upstream profile is updated, the ssp is updated
+        local_upstream_path = prepare_upstream_repo()
+        upstream_repos_arg = f"{UPSTREAM_REPO}@main"
+        upstream_command_args = {
+            "branch": command_args["branch"],
+            "committer-name": command_args["committer-name"],
+            "committer-email": command_args["committer-email"],
+            "sources": upstream_repos_arg,
+        }
+        command = build_test_command(
+            tmp_repo_str,
+            "sync-upstreams",
+            upstream_command_args,
+            image_name,
+            local_upstream_path,
+        )
+        run_response = subprocess.run(command, capture_output=True)
+        assert run_response.returncode == SUCCESS_EXIT_CODE
+        assert (
+            f"Changes pushed to {command_args['branch']} successfully."
+            in run_response.stdout.decode("utf-8")
+        )
+
+        # Autosync again to check that the ssp is updated
+        command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
+        run_response = subprocess.run(command, capture_output=True)
+        assert run_response.returncode == SUCCESS_EXIT_CODE
+        assert (
+            f"Changes pushed to {command_args['branch']} successfully."
+            in run_response.stdout.decode("utf-8")
+        )
+
+        # Clean up the upstream repo
+        clean(local_upstream_path, None)

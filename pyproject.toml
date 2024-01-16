@@ -22,6 +22,7 @@ repository = 'https://github.com/RedHatProductSecurity/trestle-bot'
 trestlebot-autosync = "trestlebot.entrypoints.autosync:main"
 trestlebot-rules-transform = "trestlebot.entrypoints.rule_transform:main"
 trestlebot-create-cd = "trestlebot.entrypoints.create_cd:main"
+trestlebot-sync-upstreams = "trestlebot.entrypoints.sync_upstreams:main"
 
 [tool.poetry.dependencies]
 python = '^3.8.1'
