@@ -56,6 +56,20 @@ tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "authlib"
+version = "1.2.0"
+description = "The ultimate Python library in building OAuth and OpenID Connect servers and clients."
+optional = false
+python-versions = "*"
+files = [
+    {file = "Authlib-1.2.0-py2.py3-none-any.whl", hash = "sha256:4ddf4fd6cfa75c9a460b361d4bd9dac71ffda0be879dbe4292a02e92349ad55a"},
+    {file = "Authlib-1.2.0.tar.gz", hash = "sha256:4fa3e80883a5915ef9f5bc28630564bc4ed5b5af39812a3ff130ec76bd631e9d"},
+]
+
+[package.dependencies]
+cryptography = ">=3.2"
+
+[[package]]
 name = "bcrypt"
 version = "4.1.2"
 description = "Modern password hashing for your software and your servers"
@@ -636,13 +650,13 @@ wmi = ["wmi (>=1.5.1,<2.0.0)"]
 
 [[package]]
 name = "dparse"
-version = "0.6.3"
+version = "0.6.4b0"
 description = "A parser for Python dependency files"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.7"
 files = [
-    {file = "dparse-0.6.3-py3-none-any.whl", hash = "sha256:0d8fe18714056ca632d98b24fbfc4e9791d4e47065285ab486182288813a5318"},
-    {file = "dparse-0.6.3.tar.gz", hash = "sha256:27bb8b4bcaefec3997697ba3f6e06b2447200ba273c0b085c3d012a04571b528"},
+    {file = "dparse-0.6.4b0-py3-none-any.whl", hash = "sha256:592ff183348b8a5ea0a18442a7965e29445d3a26063654ec2c7e8ef42cd5753c"},
+    {file = "dparse-0.6.4b0.tar.gz", hash = "sha256:f8d49b41a527f3d16a269f854e6665245b325e50e41d2c213810cb984553e5c8"},
 ]
 
 [package.dependencies]
@@ -650,8 +664,10 @@ packaging = "*"
 tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [package.extras]
+all = ["dparse[conda]", "dparse[pipenv]", "dparse[poetry]"]
 conda = ["pyyaml"]
-pipenv = ["pipenv (<=2022.12.19)"]
+pipenv = ["pipenv"]
+poetry = ["poetry"]
 
 [[package]]
 name = "email-validator"
@@ -970,6 +986,43 @@ MarkupSafe = ">=2.0"
 i18n = ["Babel (>=2.7)"]
 
 [[package]]
+name = "jwt"
+version = "1.3.1"
+description = "JSON Web Token library for Python 3."
+optional = false
+python-versions = ">= 3.6"
+files = [
+    {file = "jwt-1.3.1-py3-none-any.whl", hash = "sha256:61c9170f92e736b530655e75374681d4fcca9cfa8763ab42be57353b2b203494"},
+]
+
+[package.dependencies]
+cryptography = ">=3.1,<3.4.0 || >3.4.0"
+
+[[package]]
+name = "markdown-it-py"
+version = "3.0.0"
+description = "Python port of markdown-it. Markdown parsing, done right!"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "markdown-it-py-3.0.0.tar.gz", hash = "sha256:e3f60a94fa066dc52ec76661e37c851cb232d92f9886b15cb560aaada2df8feb"},
+    {file = "markdown_it_py-3.0.0-py3-none-any.whl", hash = "sha256:355216845c60bd96232cd8d8c40e8f9765cc86f46880e43a8fd22dc1a1a8cab1"},
+]
+
+[package.dependencies]
+mdurl = ">=0.1,<1.0"
+
+[package.extras]
+benchmarking = ["psutil", "pytest", "pytest-benchmark"]
+code-style = ["pre-commit (>=3.0,<4.0)"]
+compare = ["commonmark (>=0.9,<1.0)", "markdown (>=3.4,<4.0)", "mistletoe (>=1.0,<2.0)", "mistune (>=2.0,<3.0)", "panflute (>=2.3,<3.0)"]
+linkify = ["linkify-it-py (>=1,<3)"]
+plugins = ["mdit-py-plugins"]
+profiling = ["gprof2dot"]
+rtd = ["jupyter_sphinx", "mdit-py-plugins", "myst-parser", "pyyaml", "sphinx", "sphinx-copybutton", "sphinx-design", "sphinx_book_theme"]
+testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions"]
+
+[[package]]
 name = "markupsafe"
 version = "2.1.3"
 description = "Safely add untrusted strings to HTML/XML markup."
@@ -1067,6 +1120,17 @@ python-versions = ">=3.6"
 files = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
+]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+description = "Markdown URL utilities"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
+    {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
 ]
 
 [[package]]
@@ -1230,13 +1294,13 @@ files = [
 
 [[package]]
 name = "packaging"
-version = "23.2"
+version = "23.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
-    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
+    {file = "packaging-23.0-py3-none-any.whl", hash = "sha256:714ac14496c3e68c99c29b00845f7a2b85f3bb6f1078fd9f72fd20f0570002b2"},
+    {file = "packaging-23.0.tar.gz", hash = "sha256:b6ad297f8907de0fa2fe1ccbd26fdaf387f5f47c7275fedf8cce89f99446cf97"},
 ]
 
 [[package]]
@@ -1404,6 +1468,21 @@ files = [
     {file = "pyflakes-3.1.0-py2.py3-none-any.whl", hash = "sha256:4132f6d49cb4dae6819e5379898f2b8cce3c5f23994194c24b77d5da2e36f774"},
     {file = "pyflakes-3.1.0.tar.gz", hash = "sha256:a0aae034c444db0071aa077972ba4768d40c830d9539fd45bf4cd3f8f6992efc"},
 ]
+
+[[package]]
+name = "pygments"
+version = "2.17.2"
+description = "Pygments is a syntax highlighting package written in Python."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "pygments-2.17.2-py3-none-any.whl", hash = "sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c"},
+    {file = "pygments-2.17.2.tar.gz", hash = "sha256:da46cec9fd2de5be3a8a784f434e4c4ab670b4ff54d605c4c2717e9d49c4c367"},
+]
+
+[package.extras]
+plugins = ["importlib-metadata"]
+windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyjwt"
@@ -1710,6 +1789,25 @@ urllib3 = ">=1.25.10,<3.0"
 tests = ["coverage (>=6.0.0)", "flake8", "mypy", "pytest (>=7.0.0)", "pytest-asyncio", "pytest-cov", "pytest-httpserver", "tomli", "tomli-w", "types-PyYAML", "types-requests"]
 
 [[package]]
+name = "rich"
+version = "13.7.0"
+description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
+optional = false
+python-versions = ">=3.7.0"
+files = [
+    {file = "rich-13.7.0-py3-none-any.whl", hash = "sha256:6da14c108c4866ee9520bbffa71f6fe3962e193b7da68720583850cd4548e235"},
+    {file = "rich-13.7.0.tar.gz", hash = "sha256:5cb5123b5cf9ee70584244246816e9114227e0b98ad9176eede6ad54bf5403fa"},
+]
+
+[package.dependencies]
+markdown-it-py = ">=2.2.0"
+pygments = ">=2.13.0,<3.0.0"
+typing-extensions = {version = ">=4.0.0,<5.0", markers = "python_version < \"3.9\""}
+
+[package.extras]
+jupyter = ["ipywidgets (>=7.5.1,<9)"]
+
+[[package]]
 name = "ruamel-yaml"
 version = "0.18.5"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
@@ -1788,29 +1886,55 @@ files = [
 
 [[package]]
 name = "safety"
-version = "2.4.0b2"
+version = "3.0.0a2"
 description = "Checks installed dependencies for known vulnerabilities and licenses."
 optional = false
 python-versions = "*"
 files = [
-    {file = "safety-2.4.0b2-py3-none-any.whl", hash = "sha256:63773ce92e17f5f80e7dff4c8a25d8abb7d62d375897b5f3bb4afe9313b100ff"},
-    {file = "safety-2.4.0b2.tar.gz", hash = "sha256:9907010c6ca7720861ca7fa1496bdb80449b0619ca136eb7ac7e02bd3516cd4f"},
+    {file = "safety-3.0.0a2-py3-none-any.whl", hash = "sha256:6d6bcf63a3182778cf7a97a819a2eaa54465ded305304b8ae191aad1e8e28929"},
+    {file = "safety-3.0.0a2.tar.gz", hash = "sha256:3c3ad3546a5fa750a805ff18710835ca1a0a3ea5e08f2ca7a5d99b6904cecc5f"},
 ]
 
 [package.dependencies]
+Authlib = "1.2.0"
 Click = ">=8.0.2"
-dparse = ">=0.6.2"
-jinja2 = {version = ">=3.1.0", markers = "python_version >= \"3.7\""}
-marshmallow = {version = ">=3.15.0", markers = "python_version >= \"3.7\""}
+dparse = ">=0.6.4b0"
+jinja2 = ">=3.1.0"
+jwt = "1.3.1"
+marshmallow = ">=3.15.0"
 packaging = ">=21.0"
+pydantic = ">=1.10.12,<2.0"
 requests = "*"
+rich = "*"
 "ruamel.yaml" = ">=0.17.21"
-setuptools = {version = ">=65.5.1", markers = "python_version >= \"3.7\""}
+safety-schemas = ">=0.0.1"
+setuptools = ">=65.5.1"
+typer = "*"
+typing-extensions = ">=4.7.1"
 urllib3 = ">=1.26.5"
 
 [package.extras]
 github = ["pygithub (>=1.43.3)"]
 gitlab = ["python-gitlab (>=1.3.0)"]
+spdx = ["spdx-tools (>=0.8.2)"]
+
+[[package]]
+name = "safety-schemas"
+version = "0.0.1"
+description = "Schemas for Safety CLI"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "safety_schemas-0.0.1-py3-none-any.whl", hash = "sha256:33ba340a726036e1063fe075d93af88e9cddd067a1a1d294b7ebabfbe52028df"},
+    {file = "safety_schemas-0.0.1.tar.gz", hash = "sha256:de56d04a9badbbab8b360326d1a598d68b180b766eb04d3296abaee4c7ab431c"},
+]
+
+[package.dependencies]
+dparse = ">=0.6.2"
+packaging = ">=21.0,<=23.0"
+pydantic = ">=1.10.12,<2.0.0"
+ruamel-yaml = ">=0.17.21"
+typing-extensions = ">=4.7.1,<5.0.0"
 
 [[package]]
 name = "setuptools"
@@ -1884,6 +2008,27 @@ files = [
 ]
 
 [[package]]
+name = "typer"
+version = "0.9.0"
+description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "typer-0.9.0-py3-none-any.whl", hash = "sha256:5d96d986a21493606a358cae4461bd8cdf83cbf33a5aa950ae629ca3b51467ee"},
+    {file = "typer-0.9.0.tar.gz", hash = "sha256:50922fd79aea2f4751a8e0408ff10d2662bd0c8bbfa84755a699f3bada2978b2"},
+]
+
+[package.dependencies]
+click = ">=7.1.1,<9.0.0"
+typing-extensions = ">=3.7.4.3"
+
+[package.extras]
+all = ["colorama (>=0.4.3,<0.5.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+dev = ["autoflake (>=1.3.1,<2.0.0)", "flake8 (>=3.8.3,<4.0.0)", "pre-commit (>=2.17.0,<3.0.0)"]
+doc = ["cairosvg (>=2.5.2,<3.0.0)", "mdx-include (>=1.4.1,<2.0.0)", "mkdocs (>=1.1.2,<2.0.0)", "mkdocs-material (>=8.1.4,<9.0.0)", "pillow (>=9.3.0,<10.0.0)"]
+test = ["black (>=22.3.0,<23.0.0)", "coverage (>=6.2,<7.0)", "isort (>=5.0.6,<6.0.0)", "mypy (==0.910)", "pytest (>=4.4.0,<8.0.0)", "pytest-cov (>=2.10.0,<5.0.0)", "pytest-sugar (>=0.9.4,<0.10.0)", "pytest-xdist (>=1.32.0,<4.0.0)", "rich (>=10.11.0,<14.0.0)", "shellingham (>=1.3.0,<2.0.0)"]
+
+[[package]]
 name = "typing-extensions"
 version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1944,4 +2089,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "183fec15d98d6a13e8018ef27d65b315e006ea2d459032dce03a1b7ac99f709d"
+content-hash = "42544e8a2490aa39cd28fafc6902901c03d3422ac398ad71ced550fce277866c"
