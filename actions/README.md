@@ -105,7 +105,7 @@ jobs:
           branch: ${{ github.head_ref }}
 ```
 
-## Propagate Changes from upstream sources
+## Propagate changes from upstream sources
 
 ### Storing and syncing upstream content
 

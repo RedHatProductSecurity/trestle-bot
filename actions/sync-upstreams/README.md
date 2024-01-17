@@ -1,4 +1,4 @@
-# trestlebot Sync Upstreams Action
+# Trestle Bot Sync Upstreams Action
 
 ## Basic Configuration
 
