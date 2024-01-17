@@ -52,10 +52,13 @@ FROM python-base AS final
 COPY --from=dependencies $PYSETUP_PATH $PYSETUP_PATH
 
 # Add wrappers for entrypoints that provide support for the actions
+COPY ./actions/common.sh /
 COPY ./actions/autosync/auto-sync-entrypoint.sh /
 COPY ./actions/rules-transform/rules-transform-entrypoint.sh /
 COPY ./actions/create-cd/create-cd-entrypoint.sh /
-RUN chmod +x /auto-sync-entrypoint.sh /rules-transform-entrypoint.sh /create-cd-entrypoint.sh
+COPY ./actions/sync-upstreams/sync-upstreams-entrypoint.sh /
+
+RUN chmod +x /auto-sync-entrypoint.sh /rules-transform-entrypoint.sh /create-cd-entrypoint.sh /sync-upstreams-entrypoint.sh
 
 ENTRYPOINT ["python3.9", "-m" , "trestlebot"]
 CMD ["--help"]

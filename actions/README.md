@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This document provides instructions and examples for creating and using GitHub Actions in the "trestle-bot" project. GitHub Actions are used to automate various tasks related to workspace management and checks.
+This document provides instructions and examples for creating and using GitHub Actions in the `trestle-bot` project. GitHub Actions are used to automate various tasks related to workspace management and checks.
 
 ## Directory Structure
 
@@ -21,9 +21,10 @@ For more details, consult the [GitHub Actions documentation](https://docs.github
 
 ## Examples
 
-Here are examples of workflow snippets that demonstrate how to use these actions in the "trestle-bot" project. Each example includes a clear explanation of its purpose and the steps involved.
+Here are examples of workflow snippets that demonstrate how to use these actions in the `trestle-bot` project.
+See each action README for more details about the inputs and outputs.
 
-### Create a New Component
+### Create a New Component Definition
 
 ```yaml
 name: create
@@ -104,7 +105,40 @@ jobs:
           branch: ${{ github.head_ref }}
 ```
 
-## Component Regeneration
+## Propagate changes from upstream sources
+
+### Storing and syncing upstream content
+
+> Note: The upstream repo must be a valid trestle workspace.
+
+```yaml
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  upstream-sync:
+    name: Sync upstream content
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run trestlebot
+      id: trestlebot
+      uses: RedHatProductSecurity/trestle-bot/actions/sync-upstreams@main
+      with:
+        branch: "sync-upstream-${{ github.run_id }}"
+        target_branch: "main"
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        sources: |
+          https://github.com/myorg/myprofiles@main
+```
+
+### Component Definition Regeneration
 
 This example demonstrates how to use outputs and also includes labeling pull requests.
 
@@ -121,8 +155,8 @@ on:
       - 'catalogs/**'
 
 jobs:
-  regeneration-content:
-    name: Regeneration the component definition
+  regenerate-content:
+    name: Regenerate the component definition
     runs-on: ubuntu-latest
     permissions:
       contents: write

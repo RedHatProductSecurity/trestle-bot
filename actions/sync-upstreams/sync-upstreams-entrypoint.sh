@@ -7,16 +7,15 @@ source /common.sh
 
 set_git_safe_directory
 
+# Transform the input sources into a comma separated list
+INPUT_SOURCES=$(echo "${INPUT_SOURCES}" | tr '\n' ' ' | tr -s ' ' | sed 's/ *$//' | tr ' ' ',')
+
 # Initialize the command variable
-command="trestlebot-create-cd \
-        --profile-name=\"${INPUT_PROFILE_NAME}\" \
-        --compdef-name=\"${INPUT_COMPONENT_DEFINITION_NAME}\" \
-        --component-title=\"${INPUT_COMPONENT_TITLE}\" \
-        --component-description=\"${INPUT_COMPONENT_DESCRIPTION}\" \
-        --component-definition-type=\"${INPUT_COMPONENT_TYPE}\" \
-        --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
+command="trestlebot-sync-upstreams \
+        --sources=\"${INPUT_SOURCES}\" \
+        --include-model-names=\"${INPUT_INCLUDE_MODEL_NAMES}\" \
+        --exclude-model-names=\"${INPUT_EXCLUDE_MODEL_NAMES}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
-        --filter-by-profile=\"${INPUT_FILTER_BY_PROFILE}\" \
         --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
         --file-patterns=\"${INPUT_FILE_PATTERN}\" \
@@ -30,6 +29,10 @@ command="trestlebot-create-cd \
 # Conditionally include flags
 if [[ ${INPUT_VERBOSE} == true ]]; then
     command+=" --verbose"
+fi
+
+if [[ ${INPUT_SKIP_VALIDATION} == true ]]; then
+    command+=" --skip-validation"
 fi
 
 # Only set the token value when is a target branch so pull requests can be created
