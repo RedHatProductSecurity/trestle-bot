@@ -155,15 +155,15 @@ class TrestleBot:
         dry_run: bool = False,
     ) -> Tuple[str, int]:
         """
-        Run Trestle Bot and returns commit and pull request information.
+        Runs Trestle Bot logic and returns commit and pull request information.
 
         Args:
                 patterns: List of file patterns for `git add`
                 git_provider: Optional configured git provider for interacting with the API
-                pre_tasks: Optional task list to executing before updating the workspace
+                pre_tasks: Optional workspace task list to execute before staging files
                 commit_message: Optional commit message for local commit
                 pull_request_title: Optional customized pull request title
-                check_only: Optional heck if the repo is dirty. Fail if true.
+                check_only: Optional check if the repo is dirty. Fail if true.
                 dry_run: Only complete local work. Do not push.
 
         Returns:
