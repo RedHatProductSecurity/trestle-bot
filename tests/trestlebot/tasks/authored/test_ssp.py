@@ -155,6 +155,17 @@ def test_get_leveraged_ssp(tmp_trestle_dir: str) -> None:
     assert ssp_index.get_leveraged_by_ssp(test_ssp_output) == leveraged_ssp
 
 
+def test_get_yaml_header(tmp_trestle_dir: str) -> None:
+    """Test to get yaml header from index"""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(
+        test_ssp_output, test_prof, [test_comp], extra_yaml_header="ssp-name.yaml"
+    )
+
+    assert ssp_index.get_yaml_header_by_ssp(test_ssp_output) == "ssp-name.yaml"
+
+
 def test_add_ssp_to_index(tmp_trestle_dir: str) -> None:
     """Test adding an ssp to an index."""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
@@ -210,8 +221,15 @@ def test_reload(tmp_trestle_dir: str) -> None:
     # Copy over a new index
     shutil.copy2(testutils.TEST_SSP_INDEX, ssp_index_path)
 
-    # Reread the ssp index from JSON and make sure the new ssp is not there
+    # Reread the ssp index from JSON
     ssp_index.reload()
+
+    assert ssp_index.get_profile_by_ssp("ssp-name") == "profile"
+    assert "comp-a" in ssp_index.get_comps_by_ssp("ssp-name")
+    assert ssp_index.get_leveraged_by_ssp("ssp-name") == "leveraged-ssp-name"
+    assert ssp_index.get_yaml_header_by_ssp("ssp-name") == "ssp-name.yaml"
+
+    # Make sure the new ssp is not present in memory
     with pytest.raises(
         AuthoredObjectException, match="SSP new_ssp does not exists in the index"
     ):

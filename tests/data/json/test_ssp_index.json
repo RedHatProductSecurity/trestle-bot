@@ -5,6 +5,7 @@
         "component_definitions": [
             "comp-a"
         ],
-        "leveraged_ssp": "ssp-name"
+        "leveraged_ssp": "leveraged-ssp-name",
+        "yaml_header_path": "ssp-name.yaml"
     }
 }

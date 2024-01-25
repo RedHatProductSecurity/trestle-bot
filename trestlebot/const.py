@@ -18,6 +18,7 @@ INVALID_ARGS_EXIT_CODE = 2
 PROFILE_KEY_NAME = "profile"
 COMPDEF_KEY_NAME = "component_definitions"
 LEVERAGED_SSP_KEY_NAME = "leveraged_ssp"
+YAML_HEADER_PATH_KEY_NAME = "yaml_header_path"
 
 # Rule YAML Fields
 RULE_INFO_TAG = trestle_const.TRESTLE_TAG + "rule-info"
