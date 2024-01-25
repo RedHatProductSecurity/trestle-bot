@@ -234,35 +234,10 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_profile(trestle_root, test_prof_filter, test_prof_filter)
 
     ssp_name = "new_ssp"
-    new_md_path = os.path.join(markdown_dir, ssp_name)
     input_ssp = test_ssp_output
 
-    # Call create_new_with_filter with new profile
-    authored_ssp.create_new_with_filter(
-        ssp_name, input_ssp, markdown_path=new_md_path, profile_name=test_prof_filter
-    )
-
-    ssp_index.reload()
-
-    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof_filter
-    assert test_comp in ssp_index.get_comps_by_ssp(ssp_name)
-    model_path = ModelUtils.get_model_path_for_name_and_class(
-        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
-    )
-    assert model_path.exists()
-
-    ssp_name = "new_ssp_2"
-    new_md_path = os.path.join(markdown_dir, ssp_name)
-
     # Call create_new_with_filter with a single compdef
-    authored_ssp.create_new_with_filter(
-        ssp_name, input_ssp, markdown_path=new_md_path, compdefs=[test_comp_2]
-    )
-
-    ssp_index.reload()
-    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof
-    assert test_comp not in ssp_index.get_comps_by_ssp(ssp_name)
-    assert test_comp_2 in ssp_index.get_comps_by_ssp(ssp_name)
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, compdefs=[test_comp_2])
 
     ssp, model_path = load_validate_model_name(
         trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
@@ -277,13 +252,13 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     assert test_comp_2 in component_names
     assert test_comp not in component_names
 
-    # Check that without markdown path the ssp_index is not updated
-    ssp_name = "new_ssp_3"
+    # Check that the ssp_index is not updated
+    ssp_name = "new_ssp_2"
     authored_ssp.create_new_with_filter(
         ssp_name, input_ssp, implementation_status=["implemented"]
     )
     ssp_index.reload()
     with pytest.raises(
-        AuthoredObjectException, match="SSP new_ssp_3 does not exists in the index"
+        AuthoredObjectException, match="SSP new_ssp_2 does not exists in the index"
     ):
         ssp_index.get_profile_by_ssp(ssp_name)
