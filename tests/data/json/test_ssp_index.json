@@ -1,0 +1,10 @@
+{
+    "ssp-name":
+    {
+        "profile": "profile",
+        "component_definitions": [
+            "comp-a"
+        ],
+        "leveraged_ssp": "ssp-name"
+    }
+}

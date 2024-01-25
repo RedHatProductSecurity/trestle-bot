@@ -5,7 +5,6 @@
 """Helper functions for unit test setup and teardown."""
 
 import argparse
-import json
 import pathlib
 import shutil
 import subprocess
@@ -22,16 +21,12 @@ from trestle.oscal import catalog as cat
 from trestle.oscal import component as comp
 from trestle.oscal import profile as prof
 
-from trestlebot.const import (
-    COMPDEF_KEY_NAME,
-    LEVERAGED_SSP_KEY_NAME,
-    PROFILE_KEY_NAME,
-    YAML_EXTENSION,
-)
+from trestlebot.const import YAML_EXTENSION
 
 
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
 YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
+TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "test_ssp_index.json"
 
 # E2E test constants
 TRESTLEBOT_TEST_IMAGE_NAME = "localhost/trestlebot:latest"
@@ -265,25 +260,6 @@ def setup_rules_view(
         load_from_yaml(comp_dir, "test_complete_rule")
         # Load a complete rule with only required fields
         load_from_yaml(comp_dir, "test_complete_rule_no_params")
-
-
-def write_index_json(
-    file_path: str,
-    ssp_name: str,
-    profile: str,
-    component_definitions: List[str],
-    leveraged_ssp: str = "",
-) -> None:
-    """Write out ssp index JSON for tests"""
-    data = {
-        ssp_name: {PROFILE_KEY_NAME: profile, COMPDEF_KEY_NAME: component_definitions}
-    }
-
-    if leveraged_ssp:
-        data[ssp_name][LEVERAGED_SSP_KEY_NAME] = leveraged_ssp
-
-    with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
 
 
 def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> None:
