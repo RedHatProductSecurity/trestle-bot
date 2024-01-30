@@ -17,6 +17,7 @@ Before you start contributing, please take a moment to read through the guide be
       - [Code structure](#code-structure)
     - [Documentation](#documentation)
       - [Update the `actions` files](#update-the-actions-files)
+    - [License Text in Files](#license-text-in-files)
     - [Tools](#tools)
       - [Format and Styling](#format-and-styling)
       - [Type Hints and Static Type Checking](#type-hints-and-static-type-checking)
@@ -84,6 +85,14 @@ Each `README.md` under the `actions` directory have an Actions Inputs and Action
 
 ```bash
 make update-action-readmes
+```
+
+### License Text in Files
+
+Please use the SPDX license identifier in all source files.
+
+```
+# SPDX-License-Identifier: Apache-2.0
 ```
 
 ### Tools
