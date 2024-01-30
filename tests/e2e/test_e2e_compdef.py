@@ -206,7 +206,7 @@ def test_create_cd_e2e(
     command_args: Dict[str, str],
     response: int,
 ) -> None:
-    """Test the trestlebot rules transform command."""
+    """Test the trestlebot create-cd command."""
     # Check that the container image was built successfully
     # and the mock server is running
     exit_code, image_name = podman_setup
