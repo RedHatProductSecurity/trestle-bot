@@ -40,7 +40,7 @@ test_repo_url = "git.test.com/test/repo.git"
 expected_files = [
     "md_ssp/test-ssp/ac/ac-2.1.md",
     "system-security-plans/test-ssp/system-security-plan.json",
-    "ssp-index.json",
+    "index/ssp-index.json",
 ]
 
 
@@ -56,7 +56,7 @@ def test_create_ssp(
     args_dict["working-dir"] = repo_path
     args_dict["markdown-path"] = test_ssp_md
     args_dict["compdefs"] = test_comp_name
-    args_dict["ssp-index-path"] = str(tmp_repo_path / "ssp-index.json")
+    args_dict["ssp-index-path"] = str(tmp_repo_path / "index" / "ssp-index.json")
     args_dict["yaml-header-path"] = str(TEST_YAML_HEADER)
 
     _ = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
@@ -76,5 +76,36 @@ def test_create_ssp(
     assert any(
         record.levelno == logging.INFO
         and "Changes pushed to main successfully" in record.message
+        for record in caplog.records
+    )
+
+
+def test_create_ssp_with_error(
+    tmp_repo: Tuple[str, Repo], base_args_dict: Dict[str, str], caplog: Any
+) -> None:
+    """Test create-ssp and trigger an error."""
+    repo_path, repo = tmp_repo
+    tmp_repo_path = pathlib.Path(repo_path)
+    repo.create_remote("origin", url=test_repo_url)
+
+    args_dict = base_args_dict
+    args_dict["working-dir"] = repo_path
+    args_dict["markdown-path"] = test_ssp_md
+    # Testing with an unloaded compdef
+    args_dict["compdefs"] = "fake_comp_name"
+    args_dict["ssp-index-path"] = str(tmp_repo_path / "index" / "ssp-index.json")
+
+    _ = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
+
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit, match="1"):
+            cli_main()
+
+    # This error message occur when trestlebot fails. We are calling
+    # the trestlebot CLI directly so specific error will be logged separately
+    assert any(
+        record.levelno == logging.ERROR
+        and "Exception occurred during execution: Unknown error "
+        "occurred while regenerating test-ssp" in record.message
         for record in caplog.records
     )
