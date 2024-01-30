@@ -27,6 +27,7 @@ from trestlebot.const import YAML_EXTENSION
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
 YAML_TEST_DATA_PATH = pathlib.Path("tests/data/yaml/").resolve()
 TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "test_ssp_index.json"
+INVALID_TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "invalid_test_ssp_index.json"
 
 # E2E test constants
 TRESTLEBOT_TEST_IMAGE_NAME = "localhost/trestlebot:latest"

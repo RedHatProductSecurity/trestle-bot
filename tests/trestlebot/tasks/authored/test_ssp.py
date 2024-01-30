@@ -236,6 +236,22 @@ def test_reload(tmp_trestle_dir: str) -> None:
         ssp_index.get_profile_by_ssp("new_ssp")
 
 
+def test_invalid_ssp_index(tmp_trestle_dir: str) -> None:
+    """Test to trigger failure for invalid SSP index"""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    # Copy over a new index
+    shutil.copy2(testutils.INVALID_TEST_SSP_INDEX, ssp_index_path)
+
+    # Reread the ssp index from JSON
+    with pytest.raises(
+        AuthoredObjectException,
+        match="SSP .* entry is missing profile or component data",
+    ):
+        ssp_index.reload()
+
+
 def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     """Test to create new SSP with filtering by profile"""
     # Prepare the workspace and input ssp
