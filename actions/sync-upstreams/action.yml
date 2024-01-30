@@ -10,10 +10,10 @@ inputs:
     description: "GitHub token used to make authenticated API requests"
     required: false
   include_model_names:
-    description: "Comma-separated list of model names by name to include in the sync. For example, `component-definition,system-security-plan`. Defaults to all models."
+    description: "Comma-separated glob pattern list of model names (i.e. trestle directory name) to include in the sync. For example, `*framework-v2`. Defaults to include all model names."
     required: false
   exclude_model_names:
-    description: "Comma-separated list of model names to exclude from the sync. For example, `component-definition,system-security-plan`"
+    description: "Comma-separated glob pattern of model names (i.e. trestle directory name) to exclude from the sync. For example, `*framework-v1`. Defaults to skip no model names."
     required: false
   skip_validation:
     description: "Skip validation of the upstream OSCAL content. Defaults to false"

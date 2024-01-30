@@ -24,8 +24,8 @@ name: Example Workflow
 | --- | --- | --- | --- |
 | sources | A newline separated list of upstream sources to sync with a repo@branch format. For example, `https://github.com/myorg/myprofiles@main` | None | True |
 | github_token | GitHub token used to make authenticated API requests | None | False |
-| include_model_names | Comma-separated list of model names by name to include in the sync. For example, `component-definition,system-security-plan`. Defaults to all models. | None | False |
-| exclude_model_names | Comma-separated list of model names to exclude from the sync. For example, `component-definition,system-security-plan` | None | False |
+| include_model_names | Comma-separated glob pattern list of model names (i.e. trestle directory name) to include in the sync. For example, `*framework-v2`. Defaults to include all model names. | None | False |
+| exclude_model_names | Comma-separated glob pattern of model names (i.e. trestle directory name) to exclude from the sync. For example, `*framework-v1`. Defaults to skip no model names. | None | False |
 | skip_validation | Skip validation of the upstream OSCAL content. Defaults to false | false | False |
 | commit_message | Commit message | Sync automatic updates | False |
 | pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |
