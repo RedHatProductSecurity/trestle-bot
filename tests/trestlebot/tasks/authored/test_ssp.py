@@ -217,6 +217,7 @@ def test_reload(tmp_trestle_dir: str) -> None:
     assert ssp_index.get_profile_by_ssp("new_ssp") == "test_prof"
     assert "my_comp" in ssp_index.get_comps_by_ssp("new_ssp")
     assert ssp_index.get_leveraged_by_ssp("new_ssp") is None
+    assert ssp_index.get_yaml_header_by_ssp("new_ssp") is None
 
     # Copy over a new index
     shutil.copy2(testutils.TEST_SSP_INDEX, ssp_index_path)
