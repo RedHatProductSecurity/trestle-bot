@@ -268,7 +268,6 @@ class AuthoredSSP(AuthoredObjectBase):
         ssp_name: str,
         input_ssp: str,
         version: str = "",
-        markdown_path: str = "",
         profile_name: str = "",
         compdefs: Optional[List[str]] = None,
         implementation_status: Optional[List[str]] = None,
@@ -280,16 +279,15 @@ class AuthoredSSP(AuthoredObjectBase):
         Args:
             ssp_name: Output name for ssp
             input_ssp: Input ssp to filter
+            version: Optional version to include in the output ssp
             profile_name:  Optional profile to filter by
             compdefs: Optional list of component definitions to filter by
             implementation_status: Optional implementation status to filter by
             control_origination: Optional control origination to filter by
-            markdown_path: Optional top-level markdown path to write to for continued editing.
 
         Notes:
-            This will transform the SSP with filters. If markdown_path is provided, it will
-            also generate SSP markdown and an index entry for a new managed SSP for continued
-            management in the workspace.
+            The purpose of this function is to allow users to create a new SSP for reporting
+            purposes without having to modify the source SSP.
         """
 
         # Create new ssp by filtering input ssp
@@ -328,24 +326,4 @@ class AuthoredSSP(AuthoredObjectBase):
         except TrestleError as e:
             raise AuthoredObjectException(
                 f"Trestle filtering failed for {input_ssp}: {e}"
-            )
-
-        # If markdown_path is provided, create a new managed ssp.
-        # this will eventually need to have a JSON to MD recovery to
-        # reduce manual editing.
-        if markdown_path:
-            if not profile_name:
-                profile_name = self.ssp_index.get_profile_by_ssp(input_ssp)
-
-            if not compdefs:
-                compdefs = self.ssp_index.get_comps_by_ssp(input_ssp)
-
-            leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(input_ssp)
-
-            self.create_new_default(
-                ssp_name,
-                profile_name,
-                compdefs,
-                markdown_path,
-                leveraged_ssp,
             )

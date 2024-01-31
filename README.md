@@ -23,6 +23,8 @@ The `rules-transform` action can be used when managing [OSCAL Component Definiti
 
 The `create-cd` action can be used to create a new [OSCAL Component Definition](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) in a trestle workspace. The action will create a new Component Definition JSON file and corresponding directories that contain rules YAML files and trestle-generated Markdown files. This action prepares the workspace for use with the `rules-transform` and `autosync` actions.
 
+The `sync-upstreams` action can be used to sync and validate upstream OSCAL content stored in a git repository to a local trestle workspace. Which content is synced is determined by the `include_model_names` and `exclude_model_names` inputs.
+
 ### GitLab CI
 
 > Coming Soon
