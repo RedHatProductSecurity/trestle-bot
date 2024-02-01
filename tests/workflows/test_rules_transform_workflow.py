@@ -2,7 +2,7 @@
 # Copyright (c) 2023 Red Hat, Inc.
 
 
-"""Test the rules transformation workflow."""
+"""Test the rules transformation workflow from a Task Class perspective."""
 
 import os
 import pathlib

@@ -6,6 +6,7 @@
 
 import os
 import pathlib
+import shutil
 
 import pytest
 from trestle.common import const
@@ -41,8 +42,9 @@ def test_assemble(tmp_trestle_dir: str) -> None:
     assert ssp_generate._run(args) == 0
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp])
+    ssp_index.write_out()
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
@@ -66,8 +68,9 @@ def test_assemble_no_ssp_entry(tmp_trestle_dir: str) -> None:
     assert ssp_generate._run(args) == 0
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, "fake", test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp("fake", test_prof, [test_comp])
+    ssp_index.write_out()
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
@@ -85,8 +88,9 @@ def test_regenerate(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp])
+    ssp_index.write_out()
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
@@ -105,8 +109,9 @@ def test_regenerate_no_ssp_entry(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, "fake", test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp("fake", test_prof, [test_comp])
+    ssp_index.write_out()
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
@@ -123,10 +128,8 @@ def test_regenerate_no_ssp_entry(tmp_trestle_dir: str) -> None:
 def test_get_comps_by_ssp(tmp_trestle_dir: str) -> None:
     """Test to get component definition list from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(
-        ssp_index_path, test_ssp_output, test_prof, [test_comp, "another_comp"]
-    )
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp, "another_comp"])
 
     assert test_comp in ssp_index.get_comps_by_ssp(test_ssp_output)
     assert "another_comp" in ssp_index.get_comps_by_ssp(test_ssp_output)
@@ -135,8 +138,8 @@ def test_get_comps_by_ssp(tmp_trestle_dir: str) -> None:
 def test_get_profile_by_ssp(tmp_trestle_dir: str) -> None:
     """Test to get profile from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp])
 
     assert ssp_index.get_profile_by_ssp(test_ssp_output) == test_prof
 
@@ -144,18 +147,28 @@ def test_get_profile_by_ssp(tmp_trestle_dir: str) -> None:
 def test_get_leveraged_ssp(tmp_trestle_dir: str) -> None:
     """Test to get leveraged ssp from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(
-        ssp_index_path, test_ssp_output, test_prof, [test_comp], leveraged_ssp
-    )
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(
+        test_ssp_output, test_prof, [test_comp], leveraged_ssp=leveraged_ssp
+    )
 
     assert ssp_index.get_leveraged_by_ssp(test_ssp_output) == leveraged_ssp
 
 
-def test_add_ssp_to_index(tmp_trestle_dir: str) -> None:
-    """Test adding an ssp to an index"""
+def test_get_yaml_header(tmp_trestle_dir: str) -> None:
+    """Test to get yaml header from index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(
+        test_ssp_output, test_prof, [test_comp], extra_yaml_header="ssp-name.yaml"
+    )
+
+    assert ssp_index.get_yaml_header_by_ssp(test_ssp_output) == "ssp-name.yaml"
+
+
+def test_add_ssp_to_index(tmp_trestle_dir: str) -> None:
+    """Test adding an ssp to an index."""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
 
     ssp_index.add_new_ssp("new_ssp", "test_prof", ["my_comp"])
@@ -170,22 +183,10 @@ def test_add_ssp_to_index(tmp_trestle_dir: str) -> None:
     assert "my_comp" in ssp_index.get_comps_by_ssp("another_new_ssp")
     assert ssp_index.get_leveraged_by_ssp("another_new_ssp") == "test_leveraged"
 
-    # Test adding to an empty ssp index
-
-    ssp_index_path = os.path.join(tmp_trestle_dir, "another-ssp-index.json")
-    ssp_index = SSPIndex(ssp_index_path)
-
-    ssp_index.add_new_ssp("another_new_ssp", "test_prof", ["my_comp"], "test_leveraged")
-
-    assert ssp_index.get_profile_by_ssp("another_new_ssp") == "test_prof"
-    assert "my_comp" in ssp_index.get_comps_by_ssp("another_new_ssp")
-    assert ssp_index.get_leveraged_by_ssp("another_new_ssp") == "test_leveraged"
-
 
 def test_write_new_ssp_index(tmp_trestle_dir: str) -> None:
-    """Test writing out a new ssp index"""
+    """Test writing out a new ssp index."""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
 
     ssp_index.add_new_ssp("new_ssp", "test_prof", ["my_comp"])
@@ -196,10 +197,6 @@ def test_write_new_ssp_index(tmp_trestle_dir: str) -> None:
     # Reread the ssp index from JSON
     ssp_index.reload()
 
-    assert ssp_index.get_profile_by_ssp(test_ssp_output) == test_prof
-    assert test_comp in ssp_index.get_comps_by_ssp(test_ssp_output)
-    assert ssp_index.get_leveraged_by_ssp(test_ssp_output) is None
-
     assert ssp_index.get_profile_by_ssp("new_ssp") == "test_prof"
     assert "my_comp" in ssp_index.get_comps_by_ssp("new_ssp")
     assert ssp_index.get_leveraged_by_ssp("new_ssp") is None
@@ -207,6 +204,53 @@ def test_write_new_ssp_index(tmp_trestle_dir: str) -> None:
     assert ssp_index.get_profile_by_ssp("another_new_ssp") == "test_prof"
     assert "my_comp" in ssp_index.get_comps_by_ssp("another_new_ssp")
     assert ssp_index.get_leveraged_by_ssp("another_new_ssp") == "test_leveraged"
+
+
+def test_reload(tmp_trestle_dir: str) -> None:
+    """Test reloading an ssp index from disk."""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    ssp_index.add_new_ssp("new_ssp", "test_prof", ["my_comp"])
+    ssp_index.write_out()
+
+    assert ssp_index.get_profile_by_ssp("new_ssp") == "test_prof"
+    assert "my_comp" in ssp_index.get_comps_by_ssp("new_ssp")
+    assert ssp_index.get_leveraged_by_ssp("new_ssp") is None
+    assert ssp_index.get_yaml_header_by_ssp("new_ssp") is None
+
+    # Copy over a new index
+    shutil.copy2(testutils.TEST_SSP_INDEX, ssp_index_path)
+
+    # Reread the ssp index from JSON
+    ssp_index.reload()
+
+    assert ssp_index.get_profile_by_ssp("ssp-name") == "profile"
+    assert "comp-a" in ssp_index.get_comps_by_ssp("ssp-name")
+    assert ssp_index.get_leveraged_by_ssp("ssp-name") == "leveraged-ssp-name"
+    assert ssp_index.get_yaml_header_by_ssp("ssp-name") == "ssp-name.yaml"
+
+    # Make sure the new ssp is not present in memory
+    with pytest.raises(
+        AuthoredObjectException, match="SSP new_ssp does not exists in the index"
+    ):
+        ssp_index.get_profile_by_ssp("new_ssp")
+
+
+def test_invalid_ssp_index(tmp_trestle_dir: str) -> None:
+    """Test to trigger failure for invalid SSP index"""
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    # Copy over a new index
+    shutil.copy2(testutils.INVALID_TEST_SSP_INDEX, ssp_index_path)
+
+    # Reread the ssp index from JSON
+    with pytest.raises(
+        AuthoredObjectException,
+        match="SSP .* entry is missing profile or component data",
+    ):
+        ssp_index.reload()
 
 
 def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
@@ -221,10 +265,9 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     assert ssp_generate._run(args) == 0
 
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(
-        ssp_index_path, test_ssp_output, test_prof, [test_comp, test_comp_2]
-    )
     ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+    ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp, test_comp_2])
+    ssp_index.write_out()
 
     authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
 
@@ -234,35 +277,10 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     _ = testutils.setup_for_profile(trestle_root, test_prof_filter, test_prof_filter)
 
     ssp_name = "new_ssp"
-    new_md_path = os.path.join(markdown_dir, ssp_name)
     input_ssp = test_ssp_output
 
-    # Call create_new_with_filter with new profile
-    authored_ssp.create_new_with_filter(
-        ssp_name, input_ssp, markdown_path=new_md_path, profile_name=test_prof_filter
-    )
-
-    ssp_index.reload()
-
-    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof_filter
-    assert test_comp in ssp_index.get_comps_by_ssp(ssp_name)
-    model_path = ModelUtils.get_model_path_for_name_and_class(
-        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
-    )
-    assert model_path.exists()
-
-    ssp_name = "new_ssp_2"
-    new_md_path = os.path.join(markdown_dir, ssp_name)
-
     # Call create_new_with_filter with a single compdef
-    authored_ssp.create_new_with_filter(
-        ssp_name, input_ssp, markdown_path=new_md_path, compdefs=[test_comp_2]
-    )
-
-    ssp_index.reload()
-    assert ssp_index.get_profile_by_ssp(ssp_name) == test_prof
-    assert test_comp not in ssp_index.get_comps_by_ssp(ssp_name)
-    assert test_comp_2 in ssp_index.get_comps_by_ssp(ssp_name)
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, compdefs=[test_comp_2])
 
     ssp, model_path = load_validate_model_name(
         trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
@@ -277,13 +295,13 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     assert test_comp_2 in component_names
     assert test_comp not in component_names
 
-    # Check that without markdown path the ssp_index is not updated
-    ssp_name = "new_ssp_3"
+    # Check that the ssp_index is not updated
+    ssp_name = "new_ssp_2"
     authored_ssp.create_new_with_filter(
         ssp_name, input_ssp, implementation_status=["implemented"]
     )
     ssp_index.reload()
     with pytest.raises(
-        AuthoredObjectException, match="SSP new_ssp_3 does not exists in the index"
+        AuthoredObjectException, match="SSP new_ssp_2 does not exists in the index"
     ):
         ssp_index.get_profile_by_ssp(ssp_name)

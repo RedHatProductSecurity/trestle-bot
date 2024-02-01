@@ -162,10 +162,10 @@ def test_compdef_regenerate_task(tmp_trestle_dir: str) -> None:
 def test_ssp_regenerate_task(tmp_trestle_dir: str, write_ssp_index: bool) -> None:
     """Test ssp regenerate at the task level with and without an index"""
     ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index = SSPIndex(ssp_index_path)
     if write_ssp_index:
-        testutils.write_index_json(
-            ssp_index_path, test_ssp_output, test_prof, [test_comp]
-        )
+        ssp_index.add_new_ssp(test_ssp_output, test_prof, [test_comp])
+        ssp_index.write_out()
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     md_path = os.path.join(ssp_md_dir, test_ssp_output)
@@ -189,7 +189,6 @@ def test_ssp_regenerate_task(tmp_trestle_dir: str, write_ssp_index: bool) -> Non
     )
     assert ssp_assemble._run(args) == 0
 
-    ssp_index = SSPIndex(ssp_index_path)
     ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
     regenerate_task = RegenerateTask(ssp, ssp_md_dir)
 

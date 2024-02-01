@@ -4,7 +4,6 @@
 
 """Test author types for Trestlebot"""
 
-import os
 from unittest.mock import Mock
 
 import pytest
@@ -39,7 +38,7 @@ def test_get_authored_catalog(tmp_trestle_dir: str) -> None:
 
 
 def test_get_authored_profile(tmp_trestle_dir: str) -> None:
-    """Test get authored type for catalogs"""
+    """Test get authored type for profiles"""
 
     authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.PROFILE.value, tmp_trestle_dir, ""
@@ -50,9 +49,8 @@ def test_get_authored_profile(tmp_trestle_dir: str) -> None:
 
 
 def test_get_authored_compdef(tmp_trestle_dir: str) -> None:
-    """Test get authored type for catalogs"""
+    """Test get authored type for compdefs"""
 
-    # Test with profile
     authored_object: AuthoredObjectBase = types.get_authored_object(
         types.AuthoredType.COMPDEF.value, tmp_trestle_dir, ""
     )
@@ -62,18 +60,15 @@ def test_get_authored_compdef(tmp_trestle_dir: str) -> None:
 
 
 def test_get_authored_ssp(tmp_trestle_dir: str) -> None:
-    """Test get authored type for catalogs"""
-    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
-    testutils.write_index_json(ssp_index_path, test_ssp_output, test_prof, [test_comp])
-
+    """Test get authored type for ssp"""
     with pytest.raises(
         FileNotFoundError,
     ):
         _ = types.get_authored_object(types.AuthoredType.SSP.value, tmp_trestle_dir, "")
 
-    # Test with profile
+    # Test with a valid ssp index
     authored_object: AuthoredObjectBase = types.get_authored_object(
-        types.AuthoredType.SSP.value, tmp_trestle_dir, ssp_index_path
+        types.AuthoredType.SSP.value, tmp_trestle_dir, str(testutils.TEST_SSP_INDEX)
     )
 
     assert authored_object.get_trestle_root() == tmp_trestle_dir
