@@ -17,7 +17,12 @@ from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.repository import AgileAuthoring
 from trestle.oscal.component import ComponentDefinition
 
-from trestlebot.const import COMPDEF_KEY_NAME, LEVERAGED_SSP_KEY_NAME, PROFILE_KEY_NAME
+from trestlebot.const import (
+    COMPDEF_KEY_NAME,
+    LEVERAGED_SSP_KEY_NAME,
+    PROFILE_KEY_NAME,
+    YAML_HEADER_PATH_KEY_NAME,
+)
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectBase,
     AuthoredObjectException,
@@ -41,6 +46,7 @@ class SSPIndex:
         self.profile_by_ssp: Dict[str, str] = {}
         self.comps_by_ssp: Dict[str, List[str]] = {}
         self.leveraged_ssp_by_ssp: Dict[str, str] = {}
+        self.yaml_header_by_ssp: Dict[str, str] = {}
         self._load()
 
     def _load(self) -> None:
@@ -69,6 +75,11 @@ class SSPIndex:
                         LEVERAGED_SSP_KEY_NAME
                     ]
 
+                if YAML_HEADER_PATH_KEY_NAME in ssp_info:
+                    self.yaml_header_by_ssp[ssp_name] = ssp_info[
+                        YAML_HEADER_PATH_KEY_NAME
+                    ]
+
         except FileNotFoundError:
             with open(self._index_path, "w") as file:
                 json.dump({}, file)
@@ -78,6 +89,7 @@ class SSPIndex:
         self.profile_by_ssp = {}
         self.comps_by_ssp = {}
         self.leveraged_ssp_by_ssp = {}
+        self.yaml_header_by_ssp = {}
         self._load()
 
     def get_comps_by_ssp(self, ssp_name: str) -> List[str]:
@@ -106,18 +118,29 @@ class SSPIndex:
             logging.debug(f"key {ssp_name} does not exist")
             return None
 
+    def get_yaml_header_by_ssp(self, ssp_name: str) -> Optional[str]:
+        """Return the optional yaml header path used with the SSP"""
+        try:
+            return self.yaml_header_by_ssp[ssp_name]
+        except KeyError:
+            logging.debug(f"key {ssp_name} does not exist")
+            return None
+
     def add_new_ssp(
         self,
         ssp_name: str,
         profile_name: str,
         compdefs: List[str],
         leveraged_ssp: Optional[str] = None,
+        extra_yaml_header: Optional[str] = None,
     ) -> None:
         """Add a new ssp to the index"""
         self.profile_by_ssp[ssp_name] = profile_name
         self.comps_by_ssp[ssp_name] = compdefs
         if leveraged_ssp:
             self.leveraged_ssp_by_ssp[ssp_name] = leveraged_ssp
+        if extra_yaml_header:
+            self.yaml_header_by_ssp[ssp_name] = extra_yaml_header
 
     def write_out(self) -> None:
         """Write SSP index back to the index file"""
@@ -127,9 +150,9 @@ class SSPIndex:
             ssp_info: Dict[str, Any] = {
                 PROFILE_KEY_NAME: profile_name,
                 COMPDEF_KEY_NAME: self.comps_by_ssp[ssp_name],
+                LEVERAGED_SSP_KEY_NAME: self.leveraged_ssp_by_ssp.get(ssp_name, None),
+                YAML_HEADER_PATH_KEY_NAME: self.yaml_header_by_ssp.get(ssp_name, None),
             }
-            if ssp_name in self.leveraged_ssp_by_ssp:
-                ssp_info[LEVERAGED_SSP_KEY_NAME] = self.leveraged_ssp_by_ssp[ssp_name]
 
             data[ssp_name] = ssp_info
 
@@ -179,14 +202,13 @@ class AuthoredSSP(AuthoredObjectBase):
         """Run regenerate actions for ssp type at the provided path"""
 
         ssp = os.path.basename(model_path)
-        comps = self.ssp_index.get_comps_by_ssp(ssp)
+        comps: List[str] = self.ssp_index.get_comps_by_ssp(ssp)
         component_str = ",".join(comps)
 
         profile = self.ssp_index.get_profile_by_ssp(ssp)
 
-        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp)
-        if leveraged_ssp is None:
-            leveraged_ssp = ""
+        leveraged_ssp = self.ssp_index.get_leveraged_by_ssp(ssp) or ""
+        yaml_header = self.ssp_index.get_yaml_header_by_ssp(ssp) or ""
 
         trestle_root = pathlib.Path(self.get_trestle_root())
         authoring = AgileAuthoring(trestle_root)
@@ -195,7 +217,7 @@ class AuthoredSSP(AuthoredObjectBase):
             success = authoring.generate_ssp_markdown(
                 output=os.path.join(markdown_path, ssp),
                 force_overwrite=False,
-                yaml_header="",
+                yaml_header=yaml_header,
                 overwrite_header_values=False,
                 compdefs=component_str,
                 profile=profile,
@@ -215,6 +237,7 @@ class AuthoredSSP(AuthoredObjectBase):
         compdefs: List[str],
         markdown_path: str,
         leveraged_ssp: Optional[str] = None,
+        yaml_header: Optional[str] = None,
     ) -> None:
         """
         Create new ssp with index
@@ -225,12 +248,15 @@ class AuthoredSSP(AuthoredObjectBase):
             compdefs: List of component definitions to import
             markdown_path: Top-level markdown path to write to
             leveraged_ssp: Optional leveraged ssp name for inheritance view editing
+            yaml_header: Optional yaml header path for customizing the header
 
         Notes:
             This will generate SSP markdown and an index entry for a new managed SSP.
         """
 
-        self.ssp_index.add_new_ssp(ssp_name, profile_name, compdefs, leveraged_ssp)
+        self.ssp_index.add_new_ssp(
+            ssp_name, profile_name, compdefs, leveraged_ssp, yaml_header
+        )
         self.ssp_index.write_out()
 
         # Pass the ssp_name as the model base path.
