@@ -101,11 +101,9 @@ def test_create_ssp_with_error(
         with pytest.raises(SystemExit, match="1"):
             cli_main()
 
-    # This error message occur when trestlebot fails. We are calling
-    # the trestlebot CLI directly so specific error will be logged separately
     assert any(
         record.levelno == logging.ERROR
-        and "Exception occurred during execution: Unknown error "
-        "occurred while regenerating test-ssp" in record.message
+        and "Component Definition fake_comp_name does not exist in the workspace"
+        in record.message
         for record in caplog.records
     )
