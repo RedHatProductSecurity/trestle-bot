@@ -92,11 +92,8 @@ class CreateSSPEntrypoint(EntrypointBase):
         try:
             set_log_level_from_args(args)
 
-            # If the ssp index file does not exist, create it.
             ssp_index_path = pathlib.Path(args.ssp_index_path)
-            if not ssp_index_path.exists():
-                # Create a parent directory
-                ssp_index_path.parent.mkdir(parents=True, exist_ok=True)
+            ssp_index_path.parent.mkdir(parents=True, exist_ok=True)
 
             ssp_index: SSPIndex = SSPIndex(args.ssp_index_path)
             authored_ssp: AuthoredSSP = AuthoredSSP(args.working_dir, ssp_index)
