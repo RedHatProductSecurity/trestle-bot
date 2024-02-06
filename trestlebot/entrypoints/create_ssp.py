@@ -98,8 +98,8 @@ class CreateSSPEntrypoint(EntrypointBase):
                 # Create a parent directory
                 ssp_index_path.parent.mkdir(parents=True, exist_ok=True)
 
-            ssp_index = SSPIndex(args.ssp_index_path)
-            authored_ssp = AuthoredSSP(args.working_dir, ssp_index)
+            ssp_index: SSPIndex = SSPIndex(args.ssp_index_path)
+            authored_ssp: AuthoredSSP = AuthoredSSP(args.working_dir, ssp_index)
 
             comps: List[str] = comma_sep_to_list(args.compdefs)
             authored_ssp.create_new_default(
@@ -113,7 +113,7 @@ class CreateSSPEntrypoint(EntrypointBase):
 
             # The starting point for SSPs is the markdown, so assemble into JSON.
             model_filter: ModelFilter = ModelFilter([], [args.ssp_name])
-            assemble_task = AssembleTask(
+            assemble_task: AssembleTask = AssembleTask(
                 authored_object=authored_ssp,
                 markdown_dir=args.markdown_path,
                 version=args.version,
