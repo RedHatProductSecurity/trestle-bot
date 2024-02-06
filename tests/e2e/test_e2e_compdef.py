@@ -94,9 +94,6 @@ def test_rules_transform_e2e(
     # Setup the rules directory
     setup_rules_view(tmp_repo_path, test_comp_name)
 
-    remote_url = "http://localhost:8080/test.git"
-    repo.create_remote("origin", url=remote_url)
-
     command = build_test_command(
         tmp_repo_str, "rules-transform", command_args, image_name
     )
@@ -214,15 +211,12 @@ def test_create_cd_e2e(
 
     logger.info(f"Running test: {test_name}")
 
-    tmp_repo_str, repo = tmp_repo
+    tmp_repo_str, _ = tmp_repo
     tmp_repo_path = pathlib.Path(tmp_repo_str)
 
     # Load profiles into the environment
     _ = setup_for_profile(tmp_repo_path, test_prof, "")
     load_from_json(tmp_repo_path, test_filter_prof, test_filter_prof, Profile)
-
-    remote_url = "http://localhost:8080/test.git"
-    repo.create_remote("origin", url=remote_url)
 
     command = build_test_command(tmp_repo_str, "create-cd", command_args, image_name)
     run_response = subprocess.run(command, cwd=tmp_repo_path, capture_output=True)

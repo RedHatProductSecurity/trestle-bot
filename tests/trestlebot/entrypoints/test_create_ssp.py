@@ -33,7 +33,6 @@ test_cat = "simplified_nist_catalog"
 test_prof = "simplified_nist_profile"
 test_comp_name = "test_comp"
 test_ssp_md = "md_ssp"
-test_repo_url = "git.test.com/test/repo.git"
 
 # Expecting more md files to be included in the commit
 # but checking that the md directory was created and the ssp-index.json was created
@@ -50,7 +49,6 @@ def test_create_ssp(
     """Test create-ssp with valid args and a custom yaml header."""
     repo_path, repo = tmp_repo
     tmp_repo_path = pathlib.Path(repo_path)
-    repo.create_remote("origin", url=test_repo_url)
 
     args_dict = base_args_dict
     args_dict["working-dir"] = repo_path
@@ -86,7 +84,6 @@ def test_create_ssp_with_error(
     """Test create-ssp and trigger an error."""
     repo_path, repo = tmp_repo
     tmp_repo_path = pathlib.Path(repo_path)
-    repo.create_remote("origin", url=test_repo_url)
 
     args_dict = base_args_dict
     args_dict["working-dir"] = repo_path

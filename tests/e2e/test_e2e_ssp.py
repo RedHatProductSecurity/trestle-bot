@@ -96,12 +96,10 @@ def test_ssp_editing_e2e(
 
     logger.info(f"Running test: {test_name}")
 
-    tmp_repo_str, repo = tmp_repo
+    tmp_repo_str, _ = tmp_repo
     tmp_repo_path = pathlib.Path(tmp_repo_str)
 
     args = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
-    remote_url = "http://localhost:8080/test.git"
-    repo.create_remote("origin", url=remote_url)
 
     # Create or generate the SSP
     if not skip_create:

@@ -39,6 +39,7 @@ CONTAINER_FILE_NAME = "Dockerfile"
 
 # Location the upstream repo is mounted to in the container
 UPSTREAM_REPO = "/upstream"
+TEST_REMOTE_REPO_URL = "http://localhost:8080/test.git"
 
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
