@@ -16,6 +16,7 @@ from trestle.core.commands.author.ssp import SSPFilter
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.repository import AgileAuthoring
 from trestle.oscal.component import ComponentDefinition
+from trestle.oscal.profile import Profile
 
 from trestlebot.const import (
     COMPDEF_KEY_NAME,
@@ -253,6 +254,26 @@ class AuthoredSSP(AuthoredObjectBase):
         Notes:
             This will generate SSP markdown and an index entry for a new managed SSP.
         """
+
+        # Verify that the profile and compdefs exist
+        trestle_root_str = self.get_trestle_root()
+        trestle_root = pathlib.Path(trestle_root_str)
+        profile_path = ModelUtils.get_model_path_for_name_and_class(
+            trestle_root, profile_name, Profile
+        )
+        if profile_path is None:
+            raise AuthoredObjectException(
+                f"Profile {profile_name} does not exist in the workspace."
+            )
+
+        for compdef in compdefs:
+            compdef_path = ModelUtils.get_model_path_for_name_and_class(
+                trestle_root, compdef, ComponentDefinition
+            )
+            if compdef_path is None:
+                raise AuthoredObjectException(
+                    f"Component Definition {compdef} does not exist in the workspace."
+                )
 
         self.ssp_index.add_new_ssp(
             ssp_name, profile_name, compdefs, leveraged_ssp, yaml_header

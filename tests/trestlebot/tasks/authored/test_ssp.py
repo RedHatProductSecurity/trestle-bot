@@ -253,6 +253,34 @@ def test_invalid_ssp_index(tmp_trestle_dir: str) -> None:
         ssp_index.reload()
 
 
+def test_create_new_default_with_errors(tmp_trestle_dir: str) -> None:
+    """Test to create new SSP and trigger failures for missing OSCAL files."""
+    # Prepare the workspace and input ssp
+    md_path = os.path.join(markdown_dir, test_ssp_output)
+    trestle_root = pathlib.Path(tmp_trestle_dir)
+    _ = testutils.setup_for_ssp(trestle_root, test_prof, [test_comp], md_path)
+
+    ssp_index_path = os.path.join(tmp_trestle_dir, "ssp-index.json")
+    ssp_index: SSPIndex = SSPIndex(ssp_index_path)
+
+    authored_ssp = AuthoredSSP(tmp_trestle_dir, ssp_index)
+
+    with pytest.raises(
+        AuthoredObjectException, match="Profile .* does not exist in the workspace"
+    ):
+        authored_ssp.create_new_default(
+            test_ssp_output, "fake_profile", [test_comp], md_path
+        )
+
+    with pytest.raises(
+        AuthoredObjectException,
+        match="Component Definition .* does not exist in the workspace",
+    ):
+        authored_ssp.create_new_default(
+            test_ssp_output, test_prof, ["fake_comp"], md_path
+        )
+
+
 def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     """Test to create new SSP with filtering by profile"""
     # Prepare the workspace and input ssp
