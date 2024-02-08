@@ -178,8 +178,6 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
     with open(test_file_path, "w") as f:
         f.write("Test content")
 
-    repo.create_remote("origin", url="git.test.com/test/repo.git")
-
     with patch("git.remote.Remote.push") as mock_push:
         mock_push.return_value = "Mocked result"
 
@@ -315,8 +313,6 @@ def test_run_with_exception(
     with open(test_file_path, "w") as f:
         f.write("Test content")
 
-    repo.create_remote("origin", url="git.test.com/test/repo.git")
-
     bot = TrestleBot(
         working_dir=repo_path,
         branch="main",
@@ -347,8 +343,6 @@ def test_run_with_failed_pre_task(tmp_repo: Tuple[str, Repo]) -> None:
     mock = Mock(spec=TaskBase)
     mock.execute.side_effect = TaskException("example")
 
-    repo.create_remote("origin", url="git.test.com/test/repo.git")
-
     bot = TrestleBot(
         working_dir=repo_path,
         branch="main",
@@ -377,8 +371,6 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
     mock = Mock(spec=GitProvider)
     mock.create_pull_request.return_value = 10
     mock.parse_repository.return_value = ("ns", "repo")
-
-    repo.create_remote("origin", url="git.test.com/test/repo.git")
 
     bot = TrestleBot(
         working_dir=repo_path,
@@ -436,8 +428,6 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
     mock = Mock(spec=GitProvider)
     mock.create_pull_request.return_value = "10"
     mock.parse_repository.return_value = ("ns", "repo")
-
-    repo.create_remote("origin", url="git.test.com/test/repo.git")
 
     bot = TrestleBot(
         working_dir=repo_path,

@@ -36,8 +36,8 @@ from tests.testutils import (
     prepare_upstream_repo,
     setup_for_ssp,
 )
-from trestlebot.const import ERROR_EXIT_CODE, INVALID_ARGS_EXIT_CODE, SUCCESS_EXIT_CODE
-from trestlebot.tasks.authored.ssp import AuthoredSSP, SSPIndex
+from trestlebot.const import ERROR_EXIT_CODE, SUCCESS_EXIT_CODE
+from trestlebot.tasks.authored.ssp import SSPIndex
 
 
 logger = logging.getLogger(__name__)
@@ -78,17 +78,6 @@ test_ssp_name = "test_ssp"
             ERROR_EXIT_CODE,
             True,
         ),
-        (
-            "failure/missing args",
-            {
-                "branch": "test",
-                "oscal-model": "ssp",
-                "committer-name": "test",
-                "committer-email": "test@email.com",
-            },
-            INVALID_ARGS_EXIT_CODE,
-            False,
-        ),
     ],
 )
 def test_ssp_editing_e2e(
@@ -107,36 +96,41 @@ def test_ssp_editing_e2e(
 
     logger.info(f"Running test: {test_name}")
 
-    tmp_repo_str, repo = tmp_repo
+    tmp_repo_str, _ = tmp_repo
     tmp_repo_path = pathlib.Path(tmp_repo_str)
 
     args = setup_for_ssp(tmp_repo_path, test_prof, [test_comp_name], test_ssp_md)
 
     # Create or generate the SSP
     if not skip_create:
-        index_path = os.path.join(tmp_repo_str, "ssp-index.json")
-        ssp_index = SSPIndex(index_path)
-        authored_ssp = AuthoredSSP(tmp_repo_str, ssp_index)
-        authored_ssp.create_new_default(
-            test_ssp_name,
-            test_prof,
-            [test_comp_name],
-            test_ssp_md,
+        create_args: Dict[str, str] = {
+            "markdown-path": command_args["markdown-path"],
+            "branch": command_args["branch"],
+            "committer-name": command_args["committer-name"],
+            "committer-email": command_args["committer-email"],
+            "ssp-name": test_ssp_name,
+            "profile-name": test_prof,
+            "compdefs": test_comp_name,
+        }
+        command = build_test_command(
+            tmp_repo_str, "create-ssp", create_args, image_name
         )
+        run_response = subprocess.run(command, capture_output=True)
+        assert run_response.returncode == response
+        assert (tmp_repo_path / command_args["markdown-path"]).exists()
+
+        # Make a change to the SSP
+        ssp, ssp_path = ModelUtils.load_model_for_class(
+            tmp_repo_path,
+            test_ssp_name,
+            SystemSecurityPlan,
+            FileContentType.JSON,
+        )
+        ssp.metadata.title = "New Title"
+        ssp.oscal_write(ssp_path)
     else:
         ssp_generate = SSPGenerate()
         assert ssp_generate._run(args) == 0
-
-    ssp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
-        tmp_repo_path,
-        test_ssp_name,
-        SystemSecurityPlan,
-        FileContentType.JSON,
-    )
-    assert not ssp_path.exists()
-
-    remote_url = "http://localhost:8080/test.git"
-    repo.create_remote("origin", url=remote_url)
 
     command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
     run_response = subprocess.run(command, capture_output=True)
@@ -151,8 +145,8 @@ def test_ssp_editing_e2e(
         )
 
         # Check that the correct files are present with the correct content
-        assert (tmp_repo_path / command_args["markdown-path"]).exists()
-        ssp_index.reload()
+        index_path = os.path.join(tmp_repo_str, "ssp-index.json")
+        ssp_index = SSPIndex(index_path)
         assert ssp_index.get_profile_by_ssp(test_ssp_name) == test_prof
         assert ssp_index.get_comps_by_ssp(test_ssp_name) == [test_comp_name]
         assert ssp_index.get_leveraged_by_ssp(test_ssp_name) is None

@@ -31,7 +31,6 @@ test_cat = "simplified_nist_catalog"
 test_cat_path = "catalogs/simplified_nist_catalog/catalog.json"
 test_prof = "simplified_nist_profile"
 test_prof_path = "profiles/simplified_nist_profile/profile.json"
-test_repo_url = "git.test.com/test/repo.git"
 
 
 def test_sync_upstreams(
@@ -39,7 +38,6 @@ def test_sync_upstreams(
 ) -> None:
     """Test sync upstreams with default settings and valid args."""
     repo_path, repo = tmp_repo
-    repo.create_remote("origin", url=test_repo_url)
 
     args_dict = valid_args_dict
     args_dict["working-dir"] = repo_path
@@ -70,7 +68,6 @@ def test_with_include_model_names(
 ) -> None:
     """Test sync upstreams with include model names flag."""
     repo_path, repo = tmp_repo
-    repo.create_remote("origin", url=test_repo_url)
 
     args_dict = valid_args_dict
     args_dict["include-model-names"] = test_cat
@@ -101,7 +98,6 @@ def test_with_exclude_model_names(
 ) -> None:
     """Test sync upstreams with exclude model names flag."""
     repo_path, repo = tmp_repo
-    repo.create_remote("origin", url=test_repo_url)
 
     args_dict = valid_args_dict
     args_dict["exclude-model-names"] = test_prof

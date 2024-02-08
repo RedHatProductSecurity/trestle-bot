@@ -23,6 +23,7 @@ trestlebot-autosync = "trestlebot.entrypoints.autosync:main"
 trestlebot-rules-transform = "trestlebot.entrypoints.rule_transform:main"
 trestlebot-create-cd = "trestlebot.entrypoints.create_cd:main"
 trestlebot-sync-upstreams = "trestlebot.entrypoints.sync_upstreams:main"
+trestlebot-create-ssp = "trestlebot.entrypoints.create_ssp:main"
 
 [tool.poetry.dependencies]
 python = '^3.8.1'
