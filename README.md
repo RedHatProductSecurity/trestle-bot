@@ -13,9 +13,7 @@ trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/
 
 ## Getting Started
 
-### GitHub Actions
-
-For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
+### Available Commands
 
 The `autosync` action will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory when the action is run will be transformed. This action supports all top-level models [supported by compliance-trestle for authoring](https://ibm.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
@@ -25,9 +23,24 @@ The `create-cd` action can be used to create a new [OSCAL Component Definition](
 
 The `sync-upstreams` action can be used to sync and validate upstream OSCAL content stored in a git repository to a local trestle workspace. Which content is synced is determined by the `include_model_names` and `exclude_model_names` inputs.
 
-### GitLab CI
+The `create-ssp` action can be to create a new [OSCAL System Security Plan](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/system-security-plan/json-outline/) in a trestle workspace. The action will create a new System Security Plan JSON file and corresponding directories that contain trestle-generated Markdown files. This action prepares the workspace for use with the `autosync` action by creating or updating the `ssp-index.json` file. The `ssp-index.json` file is used to track the relationships between the System Security Plan and the other OSCAL content in the workspace for the `autosync` action.
 
-> Coming Soon
+Below is a table of the available commands and their current availability as a GitHub Action:
+
+| Command            | Available an a GitHub Action |
+|--------------------|------------------------------|
+| `autosync`         | &#10003;                     |
+| `rules-transform`  | &#10003;                     |                   
+| `create-cd`        | &#10003;                     |
+| `sync-upstreams`   | &#10003;                     |
+| `create-ssp`       |                              |
+
+For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
+
+### Supported Continuous Integration Systems
+
+- GitHub Actions
+- GitLab
 
 ### Run as a Container
 
