@@ -48,6 +48,8 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
     with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
         tmp_path = pathlib.Path(tmpdir)
         repo: Repo = repo_setup(tmp_path)
+        remote_url = "http://localhost:8080/test.git"
+        repo.create_remote("origin", url=remote_url)
         yield tmpdir, repo
 
         try:

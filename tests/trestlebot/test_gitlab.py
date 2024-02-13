@@ -76,9 +76,7 @@ def test_parse_repository_integration(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests integration with git remote get-url"""
     repo_path, repo = tmp_repo
 
-    repo.create_remote("origin", url="gitlab.com/test/repo.git")
-
-    remote = repo.remote()
+    remote = repo.create_remote("test", url="gitlab.com/test/repo.git")
 
     gl = GitLab("fake")
 

@@ -139,6 +139,8 @@ make develop
 poetry run trestlebot-autosync
 poetry run trestlebot-rules-transform
 poetry run trestlebot-create-cd
+poetry run trestlebot-sync-upstreams
+poetry run trestlebot-create-ssp
 ```
 
 #### Local testing
