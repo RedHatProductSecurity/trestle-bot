@@ -23,11 +23,11 @@ The `create-cd` action can be used to create a new [OSCAL Component Definition](
 
 The `sync-upstreams` action can be used to sync and validate upstream OSCAL content stored in a git repository to a local trestle workspace. Which content is synced is determined by the `include_model_names` and `exclude_model_names` inputs.
 
-The `create-ssp` action can be to create a new [OSCAL System Security Plan](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/system-security-plan/json-outline/) in a trestle workspace. The action will create a new System Security Plan JSON file and corresponding directories that contain trestle-generated Markdown files. This action prepares the workspace for use with the `autosync` action by creating or updating the `ssp-index.json` file. The `ssp-index.json` file is used to track the relationships between the System Security Plan and the other OSCAL content in the workspace for the `autosync` action.
+The `create-ssp` action can be used to create a new [OSCAL System Security Plans](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/system-security-plan/json-outline/) (SSP) in a trestle workspace. The action will create a new SSP JSON file and corresponding directories that contain trestle-generated Markdown files. This action prepares the workspace for use with the `autosync` action by creating or updating the `ssp-index.json` file. The `ssp-index.json` file is used to track the relationships between the SSP and the other OSCAL content in the workspace for the `autosync` action.
 
 Below is a table of the available commands and their current availability as a GitHub Action:
 
-| Command            | Available an a GitHub Action |
+| Command            | Available as a GitHub Action |
 |--------------------|------------------------------|
 | `autosync`         | &#10003;                     |
 | `rules-transform`  | &#10003;                     |                   
