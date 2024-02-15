@@ -46,6 +46,9 @@ def test_rule_transformer() -> None:
     assert rule.parameter.default_value == "5%"
     assert rule.profile.description == "Simple NIST Profile"
     assert rule.profile.href == "profiles/simplified_nist_profile/profile.json"
+    assert rule.check is not None
+    assert rule.check.name == "my_check"
+    assert rule.check.description == "My check description"
 
 
 def test_rules_transform_with_incomplete_rule() -> None:

@@ -28,6 +28,7 @@ from tests.testutils import (
 )
 from trestlebot import const
 from trestlebot.transformers.trestle_rule import (
+    Check,
     ComponentInfo,
     Control,
     Parameter,
@@ -168,6 +169,7 @@ def test_rule() -> TrestleRule:
             alternative_values={},
             default_value="test",
         ),
+        check=Check(name="test_check", description="test check"),
         profile=Profile(
             description="test", href="test", include_controls=[Control(id="ac-1")]
         ),

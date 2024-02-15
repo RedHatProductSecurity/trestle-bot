@@ -18,6 +18,7 @@ from trestlebot.transformers.base_transformer import (
     ToRulesTransformer,
 )
 from trestlebot.transformers.trestle_rule import (
+    Check,
     ComponentInfo,
     Parameter,
     Profile,
@@ -66,12 +67,17 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
                     rule_info_data[const.PARAMETER]
                 )
 
+            check_instance: Optional[Check] = None
+            if const.CHECK in rule_info_data:
+                check_instance = Check.parse_obj(rule_info_data[const.CHECK])
+
             rule_info_instance: TrestleRule = TrestleRule(
                 name=rule_info_data[const.NAME],
                 description=rule_info_data[const.DESCRIPTION],
                 component=component_info_instance,
                 parameter=parameter_instance,
                 profile=profile_info_instance,
+                check=check_instance,
             )
 
         except KeyError as e:
@@ -132,6 +138,10 @@ class FromRulesYAMLTransformer(FromRulesTransformer):
 
         if rule.parameter is not None:
             rule_info[const.RULE_INFO_TAG][const.PARAMETER] = rule.parameter.dict(
+                by_alias=True, exclude_unset=True
+            )
+        if rule.check is not None:
+            rule_info[const.RULE_INFO_TAG][const.CHECK] = rule.check.dict(
                 by_alias=True, exclude_unset=True
             )
         return rule_info
