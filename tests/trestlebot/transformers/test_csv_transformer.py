@@ -6,7 +6,7 @@
 
 import csv
 import pathlib
-from typing import List
+from typing import Dict, List
 
 import pytest
 
@@ -56,12 +56,20 @@ def test_csv_builder(test_rule: TrestleRule, tmp_trestle_dir: str) -> None:
         assert column in first_row
 
 
-def test_validate_row() -> None:
-    """Test validate row with an invalid row."""
-    row = {"Rule_Id": "test"}
+def test_validate_row_missing_keys(test_valid_csv_row: Dict[str, str]) -> None:
+    """Test validate row with missing keys."""
+    del test_valid_csv_row["Rule_Id"]
     csv_builder = CSVBuilder()
     with pytest.raises(RuntimeError, match="Row missing key: *"):
-        csv_builder.validate_row(row)
+        csv_builder.validate_row(test_valid_csv_row)
+
+
+def test_validate_row_extra_keys(test_valid_csv_row: Dict[str, str]) -> None:
+    """Test validate row with extra keys."""
+    test_valid_csv_row["extra_key"] = "extra_value"
+    csv_builder = CSVBuilder()
+    with pytest.raises(RuntimeError, match="Row has extra key: *"):
+        csv_builder.validate_row(test_valid_csv_row)
 
 
 def test_read_write_integration(test_rule: TrestleRule) -> None:

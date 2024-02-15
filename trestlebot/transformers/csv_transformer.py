@@ -202,6 +202,12 @@ class CSVBuilder:
         self._csv_columns: CsvColumn = CsvColumn()
         self._transformer: FromRulesTransformer = FromRulesCSVTransformer()
         self._rows: List[Dict[str, str]] = []
+        self._fieldnames: List[str] = self._csv_columns.get_required_column_names()
+        self._fieldnames.extend(self._csv_columns.get_optional_column_names())
+        self._fieldnames.append(PARAMETER_ID)
+        self._fieldnames.append(PARAMETER_DESCRIPTION)
+        self._fieldnames.append(PARAMETER_VALUE_ALTERNATIVES)
+        self._fieldnames.append(PARAMETER_VALUE_DEFAULT)
 
     @property
     def row_count(self) -> int:
@@ -216,24 +222,25 @@ class CSVBuilder:
 
     def validate_row(self, row: Dict[str, str]) -> None:
         """Validate a row."""
+        # Check that the row has all the required keys
         for key in self._csv_columns.get_required_column_names():
             if key not in row:
                 raise RuntimeError(f"Row missing key: {key}")
+        # Check that the row has no extra keys
+        for key in row.keys():
+            if key not in self._fieldnames:
+                raise RuntimeError(f"Row has extra key: {key}")
 
     def write_to_file(self, filepath: pathlib.Path) -> None:
         """Write the CSV to file."""
         logger.debug(f"Writing CSV to {filepath}")
         with open(filepath, mode="w", newline="") as csv_file:
-            fieldnames: List[str] = []
-            fieldnames.extend(self._csv_columns.get_required_column_names())
-            fieldnames.extend(self._csv_columns.get_optional_column_names())
-
             # The trestle csv_to_oscal_cd task skips the header row and the
             # first row which is meant to have descriptions. We will just write a default right now.
             default_rule: TrestleRule = get_default_rule()
             example_row = self._transformer.transform(default_rule)
 
-            writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
+            writer = csv.DictWriter(csv_file, fieldnames=self._fieldnames)
             writer.writeheader()
             writer.writerow(example_row)
             for row in self._rows:
