@@ -46,14 +46,25 @@ class ComponentInfo(BaseModel):
     description: str
 
 
+class Check(BaseModel):
+    """Check dataclass."""
+
+    name: str
+    description: str
+
+    class Config:
+        allow_population_by_field_name = True
+
+
 class TrestleRule(BaseModel):
     """TrestleRule dataclass."""
 
     name: str
     description: str
     component: ComponentInfo
-    parameter: Optional[Parameter]
     profile: Profile
+    check: Optional[Check]
+    parameter: Optional[Parameter]
 
 
 def get_default_rule() -> TrestleRule:

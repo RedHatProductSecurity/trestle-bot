@@ -38,6 +38,8 @@ def test_csv_builder(test_rule: TrestleRule, tmp_trestle_dir: str) -> None:
     assert row["Parameter_Value_Default"] == test_rule.parameter.default_value  # type: ignore
     assert row["Profile_Description"] == test_rule.profile.description
     assert row["Profile_Source"] == test_rule.profile.href
+    assert row["Check_Id"] == test_rule.check.name  # type: ignore
+    assert row["Check_Description"] == test_rule.check.description  # type: ignore
 
     trestle_root = pathlib.Path(tmp_trestle_dir)
     tmp_csv_path = trestle_root.joinpath("test.csv")

@@ -13,6 +13,8 @@ from typing import Dict, List, Optional
 import trestle.tasks.csv_to_oscal_cd as csv_to_oscal_cd
 from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.tasks.csv_to_oscal_cd import (
+    CHECK_DESCRIPTION,
+    CHECK_ID,
     COMPONENT_DESCRIPTION,
     COMPONENT_TITLE,
     COMPONENT_TYPE,
@@ -35,6 +37,7 @@ from trestlebot.transformers.base_transformer import (
     ToRulesTransformer,
 )
 from trestlebot.transformers.trestle_rule import (
+    Check,
     ComponentInfo,
     Control,
     Parameter,
@@ -65,6 +68,7 @@ class ToRulesCSVTransformer(ToRulesTransformer):
         profile = self._extract_profile(row)
         component_info = self._extract_component_info(row)
         parameter = self._extract_parameter(row)
+        check = self._extract_check(row)
 
         return TrestleRule(
             name=rule_info[const.NAME],
@@ -72,6 +76,7 @@ class ToRulesCSVTransformer(ToRulesTransformer):
             component=component_info,
             parameter=parameter,
             profile=profile,
+            check=check,
         )
 
     def _extract_rule_info(self, row: Dict[str, str]) -> Dict[str, str]:
@@ -103,6 +108,16 @@ class ToRulesCSVTransformer(ToRulesTransformer):
                     row.get(csv_to_oscal_cd.PARAMETER_VALUE_ALTERNATIVES, "{}")
                 ),
                 default_value=row.get(csv_to_oscal_cd.PARAMETER_VALUE_DEFAULT, ""),
+            )
+        return None
+
+    def _extract_check(self, row: Dict[str, str]) -> Optional[Check]:
+        """Extract check information from a CSV row."""
+        check_name = row.get(csv_to_oscal_cd.CHECK_ID, None)
+        if check_name:
+            return Check(
+                name=check_name,
+                description=row.get(csv_to_oscal_cd.CHECK_DESCRIPTION, ""),
             )
         return None
 
@@ -141,6 +156,12 @@ class FromRulesCSVTransformer(FromRulesTransformer):
         }
         if rule.parameter is not None:
             merged_dict.update(self._add_parameter(rule.parameter))
+        if rule.check is not None:
+            check: Dict[str, str] = {
+                CHECK_ID: rule.check.name,
+                CHECK_DESCRIPTION: rule.check.description,
+            }
+            merged_dict.update(check)
         return merged_dict
 
     def _add_profile(self, profile: Profile) -> Dict[str, str]:
