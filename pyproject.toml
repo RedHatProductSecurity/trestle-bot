@@ -28,7 +28,7 @@ trestlebot-create-ssp = "trestlebot.entrypoints.create_ssp:main"
 [tool.poetry.dependencies]
 python = '^3.8.1'
 gitpython = "^3.1.41"
-compliance-trestle = "2.5.1"
+compliance-trestle = "^2.6.0"
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"
