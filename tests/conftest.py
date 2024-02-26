@@ -177,6 +177,25 @@ def test_rule() -> TrestleRule:
     return test_trestle_rule
 
 
+@pytest.fixture(scope="function")
+def test_valid_csv_row() -> Dict[str, str]:
+    return {
+        "Rule_Id": "test",
+        "Rule_Description": "test",
+        "Component_Title": "test",
+        "Component_Description": "test",
+        "Component_Type": "test",
+        "Control_Id_List": "ac-1",
+        "Parameter_Id": "test",
+        "Parameter_Description": "test",
+        "Parameter_Value_Alternatives": "{}",
+        "Parameter_Value_Default": "test",
+        "Profile_Description": "test",
+        "Profile_Source": "test",
+        "Namespace": "test",
+    }
+
+
 # E2E test fixtures
 
 
