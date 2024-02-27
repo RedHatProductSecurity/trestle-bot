@@ -7,7 +7,7 @@
 
 
 
-trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/IBM/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
+trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/oscal-compass/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
 
@@ -15,7 +15,7 @@ trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/
 
 ### Available Commands
 
-The `autosync` command will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory when the action is run will be transformed. This action supports all top-level models [supported by compliance-trestle for authoring](https://ibm.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
+The `autosync` command will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory when the action is run will be transformed. This action supports all top-level models [supported by compliance-trestle for authoring](https://oscal-compass.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
 The `rules-transform` command can be used when managing [OSCAL Component Definitions](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) in a trestle workspace. The action will transform rules defined in the rules YAML view to an OSCAL Component Definition JSON file.
 
