@@ -25,7 +25,7 @@ class E2ETestRunner:
     def __init__(self) -> None:
         """Initialize the class."""
         self.trestlebot_image = os.environ.get(
-            "TRESTLEBOT_IMAGE", self.TRESTLEBOT_TEST_IMAGE_NAME
+            "TRESTLEBOT_IMAGE", E2ETestRunner.TRESTLEBOT_TEST_IMAGE_NAME
         )
         self.cleanup_trestlebot_image = False
         self.cleanup_mock_server_image = False
@@ -40,14 +40,19 @@ class E2ETestRunner:
         try:
             self.cleanup_trestlebot_image = self.build_test_image(self.trestlebot_image)
             self.cleanup_mock_server_image = self.build_test_image(
-                self.MOCK_SERVER_IMAGE_NAME,
-                f"{self.E2E_BUILD_CONTEXT}/{self.CONTAINER_FILE_NAME}",
-                self.E2E_BUILD_CONTEXT,
+                E2ETestRunner.MOCK_SERVER_IMAGE_NAME,
+                f"{E2ETestRunner.E2E_BUILD_CONTEXT}/{E2ETestRunner.CONTAINER_FILE_NAME}",
+                E2ETestRunner.E2E_BUILD_CONTEXT,
             )
 
             # Create a pod
             subprocess.run(
-                ["podman", "play", "kube", f"{self.E2E_BUILD_CONTEXT}/play-kube.yml"],
+                [
+                    "podman",
+                    "play",
+                    "kube",
+                    f"{E2ETestRunner.E2E_BUILD_CONTEXT}/play-kube.yml",
+                ],
                 check=True,
             )
         except subprocess.CalledProcessError as e:
@@ -62,7 +67,7 @@ class E2ETestRunner:
                     "play",
                     "kube",
                     "--down",
-                    f"{self.E2E_BUILD_CONTEXT}/play-kube.yml",
+                    f"{E2ETestRunner.E2E_BUILD_CONTEXT}/play-kube.yml",
                 ],
                 check=True,
             )
@@ -70,7 +75,7 @@ class E2ETestRunner:
                 subprocess.run(["podman", "rmi", self.trestlebot_image], check=True)
             if self.cleanup_mock_server_image:
                 subprocess.run(
-                    ["podman", "rmi", self.MOCK_SERVER_IMAGE_NAME], check=True
+                    ["podman", "rmi", E2ETestRunner.MOCK_SERVER_IMAGE_NAME], check=True
                 )
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to clean up podman resources: {e}")
@@ -136,7 +141,7 @@ class E2ETestRunner:
             "podman",
             "run",
             "--pod",
-            self.TRESTLEBOT_TEST_POD_NAME,
+            E2ETestRunner.TRESTLEBOT_TEST_POD_NAME,
             "--entrypoint",
             f"trestlebot-{command_name}",
             "--rm",
@@ -145,7 +150,7 @@ class E2ETestRunner:
         # Add mounts
         if upstream_repo:
             # Add a volume and mount it to the container
-            command.extend(["-v", f"{upstream_repo}:{self.UPSTREAM_REPO}"])
+            command.extend(["-v", f"{upstream_repo}:{E2ETestRunner.UPSTREAM_REPO}"])
 
         command.extend(
             [
