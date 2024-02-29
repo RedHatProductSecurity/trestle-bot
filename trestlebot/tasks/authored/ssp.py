@@ -10,6 +10,7 @@ import os
 import pathlib
 from typing import Any, Dict, List, Optional
 
+from trestle.common.const import SSP_MAIN_COMP_NAME
 from trestle.common.err import TrestleError
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.ssp import SSPFilter
@@ -290,6 +291,7 @@ class AuthoredSSP(AuthoredObjectBase):
         input_ssp: str,
         version: str = "",
         profile_name: str = "",
+        main_comp_only: bool = False,
         compdefs: Optional[List[str]] = None,
         implementation_status: Optional[List[str]] = None,
         control_origination: Optional[List[str]] = None,
@@ -302,7 +304,9 @@ class AuthoredSSP(AuthoredObjectBase):
             input_ssp: Input ssp to filter
             version: Optional version to include in the output ssp
             profile_name:  Optional profile to filter by
-            compdefs: Optional list of component definitions to filter by
+            main_comp_only: Optional flag to include only the main component in the output ssp
+            compdefs: Optional list of component definitions to filter by.
+            The main component is added by default.
             implementation_status: Optional implementation status to filter by
             control_origination: Optional control origination to filter by
 
@@ -318,7 +322,7 @@ class AuthoredSSP(AuthoredObjectBase):
 
         components_title: Optional[List[str]] = None
         if compdefs:
-            components_title = []
+            components_title = [SSP_MAIN_COMP_NAME]
             for comp_def_name in compdefs:
                 comp_def, _ = ModelUtils.load_model_for_class(
                     trestle_path, comp_def_name, ComponentDefinition
@@ -326,6 +330,8 @@ class AuthoredSSP(AuthoredObjectBase):
                 components_title.extend(
                     [component.title for component in comp_def.components]
                 )
+        elif main_comp_only:
+            components_title = [SSP_MAIN_COMP_NAME]
 
         try:
             exit_code = ssp_filter.filter_ssp(
