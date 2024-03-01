@@ -171,7 +171,9 @@ def test_rule() -> TrestleRule:
         ),
         check=Check(name="test_check", description="test check"),
         profile=Profile(
-            description="test", href="test", include_controls=[Control(id="ac-1")]
+            description="test",
+            href="test",
+            include_controls=[Control(id="ac-1"), Control(id="ac-2")],
         ),
     )
     return test_trestle_rule
