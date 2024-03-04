@@ -62,11 +62,15 @@ def test_rule_transform_task(tmp_trestle_dir: str) -> None:
 
     assert component is not None
     assert component.props is not None
-    assert len(component.props) == 7
-    assert component.props[0].name == RULE_ID
-    assert component.props[0].value == "example_rule_1"
-    assert component.props[1].name == RULE_DESCRIPTION
-    assert component.props[1].value == "My rule description for example rule 1"
+    assert len(component.props) == 14
+
+    prop_values = [prop.value for prop in component.props]
+    assert "example_rule_1" in prop_values
+    assert "My rule description for example rule 1" in prop_values
+    assert "example_rule_3" in prop_values
+    assert "My rule description for example rule 3" in prop_values
+    assert "my_check" in prop_values
+    assert "My check description" in prop_values
 
 
 def test_rule_transform_task_with_no_rules(tmp_trestle_dir: str) -> None:

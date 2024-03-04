@@ -88,7 +88,7 @@ class ToRulesCSVTransformer(ToRulesTransformer):
 
     def _extract_profile(self, row: Dict[str, str]) -> Profile:
         """Extract profile information from a CSV row."""
-        controls_list = row.get(csv_to_oscal_cd.CONTROL_ID_LIST, "").split(", ")
+        controls_list = row.get(csv_to_oscal_cd.CONTROL_ID_LIST, "").split(" ")
         return Profile(
             description=row.get(csv_to_oscal_cd.PROFILE_DESCRIPTION, ""),
             href=row.get(csv_to_oscal_cd.PROFILE_SOURCE, ""),
@@ -170,7 +170,7 @@ class FromRulesCSVTransformer(FromRulesTransformer):
         profile_dict: Dict[str, str] = {
             PROFILE_DESCRIPTION: profile.description,
             PROFILE_SOURCE: profile.href,
-            CONTROL_ID_LIST: ", ".join(controls_list),
+            CONTROL_ID_LIST: " ".join(controls_list),
         }
         return profile_dict
 
