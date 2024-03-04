@@ -31,7 +31,7 @@ def test_csv_builder(test_rule: TrestleRule, tmp_trestle_dir: str) -> None:
     assert row["Component_Title"] == test_rule.component.name
     assert row["Component_Type"] == test_rule.component.type
     assert row["Component_Description"] == test_rule.component.description
-    assert row["Control_Id_List"] == "ac-1"
+    assert row["Control_Id_List"] == "ac-1 ac-2"
     assert row["Parameter_Id"] == test_rule.parameter.name  # type: ignore
     assert row["Parameter_Description"] == test_rule.parameter.description  # type: ignore
     assert row["Parameter_Value_Alternatives"] == "{}"

@@ -263,6 +263,8 @@ def setup_rules_view(
         load_from_yaml(comp_dir, "test_complete_rule")
         # Load a complete rule with only required fields
         load_from_yaml(comp_dir, "test_complete_rule_no_params")
+        # Load a complete rule with multiple controls
+        load_from_yaml(comp_dir, "test_complete_rule_multiple_controls")
 
 
 def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> None:
