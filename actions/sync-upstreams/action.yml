@@ -39,7 +39,7 @@ inputs:
     required: false
     default: '.'
   repository:
-    description: Local file path to the git repository. Defaults to the current directory (`.`)
+    description: Local file path to the git repository with a valid trestle project root relative to the GitHub workspace. Defaults to the current directory (`.`)
     required: false
     default: '.'
   commit_user_name:
@@ -55,7 +55,7 @@ inputs:
     required: false
     default: ${{ github.actor }}
   commit_author_email:
-    description: Email address used for the commit author. Defaults to the email of whoever triggered this workflow run.
+    description: Email address used for the commit author.
     required: false
     default: ${{ github.actor }}@users.noreply.github.com
   verbose:
