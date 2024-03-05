@@ -29,13 +29,8 @@ from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.ssp import SystemSecurityPlan
 
-from tests.testutils import (
-    UPSTREAM_REPO,
-    build_test_command,
-    clean,
-    prepare_upstream_repo,
-    setup_for_ssp,
-)
+from tests.e2e.e2e_testutils import E2ETestRunner
+from tests.testutils import clean, prepare_upstream_repo, setup_for_ssp
 from trestlebot.const import ERROR_EXIT_CODE, SUCCESS_EXIT_CODE
 from trestlebot.tasks.authored.ssp import SSPIndex
 
@@ -82,18 +77,13 @@ test_ssp_name = "test_ssp"
 )
 def test_ssp_editing_e2e(
     tmp_repo: Tuple[str, Repo],
-    podman_setup: Tuple[int, str],
+    e2e_runner: E2ETestRunner,
     test_name: str,
     command_args: Dict[str, str],
     response: int,
     skip_create: bool,
 ) -> None:
     """Test the trestlebot autosync command with SSPs."""
-    # Check that the container image was built successfully
-    # and the mock server is running
-    exit_code, image_name = podman_setup
-    assert exit_code == 0
-
     logger.info(f"Running test: {test_name}")
 
     tmp_repo_str, _ = tmp_repo
@@ -112,11 +102,13 @@ def test_ssp_editing_e2e(
             "profile-name": test_prof,
             "compdefs": test_comp_name,
         }
-        command = build_test_command(
-            tmp_repo_str, "create-ssp", create_args, image_name
+        command = e2e_runner.build_test_command(
+            tmp_repo_str,
+            "create-ssp",
+            create_args,
         )
-        run_response = subprocess.run(command, capture_output=True)
-        assert run_response.returncode == response
+        exit_code, _ = e2e_runner.invoke_command(command)
+        assert exit_code == response
         assert (tmp_repo_path / command_args["markdown-path"]).exists()
 
         # Make a change to the SSP
@@ -132,7 +124,7 @@ def test_ssp_editing_e2e(
         ssp_generate = SSPGenerate()
         assert ssp_generate._run(args) == 0
 
-    command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
+    command = e2e_runner.build_test_command(tmp_repo_str, "autosync", command_args)
     run_response = subprocess.run(command, capture_output=True)
     assert run_response.returncode == response
 
@@ -153,41 +145,40 @@ def test_ssp_editing_e2e(
         assert ssp_path.exists()
 
         # Check that if run again, the ssp is not pushed again
-        command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
-        run_response = subprocess.run(command, capture_output=True)
-        assert run_response.returncode == SUCCESS_EXIT_CODE
-        assert "Nothing to commit" in run_response.stdout.decode("utf-8")
+        command = e2e_runner.build_test_command(tmp_repo_str, "autosync", command_args)
+        exit_code, response_stdout = e2e_runner.invoke_command(command)
+        assert exit_code == SUCCESS_EXIT_CODE
+        assert "Nothing to commit" in response_stdout
 
         # Check that if the upstream profile is updated, the ssp is updated
         local_upstream_path = prepare_upstream_repo()
-        upstream_repos_arg = f"{UPSTREAM_REPO}@main"
+        upstream_repos_arg = f"{e2e_runner.UPSTREAM_REPO}@main"
         upstream_command_args = {
             "branch": command_args["branch"],
             "committer-name": command_args["committer-name"],
             "committer-email": command_args["committer-email"],
             "sources": upstream_repos_arg,
         }
-        command = build_test_command(
+        command = e2e_runner.build_test_command(
             tmp_repo_str,
             "sync-upstreams",
             upstream_command_args,
-            image_name,
             local_upstream_path,
         )
-        run_response = subprocess.run(command, capture_output=True)
-        assert run_response.returncode == SUCCESS_EXIT_CODE
+        exit_code, response_stdout = e2e_runner.invoke_command(command)
+        assert exit_code == SUCCESS_EXIT_CODE
         assert (
             f"Changes pushed to {command_args['branch']} successfully."
             in run_response.stdout.decode("utf-8")
         )
 
         # Autosync again to check that the ssp is updated
-        command = build_test_command(tmp_repo_str, "autosync", command_args, image_name)
-        run_response = subprocess.run(command, capture_output=True)
-        assert run_response.returncode == SUCCESS_EXIT_CODE
+        command = e2e_runner.build_test_command(tmp_repo_str, "autosync", command_args)
+        exit_code, response_stdout = e2e_runner.invoke_command(command)
+        assert exit_code == SUCCESS_EXIT_CODE
         assert (
             f"Changes pushed to {command_args['branch']} successfully."
-            in run_response.stdout.decode("utf-8")
+            in response_stdout
         )
 
         # Clean up the upstream repo

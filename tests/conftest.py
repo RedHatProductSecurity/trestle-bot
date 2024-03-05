@@ -6,9 +6,7 @@
 
 import argparse
 import logging
-import os
 import pathlib
-import subprocess
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Generator, Tuple, TypeVar
 
@@ -17,15 +15,7 @@ from git.repo import Repo
 from trestle.common.err import TrestleError
 from trestle.core.commands.init import InitCmd
 
-from tests.testutils import (
-    CONTAINER_FILE_NAME,
-    E2E_BUILD_CONTEXT,
-    MOCK_SERVER_IMAGE_NAME,
-    TRESTLEBOT_TEST_IMAGE_NAME,
-    build_test_image,
-    clean,
-    repo_setup,
-)
+from tests.testutils import clean, repo_setup
 from trestlebot import const
 from trestlebot.transformers.trestle_rule import (
     Check,
@@ -171,7 +161,9 @@ def test_rule() -> TrestleRule:
         ),
         check=Check(name="test_check", description="test check"),
         profile=Profile(
-            description="test", href="test", include_controls=[Control(id="ac-1")]
+            description="test",
+            href="test",
+            include_controls=[Control(id="ac-1"), Control(id="ac-2")],
         ),
     )
     return test_trestle_rule
@@ -194,45 +186,3 @@ def test_valid_csv_row() -> Dict[str, str]:
         "Profile_Source": "test",
         "Namespace": "test",
     }
-
-
-# E2E test fixtures
-
-
-@pytest.fixture(scope="package")
-def podman_setup() -> YieldFixture[Tuple[int, str]]:
-    """
-    Build the trestlebot container image and run the mock server in a pod.
-
-    Yields:
-        Tuple[int, str]: The return code from the podman play command and the trestlebot image name.
-    """
-
-    # Get the image information from the environment, if present
-    trestlebot_image = os.environ.get("TRESTLEBOT_IMAGE", TRESTLEBOT_TEST_IMAGE_NAME)
-
-    cleanup_trestlebot_image = build_test_image(trestlebot_image)
-    cleanup_mock_server_image = build_test_image(
-        MOCK_SERVER_IMAGE_NAME,
-        f"{E2E_BUILD_CONTEXT}/{CONTAINER_FILE_NAME}",
-        E2E_BUILD_CONTEXT,
-    )
-
-    # Create a pod
-    response = subprocess.run(
-        ["podman", "play", "kube", f"{E2E_BUILD_CONTEXT}/play-kube.yml"], check=True
-    )
-    yield response.returncode, trestlebot_image
-
-    # Clean up the container image, pod and mock server
-    try:
-        subprocess.run(
-            ["podman", "play", "kube", "--down", f"{E2E_BUILD_CONTEXT}/play-kube.yml"],
-            check=True,
-        )
-        if cleanup_trestlebot_image:
-            subprocess.run(["podman", "rmi", trestlebot_image], check=True)
-        if cleanup_mock_server_image:
-            subprocess.run(["podman", "rmi", MOCK_SERVER_IMAGE_NAME], check=True)
-    except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"Failed to clean up podman resources: {e}")

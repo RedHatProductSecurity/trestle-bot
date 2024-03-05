@@ -7,7 +7,6 @@
 import argparse
 import pathlib
 import shutil
-import subprocess
 import tempfile
 from typing import Dict, List, Optional
 
@@ -30,15 +29,6 @@ TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "test_ssp_index.json"
 INVALID_TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "invalid_test_ssp_index.json"
 TEST_YAML_HEADER = YAML_TEST_DATA_PATH / "extra_yaml_header.yaml"
 
-# E2E test constants
-TRESTLEBOT_TEST_IMAGE_NAME = "localhost/trestlebot:latest"
-MOCK_SERVER_IMAGE_NAME = "localhost/mock-server:latest"
-TRESTLEBOT_TEST_POD_NAME = "trestlebot-e2e-pod"
-E2E_BUILD_CONTEXT = "tests/e2e"
-CONTAINER_FILE_NAME = "Dockerfile"
-
-# Location the upstream repo is mounted to in the container
-UPSTREAM_REPO = "/upstream"
 TEST_REMOTE_REPO_URL = "http://localhost:8080/test.git"
 
 
@@ -263,6 +253,8 @@ def setup_rules_view(
         load_from_yaml(comp_dir, "test_complete_rule")
         # Load a complete rule with only required fields
         load_from_yaml(comp_dir, "test_complete_rule_no_params")
+        # Load a complete rule with multiple controls
+        load_from_yaml(comp_dir, "test_complete_rule_multiple_controls")
 
 
 def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> None:
@@ -277,90 +269,6 @@ def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> 
     # Write the updated content back to the file
     with open(file_path, "w") as file:
         file.write(updated_content)
-
-
-def _image_exists(image_name: str) -> bool:
-    """Check if the image already exists."""
-    try:
-        subprocess.check_output(["podman", "image", "inspect", image_name])
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-
-def build_test_image(
-    image_name: str,
-    container_file: str = CONTAINER_FILE_NAME,
-    build_context: str = ".",
-) -> bool:
-    """
-    Build an image for testing image.
-
-    Returns:
-        Returns true if the image was built, false if it already exists.
-    """
-    if not _image_exists(image_name):
-        subprocess.run(
-            [
-                "podman",
-                "build",
-                "-f",
-                container_file,
-                "-t",
-                image_name,
-                build_context,
-            ],
-            check=True,
-        )
-        return True
-    return False
-
-
-def build_test_command(
-    data_path: str,
-    command_name: str,
-    command_args: Dict[str, str],
-    image_name: str = TRESTLEBOT_TEST_IMAGE_NAME,
-    upstream_repo: str = "",
-) -> List[str]:
-    """
-    Build a command to be run in the shell for trestlebot
-
-    Args:
-        data_path (str): Path to the data directory. This is the working directory/trestle_root.
-        command_name (str): Name of the command to run. It should be a trestlebot command.
-        command_args (Dict[str, str]): Arguments to pass to the command
-        image_name (str, optional): Name of the image to run. Defaults to TRESTLEBOT_TEST_IMAGE_NAME.
-        upstream_repo (str, optional): Path to the upstream repo. Defaults to "" and is not mounted.
-
-    Returns:
-        List[str]: Command to be run in the shell
-    """
-    command = [
-        "podman",
-        "run",
-        "--pod",
-        TRESTLEBOT_TEST_POD_NAME,
-        "--entrypoint",
-        f"trestlebot-{command_name}",
-        "--rm",
-    ]
-
-    # Add mounts
-    if upstream_repo:
-        # Add a volume and mount it to the container
-        command.extend(["-v", f"{upstream_repo}:{UPSTREAM_REPO}"])
-    command.extend(
-        [
-            "-v",
-            f"{data_path}:/trestle",
-            "-w",
-            "/trestle",
-            image_name,
-            *args_dict_to_list(command_args),
-        ]
-    )
-    return command
 
 
 def prepare_upstream_repo() -> str:

@@ -315,13 +315,26 @@ def test_create_new_with_filter(tmp_trestle_dir: str) -> None:
     )
     assert model_path.exists()
 
-    assert len(ssp.system_implementation.components) == 1
+    assert len(ssp.system_implementation.components) == 2
 
     component_names = [
         component.title for component in ssp.system_implementation.components
     ]
     assert test_comp_2 in component_names
+    assert const.SSP_MAIN_COMP_NAME in component_names
     assert test_comp not in component_names
+
+    # Main comp only
+    authored_ssp.create_new_with_filter(ssp_name, input_ssp, main_comp_only=True)
+    ssp, model_path = load_validate_model_name(
+        trestle_root, ssp_name, ossp.SystemSecurityPlan, FileContentType.JSON
+    )
+    assert model_path.exists()
+
+    assert len(ssp.system_implementation.components) == 1
+    assert const.SSP_MAIN_COMP_NAME in [
+        component.title for component in ssp.system_implementation.components
+    ]
 
     # Check that the ssp_index is not updated
     ssp_name = "new_ssp_2"
