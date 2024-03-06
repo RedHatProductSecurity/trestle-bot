@@ -67,6 +67,12 @@ class AutoSyncEntrypoint(EntrypointBase):
                 tasks",
         )
         self.parser.add_argument(
+            "--version",
+            type=str,
+            required=False,
+            help="Version of the OSCAL model to set during assembly into JSON.",
+        )
+        self.parser.add_argument(
             "--skip-assemble",
             required=False,
             action="store_true",
@@ -134,6 +140,7 @@ class AutoSyncEntrypoint(EntrypointBase):
                 assemble_task: AssembleTask = AssembleTask(
                     authored_object=authored_object,
                     markdown_dir=args.markdown_path,
+                    version=args.version,
                     model_filter=model_filter,
                 )
                 pre_tasks.append(assemble_task)

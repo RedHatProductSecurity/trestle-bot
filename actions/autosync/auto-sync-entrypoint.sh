@@ -22,7 +22,8 @@ command="trestlebot-autosync \
         --author-email=\"${INPUT_COMMIT_AUTHOR_EMAIL}\" \
         --working-dir=\"${INPUT_REPOSITORY}\" \
         --target-branch=\"${INPUT_TARGET_BRANCH}\" \
-        --skip-items=\"${INPUT_SKIP_ITEMS}\""
+        --skip-items=\"${INPUT_SKIP_ITEMS}\" \
+        --version=\"${INPUT_VERSION}\""
 
 # Conditionally include flags
 if [[ ${INPUT_SKIP_ASSEMBLE} == true ]]; then
