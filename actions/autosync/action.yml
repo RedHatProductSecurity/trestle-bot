@@ -25,14 +25,14 @@ inputs:
     required: false
     default: "false"
   skip_items:
-    description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `profile_x,profile_y*,`."
+    description: "Comma-separated glob patterns list of content by trestle name to skip during task execution. For example `profile_x,profile_y*,`."
     required: false
   ssp_index_path:
     description: Path relative to the repository path where the ssp index is located. See action README.md for information about the ssp index.
     required: false
     default: "ssp-index.json"
   commit_message:
-    description: Commit message
+    description: Custom commit message
     required: false
     default: "Sync automatic updates"
   pull_request_title:
@@ -51,11 +51,11 @@ inputs:
     required: false
     default: '.'
   repository:
-    description: Local file path to the git repository. Defaults to the current directory (`.`)
+    description: Local file path to the git repository with a valid trestle project root relative to the GitHub workspace.
     required: false
     default: '.'
   commit_user_name:
-    description: Name used for the commit user
+    description: Name used for the commit user.
     required: false
     default: github-actions[bot]
   commit_user_email:
@@ -67,7 +67,7 @@ inputs:
     required: false
     default: ${{ github.actor }}
   commit_author_email:
-    description: Email address used for the commit author. Defaults to the email of whoever triggered this workflow run.
+    description: Email address used for the commit author.
     required: false
     default: ${{ github.actor }}@users.noreply.github.com
   verbose:
