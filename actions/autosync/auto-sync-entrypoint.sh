@@ -34,8 +34,8 @@ if [[ ${INPUT_SKIP_REGENERATE} == true ]]; then
     command+=" --skip-regenerate"
 fi
 
-if [[ ${INPUT_CHECK_ONLY} == true ]]; then
-    command+=" --check-only"
+if [[ ${INPUT_DRY_RUN} == true ]]; then
+    command+=" --dry-run"
 fi
 
 if [[ ${INPUT_VERBOSE} == true ]]; then

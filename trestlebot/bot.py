@@ -151,9 +151,8 @@ class TrestleBot:
         pre_tasks: Optional[List[TaskBase]] = None,
         commit_message: str = "Automatic updates from bot",
         pull_request_title: str = "Automatic updates from bot",
-        check_only: bool = False,
         dry_run: bool = False,
-    ) -> Tuple[str, int]:
+    ) -> Tuple[bool, str, int]:
         """
         Runs Trestle Bot logic and returns commit and pull request information.
 
@@ -163,11 +162,10 @@ class TrestleBot:
                 pre_tasks: Optional workspace task list to execute before staging files
                 commit_message: Optional commit message for local commit
                 pull_request_title: Optional customized pull request title
-                check_only: Optional check if the repo is dirty. Fail if true.
-                dry_run: Only complete local work. Do not push.
+                dry_run: Only complete pre-tasks and staging, skip commit and push.
 
         Returns:
-            A tuple with commit_sha and pull request number.
+            A tuple with whether there were changes, commit_sha, and pull request number.
             The commit_sha defaults to "" if there was no updates and the
             pull request number default to 0 if not submitted.
         """
@@ -184,23 +182,18 @@ class TrestleBot:
 
         # Check if there are any unstaged files
         if repo.is_dirty(untracked_files=True):
-            if check_only:
-                raise RepoException(
-                    "Check only mode is enabled and diff detected. "
-                    f"Manual intervention on {self.branch} is required."
-                )
-
             self._stage_files(repo, patterns)
+
+            if dry_run:
+                # TODO: Gather the staged files changed
+                logger.info("Dry run mode is enabled. Skipping commit and push.")
+                return True, commit_sha, pr_number
 
             if repo.is_dirty():
                 commit_sha = self._local_commit(
                     repo,
                     commit_message,
                 )
-
-                if dry_run:
-                    logger.info("Dry run mode is enabled. Do not push to remote.")
-                    return commit_sha, pr_number
 
                 try:
                     remote_url = self._push_to_remote(repo)
@@ -214,7 +207,7 @@ class TrestleBot:
                         pr_number = self._create_pull_request(
                             git_provider, remote_url, pull_request_title
                         )
-                    return commit_sha, pr_number
+                    return True, commit_sha, pr_number
 
                 except GitCommandError as e:
                     raise RepoException(f"Git push to {self.branch} failed: {e}")
@@ -224,7 +217,7 @@ class TrestleBot:
                     )
             else:
                 logger.info("Nothing to commit")
-                return commit_sha, pr_number
+                return False, commit_sha, pr_number
         else:
             logger.info("Nothing to commit")
-            return commit_sha, pr_number
+            return False, commit_sha, pr_number

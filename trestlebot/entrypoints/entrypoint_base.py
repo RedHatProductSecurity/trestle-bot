@@ -103,10 +103,10 @@ class EntrypointBase:
             help="Email for commit author if differs from committer",
         )
         self.parser.add_argument(
-            "--check-only",
+            "--dry-run",
             required=False,
             action="store_true",
-            help="Runs tasks and exits with an error if there is a diff",
+            help="Runs tasks, but do not commit or push to the repository",
         )
         self.parser.add_argument(
             "--target-branch",
@@ -168,13 +168,13 @@ class EntrypointBase:
             author_email=args.author_email,
             target_branch=args.target_branch,
         )
-        commit_sha, pr_number = bot.run(
+        changes, commit_sha, pr_number = bot.run(
             commit_message=args.commit_message,
             pre_tasks=pre_tasks,
             patterns=comma_sep_to_list(args.file_patterns),
             git_provider=git_provider,
             pull_request_title=args.pull_request_title,
-            check_only=args.check_only,
+            dry_run=args.dry_run,
         )
 
         # Print the full commit sha
