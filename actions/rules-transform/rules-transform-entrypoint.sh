@@ -27,6 +27,11 @@ if [[ ${INPUT_VERBOSE} == true ]]; then
     command+=" --verbose"
 fi
 
+if [[ ${INPUT_DRY_RUN} == true ]]; then
+    command+=" --dry-run"
+fi
+
+
 # Only set the token value when is a target branch so pull requests can be created
 if [[ -n ${INPUT_TARGET_BRANCH} ]]; then
   if [[ -z ${GITHUB_TOKEN} ]]; then

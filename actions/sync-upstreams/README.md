@@ -23,6 +23,7 @@ name: Example Workflow
 | Name | Description | Default | Required |
 | --- | --- | --- | --- |
 | sources | A newline separated list of upstream sources to sync with a repo@branch format. For example, `https://github.com/myorg/myprofiles@main` | None | True |
+| dry_run | Runs tasks without committing changes to the repository. | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
 | include_model_names | Comma-separated glob pattern list of model names (i.e. trestle directory name) to include in the sync. For example, `*framework-v2`. Defaults to include all model names. | None | False |
 | exclude_model_names | Comma-separated glob pattern of model names (i.e. trestle directory name) to exclude from the sync. For example, `*framework-v1`. Defaults to skip no model names. | None | False |

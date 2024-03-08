@@ -6,6 +6,10 @@ inputs:
   sources: 
     description: "A newline separated list of upstream sources to sync with a repo@branch format. For example, `https://github.com/myorg/myprofiles@main`"
     required: true
+  dry_run: 
+    description: "Runs tasks without committing changes to the repository."
+    required: false
+    default: "false"
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false
