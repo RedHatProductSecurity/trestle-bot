@@ -25,6 +25,10 @@ inputs:
   filter_by_profile:
     description: Name of the profile in the workspace to filter controls by
     required: false
+  dry_run: 
+    description: "Runs tasks without committing changes to the repository."
+    required: false
+    default: "false"
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false

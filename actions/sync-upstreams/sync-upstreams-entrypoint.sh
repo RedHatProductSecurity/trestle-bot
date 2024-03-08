@@ -31,6 +31,10 @@ if [[ ${INPUT_VERBOSE} == true ]]; then
     command+=" --verbose"
 fi
 
+if [[ ${INPUT_DRY_RUN} == true ]]; then
+    command+=" --dry-run"
+fi
+
 if [[ ${INPUT_SKIP_VALIDATION} == true ]]; then
     command+=" --skip-validation"
 fi
