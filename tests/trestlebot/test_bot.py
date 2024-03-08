@@ -190,13 +190,13 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
             author_name="The Author",
             author_email="author@test.com",
         )
-        changes, commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
         )
-        assert changes
-        assert commit_sha != ""
-        assert pr_number == 0
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 0
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())
@@ -228,14 +228,14 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             commit_name="Test User",
             commit_email="test@example.com",
         )
-        changes, commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             dry_run=True,
         )
-        assert changes
-        assert commit_sha == ""
-        assert pr_number == 0
+        assert results.changes
+        assert results.commit_sha == ""
+        assert results.pr_number == 0
 
         mock_push.assert_not_called()
 
@@ -251,13 +251,13 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
         commit_name="Test User",
         commit_email="test@example.com",
     )
-    changes, commit_sha, pr_number = bot.run(
+    results = bot.run(
         commit_message="Test commit message",
         patterns=["*.txt"],
     )
-    assert not changes
-    assert commit_sha == ""
-    assert pr_number == 0
+    assert not results.changes
+    assert results.commit_sha == ""
+    assert results.pr_number == 0
 
 
 def push_side_effect(refspec: str) -> None:
@@ -279,7 +279,7 @@ def test_run_with_exception(
     tmp_repo: Tuple[str, Repo], side_effect: Callable[[str], None], msg: str
 ) -> None:
     """Test bot run with mocked push with side effects that throw exceptions"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -359,14 +359,14 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        changes, commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
         )
-        assert changes
-        assert commit_sha != ""
-        assert pr_number == 10
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 10
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())
@@ -391,7 +391,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
 
 def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with customer pull request title"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -416,15 +416,15 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        changes, commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
             pull_request_title="Test",
         )
-        assert changes
-        assert commit_sha != ""
-        assert pr_number == 10
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 10
 
         # Verify that the method was called with the expected arguments
         mock.create_pull_request.assert_called_once_with(
