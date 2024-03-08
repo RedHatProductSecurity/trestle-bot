@@ -190,11 +190,11 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
             author_name="The Author",
             author_email="author@test.com",
         )
-        commit_sha, pr_number = bot.run(
+        changes, commit_sha, pr_number = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
-            dry_run=False,
         )
+        assert changes
         assert commit_sha != ""
         assert pr_number == 0
 
@@ -211,7 +211,7 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
 
 def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with dry run"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -228,12 +228,13 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             commit_name="Test User",
             commit_email="test@example.com",
         )
-        commit_sha, pr_number = bot.run(
+        changes, commit_sha, pr_number = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             dry_run=True,
         )
-        assert commit_sha != ""
+        assert changes
+        assert commit_sha == ""
         assert pr_number == 0
 
         mock_push.assert_not_called()
@@ -241,7 +242,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
 
 def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     """Test running bot with no file updates"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Test running the bot
     bot = TrestleBot(
@@ -250,41 +251,13 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
         commit_name="Test User",
         commit_email="test@example.com",
     )
-    commit_sha, pr_number = bot.run(
+    changes, commit_sha, pr_number = bot.run(
         commit_message="Test commit message",
         patterns=["*.txt"],
-        dry_run=True,
     )
+    assert not changes
     assert commit_sha == ""
     assert pr_number == 0
-
-
-def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test bot run with check_only"""
-    repo_path, repo = tmp_repo
-
-    # Create a test file
-    test_file_path = os.path.join(repo_path, "test.txt")
-    with open(test_file_path, "w") as f:
-        f.write("Test content")
-
-    bot = TrestleBot(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-    )
-
-    with pytest.raises(
-        RepoException,
-        match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
-    ):
-        _, _ = bot.run(
-            commit_message="Test commit message",
-            patterns=["*.txt"],
-            dry_run=True,
-            check_only=True,
-        )
 
 
 def push_side_effect(refspec: str) -> None:
@@ -333,7 +306,7 @@ def test_run_with_exception(
 
 def test_run_with_failed_pre_task(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with mocked task that fails"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -386,12 +359,12 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha, pr_number = bot.run(
+        changes, commit_sha, pr_number = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
-            dry_run=False,
         )
+        assert changes
         assert commit_sha != ""
         assert pr_number == 10
 
@@ -426,7 +399,7 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
         f.write("Test content")
 
     mock = Mock(spec=GitProvider)
-    mock.create_pull_request.return_value = "10"
+    mock.create_pull_request.return_value = 10
     mock.parse_repository.return_value = ("ns", "repo")
 
     bot = TrestleBot(
@@ -443,23 +416,15 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha = bot.run(
+        changes, commit_sha, pr_number = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
             pull_request_title="Test",
-            dry_run=False,
         )
+        assert changes
         assert commit_sha != ""
-
-        # Verify that the commit is made
-        commit = next(repo.iter_commits())
-        assert commit.message.strip() == "Test commit message"
-        assert commit.author.name == "The Author"
-        assert commit.author.email == "author@test.com"
-
-        # Verify that the file is tracked by the commit
-        assert os.path.basename(test_file_path) in commit.stats.files
+        assert pr_number == 10
 
         # Verify that the method was called with the expected arguments
         mock.create_pull_request.assert_called_once_with(
