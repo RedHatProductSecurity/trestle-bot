@@ -96,8 +96,8 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     assert os.path.basename(test_file_path) in commit.stats.files
 
 
-def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test setting committer information for commits"""
+def test_local_commit_with_author_information(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test setting author information for commits"""
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -113,45 +113,8 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
         branch="main",
         commit_name="Test User",
         commit_email="test@example.com",
-        author_name="Test Commit User",
-        author_email="test-committer@example.com",
-    )
-    commit_sha = bot._local_commit(
-        repo,
-        commit_message="Test commit message",
-    )
-
-    assert commit_sha != ""
-
-    # Verify that the commit is made
-    commit = next(repo.iter_commits())
-    assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "Test Commit User"
-    assert commit.author.email == "test-committer@example.com"
-
-    # Verify that the file is tracked by the commit
-    assert os.path.basename(test_file_path) in commit.stats.files
-
-
-def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test setting author for commits"""
-    repo_path, repo = tmp_repo
-
-    # Create a test file
-    test_file_path = os.path.join(repo_path, "test.txt")
-    with open(test_file_path, "w") as f:
-        f.write("Test content")
-
-    repo.index.add(test_file_path)
-
-    # Commit the test file
-    bot = TrestleBot(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-        author_name="The Author",
-        author_email="author@test.com",
+        author_name="Test Author User",
+        author_email="test-author@example.com",
     )
     commit_sha = bot._local_commit(
         repo,
@@ -162,8 +125,8 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     # Verify that the commit is made
     commit = next(repo.iter_commits())
     assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "The Author"
-    assert commit.author.email == "author@test.com"
+    assert commit.author.name == "Test Author User"
+    assert commit.author.email == "test-author@example.com"
 
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
@@ -233,7 +196,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             patterns=["*.txt"],
             dry_run=True,
         )
-        assert results.changes
+        assert results.changes == ["test.txt"]
         assert results.commit_sha == ""
         assert results.pr_number == 0
 
