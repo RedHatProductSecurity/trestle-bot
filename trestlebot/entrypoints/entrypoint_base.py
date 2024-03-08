@@ -18,7 +18,7 @@ import sys
 from typing import List, Optional
 
 from trestlebot import const
-from trestlebot.bot import TrestleBot
+from trestlebot.bot import BotResults, TrestleBot
 from trestlebot.github import GitHub, is_github_actions
 from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
@@ -168,7 +168,7 @@ class EntrypointBase:
             author_email=args.author_email,
             target_branch=args.target_branch,
         )
-        changes, commit_sha, pr_number = bot.run(
+        results: BotResults = bot.run(
             commit_message=args.commit_message,
             pre_tasks=pre_tasks,
             patterns=comma_sep_to_list(args.file_patterns),
@@ -177,13 +177,17 @@ class EntrypointBase:
             dry_run=args.dry_run,
         )
 
-        # Print the full commit sha
-        if commit_sha:
-            print(f"Commit Hash: {commit_sha}")  # noqa: T201
+        # Print results to stdout
+        if results.changes:
+            print("Changes:")  # noqa: T201
+            for change in results.changes:
+                print(change)  # noqa: T201
 
-        # Print the pr number
-        if pr_number:
-            print(f"Pull Request Number: {pr_number}")  # noqa: T201
+        if results.commit_sha:
+            print(f"Commit Hash: {results.commit_sha}")  # noqa: T201
+
+        if results.pr_number:
+            print(f"Pull Request Number: {results.pr_number}")  # noqa: T201
 
 
 def comma_sep_to_list(string: str) -> List[str]:
