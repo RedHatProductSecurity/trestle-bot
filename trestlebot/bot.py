@@ -5,7 +5,6 @@
 """This module implements functions for the Trestle Bot."""
 
 import logging
-from dataclasses import dataclass
 from typing import List, Optional
 
 from git import GitCommandError
@@ -13,6 +12,7 @@ from git.repo import Repo
 from git.util import Actor
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
@@ -23,15 +23,6 @@ class RepoException(Exception):
     """An error requiring the user to perform a manual action in the
     destination repo
     """
-
-
-@dataclass
-class BotResults:
-    """A dataclass to hold the results of the bot run"""
-
-    changes: List[str]
-    commit_sha: str
-    pr_number: int
 
 
 class TrestleBot:
