@@ -27,6 +27,7 @@ name: Example Workflow
 | oscal_model | OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp. | None | True |
 | check_only | Runs tasks and exits with an error if there is a diff. Defaults to false | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
+| version | Version of the OSCAL model to set during assembly into JSON. | 1.0.0 | False |
 | skip_assemble | Skip assembly task. Defaults to false | false | False |
 | skip_regenerate | Skip regenerate task. Defaults to false. | false | False |
 | skip_items | Comma-separated glob patterns list of content by trestle name to skip during task execution. For example `profile_x,profile_y*,`. | None | False |
