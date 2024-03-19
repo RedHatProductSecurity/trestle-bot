@@ -71,7 +71,8 @@ class CreateCDEntrypoint(EntrypointBase):
             type=str,
             choices=[
                 "interconnection",
-                "service" "software",
+                "service",
+                "software",
                 "hardware",
                 "policy",
                 "physical",
