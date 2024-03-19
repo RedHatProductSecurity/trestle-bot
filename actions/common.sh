@@ -6,19 +6,12 @@
 # Manage newest git versions (related to CVE https://github.blog/2022-04-12-git-security-vulnerability-announced/)
 #
 function set_git_safe_directory() {
-    if [[ -z "${GITHUB_WORKSPACE+x}" ]]; then
-    echo "Setting git safe.directory default: /github/workspace ..."
-    git config --global --add safe.directory /github/workspace
+    if [[ -z "${GITHUB_WORKSPACE}" ]]; then
+        echo "GITHUB_WORKSPACE is not set. Exiting..."
+        exit 1
     else
-    echo "Setting git safe.directory GITHUB_WORKSPACE: $GITHUB_WORKSPACE ..."
-    git config --global --add safe.directory "$GITHUB_WORKSPACE"
-    fi
-
-    if [[ -z "${INPUT_REPOSITORY+x}" ]]; then
-        echo "Skipping setting working directory as safe directory"
-    else
-    echo "Setting git safe.directory default: $INPUT_REPOSITORY ..."
-    git config --global --add safe.directory "$INPUT_REPOSITORY"
+        echo "Setting git safe.directory GITHUB_WORKSPACE: $GITHUB_WORKSPACE ..."
+        git config --global --add safe.directory "$GITHUB_WORKSPACE"
     fi
 }
 

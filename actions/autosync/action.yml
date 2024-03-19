@@ -16,6 +16,10 @@ inputs:
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false
+  version:
+    description: "Version of the OSCAL model to set during assembly into JSON."
+    required: false
+    default: "1.0.0"
   skip_assemble:
     description: "Skip assembly task. Defaults to false"
     required: false

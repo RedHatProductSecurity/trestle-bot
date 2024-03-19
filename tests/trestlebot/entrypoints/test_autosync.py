@@ -27,6 +27,7 @@ def valid_args_dict() -> Dict[str, str]:
         "committer-email": "test@email.com",
         "working-dir": ".",
         "file-patterns": ".",
+        "version": "0.1.0",
     }
 
 
