@@ -29,7 +29,7 @@ name: Example Workflow
 | profile_name | Name of the Trestle profile to use for the component definition | None | True |
 | component_definition_name | Name of the component definition to create | None | True |
 | component_title | Name of the component to create | None | True |
-| component_type | Type of the component to create | service | False |
+| component_type | Type of the component to create. Values can be interconnection, software, hardware, service, policy, physical, process-procedure, plan, guidance, standard, or validation | service | False |
 | component_description | Description of the component to create | None | True |
 | filter_by_profile | Name of the profile in the workspace to filter controls by | None | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
