@@ -16,7 +16,7 @@ inputs:
     description: Name of the component to create
     required: true
   component_type:
-    description: Type of the component to create
+    description: Type of the component to create. Values can be interconnection, software, hardware, service, policy, physical, process-procedure, plan, guidance, standard, or validation
     required: false
     default: "service"
   component_description:
