@@ -6,16 +6,19 @@ This document provides instructions and examples for creating and using GitHub A
 
 ## Directory Structure
 
-- Actions related to trestle-bot are located in the `trestlebot/actions` directory.
-- Entrypoint scripts for actions are stored in the `trestlebot/entrypoints` directory.
+- Actions related to trestle-bot are located in the `actions` directory.
+- Actions should correlate an entrypoint under `trestlebot/entrypoints` directory.
 
 ## Adding a New Action
 
 Contributors should scope trestle-bot actions to workspace management and checks. To add a new action:
 
-1. Create an entrypoint script for the action in the `trestlebot/entrypoints` directory.
-2. Create a new directory in the `trestlebot/actions` directory.
-3. In the new directory, create an `action.yml` file that references your entrypoint script.
+> Prerequisite: An entrypoint was creating under `trestlebot/entrypoints` and added to the pyproject.toml under `[tool.poetry.scripts]`
+
+1. Create a new directory in the `actions` directory.
+2. In the new directory, create an `action.yml` file that references your entrypoint script.
+3. Add a README with markers to auto update the inputs and outputs from the `action.yml`. See an existing README for examples.
+4. Create a bash script to run the command and add any GitHub Actions specific logic
 
 For more details, consult the [GitHub Actions documentation](https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action).
 
