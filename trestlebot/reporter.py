@@ -18,21 +18,31 @@ class BotResults:
 
 class ResultsReporter:
     """
-    Class for generate output for results reporting.
+    Base class for reporting the results of the Trestle Bot.
     """
 
-    def report_results(self, results: BotResults) -> str:
+    def report_results(self, results: BotResults) -> None:
         """Report the results of the Trestle Bot."""
-        results_str = "Results:"
-        if results.changes:
-            results_str = results_str + "\nChanges:"
-            for change in results.changes:
-                results_str = results_str + f"\n{change}"
-
+        results_str = ""
         if results.commit_sha:
             results_str = results_str + f"\nCommit Hash: {results.commit_sha}"
 
-        if results.pr_number:
-            results_str = results_str + f"\nPull Request Number: {results.pr_number}"
+            if results.pr_number:
+                results_str += f"\nPull Request Number: {results.pr_number}"
+        elif results.changes:
+            results_str = results_str + "\nChanges:"
+            results_str = ResultsReporter.get_changes_str(results.changes)
+        else:
+            results_str = "No changes detected."
 
-        return results_str
+        print(results_str)  # noqa: T201
+
+    @staticmethod
+    def get_changes_str(changes: List[str]) -> str:
+        """
+        Return a string representation of the changes.
+
+        Notes: This method is starting off as a simple join of the changes list,
+        but is intended to be expanded to provide more detailed information about the changes.
+        """
+        return "\n".join(changes)
