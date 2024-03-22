@@ -49,4 +49,4 @@ if [[ -n ${INPUT_TARGET_BRANCH} ]]; then
   command+=" --with-token - <<<\"${GITHUB_TOKEN}\""
 fi
 
-execute_command "${command}"
+eval "${command}"

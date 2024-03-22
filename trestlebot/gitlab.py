@@ -6,11 +6,13 @@
 
 import os
 import re
+import time
 from typing import Tuple
 
 import gitlab
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults, ResultsReporter
 
 
 class GitLab(GitProvider):
@@ -94,9 +96,57 @@ class GitLab(GitProvider):
             )
 
 
+class GitLabCIResultsReporter(ResultsReporter):
+    """Report bot results to the console in GitLabCI"""
+
+    def report_results(self, results: BotResults) -> None:
+        """
+        Report the results of the Trestle Bot in GitLab CI
+
+        Args:
+            results: BotResults object
+        """
+        results_str = ""
+        if results.commit_sha:
+            commit_str = self._create_group(
+                "Commit Hash",
+                "Commit hash for the changes",
+                f"Commit Hash: {results.commit_sha}",
+            )
+            results_str += commit_str
+
+            if results.pr_number:
+                pr_str = self._create_group(
+                    "Pull Request Number",
+                    "Pull Request number for the changes",
+                    str(results.pr_number),
+                )
+                results_str += pr_str
+        elif results.changes:
+            changes_str = self._create_group(
+                "Changes", "Changes detected", self.get_changes_str(results.changes)
+            )
+            results_str += changes_str
+        else:
+            results_str += "No changes detected"
+        print(results_str)  # noqa: T201
+
+    @staticmethod
+    def _create_group(
+        section_title: str, section_description: str, content: str
+    ) -> str:
+        """Create a group for the GitLab CI output"""
+        group_str = ""
+        group_str += f"section_start:{time.time_ns()}`:{section_title}[collapsed=true]"
+        group_str += f"\r\e[0K{section_description}"  # noqa: W605
+        group_str += f"\n{content}\n"
+        group_str += (
+            f"section_end:{time.time_ns()}:${section_title}\r\e[0K"  # noqa: W605
+        )
+        return group_str
+
+
 # GitLab ref: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
-
-
 def is_gitlab_ci() -> bool:
     """Determine if the environment is GitLab CI"""
     var_value = os.getenv("GITLAB_CI")

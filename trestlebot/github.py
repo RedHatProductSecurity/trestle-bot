@@ -13,6 +13,7 @@ from github3.exceptions import AuthenticationFailed
 from github3.repos.repo import Repository
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults, ResultsReporter
 
 
 class GitHub(GitProvider):
@@ -102,6 +103,46 @@ class GitHub(GitProvider):
             )
 
 
+class GitHubActionsResultsReporter(ResultsReporter):
+    """Report bot results to the console in GitHub Actions"""
+
+    def report_results(self, results: BotResults) -> None:
+        """
+        Report the results of the Trestle Bot in GitHub Actions
+
+        Args:
+            results: BotResults object
+        """
+        results_str = ""
+        if results.commit_sha:
+            set_output("changes", "true")
+            set_output("commit", results.commit_sha)
+
+            commit_str = self._create_group("Commit", results.commit_sha)
+            results_str += commit_str
+
+            if results.pr_number:
+                set_output("pr_number", str(results.pr_number))
+                pr_str = self._create_group("Pull Request", str(results.pr_number))
+                results_str += pr_str
+        elif results.changes:
+            set_output("changes", "true")
+            changes_str = self._create_group(
+                "Changes", self.get_changes_str(results.changes)
+            )
+            results_str += changes_str
+        else:
+            set_output("changes", "false")
+            results_str += "No changes detected"
+
+        print(results_str)  # noqa: T201
+
+    @staticmethod
+    def _create_group(section: str, content: str) -> str:
+        """Create a group of text in GitHub Actions"""
+        return f"::group::{section}\n{content}\n::endgroup::"
+
+
 # GitHub ref:
 # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
 def is_github_actions() -> bool:
@@ -110,3 +151,8 @@ def is_github_actions() -> bool:
     if var_value and var_value.lower() in ["true", "1"]:
         return True
     return False
+
+
+def set_output(name: str, value: str) -> None:
+    with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+        print(f"{name}={value}", file=fh)  # noqa: T201
