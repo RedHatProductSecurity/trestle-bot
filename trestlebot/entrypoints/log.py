@@ -33,13 +33,15 @@ def configure_logger(level: int = logging.INFO) -> None:
     # Create a StreamHandler to send non-error logs to stdout
     stdout_info_handler = logging.StreamHandler(sys.stdout)
     stdout_info_handler.setLevel(logging.INFO)
+    stdout_info_handler.addFilter(log.SpecificLevelFilter(logging.INFO))
 
     stdout_debug_handler = logging.StreamHandler(sys.stdout)
     stdout_debug_handler.setLevel(logging.DEBUG)
+    stdout_debug_handler.addFilter(log.SpecificLevelFilter(logging.DEBUG))
 
     # Create a StreamHandler to send error logs to stderr
     stderr_handler = logging.StreamHandler(sys.stderr)
-    stderr_handler.setLevel(logging.ERROR)
+    stderr_handler.setLevel(logging.WARNING)
 
     # Create a formatter and set it on both handlers
     detailed_formatter = logging.Formatter(
