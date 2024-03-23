@@ -111,7 +111,7 @@ class GitLabCIResultsReporter(ResultsReporter):
             commit_str = self._create_group(
                 "Commit Hash",
                 "Commit hash for the changes",
-                f"Commit Hash: {results.commit_sha}",
+                results.commit_sha,
             )
             results_str += commit_str
 
@@ -141,7 +141,7 @@ class GitLabCIResultsReporter(ResultsReporter):
         group_str += f"\r\e[0K{section_description}"  # noqa: W605
         group_str += f"\n{content}\n"
         group_str += (
-            f"section_end:{time.time_ns()}:${section_title}\r\e[0K"  # noqa: W605
+            f"section_end:{time.time_ns()}:${section_title}\r\e[0K\n"  # noqa: W605
         )
         return group_str
 
