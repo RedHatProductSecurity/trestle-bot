@@ -25,15 +25,15 @@ class ResultsReporter:
         """Report the results of the Trestle Bot."""
         results_str = ""
         if results.commit_sha:
-            results_str = results_str + f"\nCommit Hash: {results.commit_sha}"
+            results_str += f"\nCommit Hash: {results.commit_sha}"
 
             if results.pr_number:
                 results_str += f"\nPull Request Number: {results.pr_number}"
         elif results.changes:
-            results_str = results_str + "\nChanges:"
-            results_str = ResultsReporter.get_changes_str(results.changes)
+            results_str += "\nChanges:\n"
+            results_str += ResultsReporter.get_changes_str(results.changes)
         else:
-            results_str = "No changes detected."
+            results_str = "No changes detected"
 
         print(results_str)  # noqa: T201
 
