@@ -166,7 +166,7 @@ class E2ETestRunner:
 
     def invoke_command(
         self, command: List[str], working_dir: Optional[pathlib.Path] = None
-    ) -> Tuple[int, str]:
+    ) -> Tuple[int, str, str]:
         """
         Invoke a command in the e2e test.
 
@@ -174,7 +174,11 @@ class E2ETestRunner:
             command (str): Command to run in the shell
 
         Returns:
-            Tuple[int, str]: Return code and stdout of the command
+            Tuple[int, str]: Return code, stdout, stderr of the command
         """
         result = subprocess.run(command, cwd=working_dir, capture_output=True)
-        return result.returncode, result.stdout.decode("utf-8")
+        return (
+            result.returncode,
+            result.stdout.decode("utf-8"),
+            result.stderr.decode("utf-8"),
+        )
