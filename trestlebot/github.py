@@ -12,6 +12,7 @@ import github3
 from github3.exceptions import AuthenticationFailed
 from github3.repos.repo import Repository
 
+from trestlebot import const
 from trestlebot.provider import GitProvider, GitProviderException
 from trestlebot.reporter import BotResults, ResultsReporter
 
@@ -116,23 +117,23 @@ class GitHubActionsResultsReporter(ResultsReporter):
         results_str = ""
         if results.commit_sha:
             set_output("changes", "true")
-            set_output("commit", results.commit_sha)
+            set_output(const.COMMIT, results.commit_sha)
 
             commit_str = self._create_group("Commit", results.commit_sha)
             results_str += commit_str
 
             if results.pr_number:
-                set_output("pr_number", str(results.pr_number))
+                set_output(const.PR_NUMBER, str(results.pr_number))
                 pr_str = self._create_group("Pull Request", str(results.pr_number))
                 results_str += pr_str
         elif results.changes:
-            set_output("changes", "true")
+            set_output(const.CHANGES, "true")
             changes_str = self._create_group(
                 "Changes", self.get_changes_str(results.changes)
             )
             results_str += changes_str
         else:
-            set_output("changes", "false")
+            set_output(const.CHANGES, "false")
             results_str += "No changes detected"
 
         print(results_str)  # noqa: T201
@@ -140,7 +141,7 @@ class GitHubActionsResultsReporter(ResultsReporter):
     @staticmethod
     def _create_group(section: str, content: str) -> str:
         """Create a group of text in GitHub Actions"""
-        return f"::group::{section}\n{content}\n::endgroup::"
+        return f"::group::{section}\n{content}\n::endgroup::\n"
 
 
 # GitHub ref:

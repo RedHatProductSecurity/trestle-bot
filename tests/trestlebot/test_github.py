@@ -5,6 +5,7 @@
 """Test for GitHub provider logic"""
 
 import json
+import tempfile
 from typing import Generator, Tuple
 from unittest.mock import patch
 
@@ -13,8 +14,9 @@ from git.repo import Repo
 from responses import GET, POST, RequestsMock
 
 from tests.testutils import JSON_TEST_DATA_PATH, clean
-from trestlebot.github import GitHub
+from trestlebot.github import GitHub, GitHubActionsResultsReporter, set_output
 from trestlebot.provider import GitProviderException
+from trestlebot.reporter import BotResults
 
 
 @pytest.mark.parametrize(
@@ -111,3 +113,62 @@ def test_create_pull_request_invalid_repo() -> None:
                 "owner", "repo", "main", "test", "My PR", "Has Changes"
             )
         mock_pull.assert_called_once()
+
+
+def test_set_output(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Test set output"""
+    tmpdir = tempfile.TemporaryDirectory()
+    tmpfile_path = f"{tmpdir.name}/output.txt"
+    with open(tmpfile_path, "w") as tmpfile:
+        tmpfile.write("")
+
+    monkeypatch.setenv("GITHUB_OUTPUT", tmpfile_path)
+
+    set_output("name", "value")
+
+    with open(tmpfile_path, "r") as tmpfile:
+        content = tmpfile.read()
+        assert "name=value" in content
+
+
+def test_github_actions_results_reporter() -> None:
+    """Test results reporter"""
+    results = BotResults(changes=[], commit_sha="123456", pr_number=2)
+
+    expected_output = "::group::Commit\n123456\n::endgroup::\n::group::Pull Request\n2\n::endgroup::\n"
+
+    # Mock set output
+    def mock_set_output(name: str, value: str) -> None:
+        print(f"{name}={value}")  # noqa: T201
+
+    with patch("builtins.print") as mock_print:
+        with patch(
+            "trestlebot.github.set_output", side_effect=mock_set_output
+        ) as mock_set_output:
+            GitHubActionsResultsReporter().report_results(results)
+            mock_print.assert_any_call(expected_output)
+            mock_print.assert_any_call("changes=true")
+            mock_print.assert_any_call("commit=123456")
+            mock_print.assert_any_call("pr_number=2")
+
+    results = BotResults(changes=["file1"], commit_sha="", pr_number=0)
+
+    expected_output = "::group::Changes\nfile1\n::endgroup::\n"
+    with patch("builtins.print") as mock_print:
+        with patch(
+            "trestlebot.github.set_output", side_effect=mock_set_output
+        ) as mock_set_output:
+            GitHubActionsResultsReporter().report_results(results)
+            mock_print.assert_any_call(expected_output)
+            mock_print.assert_any_call("changes=true")
+
+    results = BotResults(changes=[], commit_sha="", pr_number=0)
+
+    expected_output = "No changes detected"
+    with patch("builtins.print") as mock_print:
+        with patch(
+            "trestlebot.github.set_output", side_effect=mock_set_output
+        ) as mock_set_output:
+            GitHubActionsResultsReporter().report_results(results)
+            mock_print.assert_any_call(expected_output)
+            mock_print.assert_any_call("changes=false")

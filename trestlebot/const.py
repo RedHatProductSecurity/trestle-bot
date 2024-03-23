@@ -38,3 +38,9 @@ YAML_EXTENSION = ".yaml"
 
 RULES_VIEW_DIR = "rules"
 RULE_PREFIX = "rule-"
+
+
+# GitHub Actions Outputs
+COMMIT = "commit"
+PR_NUMBER = "pr_number"
+CHANGES = "changes"
