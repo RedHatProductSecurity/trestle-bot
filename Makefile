@@ -36,7 +36,7 @@ test-slow:
 .PHONY: test-slow
 
 test-e2e:
-	@poetry run pytest $(TESTS)/$(E2E) --slow --cov --cov-config=pyproject.toml --cov-report=xml
+	@poetry run pytest $(TESTS)/$(E2E) --slow --cov --cov-config=pyproject.toml --cov-report=xml -vvv
 .PHONY: test-e2e
 
 test-code-cov:
