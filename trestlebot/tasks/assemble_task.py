@@ -4,6 +4,7 @@
 
 """Trestle Bot Assembly Tasks"""
 
+import logging
 import os
 import pathlib
 from typing import Optional
@@ -14,6 +15,9 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
 )
 from trestlebot.tasks.base_task import ModelFilter, TaskBase, TaskException
+
+
+logger = logging.getLogger(__name__)
 
 
 class AssembleTask(TaskBase):
@@ -62,6 +66,7 @@ class AssembleTask(TaskBase):
         for model in self.iterate_models(pathlib.Path(search_path)):
             # Construct model path from markdown path. AuthoredObject already has
             # the working dir data as part of object construction.
+            logger.info(f"Assembling model {model}")
             model_base_name = os.path.basename(model)
             model_path = os.path.join(self._markdown_dir, model_base_name)
             try:
