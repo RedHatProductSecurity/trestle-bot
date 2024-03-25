@@ -16,7 +16,7 @@ Contributors should scope trestle-bot actions to workspace management and checks
 > Prerequisite: An entrypoint was created under the `trestlebot/entrypoints` directory and added to the `pyproject.toml` under `[tool.poetry.scripts]`
 
 1. Create a new directory in the `actions` directory.
-2. In the new directory, create an `action.yml` file that references the Dockerfile in the root the repository.
+2. In the new directory, create an `action.yml` file that references the Dockerfile in the root of the repository.
 3. Add a README with markers to auto update the inputs and outputs from the `action.yml`. See an existing `README.md` for examples.
 4. Create a bash script to run the entrypoint command and add any GitHub Actions specific logic. See `actions/common.sh` for reusable logic.
 5. Add the the bash script to the Dockerfile to ensure it exists in the built image
