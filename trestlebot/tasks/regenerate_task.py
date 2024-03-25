@@ -4,6 +4,7 @@
 
 """Trestle Bot Regenerate Tasks"""
 
+import logging
 import os
 import pathlib
 from typing import Optional
@@ -15,6 +16,9 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
 )
 from trestlebot.tasks.base_task import ModelFilter, TaskBase, TaskException
+
+
+logger = logging.getLogger(__name__)
 
 
 class RegenerateTask(TaskBase):
@@ -58,6 +62,7 @@ class RegenerateTask(TaskBase):
 
         search_path = os.path.join(self.working_dir, model_dir)
         for model in self.iterate_models(pathlib.Path(search_path)):
+            logger.info(f"Regenerating model {model}")
             model_base_name = os.path.basename(model)
             model_path = os.path.join(model_dir, model_base_name)
 

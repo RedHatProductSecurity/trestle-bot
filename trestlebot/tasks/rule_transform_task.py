@@ -79,7 +79,7 @@ class RuleTransformTask(TaskBase):
     def _transform_components(self, component_definition_path: pathlib.Path) -> None:
         """Transform components into an OSCAL component definition."""
         csv_builder: CSVBuilder = CSVBuilder()
-        logger.debug(
+        logger.info(
             f"Transforming rules for component definition {component_definition_path.name}"
         )
 
@@ -87,6 +87,7 @@ class RuleTransformTask(TaskBase):
         # pretty print them in a raised exception
         transformation_errors: List[str] = []
         for component in self.iterate_models(component_definition_path):
+            logger.debug(f"Transforming rules for component {component.name}")
             for rule_path in self.iterate_models(component):
                 # Load the rule into memory as a stream to process
                 rule_stream = rule_path.read_text()
