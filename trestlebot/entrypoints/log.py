@@ -7,6 +7,7 @@
 import argparse
 import logging
 import sys
+from typing import List
 
 import trestle.common.log as log
 
@@ -28,8 +29,29 @@ def set_log_level_from_args(args: argparse.Namespace) -> None:
 
 def configure_logger(level: int = logging.INFO) -> None:
     """Configure the logger."""
+    # Prevent extra message
+    _logger.propagate = False
     _logger.setLevel(level=level)
+    for handler in configure_handlers():
+        _logger.addHandler(handler)
 
+
+def configure_test_logger(level: int = logging.INFO) -> None:
+    """
+    Configure the logger for testing.
+
+    Notes: This is used to patch the logger in tests
+    so the caplog can be used to capture log messages.
+    This does not happen when propagate is set to False.
+    """
+    _logger.propagate = True
+    _logger.setLevel(level=level)
+    for handler in configure_handlers():
+        _logger.addHandler(handler)
+
+
+def configure_handlers() -> List[logging.Handler]:
+    """Configure the handlers."""
     # Create a StreamHandler to send non-error logs to stdout
     stdout_info_handler = logging.StreamHandler(sys.stdout)
     stdout_info_handler.setLevel(logging.INFO)
@@ -49,7 +71,4 @@ def configure_logger(level: int = logging.INFO) -> None:
     )
     stdout_debug_handler.setFormatter(detailed_formatter)
     stderr_handler.setFormatter(detailed_formatter)
-
-    _logger.addHandler(stdout_debug_handler)
-    _logger.addHandler(stdout_info_handler)
-    _logger.addHandler(stderr_handler)
+    return [stdout_debug_handler, stdout_info_handler, stderr_handler]

@@ -7,7 +7,7 @@
 import argparse
 import logging
 from typing import Any, Dict
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -15,6 +15,7 @@ from tests.testutils import args_dict_to_list
 from trestlebot.entrypoints.autosync import AutoSyncEntrypoint
 from trestlebot.entrypoints.autosync import main as cli_main
 from trestlebot.entrypoints.entrypoint_base import EntrypointInvalidArgException
+from trestlebot.entrypoints.log import configure_test_logger
 
 
 @pytest.fixture
@@ -60,6 +61,10 @@ def test_validate_args_invalid_model(valid_args_dict: Dict[str, str]) -> None:
             auto_sync.validate_args(args)
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_no_ssp_index(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test missing index file for ssp"""
     args_dict = valid_args_dict
@@ -77,6 +82,10 @@ def test_no_ssp_index(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_no_markdown_path(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test without a markdown file passed as a flag"""
     args_dict = valid_args_dict
@@ -92,6 +101,10 @@ def test_no_markdown_path(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_non_existent_working_dir(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test with a non-existent working directory"""
     args_dict = valid_args_dict
@@ -107,6 +120,10 @@ def test_non_existent_working_dir(valid_args_dict: Dict[str, str], caplog: Any) 
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_invalid_working_dir(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test with directory that is not a trestle project root"""
     args_dict = valid_args_dict
@@ -122,6 +139,10 @@ def test_invalid_working_dir(valid_args_dict: Dict[str, str], caplog: Any) -> No
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_with_target_branch(
     tmp_trestle_dir: str, valid_args_dict: Dict[str, str], caplog: Any
 ) -> None:

@@ -6,12 +6,13 @@
 
 import logging
 from typing import Any, Dict, Tuple
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from git import Repo
 
 from tests.testutils import args_dict_to_list, clean, prepare_upstream_repo
+from trestlebot.entrypoints.log import configure_test_logger
 from trestlebot.entrypoints.sync_upstreams import main as cli_main
 
 
@@ -122,6 +123,10 @@ def test_with_exclude_model_names(
     clean(source, None)
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_with_no_sources(valid_args_dict: Dict[str, str], caplog: Any) -> None:
     """Test with an invalid source argument."""
     args_dict = valid_args_dict

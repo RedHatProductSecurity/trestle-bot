@@ -7,13 +7,14 @@
 import logging
 import pathlib
 from typing import Any, Dict, Tuple
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 from git import Repo
 
 from tests.testutils import TEST_YAML_HEADER, args_dict_to_list, setup_for_ssp
 from trestlebot.entrypoints.create_ssp import main as cli_main
+from trestlebot.entrypoints.log import configure_test_logger
 
 
 @pytest.fixture
@@ -43,6 +44,10 @@ expected_files = [
 ]
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_create_ssp(
     tmp_repo: Tuple[str, Repo], base_args_dict: Dict[str, str], caplog: Any
 ) -> None:
@@ -78,6 +83,10 @@ def test_create_ssp(
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_create_ssp_with_error(
     tmp_repo: Tuple[str, Repo], base_args_dict: Dict[str, str], caplog: Any
 ) -> None:
