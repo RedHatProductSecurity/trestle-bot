@@ -99,6 +99,9 @@ class GitLab(GitProvider):
 class GitLabCIResultsReporter(ResultsReporter):
     """Report bot results to the console in GitLabCI"""
 
+    escape_sequence = "\x1b[0K"
+    carriage_return = "\r"
+
     def report_results(self, results: BotResults) -> None:
         """
         Report the results of the Trestle Bot in GitLab CI
@@ -136,12 +139,14 @@ class GitLabCIResultsReporter(ResultsReporter):
         section_title: str, section_description: str, content: str
     ) -> str:
         """Create a group for the GitLab CI output"""
+        start_char = GitLabCIResultsReporter.escape_sequence
+        end_char = f"{GitLabCIResultsReporter.carriage_return}{GitLabCIResultsReporter.escape_sequence}"
         group_str = ""
-        group_str += f"section_start:{time.time_ns()}`:{section_title}[collapsed=true]"
-        group_str += f"\r\e[0K{section_description}"  # noqa: W605
+        group_str += f"{start_char}section_start:{time.time_ns()}:{section_title}[collapsed=true]"
+        group_str += f"{end_char}{section_description}"
         group_str += f"\n{content}\n"
         group_str += (
-            f"section_end:{time.time_ns()}:${section_title}\r\e[0K\n"  # noqa: W605
+            f"{start_char}section_end:{time.time_ns()}:{section_title}{end_char}\n"
         )
         return group_str
 

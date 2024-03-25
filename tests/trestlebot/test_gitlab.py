@@ -191,12 +191,12 @@ def test_gitlab_ci_results_reporter() -> None:
 
     results = BotResults(changes=[], commit_sha="123456", pr_number=2)
     expected_output = (
-        "section_start:1234567890`:Commit Hash"
-        "[collapsed=true]\r\\e[0KCommit hash for the changes\n123456\n"
-        "section_end:1234567890:$Commit Hash\r\\e[0K\n"
-        "section_start:1234567890`:Pull Request Number[collapsed=true]\r\\e[0K"
-        "Pull Request number for the changes\n2\nsection_end:1234567890:$Pull Request"
-        " Number\r\\e[0K\n"
+        "\x1b[0Ksection_start:1234567890:Commit Hash"
+        "[collapsed=true]\r\x1b[0KCommit hash for the changes\n123456\n"
+        "\x1b[0Ksection_end:1234567890:Commit Hash\r\x1b[0K\n"
+        "\x1b[0Ksection_start:1234567890:Pull Request Number[collapsed=true]\r\x1b[0K"
+        "Pull Request number for the changes\n2\n\x1b[0Ksection_end:1234567890:Pull Request"
+        " Number\r\x1b[0K\n"
     )
     with patch("builtins.print") as mock_print:
         with patch("time.time_ns", return_value=1234567890):
@@ -205,8 +205,8 @@ def test_gitlab_ci_results_reporter() -> None:
 
     results = BotResults(changes=["file2"], commit_sha="", pr_number=0)
     expected_output = (
-        "section_start:1234567890`:Changes[collapsed=true]\r\\e"
-        "[0KChanges detected\nfile2\nsection_end:1234567890:$Changes\r\\e[0K\n"
+        "\x1b[0Ksection_start:1234567890:Changes[collapsed=true]\r\x1b"
+        "[0KChanges detected\nfile2\n\x1b[0Ksection_end:1234567890:Changes\r\x1b[0K\n"
     )
     with patch("builtins.print") as mock_print:
         with patch("time.time_ns", return_value=1234567890):
