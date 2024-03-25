@@ -31,17 +31,25 @@ def configure_logger(level: int = logging.INFO) -> None:
     _logger.setLevel(level=level)
 
     # Create a StreamHandler to send non-error logs to stdout
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setLevel(logging.DEBUG)
+    stdout_info_handler = logging.StreamHandler(sys.stdout)
+    stdout_info_handler.setLevel(logging.INFO)
+    stdout_info_handler.addFilter(log.SpecificLevelFilter(logging.INFO))
+
+    stdout_debug_handler = logging.StreamHandler(sys.stdout)
+    stdout_debug_handler.setLevel(logging.DEBUG)
+    stdout_debug_handler.addFilter(log.SpecificLevelFilter(logging.DEBUG))
 
     # Create a StreamHandler to send error logs to stderr
     stderr_handler = logging.StreamHandler(sys.stderr)
-    stderr_handler.setLevel(logging.ERROR)
+    stderr_handler.setLevel(logging.WARNING)
 
     # Create a formatter and set it on both handlers
-    log_formatter = logging.Formatter("%(name)s:%(lineno)d %(levelname)s: %(message)s")
-    stdout_handler.setFormatter(log_formatter)
-    stderr_handler.setFormatter(log_formatter)
+    detailed_formatter = logging.Formatter(
+        "%(name)s:%(lineno)d %(levelname)s: %(message)s"
+    )
+    stdout_debug_handler.setFormatter(detailed_formatter)
+    stderr_handler.setFormatter(detailed_formatter)
 
-    _logger.addHandler(stdout_handler)
+    _logger.addHandler(stdout_debug_handler)
+    _logger.addHandler(stdout_info_handler)
     _logger.addHandler(stderr_handler)
