@@ -11,11 +11,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from tests.testutils import args_dict_to_list
+from tests.testutils import args_dict_to_list, configure_test_logger
 from trestlebot.entrypoints.autosync import AutoSyncEntrypoint
 from trestlebot.entrypoints.autosync import main as cli_main
 from trestlebot.entrypoints.entrypoint_base import EntrypointInvalidArgException
-from trestlebot.entrypoints.log import configure_test_logger
 
 
 @pytest.fixture

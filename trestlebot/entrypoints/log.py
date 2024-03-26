@@ -27,24 +27,10 @@ def set_log_level_from_args(args: argparse.Namespace) -> None:
         configure_logger(logging.INFO)
 
 
-def configure_logger(level: int = logging.INFO) -> None:
+def configure_logger(level: int = logging.INFO, propagate: bool = False) -> None:
     """Configure the logger."""
     # Prevent extra message
-    _logger.propagate = False
-    _logger.setLevel(level=level)
-    for handler in configure_handlers():
-        _logger.addHandler(handler)
-
-
-def configure_test_logger(level: int = logging.INFO) -> None:
-    """
-    Configure the logger for testing.
-
-    Notes: This is used to patch the logger in tests
-    so the caplog can be used to capture log messages.
-    This does not happen when propagate is set to False.
-    """
-    _logger.propagate = True
+    _logger.propagate = propagate
     _logger.setLevel(level=level)
     for handler in configure_handlers():
         _logger.addHandler(handler)

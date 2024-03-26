@@ -11,9 +11,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from tests.testutils import args_dict_to_list, setup_for_compdef
+from tests.testutils import args_dict_to_list, configure_test_logger, setup_for_compdef
 from trestlebot.entrypoints.create_cd import main as cli_main
-from trestlebot.entrypoints.log import configure_test_logger
 
 
 @pytest.fixture

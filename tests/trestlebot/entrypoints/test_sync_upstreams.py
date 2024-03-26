@@ -11,8 +11,12 @@ from unittest.mock import Mock, patch
 import pytest
 from git import Repo
 
-from tests.testutils import args_dict_to_list, clean, prepare_upstream_repo
-from trestlebot.entrypoints.log import configure_test_logger
+from tests.testutils import (
+    args_dict_to_list,
+    clean,
+    configure_test_logger,
+    prepare_upstream_repo,
+)
 from trestlebot.entrypoints.sync_upstreams import main as cli_main
 
 

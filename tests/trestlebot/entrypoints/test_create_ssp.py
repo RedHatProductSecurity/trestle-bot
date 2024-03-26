@@ -12,9 +12,13 @@ from unittest.mock import Mock, patch
 import pytest
 from git import Repo
 
-from tests.testutils import TEST_YAML_HEADER, args_dict_to_list, setup_for_ssp
+from tests.testutils import (
+    TEST_YAML_HEADER,
+    args_dict_to_list,
+    configure_test_logger,
+    setup_for_ssp,
+)
 from trestlebot.entrypoints.create_ssp import main as cli_main
-from trestlebot.entrypoints.log import configure_test_logger
 
 
 @pytest.fixture
