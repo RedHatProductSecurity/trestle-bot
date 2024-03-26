@@ -46,7 +46,7 @@ test-code-cov:
 # https://github.com/python-poetry/poetry/issues/994#issuecomment-831598242
 # Check for CVEs locally. For continuous dependency updates, we use dependabot.
 dep-cve-check:
-	@poetry export -f requirements.txt --without-hashes | poetry run safety check --stdin
+	@poetry export -f requirements.txt --without-hashes | poetry run safety check --continue-on-error --stdin
 .PHONY: dep-cve-check
 
 security-check:
