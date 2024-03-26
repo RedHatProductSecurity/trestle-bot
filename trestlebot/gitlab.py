@@ -99,8 +99,8 @@ class GitLab(GitProvider):
 class GitLabCIResultsReporter(ResultsReporter):
     """Report bot results to the console in GitLabCI"""
 
-    escape_sequence = "\x1b[0K"
-    carriage_return = "\r"
+    start_sequence = "\x1b[0K"
+    end_sequence = "\r\x1b[0K"
 
     def report_results(self, results: BotResults) -> None:
         """
@@ -112,22 +112,22 @@ class GitLabCIResultsReporter(ResultsReporter):
         results_str = ""
         if results.commit_sha:
             commit_str = self._create_group(
-                "Commit Hash",
-                "Commit hash for the changes",
+                "commit_sha",
+                "Commit Information",
                 results.commit_sha,
             )
             results_str += commit_str
 
             if results.pr_number:
                 pr_str = self._create_group(
-                    "Pull Request Number",
-                    "Pull Request number for the changes",
+                    "merge_request_number",
+                    "Merge Request Number",
                     str(results.pr_number),
                 )
                 results_str += pr_str
         elif results.changes:
             changes_str = self._create_group(
-                "Changes", "Changes detected", self.get_changes_str(results.changes)
+                "changes", "Changes detected", self.get_changes_str(results.changes)
             )
             results_str += changes_str
         else:
@@ -139,15 +139,14 @@ class GitLabCIResultsReporter(ResultsReporter):
         section_title: str, section_description: str, content: str
     ) -> str:
         """Create a group for the GitLab CI output"""
-        start_char = GitLabCIResultsReporter.escape_sequence
-        end_char = f"{GitLabCIResultsReporter.carriage_return}{GitLabCIResultsReporter.escape_sequence}"
-        group_str = ""
-        group_str += f"{start_char}section_start:{time.time_ns()}:{section_title}[collapsed=true]"
-        group_str += f"{end_char}{section_description}"
-        group_str += f"\n{content}\n"
-        group_str += (
-            f"{start_char}section_end:{time.time_ns()}:{section_title}{end_char}\n"
-        )
+        group_str = GitLabCIResultsReporter.start_sequence
+        group_str += f"section_start:{time.time_ns()}:{section_title}[collapsed=true]"
+        group_str += GitLabCIResultsReporter.end_sequence
+        group_str += f"{section_description}\n{content}\n"
+        group_str += GitLabCIResultsReporter.start_sequence
+        group_str += f"section_end:{time.time_ns()}:{section_title}"
+        group_str += GitLabCIResultsReporter.end_sequence
+        group_str += "\n"
         return group_str
 
 
