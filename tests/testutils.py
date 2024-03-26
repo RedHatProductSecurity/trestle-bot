@@ -5,6 +5,7 @@
 """Helper functions for unit test setup and teardown."""
 
 import argparse
+import logging
 import pathlib
 import shutil
 import tempfile
@@ -21,6 +22,7 @@ from trestle.oscal import component as comp
 from trestle.oscal import profile as prof
 
 from trestlebot.const import YAML_EXTENSION
+from trestlebot.entrypoints.log import configure_logger
 
 
 JSON_TEST_DATA_PATH = pathlib.Path("tests/data/json/").resolve()
@@ -30,6 +32,17 @@ INVALID_TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "invalid_test_ssp_index.json"
 TEST_YAML_HEADER = YAML_TEST_DATA_PATH / "extra_yaml_header.yaml"
 
 TEST_REMOTE_REPO_URL = "http://localhost:8080/test.git"
+
+
+def configure_test_logger(level: int = logging.INFO) -> None:
+    """
+    Configure the logger for testing.
+
+    Notes: This is used to patch the logger in tests
+    so the caplog can be used to capture log messages.
+    This does not happen when propagate is set to False.
+    """
+    configure_logger(level=level, propagate=True)
 
 
 def clean(repo_path: str, repo: Optional[Repo]) -> None:
