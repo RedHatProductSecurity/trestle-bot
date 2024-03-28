@@ -5,13 +5,14 @@
 """This module implements functions for the Trestle Bot."""
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from git import GitCommandError
 from git.repo import Repo
 from git.util import Actor
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
@@ -144,6 +145,14 @@ class TrestleBot:
             except TaskException as e:
                 raise RepoException(f"Bot pre-tasks failed: {e}")
 
+    def _get_staged_files(self, gitwd: Repo) -> List[str]:
+        """Get the list of staged files added with git add"""
+        staged_diff = gitwd.index.diff("HEAD")
+        staged_file_paths: List[str] = [
+            diff_entry.a_blob.path for diff_entry in staged_diff
+        ]
+        return staged_file_paths
+
     def run(
         self,
         patterns: List[str],
@@ -151,9 +160,8 @@ class TrestleBot:
         pre_tasks: Optional[List[TaskBase]] = None,
         commit_message: str = "Automatic updates from bot",
         pull_request_title: str = "Automatic updates from bot",
-        check_only: bool = False,
         dry_run: bool = False,
-    ) -> Tuple[str, int]:
+    ) -> BotResults:
         """
         Runs Trestle Bot logic and returns commit and pull request information.
 
@@ -163,16 +171,15 @@ class TrestleBot:
                 pre_tasks: Optional workspace task list to execute before staging files
                 commit_message: Optional commit message for local commit
                 pull_request_title: Optional customized pull request title
-                check_only: Optional check if the repo is dirty. Fail if true.
-                dry_run: Only complete local work. Do not push.
+                dry_run: Only complete pre-tasks and staging, skip commit and push.
 
         Returns:
-            A tuple with commit_sha and pull request number.
+            A tuple with changes, commit_sha, and pull request number.
             The commit_sha defaults to "" if there was no updates and the
-            pull request number default to 0 if not submitted.
+            pull request number default to 0 if not submitted. The changes list is
+            only populated if dry_run is enabled.
         """
-        commit_sha: str = ""
-        pr_number: int = 0
+        results: BotResults = BotResults([], "", 0)
 
         # Create Git Repo
         repo = Repo(self.working_dir)
@@ -184,23 +191,18 @@ class TrestleBot:
 
         # Check if there are any unstaged files
         if repo.is_dirty(untracked_files=True):
-            if check_only:
-                raise RepoException(
-                    "Check only mode is enabled and diff detected. "
-                    f"Manual intervention on {self.branch} is required."
-                )
-
             self._stage_files(repo, patterns)
 
             if repo.is_dirty():
-                commit_sha = self._local_commit(
+                if dry_run:
+                    changes = self._get_staged_files(repo)
+                    logger.info("Dry run mode is enabled. Skipping commit and push.")
+                    return BotResults(changes, "", 0)
+
+                results.commit_sha = self._local_commit(
                     repo,
                     commit_message,
                 )
-
-                if dry_run:
-                    logger.info("Dry run mode is enabled. Do not push to remote.")
-                    return commit_sha, pr_number
 
                 try:
                     remote_url = self._push_to_remote(repo)
@@ -211,10 +213,10 @@ class TrestleBot:
                         logger.info(
                             f"Git provider detected, submitting pull request to {self.target_branch}"
                         )
-                        pr_number = self._create_pull_request(
+                        results.pr_number = self._create_pull_request(
                             git_provider, remote_url, pull_request_title
                         )
-                    return commit_sha, pr_number
+                    return results
 
                 except GitCommandError as e:
                     raise RepoException(f"Git push to {self.branch} failed: {e}")
@@ -224,7 +226,7 @@ class TrestleBot:
                     )
             else:
                 logger.info("Nothing to commit")
-                return commit_sha, pr_number
+                return results
         else:
             logger.info("Nothing to commit")
-            return commit_sha, pr_number
+            return results

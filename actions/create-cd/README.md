@@ -32,6 +32,7 @@ name: Example Workflow
 | component_type | Type of the component to create. Values can be interconnection, software, hardware, service, policy, physical, process-procedure, plan, guidance, standard, or validation | service | False |
 | component_description | Description of the component to create | None | True |
 | filter_by_profile | Name of the profile in the workspace to filter controls by | None | False |
+| dry_run | Runs tasks without committing changes to the repository. | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
 | commit_message | Commit message | Sync automatic updates | False |
 | pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |

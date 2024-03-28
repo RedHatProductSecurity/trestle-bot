@@ -13,8 +13,9 @@ from gitlab.exceptions import GitlabAuthenticationError, GitlabCreateError
 from responses import GET, POST, RequestsMock
 
 from tests.testutils import clean
-from trestlebot.gitlab import GitLab
+from trestlebot.gitlab import GitLab, GitLabCIResultsReporter
 from trestlebot.provider import GitProviderException
+from trestlebot.reporter import BotResults
 
 
 @pytest.mark.parametrize(
@@ -176,3 +177,37 @@ def test_create_pull_request_with_exceptions(
                 "owner", "repo", "main", "test", "My PR", "Has Changes"
             )
         mock_get.assert_called_once()
+
+
+def test_gitlab_ci_results_reporter() -> None:
+    """Test results reporter"""
+
+    results = BotResults(changes=[], commit_sha="", pr_number=0)
+
+    expected_output = "No changes detected"
+    with patch("builtins.print") as mock_print:
+        GitLabCIResultsReporter().report_results(results)
+        mock_print.assert_any_call(expected_output)
+
+    results = BotResults(changes=[], commit_sha="123456", pr_number=2)
+    expected_output = (
+        "\x1b[0Ksection_start:1234567890:commit_sha"
+        "[collapsed=true]\r\x1b[0KCommit Information\n123456\n"
+        "\x1b[0Ksection_end:1234567890:commit_sha\r\x1b[0K\n"
+        "\x1b[0Ksection_start:1234567890:merge_request_number[collapsed=true]\r\x1b[0K"
+        "Merge Request Number\n2\n\x1b[0Ksection_end:1234567890:merge_request_number\r\x1b[0K\n"
+    )
+    with patch("builtins.print") as mock_print:
+        with patch("time.time_ns", return_value=1234567890):
+            GitLabCIResultsReporter().report_results(results)
+            mock_print.assert_called_once_with(expected_output)
+
+    results = BotResults(changes=["file2"], commit_sha="", pr_number=0)
+    expected_output = (
+        "\x1b[0Ksection_start:1234567890:changes[collapsed=true]\r\x1b"
+        "[0KChanges detected\nfile2\n\x1b[0Ksection_end:1234567890:changes\r\x1b[0K\n"
+    )
+    with patch("builtins.print") as mock_print:
+        with patch("time.time_ns", return_value=1234567890):
+            GitLabCIResultsReporter().report_results(results)
+            mock_print.assert_called_once_with(expected_output)
