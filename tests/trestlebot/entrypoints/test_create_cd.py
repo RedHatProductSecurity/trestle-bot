@@ -7,11 +7,11 @@
 import logging
 import pathlib
 from typing import Any, Dict
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pytest
 
-from tests.testutils import args_dict_to_list, setup_for_compdef
+from tests.testutils import args_dict_to_list, configure_test_logger, setup_for_compdef
 from trestlebot.entrypoints.create_cd import main as cli_main
 
 
@@ -49,6 +49,10 @@ def test_create_cd_with_missing_args(
             cli_main()
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_create_cd_with_missing_profile(
     tmp_trestle_dir: str, valid_args_dict: Dict[str, str], caplog: Any
 ) -> None:
@@ -72,6 +76,10 @@ def test_create_cd_with_missing_profile(
     )
 
 
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
 def test_create_cd_with_missing_filter_profile(
     tmp_trestle_dir: str, valid_args_dict: Dict[str, str], caplog: Any
 ) -> None:
