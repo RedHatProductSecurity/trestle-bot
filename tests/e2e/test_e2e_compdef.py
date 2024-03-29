@@ -71,21 +71,20 @@ def test_rules_transform_e2e(
     command: List[str] = e2e_runner.build_test_command(
         tmp_repo_str, "rules-transform", command_args
     )
-    exit_code, response_stdout = e2e_runner.invoke_command(command)
+    exit_code, response_stdout, _ = e2e_runner.invoke_command(command)
     assert exit_code == SUCCESS_EXIT_CODE
 
     # Check that the component definition was created
-    if exit_code == SUCCESS_EXIT_CODE:
-        if "skip-items" in command_args:
-            assert f"input: {test_comp_name}.csv" not in response_stdout
-        else:
-            comp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
-                tmp_repo_path, test_comp_name, ComponentDefinition, FileContentType.JSON
-            )
-            assert comp_path.exists()
-            assert f"input: {test_comp_name}.csv" in response_stdout
-        branch = command_args["branch"]
-        assert f"Changes pushed to {branch} successfully." in response_stdout
+    if "skip-items" in command_args:
+        assert f"input: {test_comp_name}.csv" not in response_stdout
+    else:
+        comp_path: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
+            tmp_repo_path, test_comp_name, ComponentDefinition, FileContentType.JSON
+        )
+        assert comp_path.exists()
+        assert f"input: {test_comp_name}.csv" in response_stdout
+    branch = command_args["branch"]
+    assert f"Changes pushed to {branch} successfully." in response_stdout
 
 
 @pytest.mark.slow
@@ -138,7 +137,7 @@ def test_create_cd_e2e(
     load_from_json(tmp_repo_path, test_filter_prof, test_filter_prof, Profile)
 
     command = e2e_runner.build_test_command(tmp_repo_str, "create-cd", command_args)
-    exit_code, _ = e2e_runner.invoke_command(command, tmp_repo_path)
+    exit_code, _, _ = e2e_runner.invoke_command(command, tmp_repo_path)
     assert exit_code == SUCCESS_EXIT_CODE
 
     # Check that all expected files were created
