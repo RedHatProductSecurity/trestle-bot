@@ -106,7 +106,7 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         github_token: ${{ secret.GITHUB_TOKEN }}
 ```
 
-- When `check_only` is set, the trestle `assemble` and `regenerate` tasks are run and the repository is checked for changes. If changes exists, the action with exit with an error. This can be useful if you only want to check that the content is in sync without making any changes to the remote repository.
+- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and no commit is made If changes exists, with display the files that would be changed.
 
 ```yaml
     steps:
@@ -117,7 +117,7 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         with:
           markdown_path: "markdown/profiles"
           oscal_model: "profile"
-          check_only: true
+          dry_run: true
 ```
 
 > Note: Trestle `assemble` or `regenerate` tasks may be skipped if desired using `skip_assemble: true` or `skip_regenerate: true`, respectively. 
