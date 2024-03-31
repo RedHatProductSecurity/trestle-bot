@@ -25,7 +25,7 @@ name: Example Workflow
 | --- | --- | --- | --- |
 | markdown_path | Path relative to the repository path where the Trestle markdown files are located. See action README.md for more information. | None | True |
 | oscal_model | OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp. | None | True |
-| dry_run | Runs tasks without committing changes to the repository. | false | False |
+| dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
 | version | Version of the OSCAL model to set during assembly into JSON. | None | False |
 | skip_assemble | Skip assembly task. Defaults to false | false | False |
@@ -106,7 +106,7 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         github_token: ${{ secret.GITHUB_TOKEN }}
 ```
 
-- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and no commit is made If changes exists, with display the files that would be changed.
+- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and changes are not pushed to the remote repository, with display the files that would be changed.
 
 ```yaml
     steps:

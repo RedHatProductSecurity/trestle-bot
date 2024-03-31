@@ -8,7 +8,7 @@ inputs:
     required: false
     default: "rules/"
   dry_run: 
-    description: "Runs tasks without committing changes to the repository."
+    description: "Runs tasks without pushing changes to the repository."
     required: false
     default: "false"
   github_token:

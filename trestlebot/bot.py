@@ -8,6 +8,7 @@ import logging
 from typing import List, Optional
 
 from git import GitCommandError
+from git.objects.commit import Commit
 from git.repo import Repo
 from git.util import Actor
 
@@ -75,7 +76,7 @@ class TrestleBot:
         self,
         gitwd: Repo,
         commit_message: str,
-    ) -> str:
+    ) -> Commit:
         """Creates a local commit in git working directory"""
         try:
             committer: Actor = Actor(name=self.commit_name, email=self.commit_email)
@@ -86,8 +87,7 @@ class TrestleBot:
             commit = gitwd.index.commit(
                 commit_message, author=author, committer=committer
             )
-
-            return commit.hexsha
+            return commit
 
         except GitCommandError as e:
             raise RepoException(f"Git commit failed: {e}") from e
@@ -145,13 +145,22 @@ class TrestleBot:
             except TaskException as e:
                 raise RepoException(f"Bot pre-tasks failed: {e}")
 
-    def _get_staged_files(self, gitwd: Repo) -> List[str]:
-        """Get the list of staged files added with git add"""
-        staged_diff = gitwd.index.diff("HEAD")
-        staged_file_paths: List[str] = [
-            diff_entry.a_blob.path for diff_entry in staged_diff
-        ]
-        return staged_file_paths
+    def _get_committed_files(self, commit: Commit) -> List[str]:
+        """Get the list of committed files in the commit."""
+        changes: List[str] = []
+        diffs = {diff.a_path: diff for diff in commit.parents[0].diff(commit)}
+        for path in commit.stats.files.keys():
+            diff = diffs.get(path, None)
+            if diff:
+                if diff.change_type == "A":
+                    changes.append(f"{path} [added]")
+                elif diff.change_type == "M":
+                    changes.append(f"{path} [modified]")
+                elif diff.change_type == "D":
+                    changes.append(f"{path} [deleted]")
+                elif diff.change_type == "R":
+                    changes.append(f"{path} [renamed]")
+        return changes
 
     def run(
         self,
@@ -171,7 +180,7 @@ class TrestleBot:
                 pre_tasks: Optional workspace task list to execute before staging files
                 commit_message: Optional commit message for local commit
                 pull_request_title: Optional customized pull request title
-                dry_run: Only complete pre-tasks and staging, skip commit and push.
+                dry_run: Only complete pre-tasks and return changes without pushing
 
         Returns:
             A tuple with changes, commit_sha, and pull request number.
@@ -191,18 +200,21 @@ class TrestleBot:
 
         # Check if there are any unstaged files
         if repo.is_dirty(untracked_files=True):
+
             self._stage_files(repo, patterns)
 
             if repo.is_dirty():
-                if dry_run:
-                    changes = self._get_staged_files(repo)
-                    logger.info("Dry run mode is enabled. Skipping commit and push.")
-                    return BotResults(changes, "", 0)
 
-                results.commit_sha = self._local_commit(
+                commit: Commit = self._local_commit(
                     repo,
                     commit_message,
                 )
+                results.commit_sha = commit.hexsha
+
+                # Do not return the commit sha if dry run is enabled
+                if dry_run:
+                    logger.info("Dry run mode is enabled, no changes will be pushed")
+                    return BotResults(self._get_committed_files(commit), "", 0)
 
                 try:
                     remote_url = self._push_to_remote(repo)

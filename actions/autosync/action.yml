@@ -10,7 +10,7 @@ inputs:
     description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
     required: true
   dry_run: 
-    description: "Runs tasks without committing changes to the repository."
+    description: "Runs tasks without pushing changes to the repository."
     required: false
     default: "false"
   github_token:

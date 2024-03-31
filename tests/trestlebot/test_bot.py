@@ -196,7 +196,7 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             patterns=["*.txt"],
             dry_run=True,
         )
-        assert results.changes == ["test.txt"]
+        assert results.changes == ["test.txt [added]"]
         assert results.commit_sha == ""
         assert results.pr_number == 0
 
