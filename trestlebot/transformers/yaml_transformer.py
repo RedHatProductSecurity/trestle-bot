@@ -23,8 +23,8 @@ from trestlebot.transformers.trestle_rule import (
     Parameter,
     Profile,
     TrestleRule,
+    convert_errors,
 )
-from trestlebot.transformers.validations import convert_errors
 
 
 logger = logging.getLogger(__name__)
