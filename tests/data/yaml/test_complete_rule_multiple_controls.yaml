@@ -4,8 +4,12 @@ x-trestle-rule-info:
   parameter:
     name: prm_1
     description: prm_1 description
-    alternative-values: {'default': '5%', '5pc': '5%', '10pc': '10%', '15pc': '15%', '20pc': '20%'}
-    default-value: '5%'
+    alternative-values:
+      default: 5%
+      5pc: 5%
+      10pc: 10%
+      20pc: 20%
+    default-value: 5%
   check:
     name: my_check
     description: My check description
