@@ -2,13 +2,17 @@
 # Copyright (c) 2023 Red Hat, Inc.
 
 
-"""Trestle Rule class with pydantic."""
+"""
+Trestle Rule class with pydantic.
+
+Note: Any validation here should be done in the pydantic model and
+required for the rule to be valid.
+"""
 
 
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
-from pydantic.error_wrappers import ErrorDict
 
 from trestlebot import const
 
@@ -27,16 +31,26 @@ class Parameter(BaseModel):
     @validator("default_value", pre=False)
     def check_default_value(cls, value: str, values: Dict[str, Any]) -> str:
         """Check if default value is in the alternative values."""
-        alternative_values = values.get("alternative_values", {})
+        alternative_values: Dict[str, str] = values.get("alternative_values", {})
         if not alternative_values:
             raise ValueError("Alternative values must be provided")
-        default_value_alt = alternative_values.get(const.DEFAULT_KEY, "")
 
-        if not default_value_alt or default_value_alt != value:
+        if value not in alternative_values.values():
             raise ValueError(
-                f"Default value {value} must be in the alternative values {alternative_values}"
-                f" under the key {const.DEFAULT_KEY}"
+                f"Default value {value} must be in the alternative values {alternative_values.values()}"
             )
+
+        # This is required to be listed as a value with a descriptive key and
+        # optionally the default key
+        default_value_alt = alternative_values.get(const.DEFAULT_KEY, "")
+        if not default_value_alt:
+            alternative_values[const.DEFAULT_KEY] = value
+        else:
+            if default_value_alt != value:
+                raise ValueError(
+                    f"Default value {value} must be in the alternative values {alternative_values}"
+                    f" under the key {const.DEFAULT_KEY}"
+                )
 
         return value
 
@@ -45,9 +59,7 @@ class Control(BaseModel):
     """
     Catalog control for rule association
 
-    Note: The control id or statement would be used here and
-    trestle has additional validations for this field that won't
-    be duplication in the rule model.
+    Note: This can be the control id or statement id.
     """
 
     id: str
@@ -127,14 +139,14 @@ def loc_to_dot_sep(loc: Tuple[Union[str, int], ...]) -> str:
     return path
 
 
-def convert_errors(e: ValidationError) -> List[ErrorDict]:
+def convert_errors(e: ValidationError) -> List[Dict[str, Any]]:
     """
     Convert pydantic validation errors to a list of dictionaries.
 
     Note: All validations for rules should be done in the pydantic model and
     formatted through this function.
     """
-    new_errors: List[ErrorDict] = e.errors()
+    new_errors: List[Dict[str, Any]] = e.errors()
     for error in new_errors:
         error["loc"] = loc_to_dot_sep(error["loc"])
     return new_errors
