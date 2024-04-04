@@ -108,16 +108,26 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
 
 - When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and changes are not pushed to the remote repository, with display the files that would be changed.
 
+This can be helpful if you want to enforce that the content is in sync before it is merged into the repository with out making changes to the remote repository (e.g. helpful for changes from forks). If assembly and regeneratation are triggered by pushes to main, it can validate that the changes will be successful before merging to main to avoid unexpected errors.
+
 ```yaml
     steps:
       - uses: actions/checkout@v3
       - name: Run trestlebot
-        id: trestlebot
+        id: check
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
           markdown_path: "markdown/profiles"
           oscal_model: "profile"
           dry_run: true
+      # Optional - Set the action to failed if changes are detected.
+      - name: Fail for changes
+        if: ${{ steps.check.outputs.changes == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+              core.setFailed('Changes detected. Manual intervention required.')
+    
 ```
 
 > Note: Trestle `assemble` or `regenerate` tasks may be skipped if desired using `skip_assemble: true` or `skip_regenerate: true`, respectively. 
