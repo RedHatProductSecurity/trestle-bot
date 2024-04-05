@@ -105,9 +105,6 @@ class GitLabCIResultsReporter(ResultsReporter):
     def report_results(self, results: BotResults) -> None:
         """
         Report the results of the Trestle Bot in GitLab CI
-
-        Args:
-            results: BotResults object
         """
         results_str = ""
         if results.commit_sha:

@@ -22,7 +22,12 @@ class ResultsReporter:
     """
 
     def report_results(self, results: BotResults) -> None:
-        """Report the results of the Trestle Bot."""
+        """
+        Report the results of the Trestle Bot.
+
+        Args:
+            results: BotResults object
+        """
         results_str = ""
         if results.commit_sha:
             results_str += f"\nCommit Hash: {results.commit_sha}"
@@ -44,5 +49,6 @@ class ResultsReporter:
 
         Notes: This method is starting off as a simple join of the changes list,
         but is intended to be expanded to provide more detailed information about the changes.
+        The goal is consistent representation.
         """
         return "\n".join(changes)

@@ -155,5 +155,6 @@ def is_github_actions() -> bool:
 
 
 def set_output(name: str, value: str) -> None:
+    """Set the output during the GitHub Actions workflow."""
     with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
         print(f"{name}={value}", file=fh)  # noqa: T201
