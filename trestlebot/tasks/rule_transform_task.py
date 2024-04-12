@@ -96,16 +96,14 @@ class RuleTransformTask(TaskBase):
                     rule = self._rule_transformer.transform(rule_stream)
                     csv_builder.add_row(rule)
                 except RulesTransformerException as e:
-                    transformation_errors.append(
-                        f"Failed to transform rule {rule_path.name}: {e}"
-                    )
+                    transformation_errors.append(f"{rule_path.name}: {e}")
 
         if len(transformation_errors) > 0:
+            transformation_error_str = "\n".join(transformation_errors)
             raise TaskException(
                 f"Failed to transform rules for component definition {component_definition_path.name}: \
-                    \n{', '.join(transformation_errors)}"
+                    {transformation_error_str}"
             )
-
         if csv_builder.row_count == 0:
             raise TaskException(
                 f"No rules found for component definition {component_definition_path.name}"

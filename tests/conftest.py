@@ -106,6 +106,7 @@ def invalid_param_rule_data() -> Dict[str, Any]:
             const.PROFILE: {
                 const.DESCRIPTION: "Simple NIST Profile",
                 const.HREF: "profiles/simplified_nist_profile/profile.json",
+                const.INCLUDE_CONTROLS: [{"id": "ac-1"}],
             },
             const.PARAMETER: {
                 const.NAME: "prm_1",
@@ -118,7 +119,12 @@ def invalid_param_rule_data() -> Dict[str, Any]:
                 },
                 const.DEFAULT_VALUE: "5%",
             },
-        }
+        },
+        const.COMPONENT_INFO_TAG: {
+            const.NAME: "Component 1",
+            const.TYPE: "service",
+            const.DESCRIPTION: "Component 1 description",
+        },
     }
 
 

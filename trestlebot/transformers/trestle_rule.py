@@ -123,30 +123,35 @@ def get_default_rule() -> TrestleRule:
     )
 
 
-# From https://docs.pydantic.dev/latest/errors/errors/
-def loc_to_dot_sep(loc: Tuple[Union[str, int], ...]) -> str:
+# Adapted from https://docs.pydantic.dev/latest/errors/errors/
+def location_to_dot_seperation(
+    location: Tuple[Union[str, int], ...]
+) -> str:  # pragma: no cover
     """Convert a tuple of strings and integers to a dot separated string."""
-    path = ""
-    for i, x in enumerate(loc):
-        if isinstance(x, str):
+    path: str = ""
+    for i, loc_value in enumerate(location):
+        if isinstance(loc_value, str):
             if i > 0:
                 path += "."
-            path += x
-        elif isinstance(x, int):
-            path += f"[{x}]"
+            path += loc_value
+        elif isinstance(loc_value, int):
+            path += f"[{loc_value}]"
         else:
-            raise TypeError("Unexpected type")
+            raise TypeError(f"Unexpected type {loc_value} in location tuple")
     return path
 
 
-def convert_errors(e: ValidationError) -> List[Dict[str, Any]]:
+def convert_errors(e: ValidationError) -> str:
     """
-    Convert pydantic validation errors to a list of dictionaries.
+    Convert pydantic validation errors into a formatted string.
 
     Note: All validations for rules should be done in the pydantic model and
-    formatted through this function.
+    formatted through this function is for display purposes only.
     """
-    new_errors: List[Dict[str, Any]] = e.errors()
-    for error in new_errors:
-        error["loc"] = loc_to_dot_sep(error["loc"])
+    new_errors: str = ""
+    for error in e.errors():
+        location = location_to_dot_seperation(error["loc"])
+        msg = error["msg"]
+        typ = error["type"]
+        new_errors += f"Location: {location}, Type: {typ}, Message: {msg}\n"
     return new_errors

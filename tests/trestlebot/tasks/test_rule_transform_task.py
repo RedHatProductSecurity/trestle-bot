@@ -97,9 +97,7 @@ def test_rule_transform_task_with_invalid_rule(tmp_trestle_dir: str) -> None:
         tmp_trestle_dir, test_rules_dir, transformer
     )
 
-    with pytest.raises(
-        TaskException, match="Failed to transform rule .*: Missing key in YAML file: .*"
-    ):
+    with pytest.raises(TaskException, match=".*: Missing key in YAML file: .*"):
         rule_transform_task.execute()
 
 

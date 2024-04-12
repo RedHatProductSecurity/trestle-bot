@@ -91,7 +91,7 @@ def test_rules_transform_with_additional_validation() -> None:
 
     with pytest.raises(
         RulesTransformerException,
-        match=".*Default value 5% must be in the alternative values.*",
+        match=".*Message: Default value 5% must be in the alternative values.*",
     ):
         transformer.transform(rule_file_info)
 

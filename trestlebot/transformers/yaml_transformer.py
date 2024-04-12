@@ -76,7 +76,7 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
             error_count = len(e.errors())
             pretty_errors = convert_errors(e)
             raise RulesTransformerException(
-                f"{error_count} errors found:\n {pretty_errors}"
+                f"{error_count} error(s) found:\n {pretty_errors}"
             )
 
         return rule_info_instance

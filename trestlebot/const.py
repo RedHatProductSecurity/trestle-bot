@@ -31,6 +31,8 @@ HREF = "href"
 ALTERNATIVE_VALUES = "alternative-values"
 DEFAULT_KEY = "default"
 DEFAULT_VALUE = "default-value"
+TYPE = "type"
+INCLUDE_CONTROLS = "include-controls"
 
 COMPONENT_YAML = "component.yaml"
 COMPONENT_INFO_TAG = trestle_const.TRESTLE_TAG + "component-info"
