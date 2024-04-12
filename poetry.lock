@@ -460,9 +460,9 @@ dev = ["gitpython", "livereload", "markdown-include", "mkdocs (==1.5.0)", "mkdoc
 
 [package.source]
 type = "git"
-url = "https://github.com/oscal-compass/compliance-trestle.git"
-reference = "feat/add-ssp-props"
-resolved_reference = "c88a13a3f14cc95c655ddc30b40833760965337e"
+url = "https://github.com/RedHatProductSecurity/compliance-trestle.git"
+reference = "feat/trestle-updates"
+resolved_reference = "5882054cd7b9ff4f3e1d938b4b971307e0f57971"
 
 [[package]]
 name = "coverage"
@@ -2068,4 +2068,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "1f8a0ff494365799df7beb8e87bdeea22d4f317bd347b32b39bf0c7db63db6fd"
+content-hash = "daa496068327474d54981c9d65c74e3bc98fec9cd2ef5e6bbdea3a3ac4dfa5b5"

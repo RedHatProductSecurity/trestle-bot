@@ -28,7 +28,7 @@ trestlebot-create-ssp = "trestlebot.entrypoints.create_ssp:main"
 [tool.poetry.dependencies]
 python = '^3.8.1'
 gitpython = "^3.1.41"
-compliance-trestle = {git = "https://github.com/oscal-compass/compliance-trestle.git", rev = "feat/add-ssp-props" }
+compliance-trestle = {git = "https://github.com/RedHatProductSecurity/compliance-trestle.git", rev = "feat/trestle-updates" }
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"
