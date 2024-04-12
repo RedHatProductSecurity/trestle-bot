@@ -4,6 +4,9 @@
 
 """Test for YAML Transformer."""
 
+import json
+from typing import Any, Dict
+
 import pytest
 
 from tests.testutils import YAML_TEST_DATA_PATH
@@ -77,6 +80,18 @@ def test_rules_transform_with_invalid_rule() -> None:
         RulesTransformerException, match=".*value is not a valid dict.*"
     ):
         transformer.transform(rule_file_info)
+
+
+def test_rules_without_default(invalid_param_rule_data: Dict[str, Any]) -> None:
+    """Test rules without default parameter value."""
+    transformer = ToRulesYAMLTransformer()
+
+    json_str = json.dumps(invalid_param_rule_data)
+    rule = transformer.transform(json_str)
+    assert "default" in rule.parameter.alternative_values  # type: ignore
+    assert (
+        rule.parameter.alternative_values.get("default") == rule.parameter.default_value  # type: ignore
+    )
 
 
 def test_rules_transform_with_additional_validation() -> None:
