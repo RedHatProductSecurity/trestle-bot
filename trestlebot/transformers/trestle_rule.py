@@ -148,10 +148,10 @@ def convert_errors(e: ValidationError) -> str:
     Note: All validations for rules should be done in the pydantic model and
     formatted through this function is for display purposes only.
     """
-    new_errors: str = ""
+    new_errors: List[str] = []
     for error in e.errors():
         location = location_to_dot_seperation(error["loc"])
         msg = error["msg"]
         typ = error["type"]
-        new_errors += f"Location: {location}, Type: {typ}, Message: {msg}\n"
-    return new_errors
+        new_errors.append(f"Location: {location}, Type: {typ}, Message: {msg}")
+    return "\n".join(new_errors)
