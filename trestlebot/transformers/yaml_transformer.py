@@ -6,7 +6,7 @@
 import logging
 import pathlib
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
 from ruamel.yaml import YAML
@@ -39,27 +39,46 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
 
     def transform(self, blob: str) -> TrestleRule:
         """Transform YAML data into a TrestleRule object."""
+        validation_errors: List[ValidationError] = []
         try:
             yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
 
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
-            profile_info_instance = Profile.parse_obj(rule_info_data[const.PROFILE])
+            # Collecting validation errors for each field to
+            # get a comprehensive list of errors per YAML file.
+            try:
+                profile_info_instance = Profile.parse_obj(rule_info_data[const.PROFILE])
+            except ValidationError as e:
+                validation_errors.append(e)
 
-            component_info_instance = ComponentInfo.parse_obj(
-                yaml_data[const.COMPONENT_INFO_TAG]
-            )
+            try:
+                component_info_instance = ComponentInfo.parse_obj(
+                    yaml_data[const.COMPONENT_INFO_TAG]
+                )
+            except ValidationError as e:
+                validation_errors.append(e)
 
             parameter_instance: Optional[Parameter] = None
             if const.PARAMETER in rule_info_data:
-                parameter_instance = Parameter.parse_obj(
-                    rule_info_data[const.PARAMETER]
-                )
+                try:
+                    parameter_instance = Parameter.parse_obj(
+                        rule_info_data[const.PARAMETER]
+                    )
+                except ValidationError as e:
+                    validation_errors.append(e)
 
             check_instance: Optional[Check] = None
             if const.CHECK in rule_info_data:
-                check_instance = Check.parse_obj(rule_info_data[const.CHECK])
+                try:
+                    check_instance = Check.parse_obj(rule_info_data[const.CHECK])
+                except ValidationError as e:
+                    validation_errors.append(e)
+
+            if validation_errors:
+                pretty_errors = convert_errors(validation_errors)
+                raise RulesTransformerException(pretty_errors)
 
             rule_info_instance: TrestleRule = TrestleRule(
                 name=rule_info_data[const.NAME],
@@ -72,12 +91,6 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
 
         except KeyError as e:
             raise RulesTransformerException(f"Missing key in YAML file: {e}")
-        except ValidationError as e:
-            error_count = len(e.errors())
-            pretty_errors = convert_errors(e)
-            raise RulesTransformerException(
-                f"{error_count} error(s) found:\n {pretty_errors}"
-            )
 
         return rule_info_instance
 

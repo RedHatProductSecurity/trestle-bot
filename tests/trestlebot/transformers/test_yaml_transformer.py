@@ -5,6 +5,7 @@
 """Test for YAML Transformer."""
 
 import json
+import re
 from typing import Any, Dict
 
 import pytest
@@ -104,9 +105,14 @@ def test_rules_transform_with_additional_validation() -> None:
         rule_file_info = rule_file.read()
     transformer = ToRulesYAMLTransformer()
 
+    expected_error = """2 error(s) found:
+ Location: description, Type: value_error.missing, Message: field required
+ Location: default-value, Type: value_error, Message: Default value 5% must be in the alternative \
+values dict_values(['10%', '10%', '20%'])"""
+
     with pytest.raises(
         RulesTransformerException,
-        match=".*Message: Default value 5% must be in the alternative values.*",
+        match=re.escape(expected_error),
     ):
         transformer.transform(rule_file_info)
 

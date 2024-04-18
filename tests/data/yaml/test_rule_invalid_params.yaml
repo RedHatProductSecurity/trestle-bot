@@ -10,7 +10,6 @@ x-trestle-rule-info:
       20pc: 20%
     default-value: 5%
   profile:
-    description: Simple NIST Profile
     href: profiles/simplified_nist_profile/profile.json
     include-controls:
       - id: ac-2

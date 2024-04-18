@@ -141,17 +141,21 @@ def location_to_dot_seperation(
     return path
 
 
-def convert_errors(e: ValidationError) -> str:
+def convert_errors(errors: List[ValidationError]) -> str:
     """
     Convert pydantic validation errors into a formatted string.
 
     Note: All validations for rules should be done in the pydantic model and
     formatted through this function is for display purposes only.
     """
+    error_count: int = 0
     new_errors: List[str] = []
-    for error in e.errors():
-        location = location_to_dot_seperation(error["loc"])
-        msg = error["msg"]
-        typ = error["type"]
-        new_errors.append(f"Location: {location}, Type: {typ}, Message: {msg}")
-    return "\n".join(new_errors)
+    for e in errors:
+        error_count += len(e.errors())
+        for error in e.errors():
+            location = location_to_dot_seperation(error["loc"])
+            msg = error["msg"]
+            typ = error["type"]
+            new_errors.append(f" Location: {location}, Type: {typ}, Message: {msg}")
+    pretty_errors = "\n".join(new_errors)
+    return f"{error_count} error(s) found:\n{pretty_errors}"
