@@ -96,7 +96,7 @@ class RuleTransformTask(TaskBase):
                     rule = self._rule_transformer.transform(rule_stream)
                     csv_builder.add_row(rule)
                 except RulesTransformerException as e:
-                    transformation_errors.append(f"{rule_path.name}: {e}")
+                    transformation_errors.append(f"{rule_path.as_posix()}: {e}")
 
         if len(transformation_errors) > 0:
             transformation_error_str = "\n".join(transformation_errors)
