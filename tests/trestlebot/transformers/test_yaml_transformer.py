@@ -106,8 +106,8 @@ def test_rules_transform_with_additional_validation() -> None:
     transformer = ToRulesYAMLTransformer()
 
     expected_error = """2 error(s) found:
- Location: description, Type: value_error.missing, Message: field required
- Location: default-value, Type: value_error, Message: Default value 5% must be in the alternative \
+Location: description, Type: value_error.missing, Message: field required
+Location: default-value, Type: value_error, Message: Default value 5% must be in the alternative \
 values dict_values(['10%', '10%', '20%'])"""
 
     with pytest.raises(

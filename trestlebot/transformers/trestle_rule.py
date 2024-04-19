@@ -124,7 +124,7 @@ def get_default_rule() -> TrestleRule:
 
 
 # Adapted from https://docs.pydantic.dev/latest/errors/errors/
-def location_to_dot_seperation(
+def location_to_dot_separation(
     location: Tuple[Union[str, int], ...]
 ) -> str:  # pragma: no cover
     """Convert a tuple of strings and integers to a dot separated string."""
@@ -146,16 +146,22 @@ def convert_errors(errors: List[ValidationError]) -> str:
     Convert pydantic validation errors into a formatted string.
 
     Note: All validations for rules should be done in the pydantic model and
-    formatted through this function is for display purposes only.
+    formatted through this function is for display purposes.
     """
     error_count: int = 0
-    new_errors: List[str] = []
-    for e in errors:
-        error_count += len(e.errors())
-        for error in e.errors():
-            location = location_to_dot_seperation(error["loc"])
-            msg = error["msg"]
-            typ = error["type"]
-            new_errors.append(f" Location: {location}, Type: {typ}, Message: {msg}")
-    pretty_errors = "\n".join(new_errors)
+    formatted_errors: List[str] = []
+
+    for validation_error in errors:
+        validation_errors = validation_error.errors()
+        error_count += len(validation_errors)
+
+        for error in validation_errors:
+            location = location_to_dot_separation(error.get("loc"))
+            msg = error.get("msg")
+            typ = error.get("type")
+            formatted_errors.append(
+                f"Location: {location}, Type: {typ}, Message: {msg}"
+            )
+
+    pretty_errors = "\n".join(formatted_errors)
     return f"{error_count} error(s) found:\n{pretty_errors}"
