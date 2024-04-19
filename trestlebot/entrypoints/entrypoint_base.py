@@ -112,7 +112,7 @@ class EntrypointBase:
             "--dry-run",
             required=False,
             action="store_true",
-            help="Runs tasks, but do not push to the repository",
+            help="Run tasks, but do not push to the repository",
         )
         self.parser.add_argument(
             "--target-branch",

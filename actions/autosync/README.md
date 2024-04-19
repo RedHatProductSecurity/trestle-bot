@@ -106,7 +106,7 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         github_token: ${{ secret.GITHUB_TOKEN }}
 ```
 
-- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and changes are not pushed to the remote repository, with display the files that would be changed.
+- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and changes are not pushed to the remote repository. The files that would be changed are logged and the output `changes` is set to true.
 
 This can be helpful if you want to enforce that the content is in sync before it is merged into the repository with out making changes to the remote repository (e.g. helpful for changes from forks). If assembly and regeneratation are triggered by pushes to main, it can validate that the changes will be successful before merging to main to avoid unexpected errors.
 

@@ -183,7 +183,7 @@ class TrestleBot:
                 dry_run: Only complete pre-tasks and return changes without pushing
 
         Returns:
-            A tuple with changes, commit_sha, and pull request number.
+            BotResults with changes, commit_sha, and pull request number.
             The commit_sha defaults to "" if there was no updates and the
             pull request number default to 0 if not submitted. The changes list is
             only populated if dry_run is enabled.
