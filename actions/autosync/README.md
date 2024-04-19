@@ -25,7 +25,7 @@ name: Example Workflow
 | --- | --- | --- | --- |
 | markdown_path | Path relative to the repository path where the Trestle markdown files are located. See action README.md for more information. | None | True |
 | oscal_model | OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp. | None | True |
-| check_only | Runs tasks and exits with an error if there is a diff. Defaults to false | false | False |
+| dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
 | version | Version of the OSCAL model to set during assembly into JSON. | None | False |
 | skip_assemble | Skip assembly task. Defaults to false | false | False |
@@ -106,18 +106,28 @@ The purpose of this action is to sync JSON and Markdown data with `compliance-tr
         github_token: ${{ secret.GITHUB_TOKEN }}
 ```
 
-- When `check_only` is set, the trestle `assemble` and `regenerate` tasks are run and the repository is checked for changes. If changes exists, the action with exit with an error. This can be useful if you only want to check that the content is in sync without making any changes to the remote repository.
+- When `dry_run` is set, the trestle `assemble` and `regenerate` tasks are run and changes are not pushed to the remote repository. The files that would be changed are logged and the output `changes` is set to true.
+
+This can be helpful if you want to enforce that the content is in sync before it is merged into the repository with out making changes to the remote repository (e.g. helpful for changes from forks). If assembly and regeneratation are triggered by pushes to main, it can validate that the changes will be successful before merging to main to avoid unexpected errors.
 
 ```yaml
     steps:
       - uses: actions/checkout@v3
       - name: Run trestlebot
-        id: trestlebot
+        id: check
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
           markdown_path: "markdown/profiles"
           oscal_model: "profile"
-          check_only: true
+          dry_run: true
+      # Optional - Set the action to failed if changes are detected.
+      - name: Fail for changes
+        if: ${{ steps.check.outputs.changes == 'true' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+              core.setFailed('Changes detected. Manual intervention required.')
+    
 ```
 
 > Note: Trestle `assemble` or `regenerate` tasks may be skipped if desired using `skip_assemble: true` or `skip_regenerate: true`, respectively. 

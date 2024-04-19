@@ -9,8 +9,8 @@ inputs:
   oscal_model:
     description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
     required: true
-  check_only: 
-    description: "Runs tasks and exits with an error if there is a diff. Defaults to false"
+  dry_run: 
+    description: "Runs tasks without pushing changes to the repository."
     required: false
     default: "false"
   github_token:

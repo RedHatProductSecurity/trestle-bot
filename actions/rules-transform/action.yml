@@ -7,6 +7,10 @@ inputs:
     description: Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`.
     required: false
     default: "rules/"
+  dry_run: 
+    description: "Runs tasks without pushing changes to the repository."
+    required: false
+    default: "false"
   github_token:
     description: "GitHub token used to make authenticated API requests"
     required: false

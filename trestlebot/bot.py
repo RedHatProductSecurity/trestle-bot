@@ -5,13 +5,15 @@
 """This module implements functions for the Trestle Bot."""
 
 import logging
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 from git import GitCommandError
+from git.objects.commit import Commit
 from git.repo import Repo
 from git.util import Actor
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults
 from trestlebot.tasks.base_task import TaskBase, TaskException
 
 
@@ -74,7 +76,7 @@ class TrestleBot:
         self,
         gitwd: Repo,
         commit_message: str,
-    ) -> str:
+    ) -> Commit:
         """Creates a local commit in git working directory"""
         try:
             committer: Actor = Actor(name=self.commit_name, email=self.commit_email)
@@ -85,8 +87,7 @@ class TrestleBot:
             commit = gitwd.index.commit(
                 commit_message, author=author, committer=committer
             )
-
-            return commit.hexsha
+            return commit
 
         except GitCommandError as e:
             raise RepoException(f"Git commit failed: {e}") from e
@@ -144,6 +145,23 @@ class TrestleBot:
             except TaskException as e:
                 raise RepoException(f"Bot pre-tasks failed: {e}")
 
+    def _get_committed_files(self, commit: Commit) -> List[str]:
+        """Get the list of committed files in the commit."""
+        changes: List[str] = []
+        diffs = {diff.a_path: diff for diff in commit.parents[0].diff(commit)}
+        for path in commit.stats.files.keys():
+            diff = diffs.get(path, None)
+            if diff:
+                if diff.change_type == "A":
+                    changes.append(f"{path} [added]")
+                elif diff.change_type == "M":
+                    changes.append(f"{path} [modified]")
+                elif diff.change_type == "D":
+                    changes.append(f"{path} [deleted]")
+                elif diff.change_type == "R":
+                    changes.append(f"{path} [renamed]")
+        return changes
+
     def run(
         self,
         patterns: List[str],
@@ -151,9 +169,8 @@ class TrestleBot:
         pre_tasks: Optional[List[TaskBase]] = None,
         commit_message: str = "Automatic updates from bot",
         pull_request_title: str = "Automatic updates from bot",
-        check_only: bool = False,
         dry_run: bool = False,
-    ) -> Tuple[str, int]:
+    ) -> BotResults:
         """
         Runs Trestle Bot logic and returns commit and pull request information.
 
@@ -163,16 +180,15 @@ class TrestleBot:
                 pre_tasks: Optional workspace task list to execute before staging files
                 commit_message: Optional commit message for local commit
                 pull_request_title: Optional customized pull request title
-                check_only: Optional check if the repo is dirty. Fail if true.
-                dry_run: Only complete local work. Do not push.
+                dry_run: Only complete pre-tasks and return changes without pushing
 
         Returns:
-            A tuple with commit_sha and pull request number.
+            BotResults with changes, commit_sha, and pull request number.
             The commit_sha defaults to "" if there was no updates and the
-            pull request number default to 0 if not submitted.
+            pull request number default to 0 if not submitted. The changes list is
+            only populated if dry_run is enabled.
         """
-        commit_sha: str = ""
-        pr_number: int = 0
+        results: BotResults = BotResults([], "", 0)
 
         # Create Git Repo
         repo = Repo(self.working_dir)
@@ -184,23 +200,21 @@ class TrestleBot:
 
         # Check if there are any unstaged files
         if repo.is_dirty(untracked_files=True):
-            if check_only:
-                raise RepoException(
-                    "Check only mode is enabled and diff detected. "
-                    f"Manual intervention on {self.branch} is required."
-                )
 
             self._stage_files(repo, patterns)
 
             if repo.is_dirty():
-                commit_sha = self._local_commit(
+
+                commit: Commit = self._local_commit(
                     repo,
                     commit_message,
                 )
+                results.commit_sha = commit.hexsha
 
+                # Do not return the commit sha if dry run is enabled
                 if dry_run:
-                    logger.info("Dry run mode is enabled. Do not push to remote.")
-                    return commit_sha, pr_number
+                    logger.info("Dry run mode is enabled, no changes will be pushed")
+                    return BotResults(self._get_committed_files(commit), "", 0)
 
                 try:
                     remote_url = self._push_to_remote(repo)
@@ -211,10 +225,10 @@ class TrestleBot:
                         logger.info(
                             f"Git provider detected, submitting pull request to {self.target_branch}"
                         )
-                        pr_number = self._create_pull_request(
+                        results.pr_number = self._create_pull_request(
                             git_provider, remote_url, pull_request_title
                         )
-                    return commit_sha, pr_number
+                    return results
 
                 except GitCommandError as e:
                     raise RepoException(f"Git push to {self.branch} failed: {e}")
@@ -224,7 +238,7 @@ class TrestleBot:
                     )
             else:
                 logger.info("Nothing to commit")
-                return commit_sha, pr_number
+                return results
         else:
             logger.info("Nothing to commit")
-            return commit_sha, pr_number
+            return results

@@ -96,8 +96,8 @@ def test_local_commit(tmp_repo: Tuple[str, Repo]) -> None:
     assert os.path.basename(test_file_path) in commit.stats.files
 
 
-def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test setting committer information for commits"""
+def test_local_commit_with_author_information(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test setting author information for commits"""
     repo_path, repo = tmp_repo
 
     # Create a test file
@@ -113,45 +113,8 @@ def test_local_commit_with_committer(tmp_repo: Tuple[str, Repo]) -> None:
         branch="main",
         commit_name="Test User",
         commit_email="test@example.com",
-        author_name="Test Commit User",
-        author_email="test-committer@example.com",
-    )
-    commit_sha = bot._local_commit(
-        repo,
-        commit_message="Test commit message",
-    )
-
-    assert commit_sha != ""
-
-    # Verify that the commit is made
-    commit = next(repo.iter_commits())
-    assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "Test Commit User"
-    assert commit.author.email == "test-committer@example.com"
-
-    # Verify that the file is tracked by the commit
-    assert os.path.basename(test_file_path) in commit.stats.files
-
-
-def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test setting author for commits"""
-    repo_path, repo = tmp_repo
-
-    # Create a test file
-    test_file_path = os.path.join(repo_path, "test.txt")
-    with open(test_file_path, "w") as f:
-        f.write("Test content")
-
-    repo.index.add(test_file_path)
-
-    # Commit the test file
-    bot = TrestleBot(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-        author_name="The Author",
-        author_email="author@test.com",
+        author_name="Test Author User",
+        author_email="test-author@example.com",
     )
     commit_sha = bot._local_commit(
         repo,
@@ -162,8 +125,8 @@ def test_local_commit_with_author(tmp_repo: Tuple[str, Repo]) -> None:
     # Verify that the commit is made
     commit = next(repo.iter_commits())
     assert commit.message.strip() == "Test commit message"
-    assert commit.author.name == "The Author"
-    assert commit.author.email == "author@test.com"
+    assert commit.author.name == "Test Author User"
+    assert commit.author.email == "test-author@example.com"
 
     # Verify that the file is tracked by the commit
     assert os.path.basename(test_file_path) in commit.stats.files
@@ -190,13 +153,13 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
             author_name="The Author",
             author_email="author@test.com",
         )
-        commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
-            dry_run=False,
         )
-        assert commit_sha != ""
-        assert pr_number == 0
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 0
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())
@@ -211,7 +174,7 @@ def test_run(tmp_repo: Tuple[str, Repo]) -> None:
 
 def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with dry run"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -228,20 +191,21 @@ def test_run_dry_run(tmp_repo: Tuple[str, Repo]) -> None:
             commit_name="Test User",
             commit_email="test@example.com",
         )
-        commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             dry_run=True,
         )
-        assert commit_sha != ""
-        assert pr_number == 0
+        assert results.changes == ["test.txt [added]"]
+        assert results.commit_sha == ""
+        assert results.pr_number == 0
 
         mock_push.assert_not_called()
 
 
 def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
     """Test running bot with no file updates"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Test running the bot
     bot = TrestleBot(
@@ -250,41 +214,13 @@ def test_empty_commit(tmp_repo: Tuple[str, Repo]) -> None:
         commit_name="Test User",
         commit_email="test@example.com",
     )
-    commit_sha, pr_number = bot.run(
+    results = bot.run(
         commit_message="Test commit message",
         patterns=["*.txt"],
-        dry_run=True,
     )
-    assert commit_sha == ""
-    assert pr_number == 0
-
-
-def test_run_check_only(tmp_repo: Tuple[str, Repo]) -> None:
-    """Test bot run with check_only"""
-    repo_path, repo = tmp_repo
-
-    # Create a test file
-    test_file_path = os.path.join(repo_path, "test.txt")
-    with open(test_file_path, "w") as f:
-        f.write("Test content")
-
-    bot = TrestleBot(
-        working_dir=repo_path,
-        branch="main",
-        commit_name="Test User",
-        commit_email="test@example.com",
-    )
-
-    with pytest.raises(
-        RepoException,
-        match="Check only mode is enabled and diff detected. Manual intervention on main is required.",
-    ):
-        _, _ = bot.run(
-            commit_message="Test commit message",
-            patterns=["*.txt"],
-            dry_run=True,
-            check_only=True,
-        )
+    assert not results.changes
+    assert results.commit_sha == ""
+    assert results.pr_number == 0
 
 
 def push_side_effect(refspec: str) -> None:
@@ -306,7 +242,7 @@ def test_run_with_exception(
     tmp_repo: Tuple[str, Repo], side_effect: Callable[[str], None], msg: str
 ) -> None:
     """Test bot run with mocked push with side effects that throw exceptions"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -333,7 +269,7 @@ def test_run_with_exception(
 
 def test_run_with_failed_pre_task(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with mocked task that fails"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -386,14 +322,14 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha, pr_number = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
-            dry_run=False,
         )
-        assert commit_sha != ""
-        assert pr_number == 10
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 10
 
         # Verify that the commit is made
         commit = next(repo.iter_commits())
@@ -418,7 +354,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
 
 def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> None:
     """Test bot run with customer pull request title"""
-    repo_path, repo = tmp_repo
+    repo_path, _ = tmp_repo
 
     # Create a test file
     test_file_path = os.path.join(repo_path, "test.txt")
@@ -426,7 +362,7 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
         f.write("Test content")
 
     mock = Mock(spec=GitProvider)
-    mock.create_pull_request.return_value = "10"
+    mock.create_pull_request.return_value = 10
     mock.parse_repository.return_value = ("ns", "repo")
 
     bot = TrestleBot(
@@ -443,23 +379,15 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
         mock_push.return_value = "Mocked result"
 
         # Test running the bot
-        commit_sha = bot.run(
+        results = bot.run(
             commit_message="Test commit message",
             patterns=["*.txt"],
             git_provider=mock,
             pull_request_title="Test",
-            dry_run=False,
         )
-        assert commit_sha != ""
-
-        # Verify that the commit is made
-        commit = next(repo.iter_commits())
-        assert commit.message.strip() == "Test commit message"
-        assert commit.author.name == "The Author"
-        assert commit.author.email == "author@test.com"
-
-        # Verify that the file is tracked by the commit
-        assert os.path.basename(test_file_path) in commit.stats.files
+        assert not results.changes
+        assert results.commit_sha != ""
+        assert results.pr_number == 10
 
         # Verify that the method was called with the expected arguments
         mock.create_pull_request.assert_called_once_with(

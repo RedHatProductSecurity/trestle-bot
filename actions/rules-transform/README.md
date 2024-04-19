@@ -33,6 +33,7 @@ With custom rules directory:
 | Name | Description | Default | Required |
 | --- | --- | --- | --- |
 | rules_view_path | Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`. | rules/ | False |
+| dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | GitHub token used to make authenticated API requests | None | False |
 | skip_items | Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `compdef_x,compdef_y*,`. | None | False |
 | commit_message | Commit message | Sync automatic updates | False |

@@ -6,11 +6,13 @@
 
 import os
 import re
+import time
 from typing import Tuple
 
 import gitlab
 
 from trestlebot.provider import GitProvider, GitProviderException
+from trestlebot.reporter import BotResults, ResultsReporter
 
 
 class GitLab(GitProvider):
@@ -94,9 +96,58 @@ class GitLab(GitProvider):
             )
 
 
+class GitLabCIResultsReporter(ResultsReporter):
+    """Report bot results to the console in GitLabCI"""
+
+    start_sequence = "\x1b[0K"
+    end_sequence = "\r\x1b[0K"
+
+    def report_results(self, results: BotResults) -> None:
+        """
+        Report the results of the Trestle Bot in GitLab CI
+        """
+        results_str = ""
+        if results.commit_sha:
+            commit_str = self._create_group(
+                "commit_sha",
+                "Commit Information",
+                results.commit_sha,
+            )
+            results_str += commit_str
+
+            if results.pr_number:
+                pr_str = self._create_group(
+                    "merge_request_number",
+                    "Merge Request Number",
+                    str(results.pr_number),
+                )
+                results_str += pr_str
+        elif results.changes:
+            changes_str = self._create_group(
+                "changes", "Changes detected", self.get_changes_str(results.changes)
+            )
+            results_str += changes_str
+        else:
+            results_str += "No changes detected"
+        print(results_str)  # noqa: T201
+
+    @staticmethod
+    def _create_group(
+        section_title: str, section_description: str, content: str
+    ) -> str:
+        """Create a group for the GitLab CI output"""
+        group_str = GitLabCIResultsReporter.start_sequence
+        group_str += f"section_start:{time.time_ns()}:{section_title}[collapsed=true]"
+        group_str += GitLabCIResultsReporter.end_sequence
+        group_str += f"{section_description}\n{content}\n"
+        group_str += GitLabCIResultsReporter.start_sequence
+        group_str += f"section_end:{time.time_ns()}:{section_title}"
+        group_str += GitLabCIResultsReporter.end_sequence
+        group_str += "\n"
+        return group_str
+
+
 # GitLab ref: https://docs.gitlab.com/ee/ci/variables/predefined_variables.html
-
-
 def is_gitlab_ci() -> bool:
     """Determine if the environment is GitLab CI"""
     var_value = os.getenv("GITLAB_CI")
