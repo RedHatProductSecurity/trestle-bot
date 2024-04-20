@@ -4,31 +4,56 @@
 
 """Trestle Rule class with pydantic."""
 
+
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
+
+from trestlebot import const
 
 
 class Parameter(BaseModel):
-    """Parameter dataclass."""
+    """Rule parameter model"""
 
     name: str
     description: str
-    alternative_values: Dict[str, Any] = Field(..., alias="alternative-values")
+    alternative_values: Dict[str, str] = Field(..., alias="alternative-values")
     default_value: str = Field(..., alias="default-value")
 
     class Config:
         allow_population_by_field_name = True
 
+    @validator("default_value", pre=False)
+    def check_default_value(cls, value: str, values: Dict[str, Any]) -> str:
+        """Check if default value is in the alternative values."""
+        alternative_values = values.get("alternative_values", {})
+        if not alternative_values:
+            raise ValueError("Alternative values must be provided")
+        default_value_alt = alternative_values.get(const.DEFAULT_KEY, "")
+
+        if not default_value_alt or default_value_alt != value:
+            raise ValueError(
+                f"Default value {value} must be in the alternative values {alternative_values}"
+                f" under the key {const.DEFAULT_KEY}"
+            )
+
+        return value
+
 
 class Control(BaseModel):
-    """Control dataclass."""
+    """
+    Catalog control for rule association
+
+    Note: The control id or statement would be used here and
+    trestle has additional validations for this field that won't
+    be duplication in the rule model.
+    """
 
     id: str
 
 
 class Profile(BaseModel):
-    """Profile dataclass."""
+    """Profile source for rule association."""
 
     description: str
     href: str
@@ -39,7 +64,7 @@ class Profile(BaseModel):
 
 
 class ComponentInfo(BaseModel):
-    """ComponentInfo dataclass."""
+    """Rule component model."""
 
     name: str
     type: str
@@ -47,7 +72,7 @@ class ComponentInfo(BaseModel):
 
 
 class Check(BaseModel):
-    """Check dataclass."""
+    """Check model for rule validation."""
 
     name: str
     description: str
@@ -57,7 +82,7 @@ class Check(BaseModel):
 
 
 class TrestleRule(BaseModel):
-    """TrestleRule dataclass."""
+    """Represents a Trestle rule."""
 
     name: str
     description: str

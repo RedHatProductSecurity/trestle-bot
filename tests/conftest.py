@@ -156,7 +156,7 @@ def test_rule() -> TrestleRule:
         parameter=Parameter(
             name="test",
             description="test",
-            alternative_values={},
+            alternative_values={"default": "test", "test": "test"},
             default_value="test",
         ),
         check=Check(name="test_check", description="test check"),

@@ -24,7 +24,7 @@ from trestlebot.transformers.trestle_rule import (
     Profile,
     TrestleRule,
 )
-from trestlebot.transformers.validations import ValidationHandler, ValidationOutcome
+from trestlebot.transformers.validations import convert_errors
 
 
 logger = logging.getLogger(__name__)
@@ -33,9 +33,8 @@ logger = logging.getLogger(__name__)
 class ToRulesYAMLTransformer(ToRulesTransformer):
     """Interface for YAML transformer to Rules model."""
 
-    def __init__(self, validator: Optional[ValidationHandler] = None) -> None:
+    def __init__(self) -> None:
         """Initialize."""
-        self.validator: Optional[ValidationHandler] = validator
         super().__init__()
 
     def transform(self, blob: str) -> TrestleRule:
@@ -43,15 +42,6 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
         try:
             yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
-
-            logger.debug("Executing pre-validation on YAML data")
-            if self.validator is not None:
-                result = ValidationOutcome(errors=[], valid=True)
-                self.validator.handle(yaml_data, result)
-                if not result.valid:
-                    raise RulesTransformerException(
-                        f"Invalid YAML file: {result.errors}"
-                    )
 
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
@@ -83,7 +73,11 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
         except KeyError as e:
             raise RulesTransformerException(f"Missing key in YAML file: {e}")
         except ValidationError as e:
-            raise RulesTransformerException(f"Invalid YAML file: {e}")
+            error_count = len(e.errors())
+            pretty_errors = convert_errors(e)
+            raise RulesTransformerException(
+                f"{error_count} errors found:\n {pretty_errors}"
+            )
 
         return rule_info_instance
 

@@ -29,6 +29,7 @@ CHECK = "check"
 PROFILE = "profile"
 HREF = "href"
 ALTERNATIVE_VALUES = "alternative-values"
+DEFAULT_KEY = "default"
 DEFAULT_VALUE = "default-value"
 
 COMPONENT_YAML = "component.yaml"
