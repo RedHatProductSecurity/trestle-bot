@@ -6,7 +6,7 @@
 import logging
 import pathlib
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import ValidationError
 from ruamel.yaml import YAML
@@ -23,8 +23,8 @@ from trestlebot.transformers.trestle_rule import (
     Parameter,
     Profile,
     TrestleRule,
+    convert_errors,
 )
-from trestlebot.transformers.validations import ValidationHandler, ValidationOutcome
 
 
 logger = logging.getLogger(__name__)
@@ -33,43 +33,52 @@ logger = logging.getLogger(__name__)
 class ToRulesYAMLTransformer(ToRulesTransformer):
     """Interface for YAML transformer to Rules model."""
 
-    def __init__(self, validator: Optional[ValidationHandler] = None) -> None:
+    def __init__(self) -> None:
         """Initialize."""
-        self.validator: Optional[ValidationHandler] = validator
         super().__init__()
 
     def transform(self, blob: str) -> TrestleRule:
         """Transform YAML data into a TrestleRule object."""
+        validation_errors: List[ValidationError] = []
         try:
             yaml = YAML(typ="safe")
             yaml_data: Dict[str, Any] = yaml.load(blob)
 
-            logger.debug("Executing pre-validation on YAML data")
-            if self.validator is not None:
-                result = ValidationOutcome(errors=[], valid=True)
-                self.validator.handle(yaml_data, result)
-                if not result.valid:
-                    raise RulesTransformerException(
-                        f"Invalid YAML file: {result.errors}"
-                    )
-
             rule_info_data = yaml_data[const.RULE_INFO_TAG]
 
-            profile_info_instance = Profile.parse_obj(rule_info_data[const.PROFILE])
+            # Collecting validation errors for each field to
+            # get a comprehensive list of errors per YAML file.
+            try:
+                profile_info_instance = Profile.parse_obj(rule_info_data[const.PROFILE])
+            except ValidationError as e:
+                validation_errors.append(e)
 
-            component_info_instance = ComponentInfo.parse_obj(
-                yaml_data[const.COMPONENT_INFO_TAG]
-            )
+            try:
+                component_info_instance = ComponentInfo.parse_obj(
+                    yaml_data[const.COMPONENT_INFO_TAG]
+                )
+            except ValidationError as e:
+                validation_errors.append(e)
 
             parameter_instance: Optional[Parameter] = None
             if const.PARAMETER in rule_info_data:
-                parameter_instance = Parameter.parse_obj(
-                    rule_info_data[const.PARAMETER]
-                )
+                try:
+                    parameter_instance = Parameter.parse_obj(
+                        rule_info_data[const.PARAMETER]
+                    )
+                except ValidationError as e:
+                    validation_errors.append(e)
 
             check_instance: Optional[Check] = None
             if const.CHECK in rule_info_data:
-                check_instance = Check.parse_obj(rule_info_data[const.CHECK])
+                try:
+                    check_instance = Check.parse_obj(rule_info_data[const.CHECK])
+                except ValidationError as e:
+                    validation_errors.append(e)
+
+            if validation_errors:
+                pretty_errors = convert_errors(validation_errors)
+                raise RulesTransformerException(pretty_errors)
 
             rule_info_instance: TrestleRule = TrestleRule(
                 name=rule_info_data[const.NAME],
@@ -82,8 +91,6 @@ class ToRulesYAMLTransformer(ToRulesTransformer):
 
         except KeyError as e:
             raise RulesTransformerException(f"Missing key in YAML file: {e}")
-        except ValidationError as e:
-            raise RulesTransformerException(f"Invalid YAML file: {e}")
 
         return rule_info_instance
 

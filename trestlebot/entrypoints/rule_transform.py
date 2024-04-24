@@ -18,7 +18,6 @@ from trestlebot.entrypoints.entrypoint_base import (
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
-from trestlebot.transformers.validations import ValidationHandler, parameter_validation
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
@@ -56,20 +55,13 @@ class RulesTransformEntrypoint(EntrypointBase):
         try:
             set_log_level_from_args(args)
 
-            # Configure the YAML Transformer for the task
-            validation_handler: ValidationHandler = ValidationHandler(
-                parameter_validation
-            )
-            transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer(
-                validation_handler
-            )
-
             # Allow any model to be skipped from the args, by default include all
             model_filter: ModelFilter = ModelFilter(
                 skip_patterns=comma_sep_to_list(args.skip_items),
                 include_patterns=["*"],
             )
 
+            transformer = ToRulesYAMLTransformer()
             rule_transform_task: RuleTransformTask = RuleTransformTask(
                 working_dir=args.working_dir,
                 rules_view_dir=args.rules_view_path,

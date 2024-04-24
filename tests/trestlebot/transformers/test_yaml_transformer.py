@@ -4,12 +4,15 @@
 
 """Test for YAML Transformer."""
 
+import json
+import re
+from typing import Any, Dict
+
 import pytest
 
 from tests.testutils import YAML_TEST_DATA_PATH
 from trestlebot.transformers.base_transformer import RulesTransformerException
 from trestlebot.transformers.trestle_rule import TrestleRule
-from trestlebot.transformers.validations import ValidationHandler, parameter_validation
 from trestlebot.transformers.yaml_transformer import (
     FromRulesYAMLTransformer,
     ToRulesYAMLTransformer,
@@ -21,9 +24,9 @@ def test_rule_transformer() -> None:
     # load rule from path and close the file
     # get the file info as a string
     rule_path = YAML_TEST_DATA_PATH / "test_complete_rule.yaml"
-    rule_file = open(rule_path, "r")
-    rule_file_info = rule_file.read()
-    rule_file.close()
+    rule_file_info: str
+    with open(rule_path, "r") as rule_file:
+        rule_file_info = rule_file.read()
 
     transformer = ToRulesYAMLTransformer()
     rule = transformer.transform(rule_file_info)
@@ -69,15 +72,27 @@ def test_rules_transform_with_invalid_rule() -> None:
     # load rule from path and close the file
     # get the file info as a string
     rule_path = YAML_TEST_DATA_PATH / "test_invalid_rule.yaml"
-    rule_file = open(rule_path, "r")
-    rule_file_info = rule_file.read()
-    rule_file.close()
+    rule_file_info: str
+    with open(rule_path, "r") as rule_file:
+        rule_file_info = rule_file.read()
     transformer = ToRulesYAMLTransformer()
 
     with pytest.raises(
-        RulesTransformerException, match="Invalid YAML file: 1 validation error .*"
+        RulesTransformerException, match=".*value is not a valid dict.*"
     ):
         transformer.transform(rule_file_info)
+
+
+def test_rules_without_default(invalid_param_rule_data: Dict[str, Any]) -> None:
+    """Test rules without default parameter value."""
+    transformer = ToRulesYAMLTransformer()
+
+    json_str = json.dumps(invalid_param_rule_data)
+    rule = transformer.transform(json_str)
+    assert "default" in rule.parameter.alternative_values  # type: ignore
+    assert (
+        rule.parameter.alternative_values.get("default") == rule.parameter.default_value  # type: ignore
+    )
 
 
 def test_rules_transform_with_additional_validation() -> None:
@@ -85,15 +100,19 @@ def test_rules_transform_with_additional_validation() -> None:
     # load rule from path and close the file
     # get the file info as a string
     rule_path = YAML_TEST_DATA_PATH / "test_rule_invalid_params.yaml"
-    rule_file = open(rule_path, "r")
-    rule_file_info = rule_file.read()
-    rule_file.close()
-    validation_handler_chain = ValidationHandler(parameter_validation)
-    transformer = ToRulesYAMLTransformer(validation_handler_chain)
+    rule_file_info: str
+    with open(rule_path, "r") as rule_file:
+        rule_file_info = rule_file.read()
+    transformer = ToRulesYAMLTransformer()
+
+    expected_error = """2 error(s) found:
+Location: description, Type: value_error.missing, Message: field required
+Location: default-value, Type: value_error, Message: Default value 5% must be in the alternative \
+values dict_values(['10%', '10%', '20%'])"""
 
     with pytest.raises(
         RulesTransformerException,
-        match=".*Default value must be one of the alternative values",
+        match=re.escape(expected_error),
     ):
         transformer.transform(rule_file_info)
 

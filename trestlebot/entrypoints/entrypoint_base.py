@@ -215,7 +215,7 @@ def handle_exception(
     exception: Exception, msg: str = "Exception occurred during execution"
 ) -> int:
     """Log the exception and return the exit code"""
-    logger.error(msg + f": {exception}", exc_info=True)
+    logger.error(msg + f": {exception}")
 
     if isinstance(exception, EntrypointInvalidArgException):
         return const.INVALID_ARGS_EXIT_CODE

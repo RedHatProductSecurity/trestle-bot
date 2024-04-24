@@ -179,7 +179,7 @@ class FromRulesCSVTransformer(FromRulesTransformer):
         parameter_dict: Dict[str, str] = {
             PARAMETER_ID: parameter.name,
             PARAMETER_DESCRIPTION: parameter.description,
-            PARAMETER_VALUE_ALTERNATIVES: f"{parameter.alternative_values}",
+            PARAMETER_VALUE_ALTERNATIVES: json.dumps(parameter.alternative_values),
             PARAMETER_VALUE_DEFAULT: parameter.default_value,
         }
         return parameter_dict
