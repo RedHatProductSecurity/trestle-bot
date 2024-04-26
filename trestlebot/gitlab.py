@@ -7,7 +7,8 @@
 import os
 import re
 import time
-from typing import Tuple
+from typing import Optional, Tuple
+from urllib.parse import ParseResult, urlparse
 
 import gitlab
 
@@ -21,10 +22,16 @@ class GitLab(GitProvider):
 
         self._gitlab_client = gitlab.Gitlab(server_url, private_token=api_token)
 
-        stripped_url = re.sub(r"^(https?://)?", "", server_url)
-        self.pattern = r"^(?:https?://)?{0}(/.+)/([^/.]+)(\.git)?$".format(
-            re.escape(stripped_url)
-        )
+        # For repo URL input validation
+        parsed_url: ParseResult = urlparse(server_url)
+        stripped_url = f"{parsed_url.netloc}{parsed_url.path}"
+        pattern = rf"^(?:https?://)?{re.escape(stripped_url)}(/.+)/([^/.]+)(\.git)?$"
+        self._pattern = re.compile(pattern)
+
+    @property
+    def provider_pattern(self) -> re.Pattern[str]:
+        """Regex pattern to validate repository URLs"""
+        return self._pattern
 
     def parse_repository(self, repo_url: str) -> Tuple[str, str]:
         """
@@ -37,13 +44,12 @@ class GitLab(GitProvider):
             Owner and project name in a tuple, respectively
         """
 
-        # Strip out any basic auth
-        stripped_url = re.sub(r"https?://.*?@", "https://", repo_url)
-
-        match = re.match(self.pattern, stripped_url)
+        match: Optional[re.Match[str]]
+        stripped_url: str
+        match, stripped_url = self.match_url(repo_url)
 
         if not match:
-            raise GitProviderException(f"{stripped_url} is an invalid repo URL")
+            raise GitProviderException(f"{stripped_url} is an invalid Gitlab repo URL")
 
         owner = match.group(1)[1:]  # Removing the leading slash
         repo = match.group(2)
