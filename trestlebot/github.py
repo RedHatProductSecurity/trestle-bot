@@ -4,6 +4,8 @@
 
 """GitHub related functions for the Trestle Bot."""
 
+from __future__ import annotations
+
 import os
 import re
 from typing import Optional, Tuple
