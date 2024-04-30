@@ -19,14 +19,10 @@ from typing import List, Optional
 
 from trestlebot import const
 from trestlebot.bot import TrestleBot
-from trestlebot.github import GitHub, GitHubActionsResultsReporter, is_github_actions
-from trestlebot.gitlab import (
-    GitLab,
-    GitLabCIResultsReporter,
-    get_gitlab_root_url,
-    is_gitlab_ci,
-)
+from trestlebot.github import GitHubActionsResultsReporter, is_github_actions
+from trestlebot.gitlab import GitLabCIResultsReporter, is_gitlab_ci
 from trestlebot.provider import GitProvider
+from trestlebot.provider_factory import GitProviderFactory
 from trestlebot.reporter import BotResults, ResultsReporter
 from trestlebot.tasks.base_task import TaskBase
 
@@ -51,12 +47,6 @@ class EntrypointBase:
             default=0,
         )
         self.parser.add_argument(
-            "--branch",
-            type=str,
-            required=True,
-            help="Branch name to push changes to",
-        )
-        self.parser.add_argument(
             "--working-dir",
             type=str,
             required=False,
@@ -64,64 +54,84 @@ class EntrypointBase:
             help="Working directory wit git repository",
         )
         self.parser.add_argument(
+            "--dry-run",
+            required=False,
+            action="store_true",
+            help="Run tasks, but do not push to the repository",
+        )
+        self._set_required_git_args()
+        self._set_optional_git_args()
+        self._set_git_provider_args()
+
+    def _set_required_git_args(self) -> None:
+        """Create an argument group for required git-related configuration."""
+        required_git_arg_group = self.parser.add_argument_group(
+            "required git configuration"
+        )
+        required_git_arg_group.add_argument(
+            "--branch",
+            type=str,
+            required=True,
+            help="Branch name to push changes to",
+        )
+        required_git_arg_group.add_argument(
+            "--committer-name",
+            type=str,
+            required=True,
+            help="Name of committer",
+        )
+        required_git_arg_group.add_argument(
+            "--committer-email",
+            type=str,
+            required=True,
+            help="Email for committer",
+        )
+
+    def _set_optional_git_args(self) -> None:
+        """Create an argument group for optional git-related configuration."""
+        optional_git_arg_group = self.parser.add_argument_group(
+            "optional git configuration"
+        )
+        optional_git_arg_group.add_argument(
             "--file-patterns",
             required=False,
             type=str,
             default=".",
             help="Comma-separated list of file patterns to be used with `git add` in repository updates",
         )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--commit-message",
             type=str,
             required=False,
             default="chore: automatic updates",
             help="Commit message for automated updates",
         )
-        self.parser.add_argument(
-            "--pull-request-title",
-            type=str,
-            required=False,
-            default="Automatic updates from trestlebot",
-            help="Customized title for submitted pull requests",
-        )
-        self.parser.add_argument(
-            "--committer-name",
-            type=str,
-            required=True,
-            help="Name of committer",
-        )
-        self.parser.add_argument(
-            "--committer-email",
-            type=str,
-            required=True,
-            help="Email for committer",
-        )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--author-name",
             required=False,
             type=str,
             help="Name for commit author if differs from committer",
         )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--author-email",
             required=False,
             type=str,
             help="Email for commit author if differs from committer",
         )
-        self.parser.add_argument(
-            "--dry-run",
-            required=False,
-            action="store_true",
-            help="Run tasks, but do not push to the repository",
+
+    def _set_git_provider_args(self) -> None:
+        """Create an argument group for optional git-provider configuration."""
+        git_provider_arg_group = self.parser.add_argument_group(
+            "git provider configuration"
         )
-        self.parser.add_argument(
+        git_provider_arg_group.add_argument(
             "--target-branch",
             type=str,
             required=False,
             help="Target branch or base branch to create a pull request against. \
             No pull request is created if unset",
         )
-        self.parser.add_argument(
+        git_provider_arg_group.add_argument(
             "--with-token",
             nargs="?",
             type=argparse.FileType("r"),
@@ -129,6 +139,13 @@ class EntrypointBase:
             default=sys.stdin,
             help="Read token from standard input for authenticated requests with \
             Git provider (e.g. create pull requests)",
+        )
+        git_provider_arg_group.add_argument(
+            "--pull-request-title",
+            type=str,
+            required=False,
+            default="Automatic updates from trestlebot",
+            help="Customized title for submitted pull requests",
         )
 
     @staticmethod
@@ -141,22 +158,13 @@ class EntrypointBase:
                     "--with-token",
                     "with-token flag must be set when using target-branch",
                 )
-
-            if is_github_actions():
-                git_provider = GitHub(access_token=args.with_token.read().strip())
-            elif is_gitlab_ci():
-                server_api_url = get_gitlab_root_url()
-                git_provider = GitLab(
-                    api_token=args.with_token.read().strip(), server_url=server_api_url
-                )
-            else:
-                raise EntrypointInvalidArgException(
-                    "--target-branch",
-                    (
-                        "target-branch flag is set with an unset git provider. "
-                        "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
-                    ),
-                )
+            access_token = args.with_token.read().strip()
+            try:
+                git_provider = GitProviderFactory.provider_factory(access_token)
+            except ValueError as e:
+                raise EntrypointInvalidArgException("--server-url", str(e))
+            except RuntimeError as e:
+                raise EntrypointInvalidArgException("--target-branch", str(e)) from e
         return git_provider
 
     @staticmethod
