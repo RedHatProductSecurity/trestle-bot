@@ -4,6 +4,7 @@
 import logging
 from typing import Optional
 
+from trestlebot import const
 from trestlebot.github import GitHub, is_github_actions
 from trestlebot.gitlab import GitLab, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
@@ -41,14 +42,17 @@ class GitProviderFactory:
 
         git_provider: Optional[GitProvider] = None
 
-        if type == "github":
+        if type == const.GITHUB:
             logger.debug("Creating GitHub provider")
             if server_url and server_url != "https://github.com":
                 raise ValueError("GitHub provider does not support custom server URLs")
             git_provider = GitHub(access_token=access_token)
-        elif type == "gitlab":
+        elif type == const.GITLAB:
             logger.debug("Creating GitLab provider")
-            git_provider = GitLab(api_token=access_token, server_url=server_url)
+            if not server_url:
+                git_provider = GitLab(api_token=access_token)
+            else:
+                git_provider = GitLab(api_token=access_token, server_url=server_url)
         else:
             logger.debug(
                 "No type or server_url provided."
@@ -57,7 +61,9 @@ class GitProviderFactory:
             git_provider = GitProviderFactory._detect_from_environment(access_token)
 
         if git_provider is None:
-            raise RuntimeError("Could not detect Git provider from environment")
+            raise RuntimeError(
+                "Could not detect Git provider from environment or inputs"
+            )
 
         return git_provider
 

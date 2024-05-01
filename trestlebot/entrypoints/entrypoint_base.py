@@ -66,7 +66,7 @@ class EntrypointBase:
     def _set_required_git_args(self) -> None:
         """Create an argument group for required git-related configuration."""
         required_git_arg_group = self.parser.add_argument_group(
-            "required git configuration"
+            "required arguments for git operations"
         )
         required_git_arg_group.add_argument(
             "--branch",
@@ -90,7 +90,7 @@ class EntrypointBase:
     def _set_optional_git_args(self) -> None:
         """Create an argument group for optional git-related configuration."""
         optional_git_arg_group = self.parser.add_argument_group(
-            "optional git configuration"
+            "optional arguments for git operations"
         )
         optional_git_arg_group.add_argument(
             "--file-patterns",
@@ -122,7 +122,7 @@ class EntrypointBase:
     def _set_git_provider_args(self) -> None:
         """Create an argument group for optional git-provider configuration."""
         git_provider_arg_group = self.parser.add_argument_group(
-            "git provider configuration"
+            "optional arguments for interacting with the git provider"
         )
         git_provider_arg_group.add_argument(
             "--target-branch",
@@ -147,6 +147,20 @@ class EntrypointBase:
             default="Automatic updates from trestlebot",
             help="Customized title for submitted pull requests",
         )
+        git_provider_arg_group.add_argument(
+            "--git-provider-type",
+            required=False,
+            choices=[const.GITHUB, const.GITLAB],
+            help="Optional supported Git provider identify. "
+            "Defaults to auto detection based on pre-defined CI environment variables.",
+        )
+        git_provider_arg_group.add_argument(
+            "--git-server-url",
+            type=str,
+            required=False,
+            help="Optional git server url for supported type. "
+            "Defaults to auto detection based on pre-defined CI environment variables.",
+        )
 
     @staticmethod
     def set_git_provider(args: argparse.Namespace) -> Optional[GitProvider]:
@@ -160,11 +174,17 @@ class EntrypointBase:
                 )
             access_token = args.with_token.read().strip()
             try:
-                git_provider = GitProviderFactory.provider_factory(access_token)
+                git_provider_type = args.git_provider_type
+                git_server_url = args.git_server_url
+                git_provider = GitProviderFactory.provider_factory(
+                    access_token, git_provider_type, git_server_url
+                )
             except ValueError as e:
                 raise EntrypointInvalidArgException("--server-url", str(e))
             except RuntimeError as e:
-                raise EntrypointInvalidArgException("--target-branch", str(e)) from e
+                raise EntrypointInvalidArgException(
+                    "--target-branch, --git-provider-type", str(e)
+                ) from e
         return git_provider
 
     @staticmethod

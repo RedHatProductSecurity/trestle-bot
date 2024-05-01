@@ -25,7 +25,12 @@ def test_set_git_provider_with_github() -> None:
     """Test set_git_provider function in Entrypoint Base for GitHub Actions"""
     provider: Optional[GitProvider]
     fake_token = StringIO("fake_token")
-    args = argparse.Namespace(target_branch="main", with_token=fake_token)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="",
+        git_server_url="",
+    )
     provider = EntrypointBase.set_git_provider(args=args)
     assert isinstance(provider, GitHub)
 
@@ -43,7 +48,12 @@ def test_set_git_provider_with_gitlab() -> None:
     """Test set_git_provider function in Entrypoint Base for GitLab CI"""
     provider: Optional[GitProvider]
     fake_token = StringIO("fake_token")
-    args = argparse.Namespace(target_branch="main", with_token=fake_token)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="",
+        git_server_url="",
+    )
     provider = EntrypointBase.set_git_provider(args=args)
     assert isinstance(provider, GitLab)
 
@@ -52,7 +62,12 @@ def test_set_git_provider_with_gitlab() -> None:
 def test_set_git_provider_with_gitlab_with_failure() -> None:
     """Trigger error with GitLab provider with insufficient environment variables"""
     fake_token = StringIO("fake_token")
-    args = argparse.Namespace(target_branch="main", with_token=fake_token)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="",
+        git_server_url="",
+    )
     with pytest.raises(
         GitProviderException,
         match="Set CI_SERVER_PROTOCOL and CI SERVER HOST environment variables",
@@ -65,13 +80,17 @@ def test_set_git_provider_with_none() -> None:
     """Test set_git_provider function when no git provider is set"""
     fake_token = StringIO("fake_token")
     provider: Optional[GitProvider]
-    args = argparse.Namespace(target_branch="main", with_token=fake_token)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="",
+        git_server_url="",
+    )
 
     with pytest.raises(
         EntrypointInvalidArgException,
-        match="Invalid args --target-branch: "
-        "target-branch flag is set with an unset git provider. To test locally, set the "
-        "GITHUB_ACTIONS or GITLAB_CI environment variable.",
+        match="Invalid args --target-branch, --git-provider-type: "
+        "Could not detect Git provider from environment or inputs",
     ):
         EntrypointBase.set_git_provider(args=args)
 
@@ -88,5 +107,39 @@ def test_set_provider_with_no_token() -> None:
         EntrypointInvalidArgException,
         match="Invalid args --with-token: "
         "with-token flag must be set when using target-branch",
+    ):
+        EntrypointBase.set_git_provider(args=args)
+
+
+def test_set_provider_with_input() -> None:
+    """Test set_git_provider function with type and server url input."""
+    provider: Optional[GitProvider]
+    fake_token = StringIO("fake_token")
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="github",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitHub)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="gitlab",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitLab)
+
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=fake_token,
+        git_provider_type="github",
+        git_server_url="https://notgithub.com",
+    )
+    with pytest.raises(
+        EntrypointInvalidArgException,
+        match="Invalid args --server-url: GitHub provider does not support custom server URLs",
     ):
         EntrypointBase.set_git_provider(args=args)

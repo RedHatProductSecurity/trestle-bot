@@ -47,3 +47,7 @@ RULE_PREFIX = "rule-"
 COMMIT = "commit"
 PR_NUMBER = "pr_number"
 CHANGES = "changes"
+
+# Git Provider Types
+GITHUB = "github"
+GITLAB = "gitlab"
