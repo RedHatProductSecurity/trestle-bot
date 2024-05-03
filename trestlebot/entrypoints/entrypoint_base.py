@@ -133,10 +133,9 @@ class EntrypointBase:
         )
         git_provider_arg_group.add_argument(
             "--with-token",
-            nargs="?",
-            type=argparse.FileType("r"),
             required=False,
-            default=sys.stdin,
+            default=False,
+            action="store_true",
             help="Read token from standard input for authenticated requests with \
             Git provider (e.g. create pull requests)",
         )
@@ -151,7 +150,7 @@ class EntrypointBase:
             "--git-provider-type",
             required=False,
             choices=[const.GITHUB, const.GITLAB],
-            help="Optional supported Git provider identify. "
+            help="Optional supported Git provider to identify. "
             "Defaults to auto detection based on pre-defined CI environment variables.",
         )
         git_provider_arg_group.add_argument(
@@ -166,13 +165,15 @@ class EntrypointBase:
     def set_git_provider(args: argparse.Namespace) -> Optional[GitProvider]:
         """Get the git provider based on the environment and args."""
         git_provider: Optional[GitProvider] = None
-        if args.target_branch:
+        if args.target_branch is not None:
             if not args.with_token:
                 raise EntrypointInvalidArgException(
                     "--with-token",
-                    "with-token flag must be set when using target-branch",
+                    "with-token flag must be set to read from standard input when "
+                    "using target-branch",
                 )
-            access_token = args.with_token.read().strip()
+            else:
+                access_token = sys.stdin.read().strip()
             try:
                 git_provider_type = args.git_provider_type
                 git_server_url = args.git_server_url
