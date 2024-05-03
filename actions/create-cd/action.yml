@@ -30,7 +30,9 @@ inputs:
     required: false
     default: "false"
   github_token:
-    description: "GitHub token used to make authenticated API requests"
+    description: |
+      "GitHub token used to make authenticated API requests.
+      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do nothardcode the token."
     required: false
   commit_message:
     description: Commit message
@@ -89,7 +91,7 @@ runs:
   image: "../../Dockerfile"
   entrypoint: "/create-cd-entrypoint.sh"
   env:
-    GITHUB_TOKEN: ${{ inputs.github_token }}
+    TRESTLEBOT_REPO_ACCESS_TOKEN: ${{ inputs.github_token }}
 
 branding:
   icon: "check"
