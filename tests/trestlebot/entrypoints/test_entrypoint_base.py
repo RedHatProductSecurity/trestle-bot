@@ -37,6 +37,24 @@ def test_set_git_provider_with_github() -> None:
 
 @patch.dict(
     "os.environ",
+    {"GITHUB_ACTIONS": "true", "TRESTLEBOT_REPO_ACCESS_TOKEN": "fake_token"},
+)
+def test_set_git_provider_with_github_no_stdin() -> None:
+    """Test set_git_provider function in Entrypoint Base for GitHub Actions"""
+    with patch("sys.stdin", return_value=StringIO("fake_token")):
+        provider: Optional[GitProvider]
+        args = argparse.Namespace(
+            target_branch="main",
+            with_token=False,
+            git_provider_type="",
+            git_server_url="",
+        )
+        provider = EntrypointBase.set_git_provider(args=args)
+        assert isinstance(provider, GitHub)
+
+
+@patch.dict(
+    "os.environ",
     {
         "GITHUB_ACTIONS": "false",
         "GITLAB_CI": "true",
@@ -105,8 +123,8 @@ def test_set_provider_with_no_token() -> None:
     args = argparse.Namespace(target_branch="main", with_token=False)
     with pytest.raises(
         EntrypointInvalidArgException,
-        match="Invalid args --with-token: with-token flag must be set to read from "
-        "standard input when using target-branch",
+        match="Invalid args --with-token: with-token flag must be set to read from standard input "
+        "or use TRESTLEBOT_REPO_ACCESS_TOKEN environment variable when using target-branch",
     ):
         EntrypointBase.set_git_provider(args=args)
 

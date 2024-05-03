@@ -14,6 +14,7 @@ call the run_base method with the pre_tasks argument.
 
 import argparse
 import logging
+import os
 import sys
 from typing import List, Optional
 
@@ -167,14 +168,18 @@ class EntrypointBase:
         git_provider: Optional[GitProvider] = None
         if args.target_branch is not None:
             if not args.with_token:
-                raise EntrypointInvalidArgException(
-                    "--with-token",
-                    "with-token flag must be set to read from standard input when "
-                    "using target-branch",
-                )
+                # Attempts to read from env var
+                access_token = os.environ.get("TRESTLEBOT_REPO_ACCESS_TOKEN", "")
+                if not access_token:
+                    raise EntrypointInvalidArgException(
+                        "--with-token",
+                        "with-token flag must be set to read from standard input or use "
+                        "TRESTLEBOT_REPO_ACCESS_TOKEN environment variable when using target-branch",
+                    )
             else:
-                access_token = sys.stdin.read().strip()
+                access_token = sys.stdin.read()
             try:
+                access_token = access_token.strip()
                 git_provider_type = args.git_provider_type
                 git_server_url = args.git_server_url
                 git_provider = GitProviderFactory.provider_factory(
