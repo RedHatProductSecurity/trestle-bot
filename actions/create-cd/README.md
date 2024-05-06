@@ -34,7 +34,7 @@ name: Example Workflow
 | filter_by_profile | Name of the profile in the workspace to filter controls by | None | False |
 | dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | "GitHub token used to make authenticated API requests.
-Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do nothardcode the token."
+Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
  | None | False |
 | commit_message | Commit message | Sync automatic updates | False |
 | pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |

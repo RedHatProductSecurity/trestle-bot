@@ -32,7 +32,7 @@ inputs:
   github_token:
     description: |
       "GitHub token used to make authenticated API requests.
-      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do nothardcode the token."
+      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
     required: false
   commit_message:
     description: Commit message
