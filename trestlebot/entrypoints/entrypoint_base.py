@@ -167,7 +167,7 @@ class EntrypointBase:
     def set_git_provider(args: argparse.Namespace) -> Optional[GitProvider]:
         """Get the git provider based on the environment and args."""
         git_provider: Optional[GitProvider] = None
-        if args.target_branch is not None:
+        if args.target_branch:
             if args.with_token is None:
                 # Attempts to read from env var
                 access_token = os.environ.get("TRESTLEBOT_REPO_ACCESS_TOKEN", "")
