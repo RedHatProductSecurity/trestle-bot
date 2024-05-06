@@ -135,8 +135,9 @@ class EntrypointBase:
         git_provider_arg_group.add_argument(
             "--with-token",
             required=False,
-            default=False,
-            action="store_true",
+            nargs="?",
+            type=argparse.FileType("r"),
+            const=sys.stdin,
             help="Read token from standard input for authenticated requests with \
             Git provider (e.g. create pull requests)",
         )
@@ -167,7 +168,7 @@ class EntrypointBase:
         """Get the git provider based on the environment and args."""
         git_provider: Optional[GitProvider] = None
         if args.target_branch is not None:
-            if not args.with_token:
+            if args.with_token is None:
                 # Attempts to read from env var
                 access_token = os.environ.get("TRESTLEBOT_REPO_ACCESS_TOKEN", "")
                 if not access_token:
@@ -177,7 +178,7 @@ class EntrypointBase:
                         "TRESTLEBOT_REPO_ACCESS_TOKEN environment variable when using target-branch",
                     )
             else:
-                access_token = sys.stdin.read()
+                access_token = args.with_token.read()
             try:
                 access_token = access_token.strip()
                 git_provider_type = args.git_provider_type

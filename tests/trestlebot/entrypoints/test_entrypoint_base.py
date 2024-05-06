@@ -23,16 +23,15 @@ from trestlebot.provider import GitProvider, GitProviderException
 @patch.dict("os.environ", {"GITHUB_ACTIONS": "true"})
 def test_set_git_provider_with_github() -> None:
     """Test set_git_provider function in Entrypoint Base for GitHub Actions"""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        provider: Optional[GitProvider]
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="",
-            git_server_url="",
-        )
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert isinstance(provider, GitHub)
+    provider: Optional[GitProvider]
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitHub)
 
 
 @patch.dict(
@@ -41,16 +40,15 @@ def test_set_git_provider_with_github() -> None:
 )
 def test_set_git_provider_with_github_no_stdin() -> None:
     """Test set_git_provider function in Entrypoint Base for GitHub Actions"""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        provider: Optional[GitProvider]
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=False,
-            git_provider_type="",
-            git_server_url="",
-        )
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert isinstance(provider, GitHub)
+    provider: Optional[GitProvider]
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=None,
+        git_provider_type="",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitHub)
 
 
 @patch.dict(
@@ -64,63 +62,60 @@ def test_set_git_provider_with_github_no_stdin() -> None:
 )
 def test_set_git_provider_with_gitlab() -> None:
     """Test set_git_provider function in Entrypoint Base for GitLab CI"""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        provider: Optional[GitProvider]
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="",
-            git_server_url="",
-        )
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert isinstance(provider, GitLab)
+    provider: Optional[GitProvider]
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitLab)
 
 
 @patch.dict("os.environ", {"GITHUB_ACTIONS": "false", "GITLAB_CI": "true"})
 def test_set_git_provider_with_gitlab_with_failure() -> None:
     """Trigger error with GitLab provider with insufficient environment variables"""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="",
-            git_server_url="",
-        )
-        with pytest.raises(
-            GitProviderException,
-            match="Set CI_SERVER_PROTOCOL and CI SERVER HOST environment variables",
-        ):
-            EntrypointBase.set_git_provider(args=args)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="",
+        git_server_url="",
+    )
+    with pytest.raises(
+        GitProviderException,
+        match="Set CI_SERVER_PROTOCOL and CI SERVER HOST environment variables",
+    ):
+        EntrypointBase.set_git_provider(args=args)
 
 
 @patch.dict("os.environ", {"GITHUB_ACTIONS": "false"})
 def test_set_git_provider_with_none() -> None:
     """Test set_git_provider function when no git provider is set"""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        provider: Optional[GitProvider]
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="",
-            git_server_url="",
-        )
+    provider: Optional[GitProvider]
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="",
+        git_server_url="",
+    )
 
-        with pytest.raises(
-            EntrypointInvalidArgException,
-            match="Invalid args --target-branch, --git-provider-type: "
-            "Could not detect Git provider from environment or inputs",
-        ):
-            EntrypointBase.set_git_provider(args=args)
+    with pytest.raises(
+        EntrypointInvalidArgException,
+        match="Invalid args --target-branch, --git-provider-type: "
+        "Could not detect Git provider from environment or inputs",
+    ):
+        EntrypointBase.set_git_provider(args=args)
 
-        # Now test with no target branch which is a valid case
-        args = argparse.Namespace(target_branch=None)
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert provider is None
+    # Now test with no target branch which is a valid case
+    args = argparse.Namespace(target_branch=None)
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert provider is None
 
 
 def test_set_provider_with_no_token() -> None:
     """Test set_git_provider function with no token"""
-    args = argparse.Namespace(target_branch="main", with_token=False)
+    args = argparse.Namespace(target_branch="main", with_token=None)
     with pytest.raises(
         EntrypointInvalidArgException,
         match="Invalid args --with-token: with-token flag must be set to read from standard input "
@@ -131,33 +126,32 @@ def test_set_provider_with_no_token() -> None:
 
 def test_set_provider_with_input() -> None:
     """Test set_git_provider function with type and server url input."""
-    with patch("sys.stdin", return_value=StringIO("fake_token")):
-        provider: Optional[GitProvider]
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="github",
-            git_server_url="",
-        )
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert isinstance(provider, GitHub)
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="gitlab",
-            git_server_url="",
-        )
-        provider = EntrypointBase.set_git_provider(args=args)
-        assert isinstance(provider, GitLab)
+    provider: Optional[GitProvider]
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="github",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitHub)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="gitlab",
+        git_server_url="",
+    )
+    provider = EntrypointBase.set_git_provider(args=args)
+    assert isinstance(provider, GitLab)
 
-        args = argparse.Namespace(
-            target_branch="main",
-            with_token=True,
-            git_provider_type="github",
-            git_server_url="https://notgithub.com",
-        )
-        with pytest.raises(
-            EntrypointInvalidArgException,
-            match="Invalid args --server-url: GitHub provider does not support custom server URLs",
-        ):
-            EntrypointBase.set_git_provider(args=args)
+    args = argparse.Namespace(
+        target_branch="main",
+        with_token=StringIO("fake_token"),
+        git_provider_type="github",
+        git_server_url="https://notgithub.com",
+    )
+    with pytest.raises(
+        EntrypointInvalidArgException,
+        match="Invalid args --server-url: GitHub provider does not support custom server URLs",
+    ):
+        EntrypointBase.set_git_provider(args=args)
