@@ -34,9 +34,7 @@ With custom rules directory:
 | --- | --- | --- | --- |
 | rules_view_path | Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`. | rules/ | False |
 | dry_run | Runs tasks without pushing changes to the repository. | false | False |
-| github_token | "GitHub token used to make authenticated API requests.
-Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
- | None | False |
+| github_token | "GitHub token used to make authenticated API requests. Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token." | None | False |
 | skip_items | Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `compdef_x,compdef_y*,`. | None | False |
 | commit_message | Commit message | Sync automatic updates | False |
 | pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |

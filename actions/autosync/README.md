@@ -26,9 +26,7 @@ name: Example Workflow
 | markdown_path | Path relative to the repository path where the Trestle markdown files are located. See action README.md for more information. | None | True |
 | oscal_model | OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp. | None | True |
 | dry_run | Runs tasks without pushing changes to the repository. | false | False |
-| github_token | "GitHub token used to make authenticated API requests.
-Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
- | None | False |
+| github_token | "GitHub token used to make authenticated API requests. Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token." | None | False |
 | version | Version of the OSCAL model to set during assembly into JSON. | None | False |
 | skip_assemble | Skip assembly task. Defaults to false | false | False |
 | skip_regenerate | Skip regenerate task. Defaults to false. | false | False |
