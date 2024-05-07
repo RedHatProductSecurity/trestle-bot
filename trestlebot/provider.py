@@ -29,14 +29,12 @@ class GitProvider(ABC):
     def match_url(self, repo_url: str) -> Tuple[Optional[re.Match[str]], str]:
         """Match a repository URL with the pattern"""
         parsed_url: ParseResult = urlparse(repo_url)
-        scheme = parsed_url.scheme
-        host = parsed_url.hostname
-        path = parsed_url.path
 
+        path = parsed_url.path
         stripped_url = path
-        if host:
+        if host := parsed_url.hostname:
             stripped_url = f"{host}{path}"
-        if scheme:
+        if scheme := parsed_url.scheme:
             stripped_url = f"{scheme}://{stripped_url}"
         return self.provider_pattern.match(stripped_url), stripped_url
 
