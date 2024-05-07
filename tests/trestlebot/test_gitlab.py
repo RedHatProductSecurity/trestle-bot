@@ -94,7 +94,7 @@ def test_parse_repository_with_incorrect_name() -> None:
     gl = GitLab("fake")
     with pytest.raises(
         GitProviderException,
-        match="https://notgitlab.com/owner/repo.git is an invalid repo URL",
+        match="https://notgitlab.com/owner/repo.git is an invalid Gitlab repo URL",
     ):
         gl.parse_repository("https://notgitlab.com/owner/repo.git")
 

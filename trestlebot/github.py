@@ -4,6 +4,8 @@
 
 """GitHub related functions for the Trestle Bot."""
 
+from __future__ import annotations
+
 import os
 import re
 from typing import Optional, Tuple
@@ -31,7 +33,15 @@ class GitHub(GitProvider):
         session.login(token=access_token)
 
         self._session = session
-        self.pattern = r"^(?:https?://)?github\.com/([^/]+)/([^/.]+)"
+
+        # For repo URL input validation
+        pattern = r"^(?:https?://)?github\.com/([^/]+)/([^/.]+)"
+        self._pattern = re.compile(pattern)
+
+    @property
+    def provider_pattern(self) -> re.Pattern[str]:
+        """Regex pattern to validate repository URLs"""
+        return self._pattern
 
     def parse_repository(self, repo_url: str) -> Tuple[str, str]:
         """
@@ -43,11 +53,12 @@ class GitHub(GitProvider):
         Returns:
             Owner and repo name in a tuple, respectively
         """
-
-        match = re.match(self.pattern, repo_url)
+        match: Optional[re.Match[str]]
+        stripped_url: str
+        match, stripped_url = self.match_url(repo_url)
 
         if not match:
-            raise GitProviderException(f"{repo_url} is an invalid GitHub repo URL")
+            raise GitProviderException(f"{stripped_url} is an invalid GitHub repo URL")
 
         owner = match.group(1)
         repo = match.group(2)
