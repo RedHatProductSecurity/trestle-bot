@@ -24,7 +24,7 @@ class GitProviderFactory:
         Args:
             access_token: Access token for the Git provider
             type: Type of Git provider. Supported values are "github" or "gitlab"
-            server_url: URL of the Git provider server.
+            server_url: URL of the Git provider server
 
         Returns:
             a GitProvider object
@@ -34,7 +34,7 @@ class GitProviderFactory:
             RuntimeError: If the Git provider cannot be detected
 
 
-        Note: The GitHub provider currently only support GitHub and not
+        Notes: The GitHub provider currently only supports GitHub and not
         GitHub Enterprise. So the server value must be https://github.com.
         """
 
