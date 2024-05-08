@@ -16,12 +16,12 @@ import argparse
 import logging
 import os
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from trestlebot import const
 from trestlebot.bot import TrestleBot
 from trestlebot.github import GitHubActionsResultsReporter, is_github_actions
-from trestlebot.gitlab import GitLabCIResultsReporter, is_gitlab_ci
+from trestlebot.gitlab import GitLabCIResultsReporter, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
 from trestlebot.provider_factory import GitProviderFactory
 from trestlebot.reporter import BotResults, ResultsReporter
@@ -125,6 +125,10 @@ class EntrypointBase:
         git_provider_arg_group = self.parser.add_argument_group(
             "optional arguments for interacting with the git provider"
         )
+
+        # Detect default args for git provider type and server url
+        detected_provider_type, detected_server_url = load_provider_from_environment()
+
         git_provider_arg_group.add_argument(
             "--target-branch",
             type=str,
@@ -152,6 +156,7 @@ class EntrypointBase:
             "--git-provider-type",
             required=False,
             choices=[const.GITHUB, const.GITLAB],
+            default=detected_provider_type,
             help="Optional supported Git provider to identify. "
             "Defaults to auto detection based on pre-defined CI environment variables.",
         )
@@ -159,6 +164,7 @@ class EntrypointBase:
             "--git-server-url",
             type=str,
             required=False,
+            default=detected_server_url,
             help="Optional git server url for supported type. "
             "Defaults to auto detection based on pre-defined CI environment variables.",
         )
@@ -183,11 +189,16 @@ class EntrypointBase:
                 access_token = access_token.strip()
                 git_provider_type = args.git_provider_type
                 git_server_url = args.git_server_url
+                if git_server_url and not git_provider_type:
+                    raise EntrypointInvalidArgException(
+                        "--git-provider-type",
+                        "git-provider-type must be set when using git-server-url",
+                    )
                 git_provider = GitProviderFactory.provider_factory(
                     access_token, git_provider_type, git_server_url
                 )
             except ValueError as e:
-                raise EntrypointInvalidArgException("--server-url", str(e))
+                raise EntrypointInvalidArgException("--git-server-url", str(e))
             except RuntimeError as e:
                 raise EntrypointInvalidArgException(
                     "--target-branch, --git-provider-type", str(e)
@@ -231,6 +242,26 @@ class EntrypointBase:
 
         # Report the results
         results_reporter.report_results(results)
+
+
+def load_provider_from_environment() -> Tuple[str, str]:
+    """
+    Detect the Git provider from the environment.
+
+    Returns:
+        A tuple with the provider type string and server url string
+
+    Note:
+        The environment variables are expected to be pre-defined
+        and set through the CI environment and not set by the user.
+    """
+    if is_github_actions():
+        logging.debug("Detected GitHub Actions environment")
+        return const.GITHUB, const.GITHUB_SERVER_URL
+    elif is_gitlab_ci():
+        logging.debug("Detected GitLab CI environment")
+        return const.GITLAB, get_gitlab_root_url()
+    return "", ""
 
 
 def comma_sep_to_list(string: str) -> List[str]:

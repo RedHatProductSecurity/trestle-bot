@@ -51,3 +51,4 @@ CHANGES = "changes"
 # Git Provider Types
 GITHUB = "github"
 GITLAB = "gitlab"
+GITHUB_SERVER_URL = "https://github.com"
