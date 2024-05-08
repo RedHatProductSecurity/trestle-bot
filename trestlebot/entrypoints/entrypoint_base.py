@@ -256,10 +256,10 @@ def load_provider_from_environment() -> Tuple[str, str]:
         and set through the CI environment and not set by the user.
     """
     if is_github_actions():
-        logging.debug("Detected GitHub Actions environment")
+        logger.debug("Detected GitHub Actions environment")
         return const.GITHUB, const.GITHUB_SERVER_URL
     elif is_gitlab_ci():
-        logging.debug("Detected GitLab CI environment")
+        logger.debug("Detected GitLab CI environment")
         return const.GITLAB, get_gitlab_root_url()
     return "", ""
 
