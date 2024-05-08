@@ -91,7 +91,7 @@ jobs:
           tags: ${{ steps.set_image_repo.outputs.image_repo }}:${{ env.TAG }}
       
       - name: Pre-push Image Scan
-        uses: aquasecurity/trivy-action@0.19.0
+        uses: aquasecurity/trivy-action@0.20.0
         with:
           image-ref: ${{ steps.set_image_repo.outputs.image_repo }}:${{ env.TAG }}
           exit-code: 1
