@@ -48,7 +48,7 @@ runs:
       id: build-and-export
       with:
         load: true
-        no-cache: ${{ inputs.no-cache == 'true' }}
+        no-cache: ${{ inputs.no_cache == 'true' }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
         tags: ${{ steps.meta.outputs.tags }}

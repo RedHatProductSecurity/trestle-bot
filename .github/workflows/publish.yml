@@ -2,7 +2,7 @@ name: Publish Image to Quay
 
 on:
   schedule:
-    - 0 0 */30 * *
+    - cron: 0 0 */30 * *
   release:
     types: [published]
   workflow_dispatch:
@@ -79,7 +79,7 @@ jobs:
         with:
           image: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}
           release_version: ${{ env.TAG }}
-          no-cache: ${{ env.NO_CACHE }}
+          no_cache: ${{ env.NO_CACHE }}
 
   test:
     permissions:
