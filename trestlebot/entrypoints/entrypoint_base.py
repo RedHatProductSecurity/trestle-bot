@@ -14,19 +14,16 @@ call the run_base method with the pre_tasks argument.
 
 import argparse
 import logging
+import os
 import sys
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from trestlebot import const
 from trestlebot.bot import TrestleBot
-from trestlebot.github import GitHub, GitHubActionsResultsReporter, is_github_actions
-from trestlebot.gitlab import (
-    GitLab,
-    GitLabCIResultsReporter,
-    get_gitlab_root_url,
-    is_gitlab_ci,
-)
+from trestlebot.github import GitHubActionsResultsReporter, is_github_actions
+from trestlebot.gitlab import GitLabCIResultsReporter, get_gitlab_root_url, is_gitlab_ci
 from trestlebot.provider import GitProvider
+from trestlebot.provider_factory import GitProviderFactory
 from trestlebot.reporter import BotResults, ResultsReporter
 from trestlebot.tasks.base_task import TaskBase
 
@@ -51,12 +48,6 @@ class EntrypointBase:
             default=0,
         )
         self.parser.add_argument(
-            "--branch",
-            type=str,
-            required=True,
-            help="Branch name to push changes to",
-        )
-        self.parser.add_argument(
             "--working-dir",
             type=str,
             required=False,
@@ -64,71 +55,118 @@ class EntrypointBase:
             help="Working directory wit git repository",
         )
         self.parser.add_argument(
+            "--dry-run",
+            required=False,
+            action="store_true",
+            help="Run tasks, but do not push to the repository",
+        )
+        self._set_required_git_args()
+        self._set_optional_git_args()
+        self._set_git_provider_args()
+
+    def _set_required_git_args(self) -> None:
+        """Create an argument group for required git-related configuration."""
+        required_git_arg_group = self.parser.add_argument_group(
+            "required arguments for git operations"
+        )
+        required_git_arg_group.add_argument(
+            "--branch",
+            type=str,
+            required=True,
+            help="Branch name to push changes to",
+        )
+        required_git_arg_group.add_argument(
+            "--committer-name",
+            type=str,
+            required=True,
+            help="Name of committer",
+        )
+        required_git_arg_group.add_argument(
+            "--committer-email",
+            type=str,
+            required=True,
+            help="Email for committer",
+        )
+
+    def _set_optional_git_args(self) -> None:
+        """Create an argument group for optional git-related configuration."""
+        optional_git_arg_group = self.parser.add_argument_group(
+            "optional arguments for git operations"
+        )
+        optional_git_arg_group.add_argument(
             "--file-patterns",
             required=False,
             type=str,
             default=".",
             help="Comma-separated list of file patterns to be used with `git add` in repository updates",
         )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--commit-message",
             type=str,
             required=False,
             default="chore: automatic updates",
             help="Commit message for automated updates",
         )
-        self.parser.add_argument(
-            "--pull-request-title",
-            type=str,
-            required=False,
-            default="Automatic updates from trestlebot",
-            help="Customized title for submitted pull requests",
-        )
-        self.parser.add_argument(
-            "--committer-name",
-            type=str,
-            required=True,
-            help="Name of committer",
-        )
-        self.parser.add_argument(
-            "--committer-email",
-            type=str,
-            required=True,
-            help="Email for committer",
-        )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--author-name",
             required=False,
             type=str,
             help="Name for commit author if differs from committer",
         )
-        self.parser.add_argument(
+        optional_git_arg_group.add_argument(
             "--author-email",
             required=False,
             type=str,
             help="Email for commit author if differs from committer",
         )
-        self.parser.add_argument(
-            "--dry-run",
-            required=False,
-            action="store_true",
-            help="Run tasks, but do not push to the repository",
+
+    def _set_git_provider_args(self) -> None:
+        """Create an argument group for optional git-provider configuration."""
+        git_provider_arg_group = self.parser.add_argument_group(
+            "optional arguments for interacting with the git provider"
         )
-        self.parser.add_argument(
+
+        # Detect default args for git provider type and server url
+        detected_provider_type, detected_server_url = load_provider_from_environment()
+
+        git_provider_arg_group.add_argument(
             "--target-branch",
             type=str,
             required=False,
             help="Target branch or base branch to create a pull request against. \
             No pull request is created if unset",
         )
-        self.parser.add_argument(
+        git_provider_arg_group.add_argument(
             "--with-token",
+            required=False,
             nargs="?",
             type=argparse.FileType("r"),
-            required=False,
-            default=sys.stdin,
+            const=sys.stdin,
             help="Read token from standard input for authenticated requests with \
             Git provider (e.g. create pull requests)",
+        )
+        git_provider_arg_group.add_argument(
+            "--pull-request-title",
+            type=str,
+            required=False,
+            default="Automatic updates from trestlebot",
+            help="Customized title for submitted pull requests",
+        )
+        git_provider_arg_group.add_argument(
+            "--git-provider-type",
+            required=False,
+            choices=[const.GITHUB, const.GITLAB],
+            default=detected_provider_type,
+            help="Optional supported Git provider to identify. "
+            "Defaults to auto detection based on pre-defined CI environment variables.",
+        )
+        git_provider_arg_group.add_argument(
+            "--git-server-url",
+            type=str,
+            required=False,
+            default=detected_server_url,
+            help="Optional git server url for supported type. "
+            "Defaults to auto detection based on pre-defined CI environment variables.",
         )
 
     @staticmethod
@@ -136,27 +174,35 @@ class EntrypointBase:
         """Get the git provider based on the environment and args."""
         git_provider: Optional[GitProvider] = None
         if args.target_branch:
-            if not args.with_token:
-                raise EntrypointInvalidArgException(
-                    "--with-token",
-                    "with-token flag must be set when using target-branch",
-                )
-
-            if is_github_actions():
-                git_provider = GitHub(access_token=args.with_token.read().strip())
-            elif is_gitlab_ci():
-                server_api_url = get_gitlab_root_url()
-                git_provider = GitLab(
-                    api_token=args.with_token.read().strip(), server_url=server_api_url
-                )
+            if args.with_token is None:
+                # Attempts to read from env var
+                access_token = os.environ.get("TRESTLEBOT_REPO_ACCESS_TOKEN", "")
+                if not access_token:
+                    raise EntrypointInvalidArgException(
+                        "--with-token",
+                        "with-token flag must be set to read from standard input or use "
+                        "TRESTLEBOT_REPO_ACCESS_TOKEN environment variable when using target-branch",
+                    )
             else:
-                raise EntrypointInvalidArgException(
-                    "--target-branch",
-                    (
-                        "target-branch flag is set with an unset git provider. "
-                        "To test locally, set the GITHUB_ACTIONS or GITLAB_CI environment variable."
-                    ),
+                access_token = args.with_token.read()
+            try:
+                access_token = access_token.strip()
+                git_provider_type = args.git_provider_type
+                git_server_url = args.git_server_url
+                if git_server_url and not git_provider_type:
+                    raise EntrypointInvalidArgException(
+                        "--git-provider-type",
+                        "git-provider-type must be set when using git-server-url",
+                    )
+                git_provider = GitProviderFactory.provider_factory(
+                    access_token, git_provider_type, git_server_url
                 )
+            except ValueError as e:
+                raise EntrypointInvalidArgException("--git-server-url", str(e))
+            except RuntimeError as e:
+                raise EntrypointInvalidArgException(
+                    "--target-branch, --git-provider-type", str(e)
+                ) from e
         return git_provider
 
     @staticmethod
@@ -196,6 +242,26 @@ class EntrypointBase:
 
         # Report the results
         results_reporter.report_results(results)
+
+
+def load_provider_from_environment() -> Tuple[str, str]:
+    """
+    Detect the Git provider from the environment.
+
+    Returns:
+        A tuple with the provider type string and server url string
+
+    Note:
+        The environment variables are expected to be pre-defined
+        and set through the CI environment and not set by the user.
+    """
+    if is_github_actions():
+        logger.debug("Detected GitHub Actions environment")
+        return const.GITHUB, const.GITHUB_SERVER_URL
+    elif is_gitlab_ci():
+        logger.debug("Detected GitLab CI environment")
+        return const.GITLAB, get_gitlab_root_url()
+    return "", ""
 
 
 def comma_sep_to_list(string: str) -> List[str]:

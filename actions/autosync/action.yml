@@ -14,7 +14,9 @@ inputs:
     required: false
     default: "false"
   github_token:
-    description: "GitHub token used to make authenticated API requests"
+    description: |
+      "GitHub token used to make authenticated API requests.
+      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
     required: false
   version:
     description: "Version of the OSCAL model to set during assembly into JSON."
@@ -91,7 +93,7 @@ runs:
   image: "../../Dockerfile"
   entrypoint: "/auto-sync-entrypoint.sh"
   env:
-    GITHUB_TOKEN: ${{ inputs.github_token }}
+    TRESTLEBOT_REPO_ACCESS_TOKEN: ${{ inputs.github_token }}
 
 branding:
   icon: "check"
