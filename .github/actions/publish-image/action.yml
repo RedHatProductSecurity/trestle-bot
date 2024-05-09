@@ -14,7 +14,7 @@ inputs:
     default: "false"
 outputs:
   image_sha:
-    value: ${{ inputs.image}}@${{ steps.build-and-push.outputs.digest }}
+    value: ${{ inputs.image }}@${{ steps.build-and-push.outputs.digest }}
     description: The publish image with digest
 
 runs:
