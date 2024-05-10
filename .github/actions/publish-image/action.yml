@@ -57,7 +57,7 @@ runs:
     - name: Pre-push Image Scan
       uses: aquasecurity/trivy-action@0.19.0
       with:
-        image-ref: ${{ inputs.image }}@${{ steps.build-and-export.outputs.digest }}
+        image-ref: ${{ inputs.image }}:${{ steps.meta.outputs.version }}
         exit-code: 1
         skip-files:  "**/.venv/lib/**/METADATA"
         scanners: secret
