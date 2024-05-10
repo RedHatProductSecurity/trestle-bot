@@ -72,6 +72,11 @@ jobs:
         run: |
            LATEST_VERSION=$( gh release view --json tagName --jq '.["tagName"]' )
            echo "TAG=$LATEST_VERSION" >> "$GITHUB_ENV"
+      
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Build and Publish the image
         uses: ./.github/actions/publish-image
