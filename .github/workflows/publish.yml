@@ -8,7 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Name of the tag for the published image"
+        description: |
+          Name of the tag for the published image. Will be published as <tag>-<branch>-<sha>.
+          If a valid semver, associated semver tags will be published as well.
         type: string
         required: true
       skip_tests:
@@ -66,8 +68,8 @@ jobs:
       - name: Set environment information for workflow dispatch
         if: ${{ steps.check_event.outputs.event_type == 'workflow_dispatch' }}
         run: |
-           echo "TAG=$INPUT_VERSION" >> "$GITHUB_ENV"
-           echo "NO_CACHE=$INPUT_NO_CACHE" >> "$GITHUB_ENV"
+          echo "TAG=$INPUT_VERSION" >> "$GITHUB_ENV"
+          echo "NO_CACHE=$INPUT_NO_CACHE" >> "$GITHUB_ENV"
         env:
           INPUT_VERSION: ${{ github.event.inputs.tag }}
           INPUT_NO_CACHE: ${{ github.event.inputs.no_cache }}
@@ -75,9 +77,9 @@ jobs:
       - name: Set environment information for schedule
         if: ${{ steps.check_event.outputs.event_type == 'schedule' }}
         run: |
-           LATEST_VERSION=$( gh release view --json tagName --jq '.["tagName"]' )
-           echo "TAG=$LATEST_VERSION" >> "$GITHUB_ENV"
-           echo "NO_CACHE=true" >> "$GITHUB_ENV"
+          LATEST_VERSION=$( gh release view --json tagName --jq '.["tagName"]' )
+          echo "TAG=$LATEST_VERSION" >> "$GITHUB_ENV"
+          echo "NO_CACHE=true" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

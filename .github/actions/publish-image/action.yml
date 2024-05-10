@@ -39,7 +39,7 @@ runs:
           type=semver,pattern=v{{major}},enable=${{ !startsWith(inputs.release_version, 'v0.') }},value=${{ inputs.release_version }}
           type=semver,pattern=v{{major}}.{{minor}},value=${{ inputs.release_version }}
           type=semver,pattern=v{{version}},value=${{ inputs.release_version }}
-          type=raw,value=dev-${{ inputs.release_version }},event=workflow_dispatch
+          type=raw,value=${{ inputs.release_version }}-{{branch}}-{{sha}},event=workflow_dispatch
           type=schedule,pattern={{date 'YYYYMMDD'}},prefix=${{ inputs.release_version }}.
         flavor: |
           latest=false
