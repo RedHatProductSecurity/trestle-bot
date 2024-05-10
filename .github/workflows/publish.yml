@@ -44,6 +44,11 @@ jobs:
           username: ${{ secrets.QUAY_USER }}
           password: ${{ secrets.QUAY_TOKEN }}
           registry: ${{ env.IMAGE_REGISTRY }}
+      
+      - name: Check out
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Check if triggered by release or workflow dispatch
         id: check_event
@@ -75,11 +80,6 @@ jobs:
            echo "NO_CACHE=true" >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Check out
-        uses: actions/checkout@v4
-        with:
-          persist-credentials: false
 
       - name: Build and Publish the image
         uses: ./.github/actions/publish-image
