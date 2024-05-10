@@ -37,9 +37,12 @@ Below is a table of the available commands and their current availability as a G
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
-### Supported Continuous Integration Systems
+### Supported Git Providers
 
-- GitHub Actions
+> Note: Only applicable if using `trestle-bot` to create pull requests. Automatically detecting the git
+provider information is supported for GitHub Actions (GitHub) and GitLab CI (GitLab).
+
+- GitHub
 - GitLab
 
 ### Run as a Container

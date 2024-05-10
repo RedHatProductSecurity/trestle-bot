@@ -12,7 +12,9 @@ inputs:
     required: false
     default: "false"
   github_token:
-    description: "GitHub token used to make authenticated API requests"
+    description: |
+      "GitHub token used to make authenticated API requests.
+      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
     required: false
   skip_items:
     description: "Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `compdef_x,compdef_y*,`."
@@ -74,7 +76,7 @@ runs:
   image: "../../Dockerfile"
   entrypoint: "/rules-transform-entrypoint.sh"
   env:
-    GITHUB_TOKEN: ${{ inputs.github_token }}
+    TRESTLEBOT_REPO_ACCESS_TOKEN: ${{ inputs.github_token }}
 
 branding:
   icon: "check"

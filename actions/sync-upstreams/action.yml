@@ -11,7 +11,9 @@ inputs:
     required: false
     default: "false"
   github_token:
-    description: "GitHub token used to make authenticated API requests"
+    description: |
+      "GitHub token used to make authenticated API requests.
+      Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token."
     required: false
   include_model_names:
     description: "Comma-separated glob pattern list of model names (i.e. trestle directory name) to include in the sync. For example, `*framework-v2`. Defaults to include all model names."
@@ -80,7 +82,7 @@ runs:
   image: "../../Dockerfile"
   entrypoint: "/sync-upstreams-entrypoint.sh"
   env:
-    GITHUB_TOKEN: ${{ inputs.github_token }}
+    TRESTLEBOT_REPO_ACCESS_TOKEN: ${{ inputs.github_token }}
 
 branding:
   icon: "check"

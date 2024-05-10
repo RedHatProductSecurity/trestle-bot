@@ -48,7 +48,9 @@ def generate_inputs_markdown_table(inputs: Dict[str, Any]) -> str:
     """Generate the Action Inputs markdown table"""
     table = "| Name | Description | Default | Required |\n| --- | --- | --- | --- |\n"
     for name, input in inputs.items():
-        table += f"| {name} | {input.get('description', None)} | {input.get('default', None)} | {input.get('required', None)} |\n"  # noqa E501
+        if input_description := input.get('description', None):
+            input_description = format_descriptions(input_description)
+        table += f"| {name} | {input_description} | {input.get('default', None)} | {input.get('required', None)} |\n"  # noqa E501
     return table
 
 
@@ -56,8 +58,15 @@ def generate_outputs_markdown_table(outputs: Dict[str, Any]) -> str:
     """Generate the Action Outputs markdown table"""
     table = "| Name | Description |\n| --- | --- |\n"
     for name, output in outputs.items():
-        table += f"| {name} | {output.get('description', None)} |\n"
+        if output_description := output.get('description', None):
+            output_description = format_descriptions(output_description)
+        table += f"| {name} | {output_description} |\n"
     return table
+
+
+def format_descriptions(description: str) -> str:
+    """Ensure descriptions are a single line."""
+    return " ".join(description.splitlines())
 
 
 def replace(all_content: str, start: str, end: str, new_content: str) -> str:

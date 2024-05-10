@@ -31,15 +31,4 @@ if [[ ${INPUT_DRY_RUN} == true ]]; then
     command+=" --dry-run"
 fi
 
-
-# Only set the token value when is a target branch so pull requests can be created
-if [[ -n ${INPUT_TARGET_BRANCH} ]]; then
-  if [[ -z ${GITHUB_TOKEN} ]]; then
-    echo "Set the GITHUB_TOKEN env variable."
-    exit 1
-  fi
-
-  command+=" --with-token - <<<\"${GITHUB_TOKEN}\""
-fi
-
 eval "${command}"

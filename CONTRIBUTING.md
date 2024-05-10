@@ -192,5 +192,5 @@ cat my-token.txt | podman secret create repo-secret -
 4. Run the container
 
 ```bash
-podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=GITHUB_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
+podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=TRESTLEBOT_REPO_ACCESS_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
 ```
