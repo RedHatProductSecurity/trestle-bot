@@ -4,21 +4,21 @@ description: "Composite action to publish trestle-bot images."
 inputs:
   image:
     required: true
-    description: "The image repository location in the format of registry/name/app"
+    description: The image repository location in the format of registry/name/app
   release_version:
     required: true
-    description: "The version to build type semver tags from"
+    description: The version to build type semver tags from
   git_ref:
     required: true
-    description: Git reference to build from
+    description: The git reference to build image from
   no_cache:
-    description: "Skip using cache when building the image."
+    description: Skip using cache when building the image.
     required: false
     default: "false"
 outputs:
   image_sha:
     value: ${{ inputs.image }}@${{ steps.build-and-push.outputs.digest }}
-    description: The publish image with digest
+    description: The published image with digest
 
 runs:
   using: "composite"
