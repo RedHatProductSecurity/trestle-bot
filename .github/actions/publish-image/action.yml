@@ -28,9 +28,6 @@ runs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
-    - name: Set up cosign
-      uses: sigstore/cosign-installer@v3.4.0
 
     # Tags are defined here based on workflow triggers
     - name: Define metadata
@@ -77,20 +74,3 @@ runs:
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-    
-    - name: Sign the image with GitHub OIDC Token
-      run: cosign sign --yes "$IMAGE@$DIGEST"
-      env:
-        DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        IMAGE: ${{ inputs.image }}
-      shell: bash
-
-    - name: Verify image
-      run: |
-        cosign verify "$IMAGE@$DIGEST" --certificate-identity-regexp="$SUBJECT" \
-        --certificate-oidc-issuer=https://token.actions.githubusercontent.com
-      env:
-        SUBJECT: https://github\.com/${{ github.repository_owner }}/trestle-bot/\.github/.+
-        IMAGE: ${{ inputs.image }}
-        DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      shell: bash

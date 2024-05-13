@@ -51,6 +51,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+      
+      - name: Set up cosign
+        uses: sigstore/cosign-installer@v3.4.0
 
       - name: Check if triggered by release or workflow dispatch
         id: check_event
@@ -100,6 +103,19 @@ jobs:
           release_version: ${{ env.TAG }}
           no_cache: ${{ env.NO_CACHE }}
           git_ref: ${{ env.BUILD_GIT_REF }}
+      
+      - name: Sign the image with GitHub OIDC Token
+        run: cosign sign --yes "$IMAGE@$DIGEST"
+        env:
+          IMAGE: ${{ steps.build_publish_image.outputs.image_sha }}
+
+      - name: Verify image
+        run: |
+          cosign verify "$IMAGE@$DIGEST" --certificate-identity-regexp="$SUBJECT" \
+          --certificate-oidc-issuer=https://token.actions.githubusercontent.com
+        env:
+          SUBJECT: https://github\.com/${{ github.repository_owner }}/trestle-bot/\.github/.+
+          IMAGE: ${{ steps.build_publish_image.outputs.image_sha }}
 
   test:
     permissions:
