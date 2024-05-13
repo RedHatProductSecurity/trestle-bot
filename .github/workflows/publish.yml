@@ -60,18 +60,22 @@ jobs:
       - name: Set environment information for release
         if: ${{ steps.check_event.outputs.event_type == 'release' }}
         run: |
-          echo "TAG=$RELEASE_VERSION" >> "$GITHUB_ENV"
-          echo "NO_CACHE=true" >> "$GITHUB_ENV"
-          echo "BUILD_GIT_REF=$RELEASE_VERSION" >> "$GITHUB_ENV"
+          {
+            echo "TAG=$RELEASE_VERSION"
+            echo "NO_CACHE=true"
+            echo "BUILD_GIT_REF=$RELEASE_VERSION"
+          } >> "$GITHUB_ENV"
         env:
           RELEASE_VERSION: ${{ github.event.release.tag_name }}
 
       - name: Set environment information for workflow dispatch
         if: ${{ steps.check_event.outputs.event_type == 'workflow_dispatch' }}
         run: |
-          echo "TAG=$INPUT_VERSION" >> "$GITHUB_ENV"
-          echo "NO_CACHE=$INPUT_NO_CACHE" >> "$GITHUB_ENV"
-          echo "BUILD_GIT_REF=${{ github.ref }}" >> "$GITHUB_ENV"
+          {
+            echo "TAG=$INPUT_VERSION" 
+            echo "NO_CACHE=$INPUT_NO_CACHE"
+            echo "BUILD_GIT_REF=${{ github.ref }}"
+          } >> "$GITHUB_ENV"
         env:
           INPUT_VERSION: ${{ github.event.inputs.tag }}
           INPUT_NO_CACHE: ${{ github.event.inputs.no_cache }}
@@ -79,10 +83,12 @@ jobs:
       - name: Set environment information for schedule
         if: ${{ steps.check_event.outputs.event_type == 'schedule' }}
         run: |
-          LATEST_VERSION=$( gh release view --json tagName --jq '.["tagName"]' )
-          echo "TAG=$LATEST_VERSION" >> "$GITHUB_ENV"
-          echo "NO_CACHE=true" >> "$GITHUB_ENV"
-          echo "BUILD_GIT_REF=$LATEST_VERSION" >> "$GITHUB_ENV"
+          LATEST_VERSION=$( gh release view --json tagName --jq '.["tagName"]' )      
+          {
+            echo "TAG=$LATEST_VERSION"
+            echo "NO_CACHE=true"
+            echo "BUILD_GIT_REF=$LATEST_VERSION"
+          } >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
