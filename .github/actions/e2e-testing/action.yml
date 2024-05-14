@@ -14,9 +14,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Check out
-      uses: actions/checkout@v4
-
     - name: Set up poetry and install
       uses: ./.github/actions/setup-poetry
       with:

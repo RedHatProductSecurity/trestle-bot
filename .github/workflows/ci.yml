@@ -75,4 +75,6 @@ jobs:
     permissions:
       contents: read
     steps:
-    - uses: ./.github/actions/e2e-testing
+      - name: Check out
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/e2e-testing
