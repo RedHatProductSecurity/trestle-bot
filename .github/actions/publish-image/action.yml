@@ -15,6 +15,10 @@ inputs:
     description: Skip using cache when building the image.
     required: false
     default: "false"
+  skip_tests:
+    description: Skip pre-push testing
+    required: false
+    default: "false"
 outputs:
   image_sha:
     value: ${{ inputs.image }}@${{ steps.build-and-push.outputs.digest }}
@@ -64,6 +68,13 @@ runs:
         skip-files:  "**/.venv/lib/**/METADATA"
         scanners: secret
         severity: HIGH,CRITICAL,MEDIUM
+    
+    - name: Pre-push testing
+      if: ${{ inputs.skip_tests == 'false' }}
+      uses: ./.github/actions/e2e-testing
+      with:
+        image: "docker-daemon:${{ inputs.image }}:${{ steps.meta.outputs.version }}"
+        build: false
 
     # Does not rebuild. Uses internal cache from previous step.
     - name: Build and Push

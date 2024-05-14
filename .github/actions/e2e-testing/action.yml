@@ -1,0 +1,40 @@
+name: "e2e-testing"
+description: "Composite action for trestle-bot end-to-end tests."
+
+inputs:
+    build:
+      description: "Whether to build the image before testing."
+      required: false
+      default: "true"
+    image:
+      description: |
+        "Name of the trestlebot image you want to test if pre-existing. Required if build is false."
+      required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check out
+      uses: actions/checkout@v4
+
+    - name: Set up poetry and install
+      uses: ./.github/actions/setup-poetry
+      with:
+        python-version: "3.9"
+
+    # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+    - name: Pull the image
+      if: ${{ inputs.build == 'false' }}
+      run: |
+          podman pull "${IMAGE}"
+          echo "TRESTLEBOT_IMAGE=$(sed -e 's/^docker-daemon://' <<<${IMAGE})" >> "$GITHUB_ENV"
+
+          podman image exists $(sed -e 's/^docker-daemon://' <<<${IMAGE})
+      env:
+        IMAGE: ${{ inputs.image }}
+      shell: bash
+
+    - name: Run tests
+      run: make test-e2e
+      shell: bash
+  
