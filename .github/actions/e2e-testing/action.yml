@@ -25,8 +25,6 @@ runs:
       run: |
           podman pull "${IMAGE}"
           echo "TRESTLEBOT_IMAGE=$(sed -e 's/^docker-daemon://' <<<${IMAGE})" >> "$GITHUB_ENV"
-
-          podman image exists $(sed -e 's/^docker-daemon://' <<<${IMAGE})
       env:
         IMAGE: ${{ inputs.image }}
       shell: bash
