@@ -2,7 +2,11 @@ version: 2
 updates:
 
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directories:
+      - '/'
+      - '/.github/actions/e2e-testing'
+      - '/.github/actions/publish-image'
+      - '/.github/actions/setup-poetry'
     schedule:
       interval: "daily"
     commit-message:
