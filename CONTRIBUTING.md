@@ -201,9 +201,9 @@ Once work on a release has been completed:
 
 1. Select the new release number. Use the principles of [semantic versioning](https://semver.org/) to select the new release number.
 2. Follow the GitHub documentation on creating a [release](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#creating-a-release).
-3. Once the release is published the [`publish`](./.github/workflows/publish.yml) workflow with be triggered. An image will be built tested, and published to `quay.io`. This process also signs and verifies the image wtih [`cosign`](https://github.com/sigstore/cosign).
+3. Once the release is published, the [`publish`](./.github/workflows/publish.yml) workflow will be triggered. An image will be built, tested, and published to `quay.io`. This process also signs and verifies the image with [`cosign`](https://github.com/sigstore/cosign).
 
 - Initial releases will have a `major` tag (if stable), `major`.`minor`, and the full version.
-- The latest release will be rebuilt every thirty days to pull in base image updated. The same tags will
-be published with the addtion of `full-version`.`date` tag.
+- The latest release will be rebuilt every thirty days to pull in base image updates. The same tags will
+be published with the addition of `full-version`.`date` tag.
 - Images can be built adhoc for testing purposes with the `workflow_dispatch` trigger.
