@@ -145,8 +145,9 @@ def setup_for_ssp(
         verbose=0,
         overwrite_header_values=False,
         yaml_header=None,
+        allowed_sections=None,
         force_overwrite=None,
-        leveraged_ssp="",
+        leveraged_ssp=None,
     )
 
     return args
@@ -173,6 +174,9 @@ def setup_for_profile(
         yaml_header=None,
         overwrite_header_values=False,
         force_overwrite=None,
+        sections=None,
+        required_sections=None,
+        allowed_sections=None,
     )
 
     return args

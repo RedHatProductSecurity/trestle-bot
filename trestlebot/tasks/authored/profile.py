@@ -51,6 +51,9 @@ class AuthoredProfile(AuthoredObjectBase):
                 set_parameters=True,
                 regenerate=False,
                 version=version_tag,
+                sections=None,
+                required_sections=None,
+                allowed_sections=None,
             )
             if not success:
                 raise AuthoredObjectException(
@@ -72,6 +75,8 @@ class AuthoredProfile(AuthoredObjectBase):
                 force_overwrite=False,
                 yaml_header=None,
                 overwrite_header_values=False,
+                sections=None,
+                required_sections=None,
             )
             if not success:
                 raise AuthoredObjectException(
