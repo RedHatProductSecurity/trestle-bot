@@ -51,9 +51,6 @@ class AuthoredProfile(AuthoredObjectBase):
                 set_parameters=True,
                 regenerate=False,
                 version=version_tag,
-                sections="",
-                required_sections="",
-                allowed_sections="",
             )
             if not success:
                 raise AuthoredObjectException(
@@ -73,10 +70,8 @@ class AuthoredProfile(AuthoredObjectBase):
                 name=profile,
                 output=os.path.join(markdown_path, profile),
                 force_overwrite=False,
-                yaml_header="",
+                yaml_header=None,
                 overwrite_header_values=False,
-                sections="",
-                required_sections="",
             )
             if not success:
                 raise AuthoredObjectException(
