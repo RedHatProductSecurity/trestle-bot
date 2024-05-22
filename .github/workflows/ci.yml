@@ -10,7 +10,7 @@ on:
     - main
 
 concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
+  group: ${{ github.ref }}-${{ github.workflow }}-ci
   cancel-in-progress: true
 
 jobs:
@@ -70,11 +70,11 @@ jobs:
       - name: Run tests
         run: make test
 
-  # Image is for testing and not pushing to a registry
   e2e-test:
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-    uses: ./.github/workflows/e2e.yml
-    with:
-      image: localhost/trestle-bot:${{ github.sha }}
-      build: true
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/e2e-testing

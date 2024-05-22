@@ -84,7 +84,7 @@ class E2ETestRunner:
     def _image_exists(image_name: str) -> bool:
         """Check if the image already exists."""
         try:
-            subprocess.check_output(["podman", "image", "inspect", image_name])
+            subprocess.check_output(["podman", "image", "exists", image_name])
             return True
         except subprocess.CalledProcessError:
             return False
