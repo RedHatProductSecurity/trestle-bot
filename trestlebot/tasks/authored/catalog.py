@@ -59,7 +59,7 @@ class AuthoredCatalog(AuthoredObjectBase):
                 name=catalog,
                 output=os.path.join(markdown_path, catalog),
                 force_overwrite=False,
-                yaml_header="",
+                yaml_header=None,
                 overwrite_header_values=False,
             )
             if not success:
