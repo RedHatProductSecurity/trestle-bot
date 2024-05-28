@@ -26,6 +26,7 @@ Before you start contributing, please take a moment to read through the guide be
       - [Running tests with make](#running-tests-with-make)
       - [Run with poetry](#run-with-poetry)
       - [Local testing](#local-testing)
+    - [Release Process](#release-process)
 
 
 ## How To Contribute
