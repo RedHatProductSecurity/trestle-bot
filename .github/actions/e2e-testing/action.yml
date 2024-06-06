@@ -2,14 +2,14 @@ name: "e2e-testing"
 description: "Composite action for trestle-bot end-to-end tests."
 
 inputs:
-    build:
-      description: "Whether to build the image before testing."
-      required: false
-      default: "true"
-    image:
-      description: |
-        "Name of the trestlebot image you want to test if pre-existing. Required if build is false."
-      required: false
+  build:
+    description: "Whether to build the image before testing."
+    required: false
+    default: "true"
+  image:
+    description: |
+      "Name of the trestlebot image you want to test if pre-existing. Required if build is false."
+    required: false
 
 runs:
   using: "composite"
@@ -23,8 +23,8 @@ runs:
     - name: Pull the image
       if: ${{ inputs.build == 'false' }}
       run: |
-          podman pull "${IMAGE}"
-          echo "TRESTLEBOT_IMAGE=$(sed -e 's/^docker-daemon://' <<<${IMAGE})" >> "$GITHUB_ENV"
+        podman pull "${IMAGE}"
+        echo "TRESTLEBOT_IMAGE=$(sed -e 's/^docker-daemon://' <<<${IMAGE})" >> "$GITHUB_ENV"
       env:
         IMAGE: ${{ inputs.image }}
       shell: bash
@@ -32,4 +32,3 @@ runs:
     - name: Run tests
       run: make test-e2e
       shell: bash
-  
