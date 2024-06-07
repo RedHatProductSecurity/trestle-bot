@@ -7,9 +7,9 @@ inputs:
     description: "The poetry version to use"
     default: "1.7.1"
   python-version:
-     required: false
-     description: "The python version to use"
-     default: "3.11"
+    required: false
+    description: "The python version to use"
+    default: "3.11"
 
 runs:
   using: "composite"
@@ -19,7 +19,7 @@ runs:
       shell: bash
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # pin@v5
       with:
         python-version: ${{ inputs.python-version }}
         cache: poetry
