@@ -49,7 +49,7 @@ runs:
           latest=false
     
     - name: Build and export to Docker
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       id: build-and-export
       with:
         context: "${{ github.server_url }}/${{ github.repository }}.git#${{ inputs.git_ref }}"
@@ -78,7 +78,7 @@ runs:
 
     # Does not rebuild. Uses internal cache from previous step.
     - name: Build and Push
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       id: build-and-push
       with:
         context: "${{ github.server_url }}/${{ github.repository }}.git#${{ inputs.git_ref }}"
