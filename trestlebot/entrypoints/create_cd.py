@@ -45,18 +45,18 @@ class CreateCDEntrypoint(EntrypointBase):
         """Setup specific arguments for this entrypoint."""
         self.parser.add_argument(
             "--profile-name",
-            required=True,
+            required=False,
             help="Name of profile in the trestle workspace to use with the component definition.",
         )
         self.parser.add_argument(
             "--compdef-name", required=True, help="Name of component definition"
         )
         self.parser.add_argument(
-            "--component-title", required=True, help="Title of initial component"
+            "--component-title", required=False, help="Title of initial component"
         )
         self.parser.add_argument(
             "--component-description",
-            required=True,
+            required=False,
             help="Description of initial component",
         )
         self.parser.add_argument(
@@ -92,11 +92,49 @@ class CreateCDEntrypoint(EntrypointBase):
             help="Optionally filter the controls in the component definition by a profile.",
         )
 
+        self._setup_validation_component_args()
+
+    def _setup_validation_component_args(self) -> None:
+        """Adds arguments for creating validation component definitions."""
+        validation_cd_arg_group = self.parser.add_argument_group(
+            "required arguments for creating a validation component definition"
+        )
+        validation_cd_arg_group.add_argument(
+            "--product-component-definition",
+            type=argparse.FileType("r"),
+            required=False,
+            help="Existing product component definition file.",
+        )
+        validation_cd_arg_group.add_argument(
+            "--product-component-title",
+            required=False,
+            help="Existing product component to map to validation component.",
+        )
+
+    def validate_args(self, args: argparse.Namespace) -> None:
+        """Validates arguments passed to the CLI."""
+        required_args = ["profile_name", "component_title", "component_description"]
+
+        if args.component_definition_type == "validation":
+            required_args = ["product_component_definition"]
+
+        missing_args = []
+        for arg in required_args:
+            if vars(args).get(arg) is None:
+                missing_args.append(arg)
+
+        if len(missing_args) > 0:
+            # produce an error that matches the default argparse format
+            formatted_args = [f"--{i.replace('_', '-')}" for i in missing_args]
+            args_msg = ", ".join(formatted_args)
+            self.parser.error(f"the following arguments are required: {args_msg}")
+
     def run(self, args: argparse.Namespace) -> None:
         """Run the entrypoint."""
         exit_code: int = SUCCESS_EXIT_CODE
         try:
             set_log_level_from_args(args)
+            self.validate_args(args)
             pre_tasks: List[TaskBase] = []
             filter_by_profile: Optional[FilterByProfile] = None
             trestle_root: pathlib.Path = pathlib.Path(args.working_dir)
