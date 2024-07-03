@@ -4,10 +4,10 @@ name: CI
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
-    branches: 
-    - main
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-ci
@@ -21,34 +21,34 @@ jobs:
       issues: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
 
       - name: MegaLinter
         id: ml
-        uses: oxsecurity/megalinter@v7
+        uses: oxsecurity/megalinter@5199c6377b4cb7faff749a1971636f3343db9fe6 # pin@v7
         env:
           VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
   project_checks:
     name: Run project checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
+
       - name: Set up poetry and install
         uses: ./.github/actions/setup-poetry
 
       - name: Pre-commit install
         run: make pre-commit
-      
+
       - name: Run linting checks
         run: make lint
-      
+
       - name: Run security checks
         run: make security-check
-      
+
       - name: Check dependencies
         run: make dep-cve-check
 
@@ -56,12 +56,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
       fail-fast: false
     steps:
       - name: Check out
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
+
       - name: Set up poetry and install
         uses: ./.github/actions/setup-poetry
         with:
@@ -76,5 +76,5 @@ jobs:
       contents: read
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
       - uses: ./.github/actions/e2e-testing

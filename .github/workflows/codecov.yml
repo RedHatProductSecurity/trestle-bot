@@ -9,14 +9,13 @@ on:
     paths:
       - '**.py'
 
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
+
       - name: Set up poetry and install
         uses: ./.github/actions/setup-poetry
         with:
@@ -24,9 +23,9 @@ jobs:
 
       - name: Run tests
         run: make test-code-cov
-      
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # pin@v4
         with:
           name: coverage
           path: coverage.xml
@@ -36,28 +35,23 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # pin@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Get coverage
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # pin@v4
         with:
           name: coverage
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9
+        uses: SonarSource/sonarcloud-github-action@49e6cd3b187936a73b8280d59ffd9da69df63ec9 # pin@49e6cd3b187936a73b8280d59ffd9da69df63ec9
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.tests=tests/
-            -Dsonar.sources=trestlebot/ 
-            -Dsonar.python.version=3.10
-            -Dsonar.projectKey=rh-psce_trestle-bot
-            -Dsonar.organization=rh-psce
+            -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.tests=tests/ -Dsonar.sources=trestlebot/  -Dsonar.python.version=3.10 -Dsonar.projectKey=rh-psce_trestle-bot -Dsonar.organization=rh-psce
       - name: SonarQube Quality Gate check
-        uses: sonarsource/sonarqube-quality-gate-action@f9fe214a5be5769c40619de2fff2726c36d2d5eb
+        uses: sonarsource/sonarqube-quality-gate-action@f9fe214a5be5769c40619de2fff2726c36d2d5eb # pin@f9fe214a5be5769c40619de2fff2726c36d2d5eb
         # Force to fail step after specific time
         timeout-minutes: 5
         env:
