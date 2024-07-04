@@ -7,7 +7,7 @@
 import argparse
 import logging
 import pathlib
-from tempfile import TemporaryDirectory
+import tempfile
 from typing import Any, Dict, Generator, Tuple, TypeVar
 
 import pytest
@@ -36,23 +36,23 @@ _TEST_PREFIX = "trestlebot_tests"
 @pytest.fixture(scope="function")
 def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
     """Create a temporary git repository with an initialized trestle workspace root"""
-    with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
-        tmp_path = pathlib.Path(tmpdir)
-        repo: Repo = repo_setup(tmp_path)
-        remote_url = "http://localhost:8080/test.git"
-        repo.create_remote("origin", url=remote_url)
-        yield tmpdir, repo
+    tmpdir = tempfile.mkdtemp(prefix=_TEST_PREFIX)
+    tmp_path = pathlib.Path(tmpdir)
+    repo: Repo = repo_setup(tmp_path)
+    remote_url = "http://localhost:8080/test.git"
+    repo.create_remote("origin", url=remote_url)
+    yield tmpdir, repo
 
-        try:
-            clean(tmpdir, repo)
-        except Exception as e:
-            logging.error(f"Failed to clean up temporary git repository: {e}")
+    try:
+        clean(tmpdir, repo)
+    except Exception as e:
+        logging.error(f"Failed to clean up temporary git repository: {e}")
 
 
 @pytest.fixture(scope="function")
 def tmp_trestle_dir() -> YieldFixture[str]:
     """Create an initialized temporary trestle directory"""
-    with TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
+    with tempfile.TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
         tmp_path = pathlib.Path(tmpdir)
         try:
             args = argparse.Namespace(

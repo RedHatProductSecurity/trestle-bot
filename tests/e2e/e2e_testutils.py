@@ -144,7 +144,8 @@ class E2ETestRunner:
             E2ETestRunner.TRESTLEBOT_TEST_POD_NAME,
             "--entrypoint",
             f"trestlebot-{command_name}",
-            "--rm",
+            "--restart",
+            "never",
         ]
 
         # Add mounts
