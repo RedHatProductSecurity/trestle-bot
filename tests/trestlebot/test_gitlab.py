@@ -12,7 +12,6 @@ from git.repo import Repo
 from gitlab.exceptions import GitlabAuthenticationError, GitlabCreateError
 from responses import GET, POST, RequestsMock
 
-from tests.testutils import clean
 from trestlebot.gitlab import GitLab, GitLabCIResultsReporter
 from trestlebot.provider import GitProviderException
 from trestlebot.reporter import BotResults
@@ -85,8 +84,6 @@ def test_parse_repository_integration(tmp_repo: Tuple[str, Repo]) -> None:
 
     assert owner == "test"
     assert repo_name == "repo"
-
-    clean(repo_path, repo)
 
 
 def test_parse_repository_with_incorrect_name() -> None:

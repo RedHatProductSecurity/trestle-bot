@@ -13,7 +13,7 @@ import pytest
 from git.repo import Repo
 from responses import GET, POST, RequestsMock
 
-from tests.testutils import JSON_TEST_DATA_PATH, clean
+from tests.testutils import JSON_TEST_DATA_PATH
 from trestlebot.github import GitHub, GitHubActionsResultsReporter, set_output
 from trestlebot.provider import GitProviderException
 from trestlebot.reporter import BotResults
@@ -49,8 +49,6 @@ def test_parse_repository_integration(tmp_repo: Tuple[str, Repo]) -> None:
 
     assert owner == "test"
     assert repo_name == "repo"
-
-    clean(repo_path, repo)
 
 
 def test_parse_repository_with_incorrect_name() -> None:

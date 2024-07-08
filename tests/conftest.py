@@ -5,7 +5,6 @@
 """Common test fixtures."""
 
 import argparse
-import logging
 import pathlib
 import tempfile
 from typing import Any, Dict, Generator, Tuple, TypeVar
@@ -42,11 +41,7 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
     remote_url = "http://localhost:8080/test.git"
     repo.create_remote("origin", url=remote_url)
     yield tmpdir, repo
-
-    try:
-        clean(tmpdir, repo)
-    except Exception as e:
-        logging.error(f"Failed to clean up temporary git repository: {e}")
+    clean(tmpdir, repo)
 
 
 @pytest.fixture(scope="function")
