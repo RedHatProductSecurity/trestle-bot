@@ -104,9 +104,8 @@ def test_sync_upstream_invalid_git(
 ) -> None:
     """Test sync upstreams task with invalid git source"""
     tmp_repo_path, _ = tmp_repo
-    # Now remove the git repo
-    shutil.rmtree(tmp_repo_path)
-    sync = SyncUpstreamsTask(tmp_trestle_dir, [f"{tmp_repo_path}@main"])
+    new_path = f"{tmp_repo_path}1"
+    sync = SyncUpstreamsTask(tmp_trestle_dir, [f"{new_path}@main"])
     with pytest.raises(
         TaskException, match="Git error occurred while fetching content from .*"
     ):
