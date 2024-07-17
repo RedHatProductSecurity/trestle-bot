@@ -32,7 +32,7 @@ compliance-trestle = "^3.3.0"
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"
-pydantic = '^2.0.0'
+pydantic = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.0.0"
