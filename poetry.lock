@@ -1632,18 +1632,18 @@ test = ["mypy", "pyaml", "pytest", "toml", "types-PyYAML", "types-toml"]
 
 [[package]]
 name = "python-gitlab"
-version = "4.4.0"
+version = "4.8.0"
 description = "A python wrapper for the GitLab API"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "python-gitlab-4.4.0.tar.gz", hash = "sha256:1d117bf7b433ae8255e5d74e72c660978f50ee85eb62248c9fb52ef43c3e3814"},
-    {file = "python_gitlab-4.4.0-py3-none-any.whl", hash = "sha256:cdad39d016f59664cdaad0f878f194c79cb4357630776caa9a92c1da25c8d986"},
+    {file = "python_gitlab-4.8.0-py3-none-any.whl", hash = "sha256:89d7e24ff8fcb2b6845f1379350d0e0cdfbdae42b824bc4fa194c5a7a9a774bc"},
+    {file = "python_gitlab-4.8.0.tar.gz", hash = "sha256:c2c4d7b1cd503d905afe5dfc0f3f6619934361f76ae855c6cec9a666864d37cf"},
 ]
 
 [package.dependencies]
-requests = ">=2.25.0"
-requests-toolbelt = ">=0.10.1"
+requests = ">=2.32.0"
+requests-toolbelt = ">=1.0.0"
 
 [package.extras]
 autocompletion = ["argcomplete (>=1.10.0,<3)"]
@@ -2086,4 +2086,4 @@ test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8.1"
-content-hash = "ce8a840abe8747af22a2cf883fc85b896ff2fee8861da82226b021fb745dc5a2"
+content-hash = "88aee458a8f0fd9268c80072802340dc65218be9a0bf428507d9d791a958b17a"
