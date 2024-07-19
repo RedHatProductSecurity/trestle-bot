@@ -9,7 +9,7 @@ import pathlib
 
 from trestle.common.model_utils import ModelUtils
 from trestle.core.models.file_content_type import FileContentType
-from trestle.oscal.profile import Method, Profile
+from trestle.oscal.profile import CombinationMethodValidValues, Profile
 
 from tests import testutils
 from trestlebot.tasks.authored.profile import AuthoredProfile
@@ -37,7 +37,7 @@ def test_create_new_default(tmp_trestle_dir: str) -> None:
 
     assert prof.merge is not None
     assert prof.merge.combine is not None
-    assert prof.merge.combine.method is Method.merge
+    assert prof.merge.combine.method is CombinationMethodValidValues.merge
 
     assert prof.imports is not None
     assert prof.imports[0].include_all is not None
@@ -62,7 +62,7 @@ def test_create_new_default_existing(tmp_trestle_dir: str) -> None:
 
     assert prof.merge is not None
     assert prof.merge.combine is not None
-    assert prof.merge.combine.method is Method.merge
+    assert prof.merge.combine.method is CombinationMethodValidValues.merge
 
     assert prof.imports is not None
     assert prof.imports[0].include_all is not None

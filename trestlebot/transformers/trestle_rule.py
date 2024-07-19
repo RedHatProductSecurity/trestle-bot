@@ -10,9 +10,16 @@ required for the rule to be valid.
 """
 
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+)
 
 from trestlebot import const
 
@@ -25,13 +32,13 @@ class Parameter(BaseModel):
     alternative_values: Dict[str, str] = Field(..., alias="alternative-values")
     default_value: str = Field(..., alias="default-value")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
-    @validator("default_value", pre=False)
-    def check_default_value(cls, value: str, values: Dict[str, Any]) -> str:
+    @field_validator("default_value", mode="after")
+    @classmethod
+    def check_default_value(cls, value: str, info: ValidationInfo) -> str:
         """Check if default value is in the alternative values."""
-        alternative_values: Dict[str, str] = values.get("alternative_values", {})
+        alternative_values: Dict[str, str] = info.data.get("alternative_values", {})
         if not alternative_values:
             raise ValueError("Alternative values must be provided")
 
@@ -72,8 +79,7 @@ class Profile(BaseModel):
     href: str
     include_controls: List[Control] = Field(..., alias="include-controls")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ComponentInfo(BaseModel):
@@ -90,8 +96,7 @@ class Check(BaseModel):
     name: str
     description: str
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class TrestleRule(BaseModel):
@@ -101,8 +106,8 @@ class TrestleRule(BaseModel):
     description: str
     component: ComponentInfo
     profile: Profile
-    check: Optional[Check]
-    parameter: Optional[Parameter]
+    check: Optional[Check] = Field(default=None)
+    parameter: Optional[Parameter] = Field(default=None)
 
 
 def get_default_rule() -> TrestleRule:

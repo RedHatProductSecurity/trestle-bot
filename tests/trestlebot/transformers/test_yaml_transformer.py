@@ -78,7 +78,7 @@ def test_rules_transform_with_invalid_rule() -> None:
     transformer = ToRulesYAMLTransformer()
 
     with pytest.raises(
-        RulesTransformerException, match=".*value is not a valid dict.*"
+        RulesTransformerException, match=".*Input should be a valid dictionary.*"
     ):
         transformer.transform(rule_file_info)
 
@@ -106,9 +106,9 @@ def test_rules_transform_with_additional_validation() -> None:
     transformer = ToRulesYAMLTransformer()
 
     expected_error = """2 error(s) found:
-Location: description, Type: value_error.missing, Message: field required
-Location: default-value, Type: value_error, Message: Default value 5% must be in the alternative \
-values dict_values(['10%', '10%', '20%'])"""
+Location: description, Type: missing, Message: Field required
+Location: default-value, Type: value_error, Message: Value error, Default value 5% must be in the \
+alternative values dict_values(['10%', '10%', '20%'])"""
 
     with pytest.raises(
         RulesTransformerException,
