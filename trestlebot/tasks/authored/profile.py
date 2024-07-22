@@ -137,7 +137,7 @@ class AuthoredProfile(AuthoredObjectBase):
         # Set up default values for merge settings.
         merge_object: prof.Merge = gens.generate_sample_model(prof.Merge)
         combine_object: prof.Combine = gens.generate_sample_model(prof.Combine)
-        combine_object.method = prof.Method.merge
+        combine_object.method = prof.CombinationMethodValidValues.merge
         merge_object.combine = combine_object
         merge_object.as_is = True
 

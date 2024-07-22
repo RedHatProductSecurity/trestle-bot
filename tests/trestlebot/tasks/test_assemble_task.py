@@ -13,7 +13,7 @@ import pytest
 from trestle.common.model_utils import ModelUtils
 from trestle.core.commands.author.catalog import CatalogGenerate
 from trestle.core.commands.author.component import ComponentGenerate
-from trestle.core.commands.author.profile import ProfileGenerate
+from trestle.core.commands.author.prof import ProfileGenerate
 from trestle.core.commands.author.ssp import SSPGenerate
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal import catalog as oscal_cat
