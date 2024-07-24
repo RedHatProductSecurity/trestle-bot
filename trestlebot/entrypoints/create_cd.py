@@ -15,6 +15,7 @@ import argparse
 import logging
 import pathlib
 import sys
+import traceback
 from typing import List, Optional
 
 from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, SUCCESS_EXIT_CODE
@@ -143,7 +144,8 @@ class CreateCDEntrypoint(EntrypointBase):
 
             super().run_base(args, pre_tasks)
         except Exception as e:
-            exit_code = handle_exception(e)
+            traceback_str = traceback.format_exc()
+            exit_code = handle_exception(e, traceback_str)
 
         sys.exit(exit_code)
 
