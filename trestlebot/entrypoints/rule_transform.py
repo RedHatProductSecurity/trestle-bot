@@ -9,14 +9,16 @@ import logging
 import sys
 from typing import List
 
-from trestlebot.const import SUCCESS_EXIT_CODE
+from trestlebot.const import RULES_VIEW_DIR, SUCCESS_EXIT_CODE
 from trestlebot.entrypoints.entrypoint_base import (
     EntrypointBase,
     comma_sep_to_list,
     handle_exception,
 )
 from trestlebot.entrypoints.log import set_log_level_from_args
+from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
+from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
@@ -36,10 +38,17 @@ class RulesTransformEntrypoint(EntrypointBase):
     def setup_rules_transformation_arguments(self) -> None:
         """Setup arguments for the rule transformer entrypoint."""
         self.parser.add_argument(
-            "--rules-view-path",
+            "--markdown-path",
             required=True,
             type=str,
+            help="Path to create markdown files in.",
+        )
+        self.parser.add_argument(
+            "--rules-view-path",
+            required=False,
+            type=str,
             help="Path to top-level rules-view directory",
+            default=RULES_VIEW_DIR,
         )
         self.parser.add_argument(
             "--skip-items",
@@ -68,7 +77,13 @@ class RulesTransformEntrypoint(EntrypointBase):
                 rule_transformer=transformer,
                 model_filter=model_filter,
             )
-            pre_tasks: List[TaskBase] = [rule_transform_task]
+            regenerate_task: RegenerateTask = RegenerateTask(
+                markdown_dir=args.markdown_path,
+                authored_object=AuthoredComponentDefinition(args.working_dir),
+                model_filter=model_filter,
+            )
+
+            pre_tasks: List[TaskBase] = [rule_transform_task, regenerate_task]
 
             super().run_base(args, pre_tasks)
         except Exception as e:

@@ -13,6 +13,9 @@ name: Example Workflow
       - name: Run trestlebot
         id: trestlebot
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
+        with:
+          markdown_path: "markdown/components"
+          
 ```
 
 With custom rules directory:
@@ -24,6 +27,7 @@ With custom rules directory:
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
       with:
+        markdown_path: "markdown/components"
         rules_view_path: "custom-rules-dir/"
   ```
 
@@ -32,6 +36,7 @@ With custom rules directory:
 <!-- START_ACTION_INPUTS -->
 | Name | Description | Default | Required |
 | --- | --- | --- | --- |
+| markdown_path | Path relative to the repository path to create markdown files. See action README.md for more information. | None | True |
 | rules_view_path | Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`. | rules/ | False |
 | dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | "GitHub token used to make authenticated API requests. Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token." | None | False |
@@ -63,7 +68,7 @@ With custom rules directory:
 
 ## Action Behavior
 
-The purpose of this action is to sync the rules view data in YAML to OSCAL with `compliance-trestle` and commit changes back to the branch or submit a pull request (if desired). Below are the main use-cases/workflows available:
+The purpose of this action is to sync the rules view data in YAML to OSCAL with `compliance-trestle` and generation corresponding Markdown and commit changes back to the branch or submit a pull request (if desired). Below are the main use-cases/workflows available:
 
 - The default behavior of this action is to run the rules transformation and commit the changes back to the branch the workflow ran from ( `github.ref_name` ). The branch can be changed by setting the field `branch`. If no changes exist or the changes do not exist with the file pattern set, no changes will be made and the action will exit successfully.
 

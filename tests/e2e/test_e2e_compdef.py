@@ -36,6 +36,7 @@ test_comp_name = "test_comp"
             "success/happy path",
             {
                 "branch": "test",
+                "markdown-path": "md_comp",
                 "rules-view-path": RULES_VIEW_DIR,
                 "committer-name": "test",
                 "committer-email": "test@email.com",
@@ -46,6 +47,7 @@ test_comp_name = "test_comp"
             {
                 "branch": "test",
                 "rules-view-path": RULES_VIEW_DIR,
+                "markdown-path": "md_comp",
                 "committer-name": "test",
                 "committer-email": "test",
                 "skip-items": test_comp_name,
@@ -82,6 +84,7 @@ def test_rules_transform_e2e(
             tmp_repo_path, test_comp_name, ComponentDefinition, FileContentType.JSON
         )
         assert comp_path.exists()
+        assert tmp_repo_path.joinpath("md_comp").exists()
         assert f"input: {test_comp_name}.csv" in response_stdout
     branch = command_args["branch"]
     assert f"Changes pushed to {branch} successfully." in response_stdout
