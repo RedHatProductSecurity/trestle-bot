@@ -16,7 +16,7 @@ x-trestle-rule-info:
     description: My check description
   profile:
     description: Simple NIST Profile
-    href: profiles/simplified_nist_profile/profile.json
+    href: trestle://profiles/simplified_nist_profile/profile.json
     include-controls:
       - id: ac-1
 x-trestle-component-info:
