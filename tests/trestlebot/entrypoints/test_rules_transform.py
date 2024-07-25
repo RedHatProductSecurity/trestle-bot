@@ -33,14 +33,23 @@ def test_rules_transform(
     tmp_repo: Tuple[str, Repo], valid_args_dict: Dict[str, str]
 ) -> None:
     """Test rules transform on a happy path."""
-    repo_path, _ = tmp_repo
+    repo_path_str, repo = tmp_repo
 
     args_dict = valid_args_dict
-    args_dict["working-dir"] = repo_path
+    args_dict["working-dir"] = repo_path_str
+    args_dict["markdown-path"] = test_md
 
-    _ = setup_for_compdef(pathlib.Path(repo_path), test_comp_name, test_md)
-    setup_rules_view(pathlib.Path(repo_path), test_comp_name)
+    repo_path = pathlib.Path(repo_path_str)
+
+    _ = setup_for_compdef(repo_path, test_comp_name, test_md)
+    setup_rules_view(repo_path, test_comp_name)
+
+    assert not repo_path.joinpath(test_md).exists()
 
     with patch("sys.argv", ["trestlebot", "--dry-run", *args_dict_to_list(args_dict)]):
         with pytest.raises(SystemExit, match="0"):
             cli_main()
+
+    assert repo_path.joinpath(test_md).exists()
+    commit = next(repo.iter_commits())
+    assert len(commit.stats.files) == 9
