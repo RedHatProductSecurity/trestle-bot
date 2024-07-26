@@ -13,6 +13,7 @@ import argparse
 import logging
 import pathlib
 import sys
+import traceback
 from typing import List
 
 from trestlebot.const import SUCCESS_EXIT_CODE
@@ -120,7 +121,8 @@ class CreateSSPEntrypoint(EntrypointBase):
 
             super().run_base(args, pre_tasks)
         except Exception as e:
-            exit_code = handle_exception(e)
+            traceback_str = traceback.format_exc()
+            exit_code = handle_exception(e, traceback_str)
 
         sys.exit(exit_code)
 

@@ -9,6 +9,7 @@ set_git_safe_directory
 
 # Initialize the command variable
 command="trestlebot-rules-transform \
+        --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
         --rules-view-path=\"${INPUT_RULES_VIEW_PATH}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
         --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \

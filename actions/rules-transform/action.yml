@@ -1,8 +1,11 @@
 name: "trestle-bot-rules-transform"
 author: "Red Hat Product Security"
-description: "A rules transform action to convert trestle rules in YAML format to OSCAL"
+description: "A rules transform action to convert trestle rules in YAML format to OSCAL and propagates changes to Markdown."
 
 inputs:
+  markdown_path: 
+    description: Path relative to the repository path to create markdown files. See action README.md for more information.
+    required: true
   rules_view_path: 
     description: Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`.
     required: false
