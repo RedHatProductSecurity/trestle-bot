@@ -8,14 +8,14 @@ updates:
       - '/.github/actions/publish-image'
       - '/.github/actions/setup-poetry'
     schedule:
-      interval: "daily"
+      interval: "weekly"
     commit-message:
       prefix: ":arrow_up:"
 
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     allow:
       - dependency-type: "all"
     commit-message:
