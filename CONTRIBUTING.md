@@ -16,6 +16,7 @@ Before you start contributing, please take a moment to read through the guide be
       - [Components](#components)
       - [Code structure](#code-structure)
     - [Documentation](#documentation)
+      - [Architecture Decisions](#architecture-decisions)
       - [Update the `actions` files](#update-the-actions-files)
     - [License Text in Files](#license-text-in-files)
     - [Tools](#tools)
@@ -60,7 +61,7 @@ For a reproducible development environment, we use Dev Containers. See [devconta
 
 ### How It Works
 
-For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` folder.
+For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` folder.
 
 #### Components
 
@@ -79,6 +80,10 @@ For workflow diagrams, see the [diagrams](./docs/diagrams/) under the `docs` fol
 
 
 ### Documentation
+
+#### Architecture Decisions
+
+We document decisions using [Architectural Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions). The team will decide when an ADR will be put in place, but this is generally done to document impactful architectural decisions. [`adr-tools`](https://github.com/npryce/adr-tools) can be used to manage ADRs in the repository located under `docs/architecture/decisions`.
 
 #### Update the `actions` files
 
