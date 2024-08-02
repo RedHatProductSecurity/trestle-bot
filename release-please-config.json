@@ -1,0 +1,33 @@
+{
+    "packages": {
+        ".": {
+            "release-type": "python",
+            "include-v-in-tag": true,
+            "bump-minor-pre-major": true,
+            "draft": true,
+            "changelog-path": "CHANGELOG.md",
+            "changelog-sections": [
+                {
+                    "type": "feat",
+                    "section": "Features",
+                    "hidden": false
+                },
+                {
+                    "type": "fix",
+                    "section": "Bug Fixes",
+                    "hidden": false
+                },
+                {
+                    "type": "chore",
+                    "section": "Maintenance",
+                    "hidden": false
+                },
+                {
+                    "ci": "ci",
+                    "section": "Infrastructure",
+                    "hidden": false
+                }
+            ]
+        }
+    }
+}
