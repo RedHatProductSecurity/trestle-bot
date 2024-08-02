@@ -1,0 +1,25 @@
+name: Lint PR title
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+    branches:
+      - 'main'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
+
+    - name: Install dependencies
+      run: npm install @commitlint/cli @commitlint/config-conventional
+
+    - name: Validate PR title
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: echo "$PR_TITLE" | npx commitlint --config commitlint.config.js
