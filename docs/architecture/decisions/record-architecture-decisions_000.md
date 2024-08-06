@@ -1,10 +1,8 @@
-# 1. Record architecture decisions
-
-Date: 2024-07-30
-
-## Status
-
-Accepted
+---
+x-trestle-template-version: 0.0.1
+title: Record architecture decisions
+status: accepted #Valid statuses are deferred, rejected, withdrawn or replaced
+---
 
 ## Context
 
@@ -16,4 +14,4 @@ We will use Architecture Decision Records, as [described by Michael Nygard](http
 
 ## Consequences
 
-See Michael Nygard's article, linked above. For a lightweight ADR toolset, see Nat Pryce's [adr-tools](https://github.com/npryce/adr-tools).
+See Michael Nygard's article, linked above. `trestle` will be used to create and validate these decisions.
