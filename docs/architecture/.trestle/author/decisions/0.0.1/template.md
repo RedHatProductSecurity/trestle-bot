@@ -1,7 +1,7 @@
 ---
 x-trestle-template-version: 0.0.1
 title:
-status: accepted #Valid statuses are deferred, rejected, withdrawn or replaced
+status: proposed # Valid statuses are proposed, deferred, rejected, withdrawn or replaced
 ---
 
 ## Context

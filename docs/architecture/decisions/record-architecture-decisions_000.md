@@ -1,7 +1,7 @@
 ---
 x-trestle-template-version: 0.0.1
 title: Record architecture decisions
-status: accepted #Valid statuses are deferred, rejected, withdrawn or replaced
+status: accepted # Valid statuses are proposed, accepted, deferred, rejected, withdrawn, or replaced
 ---
 
 ## Context
