@@ -25,7 +25,7 @@ jobs:
 
       - name: MegaLinter
         id: ml
-        uses: oxsecurity/megalinter@5199c6377b4cb7faff749a1971636f3343db9fe6 # pin@v7
+        uses: oxsecurity/megalinter@bacb5f8674e3730b904ca4d20c8bd477bc51b1a7 # pin@v7
         env:
           VALIDATE_ALL_CODEBASE: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
