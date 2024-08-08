@@ -1,0 +1,27 @@
+
+name: Validate ADRs
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'docs/architecture/decisions'
+
+jobs:
+    validate:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout Code
+            uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
+
+          - name: Set up poetry and install
+            uses: ./.github/actions/setup-poetry
+            with:
+              python-version: '3.11'
+    
+          - name: Run validate adrs
+            run:  trestle author docs validate -tn decisions -hv -tr docs/architecture
+    
+
+
