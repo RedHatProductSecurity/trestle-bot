@@ -17,7 +17,7 @@ By specifying the git provider flags (i.e. `git-provider-type` and/or `git-serve
 
   **High Level Steps**
 
-  1. Run `crc setup` to ensure you system is properly configured
+  1. Run `crc setup` to ensure your system is properly configured
   2. Obtain your [pull secret](https://console.redhat.com/openshift/create/local)
   3. Initialize and start OpenShift [local](https://podman-desktop.io/docs/openshift/openshift-local)
   4. Get `oc` in your path by running `eval $(crc oc-env)`
