@@ -1,14 +1,14 @@
 # Jenkins Tutorial
 
 
-By specifying the git provider flags (i.e. `git-provider-type` and/or `git-server-url`) in `trestle-bot`, the application can be run in any CI tool can execute jobs in a container. Below we will explore how to use `trestle-bot` with [Jenkins](https://www.jenkins.io/).
+By specifying the git provider flags (i.e. `git-provider-type` and/or `git-server-url`) in `trestle-bot`, the application can be run in any CI tool that can execute jobs in a container environment. Below we will explore how to use `trestle-bot` with [Jenkins](https://www.jenkins.io/).
 
 <details markdown="block">
   <summary>Optionally set up a test environment</summary>
 
   **Prerequisites**
 
-  This tutorial will include how to stand up a local Jenkins environment for testing. To get started, ensure you have the following prerequisites: installed:
+  This tutorial will include how to stand up a local Jenkins environment for testing. To get started, ensure you have the following prerequisites installed:
 
   - [Podman](https://podman.io/docs/installation)
   - [OpenShift Local](https://docs.redhat.com/en/documentation/red_hat_openshift_local/2.18/html/getting_started_guide/installation_gsg)
