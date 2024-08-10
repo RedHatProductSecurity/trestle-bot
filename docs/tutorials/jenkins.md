@@ -27,7 +27,7 @@ By specifying the git provider flags (i.e. `git-provider-type` and/or `git-serve
 
 </details>
 
-### Build a basic [Jenkins Job Builder](https://docs.openstack.org/infra/jenkins-job-builder/) job template for trestle-bot
+## Build a basic [Jenkins Job Builder](https://docs.openstack.org/infra/jenkins-job-builder/) job template for trestle-bot
 
 1. Install `jenkins-job-builder`: `pip install --user jenkins-job-builder`
 2. [Configure](https://jenkins-job-builder.readthedocs.io/en/latest/execution.html) `jenkins-job-builder`
@@ -60,6 +60,31 @@ By specifying the git provider flags (i.e. `git-provider-type` and/or `git-serve
           git_repo: my-repo
           markdown: md_profiles
           model: profile
+```
+
+## Example with Groovy
+
+```groovy
+pipeline {
+    agent {
+        docker {
+            image 'quay.io/continuouscompliance/trestle-bot:v0.10'
+            args "-v ${WORKSPACE}:/trestle-workspace -w /trestle-workspace --entrypoint=''"
+            reuseNode true
+        }
+    }
+    stages {
+        stage('Autosync') {
+            parameters {
+                string(name: 'MARKDOWN', defaultValue: 'md_profiles', description: 'Markdown path to use')
+                string(name: 'MODEL', defaultValue: 'profile', description: 'OSCAL model to author')
+            }
+            steps {
+                sh 'trestlebot-autosync --markdown-path=${params.MARKDOWN} --oscal-model=${params.MODEL} '
+            }
+        }
+    }
+}
 ```
 
 
