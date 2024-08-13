@@ -52,3 +52,7 @@ CHANGES = "changes"
 GITHUB = "github"
 GITLAB = "gitlab"
 GITHUB_SERVER_URL = "https://github.com"
+
+# Trestlebot init constants
+TRESTLEBOT_CONFIG_DIR = ".trestlebot"
+TRESTLEBOT_KEEP_FILE = ".keep"
