@@ -1,32 +1,71 @@
 import argparse
-import errno
+import importlib.resources
 import logging
 import pathlib
+import shutil
 import sys
 import traceback
-from typing import List
 
 from trestle.common import file_utils
 from trestle.core.commands.init import InitCmd
 
 from trestlebot.const import (
     ERROR_EXIT_CODE,
+    GITHUB,
+    GITHUB_WORKFLOWS_DIR,
+    GITLAB,
+    SUCCESS_EXIT_CODE,
     TRESTLEBOT_CONFIG_DIR,
     TRESTLEBOT_KEEP_FILE,
 )
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase, handle_exception
-from trestlebot.tasks.authored import types
+from trestlebot.entrypoints.log import set_log_level_from_args
+from trestlebot.tasks.authored import types as model_types
 
 
 logger = logging.getLogger(__name__)
 logging.getLogger("trestle.core.commands.init").setLevel("CRITICAL")
 
+OSCAL_MODEL_SSP = model_types.AuthoredType.SSP.value
+OSCAL_MODEL_COMPDEF = model_types.AuthoredType.COMPDEF.value
+
 
 class InitEntrypoint(EntrypointBase):
     """Entrypoint for the init command."""
 
-    SUPPORTED_PROVIDERS = ["github", "gitlab"]
-    SUPPORTED_MODELS = [types.AuthoredType.SSP.value, types.AuthoredType.COMPDEF.value]
+    TEMPLATES_MODULE = "trestlebot.entrypoints.templates"
+    SUPPORTED_PROVIDERS = [GITHUB, GITLAB]
+    SUPPORTED_MODELS = [
+        OSCAL_MODEL_SSP,
+        OSCAL_MODEL_COMPDEF,
+    ]
+    PROVIDER_TEMPLATES = {
+        GITHUB: {
+            OSCAL_MODEL_SSP: [
+                "trestlebot-autosync-catalog.yml",
+                "trestlebot-autosync-profile.yml",
+            ],
+            OSCAL_MODEL_COMPDEF: [
+                "trestlebot-create-component-definition.yml",
+                "trestlebot-autosync-catalog.yml",
+                "trestlebot-autosync-profile.yml",
+                "trestlebot-rules-transform.yml",
+            ],
+        }
+    }
+    MODEL_DIRS = {
+        OSCAL_MODEL_SSP: [
+            "system-security-plans",
+            "component-definitions",
+            "catalogs",
+            "profiles",
+        ],
+        OSCAL_MODEL_COMPDEF: [
+            "component-definitions",
+            "catalogs",
+            "profiles",
+        ],
+    }
 
     def __init__(self, parser: argparse.ArgumentParser) -> None:
         super().__init__(
@@ -41,7 +80,7 @@ class InitEntrypoint(EntrypointBase):
         """Setup arguments for the init entrypoint."""
         self.parser.add_argument(
             "--provider",
-            required=True,
+            required=False,
             type=str,
             choices=self.SUPPORTED_PROVIDERS,
             default="github",
@@ -55,24 +94,7 @@ class InitEntrypoint(EntrypointBase):
             help="OSCAL model type to run tasks on.",
         )
 
-    def _model_to_dirs(self, model: str) -> List[str]:
-        """Returns a list fo directories to create for a given OSCAL model type."""
-        MODEL_DIRS = {
-            "ssp": [
-                "system-security-plan",
-                "component-definitions",
-                "catalog",
-                "profile",
-            ],
-            "compdef": [
-                "component-definitions",
-                "catalog",
-                "profile",
-            ],
-        }
-        return MODEL_DIRS[model]
-
-    def _trestle_init(self, args: argparse.Namespace) -> None:
+    def _call_trestle_init(self, args: argparse.Namespace) -> None:
         """Call compliance-trestle to initialize workspace"""
         logger.debug("Calling compliance-trestle init command")
         trestle_args = argparse.Namespace(
@@ -83,42 +105,76 @@ class InitEntrypoint(EntrypointBase):
             local=False,
         )
         InitCmd()._run(trestle_args)
-        logger.info("Trestle workspace init complete")
+        logger.debug("Initialized trestle project successfully")
 
-    def _trestlebot_init(self, args: argparse.Namespace) -> None:
+    def _create_directories(self, args: argparse.Namespace) -> None:
         """Initialize trestlebot directories"""
+
         root = pathlib.Path(args.working_dir)
+        model_dirs = self.MODEL_DIRS[args.oscal_model]
 
-        # If trestlebot has already been initialized then exit
-        try:
-            trestlebot_dir = root / pathlib.Path(TRESTLEBOT_CONFIG_DIR)
-            trestlebot_dir.mkdir(parents=True, exist_ok=False)
-            keep_file = trestlebot_dir / TRESTLEBOT_KEEP_FILE
-            file_utils.make_hidden_file(keep_file)
-        except OSError as e:
-            if e.errno == errno.EEXIST:
-                logger.warning(
-                    "Error: .trestlebot directory already exists in this workspace"
-                )
-                sys.exit(ERROR_EXIT_CODE)
-            else:
-                raise e
-
-        model_dirs = self._model_to_dirs(args.oscal_model)
         for model_dir in model_dirs:
-            directory = root / pathlib.Path(model_dir)
-            directory.mkdir(parents=True, exist_ok=False)
+            directory = root.joinpath(pathlib.Path(model_dir))
+            directory.mkdir()
+            keep_file = directory.joinpath(pathlib.Path(TRESTLEBOT_KEEP_FILE))
+            file_utils.make_hidden_file(keep_file)
+
+    def _copy_provider_files(self, args: argparse.Namespace) -> None:
+        """Copy the CICD provider files to the new trestlebot workspace"""
+        if args.provider == GITHUB:
+            provider_dir = pathlib.Path(args.working_dir).joinpath(
+                pathlib.Path(GITHUB_WORKFLOWS_DIR)
+            )
+            provider_dir.mkdir(parents=True, exist_ok=True)
+
+        templates_dir = importlib.resources.files(
+            f"{self.TEMPLATES_MODULE}.{args.provider}"
+        )
+        for template_file in self.PROVIDER_TEMPLATES[args.provider][args.oscal_model]:
+            template_path = templates_dir.joinpath(template_file)
+            dest_path = provider_dir.joinpath(pathlib.Path(template_file))
+            shutil.copyfile(str(template_path), dest_path)
 
     def run(self, args: argparse.Namespace) -> None:
         """Run the init entrypoint"""
+        exit_code: int = SUCCESS_EXIT_CODE
         try:
-            self._trestlebot_init(args)
-            self._trestle_init(args)
+            set_log_level_from_args(args)
+            root: pathlib.Path = pathlib.Path(args.working_dir)
+            if not root.exists() or not root.is_dir():
+                logger.error(
+                    f"Initialization failed. Given directory {root} does not exist."
+                )
+                sys.exit(ERROR_EXIT_CODE)
+
+            git_dir: pathlib.Path = root.joinpath(pathlib.Path(".git"))
+            if not git_dir.exists():  # TODO: add --force flag to bypass
+                logger.error(
+                    f"Initialization failed. Given directory {root} is not a Git repository."
+                )
+                sys.exit(ERROR_EXIT_CODE)
+
+            trestlebot_dir = root.joinpath(pathlib.Path(TRESTLEBOT_CONFIG_DIR))
+            if trestlebot_dir.exists():
+                logger.error(
+                    f"Initialization failed. Found existing {TRESTLEBOT_CONFIG_DIR} directory in {root}"
+                )
+                sys.exit(ERROR_EXIT_CODE)
+            else:
+                trestlebot_dir.mkdir(parents=True, exist_ok=False)
+                keep_file = trestlebot_dir / TRESTLEBOT_KEEP_FILE
+                file_utils.make_hidden_file(keep_file)
+
+            self._create_directories(args)
+            self._call_trestle_init(args)
+            self._copy_provider_files(args)
 
         except Exception as e:
             traceback_str = traceback.format_exc()
             exit_code = handle_exception(e, traceback_str)
-            sys.exit(exit_code)
+
+        logger.info(f"Initialized trestlebot project successfully in {root}")
+        sys.exit(exit_code)
 
 
 def main() -> None:
