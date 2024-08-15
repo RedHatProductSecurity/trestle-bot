@@ -45,6 +45,13 @@ def tmp_repo() -> YieldFixture[Tuple[str, Repo]]:
 
 
 @pytest.fixture(scope="function")
+def tmp_init_dir() -> YieldFixture[str]:
+    tmpdir = tempfile.mkdtemp(prefix=_TEST_PREFIX)
+    yield tmpdir
+    clean(tmpdir)
+
+
+@pytest.fixture(scope="function")
 def tmp_trestle_dir() -> YieldFixture[str]:
     """Create an initialized temporary trestle directory"""
     with tempfile.TemporaryDirectory(prefix=_TEST_PREFIX) as tmpdir:
