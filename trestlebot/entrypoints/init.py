@@ -1,3 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
+
+"""
+This module provides the `init` entrypoint for trestlebot.
+
+The init command is used for creating a new trestlebot workspace.  The command
+will do the following:
+    - create the .trestlebot directory for trestlebot related files
+    - create files for use with the specified CICD provider
+    - create the appropriate directories for the specified OSCAL model
+    - run the trestle init command to generate the needed compliance-trestle directories
+"""
+
 import argparse
 import importlib.resources
 import logging
