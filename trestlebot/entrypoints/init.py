@@ -130,7 +130,7 @@ class InitEntrypoint(EntrypointBase):
 
         for model_dir in model_dirs:
             directory = root.joinpath(pathlib.Path(model_dir))
-            directory.mkdir()
+            directory.mkdir(exist_ok=True)
             keep_file = directory.joinpath(pathlib.Path(TRESTLEBOT_KEEP_FILE))
             file_utils.make_hidden_file(keep_file)
 

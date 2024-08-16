@@ -1,0 +1,51 @@
+---
+name: Trestle-bot rules-transform and autosync
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'profiles/**'
+      - 'catalogs/**'
+      - 'component-definitions/**'
+      - 'markdown/**'
+      - 'rules/**'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  rules-transform:
+    name: Trestle-bot Rules Transform
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Transform rules
+        uses: ./.github/actions/rules-transform
+    
+  autosync:
+    name: Trestle-bot Autosync Content
+    needs: rules-transform
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Autosync component-definitions
+        id: autosync
+        uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
+        with:
+          markdown_path: "markdown/components"
+          oscal_model: "compdef"
+          file_pattern: "*.json,markdown/*"
+          branch: ${{ github.head_ref }}
