@@ -19,6 +19,7 @@ repository = 'https://github.com/RedHatProductSecurity/trestle-bot'
 
 
 [tool.poetry.scripts]
+trestlebot-init = "trestlebot.entrypoints.init:main"
 trestlebot-autosync = "trestlebot.entrypoints.autosync:main"
 trestlebot-rules-transform = "trestlebot.entrypoints.rule_transform:main"
 trestlebot-create-cd = "trestlebot.entrypoints.create_cd:main"
