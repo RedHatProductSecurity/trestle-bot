@@ -14,13 +14,13 @@ will do the following:
 """
 
 import argparse
-import importlib.resources
 import logging
 import pathlib
 import shutil
 import sys
 import traceback
 
+import importlib_resources
 from trestle.common import file_utils
 from trestle.core.commands.init import InitCmd
 
@@ -151,7 +151,7 @@ class InitEntrypoint:
             )
             provider_dir.mkdir(parents=True, exist_ok=True)
 
-        templates_dir = importlib.resources.files(
+        templates_dir = importlib_resources.files(
             f"{self.TEMPLATES_MODULE}.{args.provider}"
         )
         for template_file in self.PROVIDER_TEMPLATES[args.provider][args.oscal_model]:
