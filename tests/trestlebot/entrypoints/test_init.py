@@ -106,7 +106,7 @@ def test_init_ssp_github(
     # directories for ssp model should exist
     model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
     expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
-    assert model_dirs == expected
+    assert sorted(model_dirs) == sorted(expected)
 
     # directories for github workflows should exist
     workflow_dir = tmp_dir.joinpath(".github/workflows")
@@ -114,7 +114,7 @@ def test_init_ssp_github(
     expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
         args_dict["oscal-model"]
     ]
-    assert workflow_files == expected
+    assert sorted(workflow_files) == sorted(expected)
 
     assert any(
         record.levelno == logging.INFO
@@ -145,7 +145,7 @@ def test_init_compdef_github(
     tmp_dir = pathlib.Path(tmp_init_dir)
     model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
     expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
-    assert model_dirs == expected
+    assert sorted(model_dirs) == sorted(expected)
 
     # directories for github workflows should exist
     workflow_dir = tmp_dir.joinpath(".github/workflows")
@@ -153,7 +153,7 @@ def test_init_compdef_github(
     expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
         args_dict["oscal-model"]
     ]
-    assert workflow_files == expected
+    assert sorted(workflow_files) == sorted(expected)
 
     assert any(
         record.levelno == logging.INFO
