@@ -17,35 +17,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  rules-transform:
-    name: Trestle-bot Rules Transform
+  rules-transform-and-autosync:
+    name: Rules Transform and AutoSync
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Transform rules
-        uses: ./.github/actions/rules-transform
-    
-  autosync:
-    name: Trestle-bot Autosync Content
-    needs: rules-transform
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Autosync component-definitions
+      - name: AutoSync
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
           markdown_path: "markdown/components"
           oscal_model: "compdef"
           file_pattern: "*.json,markdown/*"
-          branch: ${{ github.head_ref }}
+      - name: Check if rules changed
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            rules:
+              - 'rules/**'
+      - name: Rules Tranform
+        if: steps.changes.outputs.rules == 'true'
+        uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
+        with:
+          markdown_path: "markdown"
+          commit_message: "Auto-transform rules [skip ci]"

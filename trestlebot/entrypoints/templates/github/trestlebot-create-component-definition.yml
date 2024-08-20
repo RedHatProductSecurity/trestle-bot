@@ -1,5 +1,5 @@
 ---
-name: Trestle-bot Create Component Definition
+name: Trestle-bot create component-definition
 
 on:
   workflow_dispatch:
