@@ -83,7 +83,11 @@ For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` fo
 
 #### Architecture Decisions
 
-We document decisions using [Architectural Decision Records](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions). The team will decide when an ADR will be put in place, but this is generally done to document impactful architectural decisions. [`adr-tools`](https://github.com/npryce/adr-tools) can be used to manage ADRs in the repository located under `docs/architecture/decisions`.
+We document decisions using [Architectural Decision Records](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions). The team will decide when an ADR will be put in place, but this is generally done to document impactful architectural decisions.
+
+* Create an instance of the ADR template using `trestle author docs create-sample -tn decisions -tr docs/architecture`.
+* This can be tested locally via `trestle author docs validate --task-name decisions -hv -tr docs/architecture`
+
 
 #### Update the `actions` files
 
