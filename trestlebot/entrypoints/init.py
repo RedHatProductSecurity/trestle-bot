@@ -33,7 +33,7 @@ from trestlebot.const import (
     TRESTLEBOT_CONFIG_DIR,
     TRESTLEBOT_KEEP_FILE,
 )
-from trestlebot.entrypoints.entrypoint_base import EntrypointBase, handle_exception
+from trestlebot.entrypoints.entrypoint_base import handle_exception
 from trestlebot.entrypoints.log import set_log_level_from_args
 from trestlebot.tasks.authored import types as model_types
 
@@ -45,7 +45,7 @@ OSCAL_MODEL_SSP = model_types.AuthoredType.SSP.value
 OSCAL_MODEL_COMPDEF = model_types.AuthoredType.COMPDEF.value
 
 
-class InitEntrypoint(EntrypointBase):
+class InitEntrypoint:
     """Entrypoint for the init command."""
 
     TEMPLATES_MODULE = "trestlebot.entrypoints.templates"
@@ -79,20 +79,30 @@ class InitEntrypoint(EntrypointBase):
             "component-definitions",
             "catalogs",
             "profiles",
+            "rules",
         ],
     }
 
     def __init__(self, parser: argparse.ArgumentParser) -> None:
-        super().__init__(
-            parser,
-            required_git_args=False,
-            optional_git_args=False,
-            provider_git_args=False,
-        )
+        self.parser: argparse.ArgumentParser = parser
         self.setup_init_arguments()
 
     def setup_init_arguments(self) -> None:
         """Setup arguments for the init entrypoint."""
+        self.parser.add_argument(
+            "-v",
+            "--verbose",
+            help="Display verbose output",
+            action="count",
+            default=0,
+        )
+        self.parser.add_argument(
+            "--working-dir",
+            type=str,
+            required=False,
+            default=".",
+            help="Working directory wit git repository",
+        )
         self.parser.add_argument(
             "--provider",
             required=False,
@@ -111,7 +121,6 @@ class InitEntrypoint(EntrypointBase):
 
     def _call_trestle_init(self, args: argparse.Namespace) -> None:
         """Call compliance-trestle to initialize workspace"""
-        logger.debug("Calling compliance-trestle init command")
         trestle_args = argparse.Namespace(
             verbose=args.verbose,
             trestle_root=pathlib.Path(args.working_dir),

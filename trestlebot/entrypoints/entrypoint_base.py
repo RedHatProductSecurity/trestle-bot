@@ -34,17 +34,8 @@ logger = logging.getLogger(__name__)
 class EntrypointBase:
     """Base class for all entrypoints."""
 
-    def __init__(
-        self,
-        parser: argparse.ArgumentParser,
-        required_git_args: bool = True,
-        optional_git_args: bool = True,
-        provider_git_args: bool = True,
-    ) -> None:
+    def __init__(self, parser: argparse.ArgumentParser) -> None:
         self.parser: argparse.ArgumentParser = parser
-        self.required_git_args = required_git_args
-        self.optional_git_args = optional_git_args
-        self.provider_git_args = provider_git_args
         self.setup_common_arguments()
 
     def setup_common_arguments(self) -> None:
@@ -69,12 +60,9 @@ class EntrypointBase:
             action="store_true",
             help="Run tasks, but do not push to the repository",
         )
-        if self.required_git_args is True:
-            self._set_required_git_args()
-        if self.optional_git_args is True:
-            self._set_optional_git_args()
-        if self.provider_git_args is True:
-            self._set_git_provider_args()
+        self._set_required_git_args()
+        self._set_optional_git_args()
+        self._set_git_provider_args()
 
     def _set_required_git_args(self) -> None:
         """Create an argument group for required git-related configuration."""
