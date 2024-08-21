@@ -22,6 +22,7 @@ import traceback
 
 import importlib_resources
 from trestle.common import file_utils
+from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.commands.init import InitCmd
 
 from trestlebot.const import (
@@ -128,8 +129,14 @@ class InitEntrypoint:
             govdocs=True,
             local=False,
         )
-        InitCmd()._run(trestle_args)
-        logger.debug("Initialized trestle project successfully")
+        return_code = InitCmd()._run(trestle_args)
+        if return_code == CmdReturnCodes.SUCCESS.value:
+            logger.debug("Initialized trestle project successfully")
+        else:
+            logger.error(
+                f"Initialization failed.  Unexpted trestle error: {CmdReturnCodes(return_code).name}"
+            )
+            sys.exit(ERROR_EXIT_CODE)
 
     def _create_directories(self, args: argparse.Namespace) -> None:
         """Initialize trestlebot directories"""
