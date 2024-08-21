@@ -2,7 +2,7 @@
 name: Trestle-bot rules-transform and autosync
 
 on:
-  pull_request:
+  push:
     branches:
       - main
     paths:
