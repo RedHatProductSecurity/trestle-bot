@@ -45,7 +45,7 @@ def configure_test_logger(level: int = logging.INFO) -> None:
     configure_logger(level=level, propagate=True)
 
 
-def clean(repo_path: str, repo: Optional[Repo]) -> None:
+def clean(repo_path: str, repo: Optional[Repo] = None) -> None:
     """Clean up the temporary Git repository."""
     if repo is not None:
         repo.close()
@@ -268,6 +268,12 @@ def setup_rules_view(
         load_from_yaml(comp_dir, "test_complete_rule_no_params")
         # Load a complete rule with multiple controls
         load_from_yaml(comp_dir, "test_complete_rule_multiple_controls")
+
+
+def setup_for_init(tmp_init_dir: pathlib.Path) -> None:
+    """Creates an empty git repo"""
+    git_dir: pathlib.Path = tmp_init_dir.joinpath(pathlib.Path(".git"))
+    git_dir.mkdir()
 
 
 def replace_string_in_file(file_path: str, old_string: str, new_string: str) -> None:
