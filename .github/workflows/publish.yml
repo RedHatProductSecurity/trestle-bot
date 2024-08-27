@@ -46,11 +46,6 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
           registry: ${{ env.IMAGE_REGISTRY }}
 
-      - name: Check out
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
-        with:
-          persist-credentials: false
-
       - name: Set up cosign
         uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 # pin@v3.5.0
 
@@ -97,6 +92,12 @@ jobs:
           } >> "$GITHUB_ENV"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check out
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # pin@v4
+        with:
+          ref: ${{ env.BUILD_GIT_REF }}
+          persist-credentials: false
 
       - name: Build and Publish the image
         uses: ./.github/actions/publish-image
@@ -105,7 +106,6 @@ jobs:
           image: ${{ env.IMAGE_REGISTRY }}/${{ vars.QUAY_ORG }}/${{ env.IMAGE_NAME }}
           release_version: ${{ env.TAG }}
           no_cache: ${{ env.NO_CACHE }}
-          git_ref: ${{ env.BUILD_GIT_REF }}
           skip_tests: ${{ env.SKIP_TESTS }}
 
       - name: Sign the image with GitHub OIDC Token
