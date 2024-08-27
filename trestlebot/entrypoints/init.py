@@ -49,6 +49,7 @@ OSCAL_MODEL_COMPDEF = model_types.AuthoredType.COMPDEF.value
 class InitEntrypoint:
     """Entrypoint for the init command."""
 
+    MARKDOWN_DIR = "markdown"
     TEMPLATES_MODULE = "trestlebot.entrypoints.templates"
     SUPPORTED_PROVIDERS = [GITHUB, GITLAB]
     SUPPORTED_MODELS = [
@@ -150,6 +151,14 @@ class InitEntrypoint:
             keep_file = directory.joinpath(pathlib.Path(TRESTLEBOT_KEEP_FILE))
             file_utils.make_hidden_file(keep_file)
 
+        # also create markdown dirs
+        markdown_root = root.joinpath(pathlib.Path(self.MARKDOWN_DIR))
+        for model_dir in model_dirs:
+            directory = markdown_root.joinpath(pathlib.Path(model_dir))
+            directory.mkdir(exist_ok=True, parents=True)
+            keep_file = directory.joinpath(pathlib.Path(TRESTLEBOT_KEEP_FILE))
+            file_utils.make_hidden_file(keep_file)
+
     def _copy_provider_files(self, args: argparse.Namespace) -> None:
         """Copy the CICD provider files to the new trestlebot workspace"""
         if args.provider == GITHUB:
@@ -204,7 +213,7 @@ class InitEntrypoint:
             traceback_str = traceback.format_exc()
             exit_code = handle_exception(e, traceback_str)
 
-        logger.info(f"Initialized trestlebot project successfully in {root}")
+        logger.warning(f"Initialized trestlebot project successfully in {root}")
         sys.exit(exit_code)
 
 
