@@ -105,10 +105,12 @@ def test_init_ssp_github(
 
     # directories for ssp model should exist
     model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
-    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
+    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]] + [
+        InitEntrypoint.MARKDOWN_DIR
+    ]
     assert sorted(model_dirs) == sorted(expected)
 
-    # directories for github workflows should exist
+    # directories for github workflows should exist]
     workflow_dir = tmp_dir.joinpath(".github/workflows")
     workflow_files = [f.name for f in workflow_dir.iterdir()]
     expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
@@ -116,8 +118,14 @@ def test_init_ssp_github(
     ]
     assert sorted(workflow_files) == sorted(expected)
 
+    # markdown directories should exist
+    markdown_dir = tmp_dir.joinpath(InitEntrypoint.MARKDOWN_DIR)
+    expected_subdirs = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
+    markdown_subdirs = [f.name for f in markdown_dir.iterdir()]
+    assert sorted(markdown_subdirs) == sorted(expected_subdirs)
+
     assert any(
-        record.levelno == logging.INFO
+        record.levelno == logging.WARNING
         and f"Initialized trestlebot project successfully in {tmp_init_dir}"
         in record.message
         for record in caplog.records
@@ -144,7 +152,9 @@ def test_init_compdef_github(
     # directories for compdef model should exist
     tmp_dir = pathlib.Path(tmp_init_dir)
     model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
-    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
+    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]] + [
+        InitEntrypoint.MARKDOWN_DIR
+    ]
     assert sorted(model_dirs) == sorted(expected)
 
     # directories for github workflows should exist
@@ -155,8 +165,14 @@ def test_init_compdef_github(
     ]
     assert sorted(workflow_files) == sorted(expected)
 
+    # markdown directories should exist
+    markdown_dir = tmp_dir.joinpath(InitEntrypoint.MARKDOWN_DIR)
+    expected_subdirs = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
+    markdown_subdirs = [f.name for f in markdown_dir.iterdir()]
+    assert sorted(markdown_subdirs) == sorted(expected_subdirs)
+
     assert any(
-        record.levelno == logging.INFO
+        record.levelno == logging.WARNING
         and f"Initialized trestlebot project successfully in {tmp_init_dir}"
         in record.message
         for record in caplog.records
