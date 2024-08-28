@@ -213,7 +213,7 @@ class InitEntrypoint:
             traceback_str = traceback.format_exc()
             exit_code = handle_exception(e, traceback_str)
 
-        logger.warning(f"Initialized trestlebot project successfully in {root}")
+        logger.info(f"Initialized trestlebot project successfully in {root}")
         sys.exit(exit_code)
 
 
