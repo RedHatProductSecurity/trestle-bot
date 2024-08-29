@@ -161,6 +161,9 @@ class InitEntrypoint:
 
     def _copy_provider_files(self, args: argparse.Namespace) -> None:
         """Copy the CICD provider files to the new trestlebot workspace"""
+        if args.provider == GITLAB:
+            return
+
         if args.provider == GITHUB:
             provider_dir = pathlib.Path(args.working_dir).joinpath(
                 pathlib.Path(GITHUB_WORKFLOWS_DIR)
