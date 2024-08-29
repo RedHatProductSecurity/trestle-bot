@@ -110,7 +110,7 @@ def test_init_ssp_github(
     ]
     assert sorted(model_dirs) == sorted(expected)
 
-    # directories for github workflows should exist]
+    # directories for github workflows should exist
     workflow_dir = tmp_dir.joinpath(".github/workflows")
     workflow_files = [f.name for f in workflow_dir.iterdir()]
     expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
