@@ -14,7 +14,9 @@ Before moving on, please ensure you have completed the following:
 
 ### 2. Set Permissions for GitHub Actions
 
-The `trestlebot` commands will be run inside of GitHub actions.  These commands often perform `write` level operations against the repo contents.  The following repo settings need to be in place to support these actions.
+The `trestlebot` commands will be run inside of GitHub actions.  These commands often perform `write` level operations against the repo contents.  The GitHub workflows generated in this tutorial make use of [automatic token authentication.](https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication)  To ensure this is configured correct the following repo settings need to be in place.
+
+*Note: If you choose an alternative method to provide repo access such as personal access tokens or GitHub apps you can skip these steps.*
 
 1. Click the `Settings` tab for your GitHub repo 
 2. Select `Actions` -> `General` from the left-hand menu
@@ -61,7 +63,7 @@ mkdir profiles/nist_rev5_800_53
 wget https://raw.githubusercontent.com/usnistgov/oscal-content/release-v1.0.5-update/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_HIGH-baseline_profile.json -O profiles/nist_rev5_800_53/profile.json
 ```
 
-Our `profile.json` file contains a reference to our `catalog.json` file.  By default, this path is not resolvable by cmpliance-trestle, so we need to run the following command to update the `href` value in the JSON.
+Our `profile.json` file contains a reference to our `catalog.json` file.  By default, this path is not resolvable by compliance-trestle, so we need to run the following command to update the `href` value in the JSON.
 
 ```
 sed -i 's/NIST_SP-800-53_rev5_catalog.json/trestle:\/\/catalogs\/nist_rev5_800_53\/catalog.json/g' profiles/nist_rev5_800_53/profile.json
