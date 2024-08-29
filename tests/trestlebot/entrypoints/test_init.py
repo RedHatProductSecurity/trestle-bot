@@ -125,7 +125,7 @@ def test_init_ssp_github(
     assert sorted(markdown_subdirs) == sorted(expected_subdirs)
 
     assert any(
-        record.levelno == logging.WARNING
+        record.levelno == logging.INFO
         and f"Initialized trestlebot project successfully in {tmp_init_dir}"
         in record.message
         for record in caplog.records
@@ -172,7 +172,7 @@ def test_init_compdef_github(
     assert sorted(markdown_subdirs) == sorted(expected_subdirs)
 
     assert any(
-        record.levelno == logging.WARNING
+        record.levelno == logging.INFO
         and f"Initialized trestlebot project successfully in {tmp_init_dir}"
         in record.message
         for record in caplog.records
