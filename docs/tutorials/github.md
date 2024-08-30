@@ -7,9 +7,11 @@ This tutorial provides an introduction to using `trestlebot` with GitHub.  We wi
 
 Before moving on, please ensure you have completed the following:
 
-1. create a new (or use an existing) empty GitHub repository
-2. clone the repo to your local workstation
-3. clone the [trestle-bot](https://github.com/RedHatProductSecurity/trestle-bot/tree/main) repo to your local workstation and run `poetry install`
+1. Create a new (or use an existing) empty GitHub repository
+2. Clone the repo to your local workstation
+3. Install trestlebot
+    * Option 1: Clone the [trestle-bot](https://github.com/RedHatProductSecurity/trestle-bot/tree/main) repo to your local workstation and run `poetry install`
+    * Option 2: Use the [trestlebot container image](https://github.com/RedHatProductSecurity/trestle-bot?tab=readme-ov-file#run-as-a-container)
 
 
 ### 2. Set Permissions for GitHub Actions
@@ -26,10 +28,16 @@ The `trestlebot` commands will be run inside of GitHub actions.  These commands 
 
 ### 3. Initialize trestlebot Workspace
 
-We will now use the `trestlebot init` command to initialize our emtpy GitHub repository.  Unlike the other trestlebot commands, this command is run on your local workstation.  The trestlebot commands can be installed by cloning the [trestle-bot](https://github.com/RedHatProductSecurity/trestle-bot/tree/main) repo and running `poetry install`.  For this tutorial we will be authoring a component-definition.
+We will now use the `trestlebot init` command to initialize our emtpy GitHub repository.  Unlike the other trestlebot commands, this command is run on your local workstation.  The trestlebot commands can be installed by cloning the [trestle-bot](https://github.com/RedHatProductSecurity/trestle-bot/tree/main) repo and running `poetry install`.  Alternatively these commands can be run using the [trestlebot container image](https://github.com/RedHatProductSecurity/trestle-bot?tab=readme-ov-file#run-as-a-container). For this tutorial we will be authoring a component-definition.
 
 ```
-trestlebot-init --oscal-model compdef --working-dir /path-to-your-repo
+trestlebot-init --oscal-model compdef --working-dir <path-to-your-repo>
+```
+
+Using container image:
+
+```
+podman run -v <path-to-your-repo>:/data:rw  trestle-bot:latest --oscal-model compdef --working-dir /data
 ```
 
 You should now see the following directories in your repo.
