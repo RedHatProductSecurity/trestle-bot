@@ -162,6 +162,9 @@ class InitEntrypoint:
     def _copy_provider_files(self, args: argparse.Namespace) -> None:
         """Copy the CICD provider files to the new trestlebot workspace"""
         if args.provider == GITLAB:
+            logger.warning(
+                "GitLab is not yet supported, no provider files will be created."
+            )
             return
 
         if args.provider == GITHUB:
