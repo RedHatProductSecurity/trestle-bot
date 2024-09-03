@@ -1,4 +1,4 @@
-# trestle-bot
+# Overview
 
 [![Pre commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![License](https://img.shields.io/badge/license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
@@ -61,15 +61,3 @@ Container images are available in `quay.io`:
 ```bash
 podman run -v $(pwd):/data -w /data quay.io/continuouscompliance/trestle-bot:<tag>
 ```
-
-## Contributing
-
-For information about contributing to trestle-bot, see the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
-
-## License
-
-This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
-
-## Troubleshooting
-
-See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for troubleshooting tips.
