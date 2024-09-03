@@ -13,7 +13,7 @@ from trestle.common.const import TRESTLE_CONFIG_DIR, TRESTLE_KEEP_FILE
 from trestle.common.file_utils import is_hidden
 
 from tests.testutils import args_dict_to_list, configure_test_logger, setup_for_init
-from trestlebot.const import GITHUB, TRESTLEBOT_CONFIG_DIR, TRESTLEBOT_KEEP_FILE
+from trestlebot.const import GITHUB, GITLAB, TRESTLEBOT_CONFIG_DIR, TRESTLEBOT_KEEP_FILE
 from trestlebot.entrypoints.init import InitEntrypoint
 from trestlebot.entrypoints.init import main as cli_main
 from trestlebot.tasks.authored import types as model_types
@@ -127,6 +127,30 @@ def test_init_ssp_github(
     assert any(
         record.levelno == logging.INFO
         and f"Initialized trestlebot project successfully in {tmp_init_dir}"
+        in record.message
+        for record in caplog.records
+    )
+
+
+@patch(
+    "trestlebot.entrypoints.log.configure_logger",
+    Mock(side_effect=configure_test_logger),
+)
+def test_init_ssp_gitlab(
+    tmp_init_dir: str, args_dict: Dict[str, str], caplog: pytest.LogCaptureFixture
+) -> None:
+    """Tests for expected logging message"""
+    args_dict["working-dir"] = tmp_init_dir
+    args_dict["oscal-model"] = OSCAL_MODEL_SSP
+    args_dict["provider"] = GITLAB
+    setup_for_init(pathlib.Path(tmp_init_dir))
+    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
+        with pytest.raises(SystemExit, match="0"):
+            cli_main()
+
+    assert any(
+        record.levelno == logging.WARNING
+        and "GitLab is not yet supported, no provider files will be created."
         in record.message
         for record in caplog.records
     )
