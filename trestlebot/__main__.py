@@ -4,13 +4,13 @@
 
 # Default entrypoint for trestlebot is autosync mode when run with python -m trestlebot
 
-from trestlebot.entrypoints.autosync import main as autosync_main
+from trestlebot.entrypoints.init import main as init_main
 
 
 def init() -> None:
     """Initialize trestlebot"""
     if __name__ == "__main__":
-        autosync_main()
+        init_main()
 
 
 init()
