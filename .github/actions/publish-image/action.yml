@@ -8,9 +8,6 @@ inputs:
   release_version:
     required: true
     description: The version to build type semver tags from
-  git_ref:
-    required: true
-    description: The git reference to build image from
   no_cache:
     description: Skip using cache when building the image.
     required: false
@@ -52,7 +49,7 @@ runs:
       uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # pin@v5
       id: build-and-export
       with:
-        context: "${{ github.server_url }}/${{ github.repository }}.git#${{ inputs.git_ref }}"
+        context: "."
         load: true
         no-cache: ${{ inputs.no_cache == 'true' }}
         cache-from: type=gha
@@ -81,7 +78,7 @@ runs:
       uses: docker/build-push-action@5176d81f87c23d6fc96624dfdbcd9f3830bbe445 # pin@v5
       id: build-and-push
       with:
-        context: "${{ github.server_url }}/${{ github.repository }}.git#${{ inputs.git_ref }}"
+        context: "."
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
