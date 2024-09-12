@@ -50,12 +50,9 @@ You should now see the following directories in your repo.
 ├── markdown 
 ├── profiles
 ├── rules
-├── .github
 ├── .trestle
 └── .trestlebot
 ```
-
-You will notice several files within the `.github/workflows` directory.  These are the trestlebot actions that will run as we make changes to the repo contents.
 
 You can now add any catalog or profile content needed for you authoring process.  For this example, we will add the NIST SP 800-53 Rev. 5 catalog to our `/catalogs` directory.
 
@@ -75,6 +72,14 @@ Our `profile.json` file contains a reference to our `catalog.json` file.  By def
 
 ```
 sed -i 's/NIST_SP-800-53_rev5_catalog.json/trestle:\/\/catalogs\/nist_rev5_800_53\/catalog.json/g' profiles/nist_rev5_800_53/profile.json
+```
+
+Finally you can copy ready-made CI/CD workflows from the `TEMPLATES` directory into your workspace. These are the trestlebot actions that will run as we make changes to the repo contents.
+
+**For example Component Definition authoring in GitHub Actions**
+```
+cp TEMPLATES/github/trestlebot-create-component-definition.yml .github/workflows
+cp TEMPLATES/github/trestlebot-rules-transform.yml .github/workflows
 ```
 
 Now that we have the initial content needed to begin authoring, go ahead and commit and push to the remote GitHub repo.
@@ -100,4 +105,4 @@ Now it's time to run our first trestlebot action!  We will go ahead and create o
 
 Once the workflow has completed you should have a new Pull Request containing the files trestlebot generated for the component definition.  After reviewing the files you can go ahead and merge the PR!
 
-Congrats, you have sucessfully created a new trestlebot workspace and now have an authoring environment!
+Congrats, you have successfully created a new trestlebot workspace and now have an authoring environment!

@@ -20,6 +20,8 @@ jobs:
   rules-transform-and-autosync:
     name: Rules Transform and AutoSync
     runs-on: ubuntu-latest
+    permissions:
+      content: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,7 +29,7 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "markdown/components"
+          markdown_path: "markdown/component-definitions"
           oscal_model: "compdef"
           file_pattern: "*.json,markdown/*"
       - name: Check if rules changed
@@ -41,5 +43,5 @@ jobs:
         if: steps.changes.outputs.rules == 'true'
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
-          markdown_path: "markdown"
+          markdown_path: "markdown/component-definitions"
           commit_message: "Auto-transform rules [skip ci]"

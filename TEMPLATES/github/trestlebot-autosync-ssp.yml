@@ -1,13 +1,14 @@
----
-name: Trestle-bot autosync catalog updates
-
+name: Trestle-bot autosync ssp updates
 on:
   push:
     branches:
       - main
     paths:
+      - 'profiles/**'
       - 'catalogs/**'
-      - 'markdown/catalogs/**'
+      - 'component-definitions/**'
+      - 'system-security-plans/**'
+      - 'markdown/**'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
@@ -15,7 +16,7 @@ concurrency:
 
 jobs:
   autosync:
-    name: Autosync catalog content
+    name: Autosync ssp content
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -26,6 +27,6 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "markdown/catalogs"
-          oscal_model: "catalog"
+          markdown_path: "markdown/system-security-plans"
+          oscal_model: "ssp"
           file_pattern: "*.json,markdown/*"

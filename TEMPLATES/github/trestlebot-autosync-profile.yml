@@ -9,6 +9,10 @@ on:
       - 'profiles/**'
       - 'markdown/profiles/**'
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   autosync:
     name: Autosync profile content
