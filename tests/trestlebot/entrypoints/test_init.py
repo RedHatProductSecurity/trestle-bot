@@ -13,7 +13,7 @@ from trestle.common.const import TRESTLE_CONFIG_DIR, TRESTLE_KEEP_FILE
 from trestle.common.file_utils import is_hidden
 
 from tests.testutils import args_dict_to_list, configure_test_logger, setup_for_init
-from trestlebot.const import TRESTLEBOT_CONFIG_DIR
+from trestlebot.const import TRESTLEBOT_CONFIG_DIR, TRESTLEBOT_KEEP_FILE
 from trestlebot.entrypoints.init import InitEntrypoint
 from trestlebot.entrypoints.init import main as cli_main
 from trestlebot.tasks.authored import types as model_types
@@ -107,6 +107,12 @@ def test_init_compdef(
     with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
         with pytest.raises(SystemExit, match="0"):
             cli_main()
+
+    # .keep file should exist in .trestlebot repo
+    tmp_dir = pathlib.Path(tmp_init_dir)
+    trestlebot_dir = tmp_dir / pathlib.Path(TRESTLEBOT_CONFIG_DIR)
+    keep_file = trestlebot_dir / pathlib.Path(TRESTLEBOT_KEEP_FILE)
+    assert keep_file.exists() is True
 
     # directories for compdef model should exist
     tmp_dir = pathlib.Path(tmp_init_dir)
