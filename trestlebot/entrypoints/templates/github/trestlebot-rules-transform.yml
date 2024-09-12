@@ -37,7 +37,7 @@ jobs:
           filters: |
             rules:
               - 'rules/**'
-      - name: Rules Tranform
+      - name: Rules Transform
         if: steps.changes.outputs.rules == 'true'
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
