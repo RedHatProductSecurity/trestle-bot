@@ -10,10 +10,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 from trestle.common.const import TRESTLE_CONFIG_DIR, TRESTLE_KEEP_FILE
-from trestle.common.file_utils import is_hidden
 
 from tests.testutils import args_dict_to_list, configure_test_logger, setup_for_init
-from trestlebot.const import GITHUB, GITLAB, TRESTLEBOT_CONFIG_DIR, TRESTLEBOT_KEEP_FILE
+from trestlebot.const import TRESTLEBOT_CONFIG_DIR
 from trestlebot.entrypoints.init import InitEntrypoint
 from trestlebot.entrypoints.init import main as cli_main
 from trestlebot.tasks.authored import types as model_types
@@ -27,7 +26,6 @@ OSCAL_MODEL_COMPDEF = model_types.AuthoredType.COMPDEF.value
 def args_dict() -> Dict[str, str]:
     return {
         "working-dir": ".",
-        "provider": GITHUB,
         "oscal-model": OSCAL_MODEL_COMPDEF,
     }
 
@@ -76,128 +74,6 @@ def test_init_if_not_git_repo(
     assert any(
         record.levelno == logging.ERROR
         and f"Initialization failed. Given directory {tmp_init_dir} is not a Git repository."
-        in record.message
-        for record in caplog.records
-    )
-
-
-@patch(
-    "trestlebot.entrypoints.log.configure_logger",
-    Mock(side_effect=configure_test_logger),
-)
-def test_init_ssp_github(
-    tmp_init_dir: str, args_dict: Dict[str, str], caplog: pytest.LogCaptureFixture
-) -> None:
-    """Tests for expected init command directories and files"""
-    args_dict["working-dir"] = tmp_init_dir
-    args_dict["oscal-model"] = OSCAL_MODEL_SSP
-    args_dict["provider"] = GITHUB
-    setup_for_init(pathlib.Path(tmp_init_dir))
-    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
-        with pytest.raises(SystemExit, match="0"):
-            cli_main()
-
-    # .keep file should exist in .trestlebot repo
-    tmp_dir = pathlib.Path(tmp_init_dir)
-    trestlebot_dir = tmp_dir / pathlib.Path(TRESTLEBOT_CONFIG_DIR)
-    keep_file = trestlebot_dir / pathlib.Path(TRESTLEBOT_KEEP_FILE)
-    assert keep_file.exists() is True
-
-    # directories for ssp model should exist
-    model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
-    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]] + [
-        InitEntrypoint.MARKDOWN_DIR
-    ]
-    assert sorted(model_dirs) == sorted(expected)
-
-    # directories for github workflows should exist
-    workflow_dir = tmp_dir.joinpath(".github/workflows")
-    workflow_files = [f.name for f in workflow_dir.iterdir()]
-    expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
-        args_dict["oscal-model"]
-    ]
-    assert sorted(workflow_files) == sorted(expected)
-
-    # markdown directories should exist
-    markdown_dir = tmp_dir.joinpath(InitEntrypoint.MARKDOWN_DIR)
-    expected_subdirs = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
-    markdown_subdirs = [f.name for f in markdown_dir.iterdir()]
-    assert sorted(markdown_subdirs) == sorted(expected_subdirs)
-
-    assert any(
-        record.levelno == logging.INFO
-        and f"Initialized trestlebot project successfully in {tmp_init_dir}"
-        in record.message
-        for record in caplog.records
-    )
-
-
-@patch(
-    "trestlebot.entrypoints.log.configure_logger",
-    Mock(side_effect=configure_test_logger),
-)
-def test_init_ssp_gitlab(
-    tmp_init_dir: str, args_dict: Dict[str, str], caplog: pytest.LogCaptureFixture
-) -> None:
-    """Tests for expected logging message"""
-    args_dict["working-dir"] = tmp_init_dir
-    args_dict["oscal-model"] = OSCAL_MODEL_SSP
-    args_dict["provider"] = GITLAB
-    setup_for_init(pathlib.Path(tmp_init_dir))
-    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
-        with pytest.raises(SystemExit, match="0"):
-            cli_main()
-
-    assert any(
-        record.levelno == logging.WARNING
-        and "GitLab is not yet supported, no provider files will be created."
-        in record.message
-        for record in caplog.records
-    )
-
-
-@patch(
-    "trestlebot.entrypoints.log.configure_logger",
-    Mock(side_effect=configure_test_logger),
-)
-def test_init_compdef_github(
-    tmp_init_dir: str, args_dict: Dict[str, str], caplog: pytest.LogCaptureFixture
-) -> None:
-    """Tests for expected init command directories and files"""
-    args_dict["working-dir"] = tmp_init_dir
-    args_dict["oscal-model"] = model_types.AuthoredType.COMPDEF.value
-    args_dict["provider"] = GITHUB
-    setup_for_init(pathlib.Path(tmp_init_dir))
-
-    with patch("sys.argv", ["trestlebot", *args_dict_to_list(args_dict)]):
-        with pytest.raises(SystemExit, match="0"):
-            cli_main()
-
-    # directories for compdef model should exist
-    tmp_dir = pathlib.Path(tmp_init_dir)
-    model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
-    expected = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]] + [
-        InitEntrypoint.MARKDOWN_DIR
-    ]
-    assert sorted(model_dirs) == sorted(expected)
-
-    # directories for github workflows should exist
-    workflow_dir = tmp_dir.joinpath(".github/workflows")
-    workflow_files = [f.name for f in workflow_dir.iterdir()]
-    expected = InitEntrypoint.PROVIDER_TEMPLATES[args_dict["provider"]][
-        args_dict["oscal-model"]
-    ]
-    assert sorted(workflow_files) == sorted(expected)
-
-    # markdown directories should exist
-    markdown_dir = tmp_dir.joinpath(InitEntrypoint.MARKDOWN_DIR)
-    expected_subdirs = InitEntrypoint.MODEL_DIRS[args_dict["oscal-model"]]
-    markdown_subdirs = [f.name for f in markdown_dir.iterdir()]
-    assert sorted(markdown_subdirs) == sorted(expected_subdirs)
-
-    assert any(
-        record.levelno == logging.INFO
-        and f"Initialized trestlebot project successfully in {tmp_init_dir}"
         in record.message
         for record in caplog.records
     )

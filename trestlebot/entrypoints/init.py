@@ -16,20 +16,15 @@ will do the following:
 import argparse
 import logging
 import pathlib
-import shutil
 import sys
 import traceback
 
-import importlib_resources
 from trestle.common import file_utils
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.commands.init import InitCmd
 
 from trestlebot.const import (
     ERROR_EXIT_CODE,
-    GITHUB,
-    GITHUB_WORKFLOWS_DIR,
-    GITLAB,
     SUCCESS_EXIT_CODE,
     TRESTLEBOT_CONFIG_DIR,
     TRESTLEBOT_KEEP_FILE,
@@ -50,26 +45,10 @@ class InitEntrypoint:
     """Entrypoint for the init command."""
 
     MARKDOWN_DIR = "markdown"
-    TEMPLATES_MODULE = "trestlebot.entrypoints.templates"
-    SUPPORTED_PROVIDERS = [GITHUB, GITLAB]
     SUPPORTED_MODELS = [
         OSCAL_MODEL_SSP,
         OSCAL_MODEL_COMPDEF,
     ]
-    PROVIDER_TEMPLATES = {
-        GITHUB: {
-            OSCAL_MODEL_SSP: [
-                "trestlebot-autosync-catalog.yml",
-                "trestlebot-autosync-profile.yml",
-            ],
-            OSCAL_MODEL_COMPDEF: [
-                "trestlebot-create-component-definition.yml",
-                "trestlebot-autosync-catalog.yml",
-                "trestlebot-autosync-profile.yml",
-                "trestlebot-rules-transform.yml",
-            ],
-        }
-    }
     MODEL_DIRS = {
         OSCAL_MODEL_SSP: [
             "system-security-plans",
@@ -104,14 +83,6 @@ class InitEntrypoint:
             required=False,
             default=".",
             help="Working directory wit git repository",
-        )
-        self.parser.add_argument(
-            "--provider",
-            required=False,
-            type=str,
-            choices=self.SUPPORTED_PROVIDERS,
-            default="github",
-            help="Name of CI/CD provider",
         )
         self.parser.add_argument(
             "--oscal-model",
@@ -159,28 +130,6 @@ class InitEntrypoint:
             keep_file = directory.joinpath(pathlib.Path(TRESTLEBOT_KEEP_FILE))
             file_utils.make_hidden_file(keep_file)
 
-    def _copy_provider_files(self, args: argparse.Namespace) -> None:
-        """Copy the CICD provider files to the new trestlebot workspace"""
-        if args.provider == GITLAB:
-            logger.warning(
-                "GitLab is not yet supported, no provider files will be created."
-            )
-            return
-
-        if args.provider == GITHUB:
-            provider_dir = pathlib.Path(args.working_dir).joinpath(
-                pathlib.Path(GITHUB_WORKFLOWS_DIR)
-            )
-            provider_dir.mkdir(parents=True, exist_ok=True)
-
-        templates_dir = importlib_resources.files(
-            f"{self.TEMPLATES_MODULE}.{args.provider}"
-        )
-        for template_file in self.PROVIDER_TEMPLATES[args.provider][args.oscal_model]:
-            template_path = templates_dir.joinpath(template_file)
-            dest_path = provider_dir.joinpath(pathlib.Path(template_file))
-            shutil.copyfile(str(template_path), dest_path)
-
     def run(self, args: argparse.Namespace) -> None:
         """Run the init entrypoint"""
         exit_code: int = SUCCESS_EXIT_CODE
@@ -213,7 +162,6 @@ class InitEntrypoint:
 
             self._create_directories(args)
             self._call_trestle_init(args)
-            self._copy_provider_files(args)
 
         except Exception as e:
             traceback_str = traceback.format_exc()
