@@ -148,6 +148,7 @@ def setup_for_ssp(
         allowed_sections=None,
         force_overwrite=None,
         leveraged_ssp=None,
+        include_all_parts=False,
     )
 
     return args
