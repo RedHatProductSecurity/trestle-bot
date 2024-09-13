@@ -78,7 +78,7 @@ Finally you can copy ready-made CI/CD workflows from the `TEMPLATES` directory i
 
 **For example Component Definition authoring in GitHub Actions**
 ```
-mkdir .github/workflows
+mkdir -p .github/workflows
 cp TEMPLATES/github/trestlebot-create-component-definition.yml .github/workflows
 cp TEMPLATES/github/trestlebot-rules-transform.yml .github/workflows
 ```
