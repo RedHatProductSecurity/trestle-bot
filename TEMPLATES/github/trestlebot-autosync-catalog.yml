@@ -1,17 +1,21 @@
 ---
-name: Trestle-bot autosync profile updates
+name: Trestle-bot autosync catalog updates
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'profiles/**'
-      - 'markdown/profiles/**'
+      - 'catalogs/**'
+      - 'markdown/catalogs/**'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   autosync:
-    name: Autosync profile content
+    name: Autosync catalog content
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -22,6 +26,6 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "markdown/profiles"
-          oscal_model: "profile"
+          markdown_path: "markdown/catalogs"
+          oscal_model: "catalog"
           file_pattern: "*.json,markdown/*"
