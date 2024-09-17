@@ -224,6 +224,7 @@ class AuthoredSSP(AuthoredObjectBase):
                 compdefs=component_str,
                 profile=profile,
                 leveraged_ssp=leveraged_ssp,
+                include_all_parts=True,
             )
             if not success:
                 raise AuthoredObjectException(
