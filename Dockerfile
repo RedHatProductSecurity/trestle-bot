@@ -24,6 +24,7 @@ RUN microdnf update -y \
 FROM python-base AS dependencies
 
 ARG POETRY_VERSION=1.7.1
+ARG INSTALL_PLUGINS=true
 
 # https://python-poetry.org/docs/configuration/#using-environment-variables
 ENV POETRY_VIRTUALENVS_IN_PROJECT=true \
@@ -39,13 +40,19 @@ COPY . "/build"
 # Install runtime deps and install the project in non-editable mode.
 # Ensure pip and setuptools are updated in the virtualenv as well.
 RUN python3.9 -m venv "$VENV_PATH" && \
+    . "$VENV_PATH"/bin/activate && \
+    python3.9 -m pip install --no-cache-dir --upgrade pip setuptools && \
+    if [ "$INSTALL_PLUGINS" == "true" ]; then \
+      poetry install --with plugins --no-root; \
+    else \
+      poetry install --no-root; \
+    fi
+
+RUN  python3.9 -m venv "$VENV_PATH" && \
   . "$VENV_PATH"/bin/activate && \
-  python3.9 -m pip install --no-cache-dir --upgrade pip setuptools && \
-  poetry install --without tests,dev --no-root && \
   poetry build -f wheel -n && \
   pip install --no-cache-dir --no-deps dist/*.whl && \
   rm -rf dist ./*.egg-info
-
 
 FROM python-base AS final
 
