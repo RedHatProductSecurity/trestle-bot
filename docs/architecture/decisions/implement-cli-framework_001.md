@@ -1,7 +1,7 @@
 ---
 x-trestle-template-version: 0.0.1
 title: Implement CLI Framework
-status: accespted
+status: accepted
 ---
 
 # ADR 001 - Implement CLI Framework
@@ -31,21 +31,20 @@ The configuration file will be broken into two primary categories, `global` and 
 ---
 version: 1
 working-dir: "."
-markdown-path-ssp: markdown/system-security-plans
-markdown-path-profile: markdown/proflies
-markdown-path-catalog: markdown/catalogs
-markdown-path-compdef: markdown/component-definitions
+upstream-sources: [<url>]
 ssp-index-path: ssp-index.json
-profile-upstreams: [<url>]
-catalog-upstreams: [<url>]
-compdef-upstreams: [<url>]
 git-provider-type: github
 git-provider-url: github.com
 git-committer-name: "Foo Bar"
 git-committer-email: foo@bar.com
 models:
   # we could allow for multiple or keep this as one
-  - oscal-model: "ssp"
+  - oscal-model: ssp
+    markdown-path: markdown/system-security-plans
+    skip-items: [...]
+    skip-assemble: true
+  - oscal-model: compdef
+    markdown-path: markdown/component-definitions
     skip-items: [...]
     skip-assemble: true
 ```
