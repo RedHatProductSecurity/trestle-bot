@@ -18,12 +18,16 @@ This ADR also outlines the adoption of environment variables and a configuration
 
 The trestlebot module will be refactored to remove the use of `argparse` in favor of Click as the CLI framework.  The code contained in `entrypoints` will be converted into Click commands under the `trestlebot` CLI application.  A new `cli.py` module will be created as the main entrypoint.
 
-In addition, support will be added for using a configuration file and environment variables as CLI inputs.  The CLI will prioritize arguments passed as command flags.  If no argument is passed, the CLI will check for an environment variable.  Finally, if no enviroment variable is found, it will look to the configuration file.  
+In addition, support will be added for using a configuration file and environment variables as CLI inputs.  The CLI will prioritize arguments passed as command flags.  If no argument is passed, the CLI will check for an environment variable.  Finally, if no enviroment variable is found, it will look to the configuration file.  Click natively supports loading command arguments from environment variables, including a constant prefix.  All environment variables will have a `TRESTLEBOT_` prefix.
 
-The configuration file will be broken into two primary categories, `global` and `model specific`.  Global configuration will apply across all models and include values such as git provider, markdown directories, etc.  Model specific configuration will apply to the given OSCAL model only.  While it is expected that most repos will be used for authoring a single OSCAL model, the possiblity of authoring more than one model would be supported.  The configuration file would be initialized at a default location during the `trestlebot init` command.  Manual creation and editing is also possible.  The path to the configuration file can be passed using the `--config | -c` flag.  This would not be required if using the default file location. 
+The configuration file will be broken into two primary categories, `global` and `model specific`.  Global configuration will apply across all models and include values such as git provider, markdown directories, etc.  Model specific configuration will apply to the given OSCAL model only.  While it is expected that most repos will be used for authoring a single OSCAL model, the possiblity of authoring more than one model would be supported.
 
+The configuration file would be initialized at a default location during the `trestlebot init` command.  Manual creation and editing is also possible.  The path to the configuration file can be passed using the `--config | -c` flag.  This would not be required if using the default file location. 
+
+Default behaviors:
 - the default configuration file location will be `.trestlebot/config.yaml`
-- all environment variables will have a `TRESTLEBOT_` prefix
+- if a command only supports a single OSCAL model then `--oscal-model` will default to that value.  (ex: `rules-transform` only supports compdef)
+- if the config file only contains a single OSCAL model then that will be used as the default value for `--oscal-model`
 
 #### Example config:
 
