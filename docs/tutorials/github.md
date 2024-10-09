@@ -81,13 +81,13 @@ mkdir profiles/nist_rev5_800_53
 wget https://raw.githubusercontent.com/usnistgov/oscal-content/release-v1.0.5-update/nist.gov/SP800-53/rev5/json/NIST_SP-800-53_rev5_HIGH-baseline_profile.json -O profiles/nist_rev5_800_53/profile.json
 ```
 
-4. Our `profile.json` file contains a reference to our `catalog.json` file.  By default, this path is not resolvable by compliance-trestle, so we need to run the following command to update the `href` value in the JSON.
+3. Our `profile.json` file contains a reference to our `catalog.json` file.  By default, this path is not resolvable by compliance-trestle, so we need to run the following command to update the `href` value in the JSON.
 
 ```
 sed -i 's/NIST_SP-800-53_rev5_catalog.json/trestle:\/\/catalogs\/nist_rev5_800_53\/catalog.json/g' profiles/nist_rev5_800_53/profile.json
 ```
 
-5. Ready-made CI/CD workflows can be copied from the `TEMPLATES` directory within the upstream `trestle-bot` repository into the local trestle workspace. These are the trestlebot actions that will run as changes are made to the repo contents.
+4. Ready-made CI/CD workflows can be copied from the `TEMPLATES` directory within the upstream `trestle-bot` repository into the local trestle workspace. These are the trestlebot actions that will run as changes are made to the repo contents.
 
  * If trestlebot init was run earlier using a trestle-bot container image, then the upstream trestle-bot repository will first need to be cloned locally into a separate directory.
 ```
@@ -103,7 +103,7 @@ cp ../trestle-bot/TEMPLATES/github/trestlebot-create-component-definition.yml .g
 cp ../trestle-bot/TEMPLATES/github/trestlebot-rules-transform.yml .github/workflows
 ```
 
-6. Trestle-bot initial content is now created locally within the new trestle authoring workspace. This content can now be pushed to the remote GitHub repository.
+5. Trestle-bot initial content is now created locally within the new trestle authoring workspace. This content can now be pushed to the remote GitHub repository.
 ```
 git add .
 git commit -m "added example NIST SP 800-53 profile and component definition authoring workflow"
