@@ -120,7 +120,7 @@ class TrestleBot:
             head_branch=self.branch,
             base_branch=self.target_branch,
             title=pull_request_title,
-            body="",
+            body="Authored by trestle-bot.",
         )
         return pr_number
 
