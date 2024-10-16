@@ -116,7 +116,7 @@ git push
 
 Now it's time to run our first trestlebot action within GitHub!  We will go ahead and create our first component definition.
 
-1. Open the remote workflow GitHub repository in a web browser.
+1. Open the new remote GitHub repository in a web browser.
 2. Click to the `Actions` tab from the top menu.
 3. Click the `Trestle-bot create component definition` action from the left-hand menu.
 4. Click `Run Workflow` which will open up a dialog box.
@@ -130,6 +130,6 @@ Now it's time to run our first trestlebot action within GitHub!  We will go ahea
 
 6. Click `Run Workflow`
 
-Once the workflow job has completed, there will be a new Pull Request containing the files trestlebot generated for the component definition.  After reviewing the commit changes, the Pull Request can then be merged into the main branch!
+Once the workflow job has completed, there will be a new Pull Request containing the files trestlebot generated for the component definition.  After reviewing the committed changes, the Pull Request can then be merged into the main branch!
 
 **Congratulations! We have successfully created a new trestlebot workspace and have an authoring environment!**
