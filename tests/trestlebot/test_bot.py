@@ -347,7 +347,7 @@ def test_run_with_provider(tmp_repo: Tuple[str, Repo]) -> None:
             head_branch="test",
             base_branch="main",
             title="Automatic updates from bot",
-            body="",
+            body="Authored by trestle-bot.",
         )
         mock_push.assert_called_once_with(refspec="HEAD:test")
 
@@ -396,6 +396,6 @@ def test_run_with_provider_with_custom_pr_title(tmp_repo: Tuple[str, Repo]) -> N
             head_branch="test",
             base_branch="main",
             title="Test",
-            body="",
+            body="Authored by trestle-bot.",
         )
         mock_push.assert_called_once_with(refspec="HEAD:test")
