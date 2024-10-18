@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.11.0...v0.12.0) (2024-10-18)
+
+
+### Features
+
+* **bot:** change for configuring trestle-bot PR body update ([#363](https://github.com/RedHatProductSecurity/trestle-bot/issues/363)) ([812ae9a](https://github.com/RedHatProductSecurity/trestle-bot/commit/812ae9acdc9741fc83e20cc219ecbb681e3bf6c4))
+
 ## [0.11.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.10.1...v0.11.0) (2024-09-25)
 
 
