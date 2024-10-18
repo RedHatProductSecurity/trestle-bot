@@ -6,7 +6,7 @@ all: develop lint test
 .PHONY: all
 
 develop: pre-commit
-	@poetry install
+	@poetry install --with tests,dev
 	@poetry shell
 .PHONY: develop
 
