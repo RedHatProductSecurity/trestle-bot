@@ -18,6 +18,7 @@ Before you start contributing, please take a moment to read through the guide be
     - [Documentation](#documentation)
       - [Architecture Decisions](#architecture-decisions)
       - [Update the `actions` files](#update-the-actions-files)
+      - [Authoring CI Workflows](#authoring-ci-workflows)
     - [License Text in Files](#license-text-in-files)
     - [Tools](#tools)
       - [Format and Styling](#format-and-styling)
@@ -97,7 +98,18 @@ Each `README.md` under the `actions` directory have an Actions Inputs and Action
 make update-action-readmes
 ```
 
-### License Text in Files
+#### Authoring CI Workflows
+
+The CI workflows for trestle-bot leverage third party actions pinned to a hash value which is updated by `dependabot.yml`. The purpose of pinning actions to a full length commit SHA is to ensure that action repository privileges are secure. Actions that are pinned to full length commit SHAs act as immutable releases which allow for distinction between versions and an accurate history log. When selecting a commit SHA to include, the SHA value that is associated with the version of the action should be chosen from the associated action's repository. Dependabot checks for the action's reference against the latest version ensuring a secure and consistent approach to managing dependencies and version updating.
+
+To generate a pin for a third party action, there should be a full length commit SHA associated with the version of the action being referenced. The pin used is the full length SHA, tag, or branch that dependabot will reference when updating dependencies and bumping versions.
+
+- The syntax for a specified action is: `OWNER/REPOSITORY@TAG-OR-SHA`.
+- The syntax for a specified reusable workflow is: `OWNER/REPOSITORY/PATH/FILENAME@TAG-OR-SHA`.
+
+This approach is used for authoring CI workflows that utilize versioned actions to produce frequent updates from dependabot for python and GitHub Actions.
+
+### License Text in Files 
 
 Please use the SPDX license identifier in all source files.
 
