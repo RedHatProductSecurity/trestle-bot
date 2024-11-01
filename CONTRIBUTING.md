@@ -100,9 +100,9 @@ make update-action-readmes
 
 #### Authoring CI Workflows
 
-The CI workflows for trestle-bot leverage third party actions pinned to a hash value which is updated by `dependabot.yml`. The purpose of pinning actions to a full length commit SHA is to ensure that action repository privileges are secure. Actions that are pinned to full length commit SHAs act as immutable releases which allow for distinction between versions and an accurate history log. When selecting a commit SHA to include, the SHA value that is associated with the version of the action should be chosen from the associated action's repository. Dependabot checks for the action's reference against the latest version ensuring a secure and consistent approach to managing dependencies and version updating.
+The CI workflows for trestle-bot leverage third party actions pinned to a hash value which is updated by `dependabot.yml`. The purpose of pinning actions to a full length commit SHA is to ensure that the action's code and behavior remain consistent. Actions that are pinned to full length commit SHAs act as immutable releases which allow for distinction between versions and an accurate history log. When selecting a commit SHA to include, the SHA value that is associated with the version of the action should be chosen from the associated action's repository. Dependabot checks for the action's reference against the latest version ensuring a secure and consistent approach to managing dependencies and version updating.
 
-To generate a pin for a third party action, there should be a full length commit SHA associated with the version of the action being referenced. The pin used is the full length SHA, tag, or branch that dependabot will reference when updating dependencies and bumping versions.
+To generate a pin for a third party action, there should be a full length commit SHA associated with the version of the action being referenced. The reference used is the full length SHA, tag, or branch that dependabot will use when updating dependencies and bumping versions.
 
 - The syntax for a specified action is: `OWNER/REPOSITORY@TAG-OR-SHA`.
 - The syntax for a specified reusable workflow is: `OWNER/REPOSITORY/PATH/FILENAME@TAG-OR-SHA`.
