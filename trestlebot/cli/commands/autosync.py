@@ -1,2 +1,1 @@
 """ Autosync command"""
-
