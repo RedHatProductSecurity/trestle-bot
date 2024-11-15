@@ -4,24 +4,56 @@
 """"
 Module for Trestle-bot init command
 """
+import argparse
 import logging
 import sys
 from pathlib import Path
 
 import click
+from trestle.common import file_utils
 from trestle.common.const import MODEL_DIR_LIST
+from trestle.core.commands.common.return_codes import CmdReturnCodes
+from trestle.core.commands.init import InitCmd
 
 from trestlebot.cli.options.common import common_options
-from trestlebot.const import ERROR_EXIT_CODE, TRESTLEBOT_CONFIG_DIR
+from trestlebot.const import (
+    ERROR_EXIT_CODE,
+    TRESTLEBOT_CONFIG_DIR,
+    TRESTLEBOT_KEEP_FILE,
+)
 
 
 logger = logging.getLogger(__name__)
 
 
+def call_trestle_init(working_dir: str, debug: bool) -> None:
+    """Call compliance-trestle to initialize workspace"""
+
+    verbose = 1 if debug else 0
+    trestle_args = argparse.Namespace(
+        verbose=verbose,
+        trestle_root=Path(working_dir),
+        full=False,
+        govdocs=True,
+        local=False,
+    )
+    return_code = InitCmd()._run(trestle_args)
+    if return_code == CmdReturnCodes.SUCCESS.value:
+        logger.debug("Initialized trestle project successfully")
+    else:
+        logger.error(
+            f"Initialization failed.  Unexpted trestle error: {CmdReturnCodes(return_code).name}"
+        )
+        sys.exit(ERROR_EXIT_CODE)
+
+
 def dir_make_if_not(directory: str) -> None:
     """Makes directory if it does not already exists."""
     try:
-        Path(directory).mkdir(parents=True)
+        pathobj = Path(directory)
+        pathobj.mkdir(parents=True)
+        keep_file = pathobj.joinpath(Path(TRESTLEBOT_KEEP_FILE))
+        file_utils.make_hidden_file(keep_file)
         logger.debug(f"Created directory {directory}")
     except FileExistsError:
         logger.debug(f"Directory {directory} exists, skipping create.")
@@ -33,9 +65,7 @@ def dir_make_if_not(directory: str) -> None:
     help="Path to git repo.  Used as working directory for authoring.",
     type=click.Path(exists=True),
 )
-@click.option(
-    "--markdown-dir", help="Path to store markdown content.", type=click.Path()
-)
+@click.option("--markdown-dir", help="Path to store markdown files.", type=click.Path())
 @common_options
 def init_cmd(
     ctx: click.Context, working_dir: str, markdown_dir: str, debug: bool, config: str
@@ -52,11 +82,13 @@ def init_cmd(
         )
         if not working_dir:
             working_dir = click.prompt(
-                "Path to git repo", default=".", type=click.Path(exists=True)
+                "Enter path to git repo (workspace directory)",
+                default=".",
+                type=click.Path(exists=True),
             )
         if not markdown_dir:
             markdown_dir = click.prompt(
-                "Path to store markdown content", default="./markdown"
+                "Enter path to store markdown files", default="./markdown"
             )
 
     root_dir: Path = Path(working_dir)
@@ -74,5 +106,14 @@ def init_cmd(
         )
         sys.exit(ERROR_EXIT_CODE)
 
+    # Create model directories in workspace root
     model_dirs = list(map(lambda x: str(root_dir.joinpath(x)), MODEL_DIR_LIST))
     list(map(dir_make_if_not, model_dirs))
+
+    # Create markdown directories in workspace root
+    markdown_dirs = list(
+        map(lambda x: str(root_dir.joinpath(f"{markdown_dir}/" + x)), MODEL_DIR_LIST)
+    )
+    list(map(dir_make_if_not, markdown_dirs))
+
+    call_trestle_init(working_dir, debug)
