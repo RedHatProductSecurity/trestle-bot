@@ -1,3 +1,7 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
+
 """Main entrypoint for trestlebot"""
 
 import click
@@ -17,8 +21,8 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
     epilog=EPILOG,
 )
 @click.pass_context
-def root(ctx: click.Context) -> None:
+def root_cmd(ctx: click.Context) -> None:
     """Root command"""
 
 
-root.add_command(init_cmd)
+root_cmd.add_command(init_cmd)

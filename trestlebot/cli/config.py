@@ -1,12 +1,43 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
 """
 Trestle-bot CLI configuration module.
 """
 
+import logging
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
-from pydantic import BaseModel, DirectoryPath, model_serializer
+from pydantic import BaseModel, DirectoryPath, ValidationError, model_serializer
+
+
+logger = logging.getLogger(__name__)
+
+
+class TrestleBotConfigError(Exception):
+    """Custom error to better format pydantic exceptions.
+
+    Example pydantic error dict: {'type': str, 'loc': tuple[str], 'msg': str, 'input': str}
+
+    """
+
+    def __init__(self, errors: List[Dict[str, Any]]):
+        self.errors = list(map(self._format, errors))
+        super().__init__(
+            f"Trestle-bot config file contains {len(self.errors)} error(s)."
+        )
+
+    def _format(self, err: Dict[str, Any]) -> str:
+        """Returns a formatted string with the error details."""
+        msg = "Unable to load config."  # default message if we can't parse error
+
+        if err.get("loc"):
+            msg = f"Invalid config value for {err['loc'][0]}."
+        if err.get("msg"):
+            msg += f" {err['msg']}"  # Add error message details if present
+        return msg
 
 
 class TrestleBotConfig(BaseModel):
@@ -27,12 +58,16 @@ class TrestleBotConfig(BaseModel):
         )
 
 
-def load_from_file(file: str) -> TrestleBotConfig:
+def load_from_file(file: str) -> Optional[TrestleBotConfig]:
     """Load yaml file to trestlebot config object"""
-
-    with open(file, "r") as config_file:
-        config_yaml = yaml.safe_load(config_file)
-        return TrestleBotConfig(**config_yaml)
+    try:
+        with open(file, "r") as config_file:
+            config_yaml = yaml.safe_load(config_file)
+            return TrestleBotConfig(**config_yaml)
+    except ValidationError as ex:
+        raise TrestleBotConfigError(ex.errors())
+    except FileNotFoundError:
+        return None
 
 
 def write_to_file(config: TrestleBotConfig, file: str) -> Path:
