@@ -52,6 +52,7 @@ def load_config_to_ctx(ctx: click.Context, param: str, value: str) -> Optional[s
     try:
         config = load_from_file(value)
         if not config:
+            logger.debug("No configuration file found.")
             return None
     except TrestleBotConfigError as ex:
         logger.error(str(ex))
@@ -65,6 +66,7 @@ def load_config_to_ctx(ctx: click.Context, param: str, value: str) -> Optional[s
         )  # if default_map has not yet been set by another option
     else:
         ctx.default_map.update(config)
+        logger.debug(f"Successfully loaded config file {value} into context.")
     return value
 
 
