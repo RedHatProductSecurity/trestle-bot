@@ -78,7 +78,7 @@ def write_to_file(config: TrestleBotConfig, file_path: Path) -> None:
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open("w") as config_file:
-            yaml.dump(config.dict(), config_file)
+            yaml.dump(config.model_dump(), config_file)
     except ValidationError as ex:
         raise TrestleBotConfigError(ex.errors())
 

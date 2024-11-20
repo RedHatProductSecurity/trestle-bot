@@ -1,4 +1,4 @@
-""" 
+"""
 Module for common create commands
 """
 
