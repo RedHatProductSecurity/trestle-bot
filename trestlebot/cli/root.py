@@ -6,6 +6,7 @@
 
 import click
 
+from trestlebot.cli.commands.autosync import autosync_cmd
 from trestlebot.cli.commands.init import init_cmd
 
 
@@ -26,3 +27,4 @@ def root_cmd(ctx: click.Context) -> None:
 
 
 root_cmd.add_command(init_cmd)
+root_cmd.add_command(autosync_cmd)

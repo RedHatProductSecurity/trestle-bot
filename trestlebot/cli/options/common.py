@@ -100,3 +100,50 @@ def common_options(f: F) -> Any:
         return f(*args, **kwargs)
 
     return wrapper_common_options
+
+
+def git_options(f: F) -> Any:
+    """
+    Configure git options used for git operations.
+    """
+
+    @click.option(
+        "--branch",
+        help="Branch name to push changes to",
+        type=str,
+    )
+    @click.option(
+        "--committer-name",
+        help="Name of committer",
+        type=str,
+    )
+    @click.option(
+        "--committer-email",
+        help="Email for committer",
+        type=str,
+    )
+    @click.option(
+        "--file-patterns",
+        help="Comma-separated list of file patterns to be used with `git add` in repository updates",
+        type=str,
+    )
+    @click.option(
+        "--commit-message",
+        help="Commit message for automated updates",
+        type=str,
+    )
+    @click.option(
+        "--author-name",
+        help="Name for commit author if differs from committer",
+        type=str,
+    )
+    @click.option(
+        "--author-email",
+        help="Email for commit author if differs from committer",
+        type=str,
+    )
+    @functools.wraps(f)
+    def wrapper_git_options(*args: Sequence[Any], **kwargs: Dict[Any, Any]) -> Any:
+        return f(*args, **kwargs)
+
+    return wrapper_git_options
