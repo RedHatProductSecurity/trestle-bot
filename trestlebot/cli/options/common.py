@@ -30,7 +30,7 @@ def handle_exceptions(func: F) -> Any:
         except Exception as ex:
             traceback_str = traceback.format_exc()
             logger.error(f"Trestle-bot Error: {str(ex)}")
-            logger.error(traceback_str)
+            logger.debug(traceback_str)
             return ERROR_EXIT_CODE
 
     return wrapper
@@ -57,7 +57,7 @@ def load_config_to_ctx(ctx: click.Context, param: str, value: str) -> Optional[s
     except TrestleBotConfigError as ex:
         logger.error(str(ex))
         for err in ex.errors:
-            logger.error(f"[!] {err}")
+            logger.error({err})
         sys.exit(ERROR_EXIT_CODE)
 
     if not ctx.default_map:

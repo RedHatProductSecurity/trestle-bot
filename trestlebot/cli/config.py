@@ -36,21 +36,24 @@ class TrestleBotConfigError(Exception):
         if err.get("loc"):
             msg = f"Invalid config value for {err['loc'][0]}."
         if err.get("msg"):
-            msg += f" {err['msg']}"  # Add error message details if present
+            msg += f" {err['msg']}."  # Add error message details if present
         return msg
+
+    def __str__(self) -> str:
+        return "".join(self.errors)
 
 
 class TrestleBotConfig(BaseModel):
     """Data model for trestle-bot configuration."""
 
-    working_dir: Optional[DirectoryPath] = None
-    markdown_dir: Optional[DirectoryPath] = None
+    repo_path: Optional[DirectoryPath] = None
+    markdown_dir: Optional[str] = None
 
     @model_serializer
     def _dict(self) -> Dict[str, Any]:
         """Returns a dict that can be safely loaded to yaml."""
         config_dict = {
-            "working_dir": str(self.working_dir),
+            "repo_path": str(self.repo_path),
             "markdown_dir": str(self.markdown_dir),
         }
         return dict(
@@ -70,14 +73,27 @@ def load_from_file(file: str) -> Optional[TrestleBotConfig]:
         return None
 
 
-def write_to_file(config: TrestleBotConfig, file: str) -> Path:
+def write_to_file(config: TrestleBotConfig, file_path: Path) -> None:
     """Write config object to yaml file"""
+    try:
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        with file_path.open("w") as config_file:
+            yaml.dump(config.dict(), config_file)
+    except ValidationError as ex:
+        raise TrestleBotConfigError(ex.errors())
 
-    with open(file, "w") as config_file:
-        yaml.dump(config.dict(), config_file)
-    return Path(file)
+
+def make_config(values: Dict[str, Any]) -> TrestleBotConfig:
+    """Generates a new trestle-bot config object"""
+    try:
+        return TrestleBotConfig(**values)
+    except ValidationError as ex:
+        raise TrestleBotConfigError(ex.errors())
 
 
 def update_config(config: TrestleBotConfig, update: Dict[str, Any]) -> TrestleBotConfig:
     """Returns a new config object with specified updates."""
-    return config.model_copy(update=update)
+    try:
+        return config.model_copy(update=update)
+    except ValidationError as ex:
+        raise TrestleBotConfigError(ex.errors())
