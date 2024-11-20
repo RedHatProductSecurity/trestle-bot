@@ -7,8 +7,6 @@ import click
 from trestlebot.cli.options.create import common_create_options
 
 
-
-
 @click.group(name="create")
 @common_create_options
 def create_cmd(ctx: click.Context, profile_name: str) -> None:
@@ -60,7 +58,7 @@ def compdef_cmd(
     Component definition authoring command.
     """
     click.echo(
-        f"The name of the profile in the trestle workspace to use with the component definition is {profile_name}."
+        f"The name of the profile in use with the component definition is {profile_name}."
     )
     click.echo(
         f"You have selected component definitions as the document you want {compdef_name} to author."
