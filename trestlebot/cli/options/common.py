@@ -111,16 +111,19 @@ def git_options(f: F) -> Any:
         "--branch",
         help="Branch name to push changes to",
         type=str,
+        prompt="Enter branch name to push changes to",
     )
     @click.option(
         "--committer-name",
         help="Name of committer",
         type=str,
+        prompt="Enter name for committer",
     )
     @click.option(
         "--committer-email",
         help="Email for committer",
         type=str,
+        prompt="Enter email for committer",
     )
     @click.option(
         "--file-patterns",
