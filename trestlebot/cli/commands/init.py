@@ -24,6 +24,7 @@ from trestlebot.const import (
 
 
 logger = logging.getLogger(__name__)
+logging.getLogger("trestle.core.commands.init").setLevel("CRITICAL")
 
 
 def call_trestle_init(repo_path: Path, debug: bool) -> None:
@@ -48,43 +49,38 @@ def call_trestle_init(repo_path: Path, debug: bool) -> None:
 
 
 @click.command(name="init", help="Initialize a new trestle-bot repo.")
-@click.option(
-    "--repo-path",
-    "repo_path",
-    help="Path to git repo.  Used as trestle root directory.",
-    type=click.Path(path_type=Path, exists=True),
+@click.argument(
+    "repo_path", type=click.Path(path_type=Path, exists=True), required=True
 )
 @click.option(
-    "--markdown-dir", help="Directory name to store markdown files.", type=str
+    "--markdown-dir",
+    type=str,
+    help="Directory name to store markdown files.",
+    default="markdown/",
+    prompt="Enter path to store markdown files",
+)
+@click.option(
+    "--ssp-index-file",
+    type=str,
+    help="Path of SSP index file.",
+    default="ssp-index.json",
+    required=False,
 )
 @common_options
 def init_cmd(
-    ctx: click.Context, repo_path: Path, markdown_dir: str, debug: bool, config: str
+    ctx: click.Context,
+    debug: bool,
+    config: str,
+    repo_path: Path,
+    markdown_dir: str,
+    ssp_index_file: str,
 ) -> None:
     """Command to initialize a new trestlebot repo"""
 
-    need_to_prompt = any((not repo_path, not markdown_dir))
-    if need_to_prompt:
-
-        click.echo("\n* Welcome to the Trestle-bot CLI *\n")
-        click.echo(
-            "Please provide the following values to initialize the "
-            "workspace [press Enter for defaults].\n"
-        )
-        if not repo_path:
-            repo_path = click.prompt(
-                "Enter path to git repo (workspace directory)",
-                default=".",
-                type=click.Path(path_type=Path, exists=True),
-            )
-        if not markdown_dir:
-            markdown_dir = click.prompt(
-                "Enter path to store markdown files", default="./markdown", type=str
-            )
-
+    repo_path = repo_path.resolve()
     git_path: Path = repo_path.joinpath(Path(".git"))
     if not git_path.exists():
-        logging.error(
+        logger.error(
             f"Initialization failed. Given directory {repo_path} is not a Git repository."
         )
         sys.exit(ERROR_EXIT_CODE)
