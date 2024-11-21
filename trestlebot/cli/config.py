@@ -48,6 +48,7 @@ class TrestleBotConfig(BaseModel):
 
     repo_path: Optional[DirectoryPath] = None
     markdown_dir: Optional[str] = None
+    ssp_index_file: Optional[str] = "ssp-index.json"
 
     @model_serializer
     def _dict(self) -> Dict[str, Any]:
@@ -55,6 +56,7 @@ class TrestleBotConfig(BaseModel):
         config_dict = {
             "repo_path": str(self.repo_path),
             "markdown_dir": str(self.markdown_dir),
+            "ssp_index_file": str(self.ssp_index_file),
         }
         return dict(
             filter(lambda item: item[1] not in (None, "None"), config_dict.items())
