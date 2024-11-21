@@ -2,9 +2,14 @@
 Module for create-cd create-ssp command for CLI
 """
 
+import logging
+
 import click
 
 from trestlebot.cli.options.create import common_create_options
+
+
+logger = logging.getLogger(__name__)
 
 
 @click.group(name="create")
@@ -57,18 +62,18 @@ def compdef_cmd(
     """
     Component definition authoring command.
     """
-    click.echo(
+    logger.info(
         f"The name of the profile in use with the component definition is {profile_name}."
     )
-    click.echo(
+    logger.info(
         f"You have selected component definitions as the document you want {compdef_name} to author."
     )
-    click.echo(f"The component definition name is {component_title}.")
-    click.echo(f"The component description to author is {component_description}.")
-    click.echo(
+    logger.info(f"The component definition name is {component_title}.")
+    logger.info(f"The component description to author is {component_description}.")
+    logger.info(
         f"The profile you want to filter controls in the component files is {filter_by_profile}."
     )
-    click.echo(f"The component definition type is {component_definition_type}.")
+    logger.info(f"The component definition type is {component_definition_type}.")
 
 
 # @create_cmd.command(name="ssp", help="command for ssp authoring")
@@ -104,14 +109,8 @@ def ssp_cmd(
     """
     SSP Authoring command
     """
-    click.echo(
-        f"The name of the profile in trestle workspace to include in the SSP is {profile_name}."
-    )
-    click.echo(f"The name of the SSP to create is {ssp_name}.")
-    click.echo(f"The leveraged SSP is {leveraged_ssp}.")
-    click.echo(f"The SSP index path is {ssp_index_path}.")
-    click.echo(f"The YAML file for custom SSP markdown is {yaml_header_path}.")
-
-
-if __name__ == "__main__":
-    create_cmd()
+    logger.info(f"The name of the profile in use with the SSP is {profile_name}.")
+    logger.info(f"The name of the SSP to create is {ssp_name}.")
+    logger.info(f"The leveraged SSP is {leveraged_ssp}.")
+    logger.info(f"The SSP index path is {ssp_index_path}.")
+    logger.info(f"The YAML file for custom SSP markdown is {yaml_header_path}.")
