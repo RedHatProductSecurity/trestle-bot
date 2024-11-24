@@ -15,24 +15,20 @@ from trestlebot.cli.commands.init import call_trestle_init, init_cmd
 from trestlebot.const import TRESTLEBOT_CONFIG_DIR
 
 
-TRESTLE_KEEP_FILE
-
-
 def test_init_repo_dir_does_not_exist() -> None:
     """Init should fail if repo dir does not exit"""
     runner = CliRunner()
-    result = runner.invoke(init_cmd, ["0"])
+    result = runner.invoke(init_cmd, ["--repo-path", "0"])
     assert result.exit_code == 2
-    assert (
-        "Error: Invalid value for 'REPO_PATH': Path '0' does not exist."
-        in result.output
-    )
+    assert "does not exist." in result.output
 
 
 def test_init_not_git_repo(tmp_init_dir: str) -> None:
     """Init should fail if repo dir is not a Git repo."""
     runner = CliRunner()
-    result = runner.invoke(init_cmd, [tmp_init_dir, "--markdown-dir", "markdown"])
+    result = runner.invoke(
+        init_cmd, ["--repo-path", tmp_init_dir, "--markdown-dir", "markdown"]
+    )
     assert result.exit_code == 1
     assert "not a Git repository" in result.output
 
@@ -48,7 +44,9 @@ def test_init_existing_trestlebot_dir(tmp_init_dir: str) -> None:
     setup_for_init(pathlib.Path(tmp_init_dir))
 
     runner = CliRunner()
-    result = runner.invoke(init_cmd, [tmp_init_dir, "--markdown-dir", "markdown"])
+    result = runner.invoke(
+        init_cmd, ["--repo-path", tmp_init_dir, "--markdown-dir", "markdown"]
+    )
 
     assert result.exit_code == 1
     assert "existing .trestlebot directory" in result.output
@@ -60,7 +58,9 @@ def test_init_creates_config_file(tmp_init_dir: str) -> None:
     setup_for_init(pathlib.Path(tmp_init_dir))
 
     runner = CliRunner()
-    result = runner.invoke(init_cmd, [tmp_init_dir, "--markdown-dir", "markdown"])
+    result = runner.invoke(
+        init_cmd, ["--repo-path", tmp_init_dir, "--markdown-dir", "markdown"]
+    )
     assert result.exit_code == 0
     assert "Successfully initialized trestlebot" in result.output
 
@@ -83,7 +83,7 @@ def test_init_creates_model_dirs(tmp_init_dir: str) -> None:
     setup_for_init(tmp_dir)
 
     runner = CliRunner()
-    runner.invoke(init_cmd, [tmp_init_dir, "--markdown-dir", "markdown"])
+    runner.invoke(init_cmd, ["--repo-path", tmp_init_dir, "--markdown-dir", "markdown"])
 
     model_dirs = [d.name for d in tmp_dir.iterdir() if not is_hidden(d)]
     model_dirs.remove("markdown")  # pop markdown dir
@@ -98,7 +98,7 @@ def test_init_creates_markdown_dirs(tmp_init_dir: str) -> None:
     setup_for_init(tmp_dir)
 
     runner = CliRunner()
-    runner.invoke(init_cmd, [tmp_init_dir, "--markdown-dir", "markdown"])
+    runner.invoke(init_cmd, ["--repo-path", tmp_init_dir, "--markdown-dir", "markdown"])
 
     markdown_dirs = [d.name for d in markdown_dir.iterdir() if not is_hidden(d)]
     assert sorted(markdown_dirs) == sorted(MODEL_DIR_LIST)

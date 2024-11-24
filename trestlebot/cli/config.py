@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 import yaml
-from pydantic import BaseModel, DirectoryPath, ValidationError, model_serializer
+from pydantic import BaseModel, DirectoryPath, ValidationError
 
 
 logger = logging.getLogger(__name__)
@@ -43,35 +43,73 @@ class TrestleBotConfigError(Exception):
         return "".join(self.errors)
 
 
+class UpstreamConfig(BaseModel):
+    """Data model for upstream sources."""
+
+    url: str
+    include_models: List[str] = ["*"]
+    exclude_models: List[str] = []
+    skip_validation: bool = False
+
+
 class TrestleBotConfig(BaseModel):
     """Data model for trestle-bot configuration."""
 
     repo_path: Optional[DirectoryPath] = None
     markdown_dir: Optional[str] = None
-    ssp_index_file: Optional[str] = "ssp-index.json"
+    committer_name: Optional[str] = None
+    committer_email: Optional[str] = None
+    ssp_index_file: Optional[str] = None
+    upstreams: List[UpstreamConfig] = []
 
-    @model_serializer
-    def _dict(self) -> Dict[str, Any]:
-        """Returns a dict that can be safely loaded to yaml."""
+    def to_yaml_dict(self) -> Dict[str, Any]:
+        """Returns a dict that can be cleanly loaded into a yaml file.
+
+        This custom model serializer provides a cleaner dict that can
+        be stored as a YAML file.  For example, we want to omit empty values
+        from being written to the YAML config file.
+
+        Ex: instead of `ssp_index_file: None` appearing in the YAML, we
+        just want to exclude it from the config file all together.  This
+        produces a YAML config file that only includes values that have
+        been set (or have a default we want to include).
+        """
+
+        upstreams = []
+        for upstream in self.upstreams:
+            upstream_dict = {
+                "url": upstream.url,
+                "skip_validation": upstream.skip_validation,
+            }
+            if upstream.include_models:
+                upstream_dict.update(include_models=upstream.include_models)
+            if upstream.exclude_models:
+                upstream_dict.update(exclude_models=upstream.exclude_models)
+            upstreams.append(upstream_dict)
+
         config_dict = {
             "repo_path": str(self.repo_path),
             "markdown_dir": str(self.markdown_dir),
             "ssp_index_file": str(self.ssp_index_file),
+            "committer_name": str(self.committer_name),
+            "committer_email": str(self.committer_email),
+            "upstreams": upstreams,
         }
         return dict(
-            filter(lambda item: item[1] not in (None, "None"), config_dict.items())
+            filter(lambda item: item[1] not in (None, "None", []), config_dict.items())
         )
 
 
-def load_from_file(file: str) -> Optional[TrestleBotConfig]:
+def load_from_file(file_path: Path) -> Optional[TrestleBotConfig]:
     """Load yaml file to trestlebot config object"""
     try:
-        with open(file, "r") as config_file:
+        with open(file_path, "r") as config_file:
             config_yaml = yaml.safe_load(config_file)
             return TrestleBotConfig(**config_yaml)
     except ValidationError as ex:
         raise TrestleBotConfigError(ex.errors())
-    except FileNotFoundError:
+    except (FileNotFoundError, TypeError):
+        logger.debug(f"No config file found at {file_path}")
         return None
 
 
@@ -80,15 +118,15 @@ def write_to_file(config: TrestleBotConfig, file_path: Path) -> None:
     try:
         file_path.parent.mkdir(parents=True, exist_ok=True)
         with file_path.open("w") as config_file:
-            yaml.dump(config.model_dump(), config_file)
+            yaml.dump(config.to_yaml_dict(), config_file)
     except ValidationError as ex:
         raise TrestleBotConfigError(ex.errors())
 
 
-def make_config(values: Dict[str, Any]) -> TrestleBotConfig:
+def make_config(values: Optional[Dict[str, Any]] = None) -> TrestleBotConfig:
     """Generates a new trestle-bot config object"""
     try:
-        return TrestleBotConfig(**values)
+        return TrestleBotConfig(**values) if values else TrestleBotConfig()
     except ValidationError as ex:
         raise TrestleBotConfigError(ex.errors())
 
