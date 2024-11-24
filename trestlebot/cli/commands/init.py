@@ -6,8 +6,8 @@ Module for Trestle-bot init command
 """
 import argparse
 import logging
+import pathlib
 import sys
-from pathlib import Path
 
 import click
 from trestle.common.const import MODEL_DIR_LIST
@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 logging.getLogger("trestle.core.commands.init").setLevel("CRITICAL")
 
 
-def call_trestle_init(repo_path: Path, debug: bool) -> None:
+def call_trestle_init(repo_path: pathlib.Path, debug: bool) -> None:
     """Call compliance-trestle to initialize workspace"""
 
     verbose = 1 if debug else 0
@@ -49,9 +49,8 @@ def call_trestle_init(repo_path: Path, debug: bool) -> None:
 
 
 @click.command(name="init", help="Initialize a new trestle-bot repo.")
-@click.argument(
-    "repo_path", type=click.Path(path_type=Path, exists=True), required=True
-)
+@click.pass_context
+@common_options
 @click.option(
     "--markdown-dir",
     type=str,
@@ -59,33 +58,25 @@ def call_trestle_init(repo_path: Path, debug: bool) -> None:
     default="markdown/",
     prompt="Enter path to store markdown files",
 )
-@click.option(
-    "--ssp-index-file",
-    type=str,
-    help="Path of SSP index file.",
-    default="ssp-index.json",
-    required=False,
-)
-@common_options
 def init_cmd(
     ctx: click.Context,
     debug: bool,
-    config: str,
-    repo_path: Path,
+    config_path: pathlib.Path,
+    repo_path: pathlib.Path,
     markdown_dir: str,
-    ssp_index_file: str,
+    dry_run: bool,
 ) -> None:
     """Command to initialize a new trestlebot repo"""
 
     repo_path = repo_path.resolve()
-    git_path: Path = repo_path.joinpath(Path(".git"))
+    git_path: pathlib.Path = repo_path.joinpath(pathlib.Path(".git"))
     if not git_path.exists():
         logger.error(
             f"Initialization failed. Given directory {repo_path} is not a Git repository."
         )
         sys.exit(ERROR_EXIT_CODE)
 
-    trestlebot_dir = repo_path.joinpath(Path(TRESTLEBOT_CONFIG_DIR))
+    trestlebot_dir = repo_path.joinpath(pathlib.Path(TRESTLEBOT_CONFIG_DIR))
     if trestlebot_dir.exists():
         logger.error(
             f"Initialization failed. Found existing {TRESTLEBOT_CONFIG_DIR} directory in {repo_path}"
@@ -106,7 +97,7 @@ def init_cmd(
     # Create markdown directories in workspace root
     list(
         map(
-            lambda x: repo_path.joinpath(Path(markdown_dir))
+            lambda x: repo_path.joinpath(pathlib.Path(markdown_dir))
             .joinpath(x)
             .joinpath(TRESTLEBOT_KEEP_FILE)
             .mkdir(parents=True, exist_ok=True),
@@ -120,7 +111,7 @@ def init_cmd(
 
     # generate and write trestle-bot cofig
     config = make_config(dict(repo_path=repo_path, markdown_dir=markdown_dir))
-    config_path = trestlebot_dir.joinpath(Path("config.yml"))
+    config_path = trestlebot_dir.joinpath("config.yml")
     write_to_file(config, config_path)
     logger.debug(f"trestle-bot config file created at {str(config_path)}")
     logger.info(f"Successfully initialized trestlebot project in {repo_path}")
