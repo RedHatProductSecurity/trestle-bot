@@ -5,8 +5,9 @@
 Common command options for trestle-bot commands.
 """
 
-import functools
 import logging
+import os
+import pathlib
 import sys
 import traceback
 from typing import Any, Callable, Dict, Optional, Sequence, TypeVar
@@ -44,16 +45,29 @@ def debug_to_log_level(ctx: click.Context, param: str, value: str) -> None:
     set_log_level(log_level)
 
 
-def load_config_to_ctx(ctx: click.Context, param: str, value: str) -> Optional[str]:
-    """Load yaml config file into Click context to set default values.
+def load_config_to_ctx(
+    ctx: click.Context, param: str, value: pathlib.Path
+) -> Optional[pathlib.Path]:
+    """Load yaml config file into Click context to set default values.  This
+    allows values from the yaml config to be used as the default value for a
+    given command option.
+
+    If the user specifies a value for the option directly (e.g. uses --option value)
+    then that value is used in favor of the value loaded from the config.
+
+    Simarly, if an option has an associated ENVVAR, and that ENVVAR is set, then the
+    ENVVAR value is used in favor of the value loaded from the config.
+
+    Since the config contains values that should not be mapped to command option values
+    the dictionary is explicitly built by directly plucking values from the config.
 
     This will always run before other options because the --config is_eager is True.
     """
     try:
         config = load_from_file(value)
         if not config:
-            logger.debug("No configuration file found.")
-            return None
+            logger.debug(f"No trestlebot config file found at {value}.")
+            return value
     except TrestleBotConfigError as ex:
         logger.error(str(ex))
         for err in ex.errors:
@@ -61,31 +75,24 @@ def load_config_to_ctx(ctx: click.Context, param: str, value: str) -> Optional[s
         sys.exit(ERROR_EXIT_CODE)
 
     if not ctx.default_map:
-        ctx.default_map = (
-            config.dict()
-        )  # if default_map has not yet been set by another option
+        ctx.default_map = {
+            "markdown_dir": config.markdown_dir,
+            "ssp_index_file": config.ssp_index_file,
+            "committer_name": config.committer_name,
+            "committer_email": config.committer_email,
+        }
     else:
         ctx.default_map.update(config)
         logger.debug(f"Successfully loaded config file {value} into context.")
     return value
 
 
-def common_options(f: F) -> Any:
+def common_options(f: F) -> F:
     """
     Configures common options used across commands.
     """
 
-    @click.pass_context
-    @click.option(
-        "--config",
-        type=click.Path(),
-        envvar="TRESTLEBOT_CONFIG",
-        help="Path to trestlebot configuration file",
-        default=f"{TRESTLEBOT_CONFIG_DIR}/config.yml",
-        is_eager=True,
-        callback=load_config_to_ctx,
-    )
-    @click.option(
+    f = click.option(
         "--debug",
         default=False,
         is_flag=True,
@@ -93,60 +100,75 @@ def common_options(f: F) -> Any:
         envvar="TRESTLEBOT_DEBUG",
         help="Enable debug logging messages.",
         callback=debug_to_log_level,
-    )
-    @handle_exceptions
-    @functools.wraps(f)
-    def wrapper_common_options(*args: Sequence[Any], **kwargs: Dict[Any, Any]) -> Any:
-        return f(*args, **kwargs)
+    )(f)
+    f = click.option(
+        "--config",
+        "config_path",
+        type=click.Path(path_type=pathlib.Path),
+        envvar="TRESTLEBOT_CONFIG",
+        help="Path to trestlebot configuration file.",
+        default=f"{TRESTLEBOT_CONFIG_DIR}/config.yml",
+        is_eager=True,
+        callback=load_config_to_ctx,
+    )(f)
+    click.option(
+        "--repo-path",
+        type=click.Path(path_type=pathlib.Path, exists=True),
+        envvar="TRESTLEBOT_REPO_PATH",
+        help="Path to git respository root.",
+        required=True,
+        default=os.getcwd(),
+    )(f)
+    f = click.option(
+        "--dry-run",
+        help="Run tasks, but do not push changes to the repository.",
+        is_flag=True,
+    )(f)
 
-    return wrapper_common_options
+    return f
 
 
-def git_options(f: F) -> Any:
+def git_options(f: F) -> F:
     """
     Configure git options used for git operations.
     """
-
-    @click.option(
+    f = click.option(
         "--branch",
         help="Branch name to push changes to",
+        required=True,
         type=str,
-        prompt="Enter branch name to push changes to",
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--committer-name",
         help="Name of committer",
+        required=True,
         type=str,
-        prompt="Enter name for committer",
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--committer-email",
         help="Email for committer",
+        required=True,
         type=str,
-        prompt="Enter email for committer",
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--file-patterns",
         help="Comma-separated list of file patterns to be used with `git add` in repository updates",
         type=str,
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--commit-message",
         help="Commit message for automated updates",
         type=str,
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--author-name",
         help="Name for commit author if differs from committer",
         type=str,
-    )
-    @click.option(
+    )(f)
+    f = click.option(
         "--author-email",
         help="Email for commit author if differs from committer",
         type=str,
-    )
-    @functools.wraps(f)
-    def wrapper_git_options(*args: Sequence[Any], **kwargs: Dict[Any, Any]) -> Any:
-        return f(*args, **kwargs)
+    )(f)
 
-    return wrapper_git_options
+    return f

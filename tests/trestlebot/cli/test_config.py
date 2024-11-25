@@ -42,14 +42,6 @@ def test_make_config_raises_no_errors(tmp_init_dir: str) -> None:
     assert config.markdown_dir == "markdown-test"
 
 
-def test_config_to_dict(config_obj: TrestleBotConfig) -> None:
-    """Config should serialize to a dict."""
-    model_dict = config_obj.model_dump()
-    assert isinstance(model_dict, dict)
-    assert model_dict["repo_path"] == str(config_obj.repo_path)
-    assert model_dict["markdown_dir"] == config_obj.markdown_dir
-
-
 def test_config_write_to_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -> None:
     """Test config is written to yaml file."""
     filepath = pathlib.Path(tmp_init_dir).joinpath("config.yml")
@@ -57,15 +49,15 @@ def test_config_write_to_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -
     with open(filepath, "r") as f:
         yaml_data = yaml.safe_load(f)
 
-    assert yaml_data == config_obj.model_dump()
+    assert yaml_data == config_obj.to_yaml_dict()
 
 
-def test_config_laod_from_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -> None:
+def test_config_load_from_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -> None:
     """Test config is read from yaml file into config object."""
     filepath = pathlib.Path(tmp_init_dir).joinpath("config.yml")
     with filepath.open("w") as config_file:
-        yaml.dump(config_obj.model_dump(), config_file)
+        yaml.dump(config_obj.to_yaml_dict(), config_file)
 
-    config = load_from_file(str(filepath))
+    config = load_from_file(filepath)
     assert isinstance(config, TrestleBotConfig)
-    assert config.model_dump() == config_obj.model_dump()
+    assert config == config_obj
