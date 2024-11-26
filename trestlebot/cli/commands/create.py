@@ -8,7 +8,7 @@ from typing import Any, List
 import click
 
 from trestlebot import const
-from trestlebot.cli.options.common import handle_exceptions
+from trestlebot.cli.options.common import common_options, handle_exceptions
 from trestlebot.cli.options.create import common_create_options
 from trestlebot.cli.run import run
 from trestlebot.tasks.assemble_task import AssembleTask
@@ -37,21 +37,20 @@ def create_cmd(ctx: click.Context, profile_name: str) -> None:
     pass
 
 
-# @create_cmd.command(name="compdef", help="command for component definition authoring")
 @create_cmd.command("compdef")
 @click.option(
     "--compdef-name",
-    prompt="Name of component definition is",
+    prompt="Enter name of component definition",
     help="Name of component definition.",
 )
 @click.option(
     "--component-title",
-    prompt="The name of component title is",
+    prompt="Enter name of component title",
     help="Title of initial component.",
 )
 @click.option(
     "--component-description",
-    prompt="The description of the initial component is",
+    prompt="Enter description of the initial component",
     help="Description of initial component.",
 )
 @click.option(
@@ -64,6 +63,7 @@ def create_cmd(ctx: click.Context, profile_name: str) -> None:
     default="service",
     help="Type of component definition",
 )
+@common_options
 @common_create_options
 @handle_exceptions
 def compdef_cmd(
@@ -113,13 +113,15 @@ def compdef_cmd(
 
     regenerate_task: RegenerateTask = RegenerateTask(
         authored_object=authored_comp,
-        # trestle_root=repo_path,
         markdown_dir=markdown_dir,
         model_filter=model_filter,
     )
     pre_tasks.append(regenerate_task)
 
     run(pre_tasks, kwargs)
+
+    for key, value in kwargs.items():
+        logger.info(f"{key}: {value}")
 
     logger.info(
         f"The name of the profile in use with the component definition is {profile_name}."
@@ -135,11 +137,10 @@ def compdef_cmd(
     logger.info(f"The component definition type is {component_definition_type}.")
 
 
-# @create_cmd.command(name="ssp", help="command for ssp authoring")
 @create_cmd.command("ssp")
 @click.option(
     "--ssp-name",
-    prompt="Name of SSP to create",
+    prompt="Enter name of SSP to create",
     help="Name of SSP to create.",
 )
 @click.option(
@@ -148,6 +149,7 @@ def compdef_cmd(
 )
 @click.option(
     "--ssp-index-path",
+    type=str,
     default="ssp-index.json",
     help="Optionally set the path to the SSP index file.",
 )
@@ -156,6 +158,7 @@ def compdef_cmd(
     default="ssp-index.json",
     help="Optionally set a path to a YAML file for custom SSP Markdown YAML headers.",
 )
+@common_options
 @common_create_options
 @handle_exceptions
 def ssp_cmd(
@@ -192,10 +195,8 @@ def ssp_cmd(
     assemble_task: AssembleTask = AssembleTask(
         authored_object=authored_ssp,
         markdown_dir=markdown_dir,
-        # version=version,
         model_filter=model_filter,
     )
-    # pre_tasks.append(assemble_task)
 
     pre_tasks: List[TaskBase] = [assemble_task]
 
@@ -204,6 +205,5 @@ def ssp_cmd(
     logger.info(f"The name of the profile in use with the SSP is {profile_name}.")
     logger.info(f"The SSP index path is {ssp_index_path}.")
     logger.info(f"The YAML file for custom SSP markdown is {yaml_header_path}.")
-
-    logger.debug(f"The leveraged SSP is {leveraged_ssp}.")
+    logger.info(f"The leveraged SSP is {leveraged_ssp}.")
     logger.debug(f"The name of the SSP to create is {ssp_name}.")
