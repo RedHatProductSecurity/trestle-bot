@@ -63,17 +63,22 @@ class TrestleBotConfig(BaseModel):
     upstreams: List[UpstreamConfig] = []
 
     def to_yaml_dict(self) -> Dict[str, Any]:
-        """Returns a dict that can be cleanly loaded into a yaml file.
+        """Returns a dict that can be cleanly written to a yaml file.
 
         This custom model serializer provides a cleaner dict that can
         be stored as a YAML file.  For example, we want to omit empty values
-        from being written to the YAML config file.
+        from being written to the YAML config file, or we want paths to be
+        written as strings, not posix path objects.
 
         Ex: instead of `ssp_index_file: None` appearing in the YAML, we
         just want to exclude it from the config file all together.  This
         produces a YAML config file that only includes values that have
         been set (or have a default we want to include).
+
+        Values listed in IGNORED_VALUES will be skipped.
+
         """
+        IGNORED_VALUES: List[Any] = [None, "None", []]
 
         upstreams = []
         for upstream in self.upstreams:
@@ -95,8 +100,10 @@ class TrestleBotConfig(BaseModel):
             "committer_email": str(self.committer_email),
             "upstreams": upstreams,
         }
+
+        # Filter out emtpy values to prevent them from appearing in the config
         return dict(
-            filter(lambda item: item[1] not in (None, "None", []), config_dict.items())
+            filter(lambda item: item[1] not in IGNORED_VALUES, config_dict.items())
         )
 
 
@@ -126,7 +133,10 @@ def write_to_file(config: TrestleBotConfig, file_path: Path) -> None:
 def make_config(values: Optional[Dict[str, Any]] = None) -> TrestleBotConfig:
     """Generates a new trestle-bot config object"""
     try:
-        return TrestleBotConfig(**values) if values else TrestleBotConfig()
+        if values:
+            return TrestleBotConfig.model_validate(values)
+        else:
+            return TrestleBotConfig()
     except ValidationError as ex:
         raise TrestleBotConfigError(ex.errors())
 
