@@ -40,7 +40,7 @@ jobs:
           component_title: ${{ github.event.inputs.component_title }}
           component_type: ${{ github.event.inputs.component_type }}
           component_description: ${{ github.event.inputs.component_description }}
-          markdown_path: "markdown/components"
+          markdown_path: "markdown/component-definitions"
           branch: "create-component-definition-${{ github.run_id }}"
           target_branch: "main"
           file_pattern: "*.json,markdown/*,rules/*"

@@ -5,7 +5,7 @@ build-backend = 'poetry.core.masonry.api'
 
 [tool.poetry]
 name = 'trestlebot'
-version = '0.1.0'
+version = "0.11.0"
 description = "trestle-bot assists users in leveraging Compliance-Trestle in automated workflows of for OSCAL formatted compliance content management."
 
 authors = ["Jennifer Power <jpower@redhat.com>",]
@@ -29,23 +29,28 @@ trestlebot-create-ssp = "trestlebot.entrypoints.create_ssp:main"
 [tool.poetry.dependencies]
 python = '^3.8.1'
 gitpython = "^3.1.41"
-compliance-trestle = "^3.3.0"
+compliance-trestle = "^3.5.0"
 github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"
 pydantic = "^2.0.0"
-importlib-resources = "^6.4.3"
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^7.0.0"
 black = "^24.3.0"
 mypy = "^1.11.0"
 isort = "^5.13.2"
-safety = "^3.1.0"
+safety = "^3.2.8"
 flake8-print = "^5.0.0"
 pre-commit = "^3.4.0"
-mkdocs-material = "^9.5.31"
+mkdocs-material = "^9.5.43"
 markdown-include = "^0.8.1"
+
+[tool.poetry.group.tests]
+optional = true
 
 [tool.poetry.group.tests.dependencies]
 pytest = "^8.3.2"
@@ -53,6 +58,11 @@ pytest-cov = "^5.0.0"
 pytest-skip-slow = "^0.0.5"
 responses = "^0.25.0"
 
+[tool.poetry.group.plugins]
+optional = true
+
+[tool.poetry.group.plugins.dependencies]
+compliance-trestle-fedramp = "^0.4.0"
 
 [tool.coverage.run]
 branch = true
