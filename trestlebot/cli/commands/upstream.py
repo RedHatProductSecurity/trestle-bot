@@ -13,6 +13,7 @@ from trestlebot.cli.config import (
     TrestleBotConfig,
     UpstreamConfig,
     load_from_file,
+    make_config,
     write_to_file,
 )
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
@@ -122,7 +123,7 @@ def upstream_add_cmd(ctx: click.Context, **kwargs: Any) -> None:
         logger.warning(
             f"No trestlebot config file found, creating {str(config_path.resolve())}"
         )
-        config = TrestleBotConfig()
+        config = make_config()
 
     for url in url_list:
         existing_urls = [upstream.url for upstream in config.upstreams]
@@ -134,7 +135,9 @@ def upstream_add_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
         include_models = list(kwargs.get("include_model", ["*"]))
         if len(include_models) == 0:
-            include_models = ["*"]
+            include_models = [
+                "*"
+            ]  # This needs to be set otherwise the task will not include any models
         exclude_models = list(kwargs.get("exclude_model", []))
         skip_validation = kwargs.get("skip_validation", False)
         result = sync_upstream_for_url(

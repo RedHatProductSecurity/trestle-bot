@@ -36,10 +36,18 @@ def test_invalid_config_raises_errors() -> None:
 
 def test_make_config_raises_no_errors(tmp_init_dir: str) -> None:
     """Test create a valid config object."""
-    config = make_config(dict(repo_path=tmp_init_dir, markdown_dir="markdown-test"))
+    values = {
+        "repo_path": tmp_init_dir,
+        "markdown_dir": "markdown",
+        "upstreams": [{"url": "https://test@main", "skip_validation": True}],
+    }
+    config = make_config(values)
     assert isinstance(config, TrestleBotConfig)
+    assert len(config.upstreams) == 1
+    assert config.upstreams[0].url == "https://test@main"
+    assert config.upstreams[0].skip_validation is True
     assert config.repo_path == pathlib.Path(tmp_init_dir)
-    assert config.markdown_dir == "markdown-test"
+    assert config.markdown_dir == "markdown"
 
 
 def test_config_write_to_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -> None:
