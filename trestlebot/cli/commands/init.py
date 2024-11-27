@@ -6,11 +6,13 @@ Module for Trestle-bot init command
 """
 import argparse
 import logging
+import os
 import pathlib
 import sys
 
 import click
 from trestle.common.const import MODEL_DIR_LIST
+from trestle.common.file_utils import make_hidden_file
 from trestle.core.commands.common.return_codes import CmdReturnCodes
 from trestle.core.commands.init import InitCmd
 
@@ -48,9 +50,22 @@ def call_trestle_init(repo_path: pathlib.Path, debug: bool) -> None:
         sys.exit(ERROR_EXIT_CODE)
 
 
+def mkdir_with_hidden_file(file_path: pathlib.Path) -> None:
+    """Creates empty directory with .keep file"""
+    file_path.parent.mkdir(exist_ok=True, parents=True)
+    make_hidden_file(file_path)
+
+
 @click.command(name="init", help="Initialize a new trestle-bot repo.")
 @click.pass_context
 @common_options
+@click.option(
+    "--repo-path",
+    type=click.Path(path_type=pathlib.Path, exists=True),
+    help="Path to Git repository to initialize.",
+    default=os.getcwd(),
+    prompt="Enter path to Git repository",
+)  # override repo-path in common options to force prompt
 @click.option(
     "--markdown-dir",
     type=str,
@@ -58,13 +73,40 @@ def call_trestle_init(repo_path: pathlib.Path, debug: bool) -> None:
     default="markdown/",
     prompt="Enter path to store markdown files",
 )
+@click.option(
+    "--default-committer-name",
+    type=str,
+    help="Default user name for Git commits.",
+    default="",
+    show_default=False,
+    prompt="Enter default user name for Git commits (press <enter> to skip)",
+)
+@click.option(
+    "--default-committer-email",
+    type=str,
+    help="Default user email for Git commits.",
+    default="",
+    show_default=False,
+    prompt="Enter default user email for Git commits (press <enter> to skip)",
+)
+@click.option(
+    "--default-branch",
+    type=str,
+    help="Default repo branch to push automated changes.",
+    default="",
+    show_default=False,
+    prompt="Enter default repo branch to push automated changes (press <enter> to skip)",
+)
 def init_cmd(
     ctx: click.Context,
     debug: bool,
     config_path: pathlib.Path,
+    dry_run: bool,
     repo_path: pathlib.Path,
     markdown_dir: str,
-    dry_run: bool,
+    default_committer_name: str,
+    default_committer_email: str,
+    default_branch: str,
 ) -> None:
     """Command to initialize a new trestlebot repo"""
 
@@ -86,9 +128,9 @@ def init_cmd(
     # Create model directories in workspace root
     list(
         map(
-            lambda x: repo_path.joinpath(x)
-            .joinpath(TRESTLEBOT_KEEP_FILE)
-            .mkdir(parents=True, exist_ok=True),
+            lambda d: mkdir_with_hidden_file(
+                repo_path.joinpath(d).joinpath(TRESTLEBOT_KEEP_FILE)
+            ),
             MODEL_DIR_LIST,
         )
     )
@@ -97,10 +139,11 @@ def init_cmd(
     # Create markdown directories in workspace root
     list(
         map(
-            lambda x: repo_path.joinpath(pathlib.Path(markdown_dir))
-            .joinpath(x)
-            .joinpath(TRESTLEBOT_KEEP_FILE)
-            .mkdir(parents=True, exist_ok=True),
+            lambda d: mkdir_with_hidden_file(
+                repo_path.joinpath(markdown_dir)
+                .joinpath(d)
+                .joinpath(TRESTLEBOT_KEEP_FILE)
+            ),
             MODEL_DIR_LIST,
         )
     )
@@ -110,7 +153,17 @@ def init_cmd(
     call_trestle_init(repo_path, debug)
 
     # generate and write trestle-bot cofig
-    config = make_config(dict(repo_path=repo_path, markdown_dir=markdown_dir))
+    config_values = dict(repo_path=repo_path, markdown_dir=markdown_dir)
+    if default_committer_name:
+        config_values.update(committer_name=default_committer_name)
+
+    if default_committer_email:
+        config_values.update(committer_email=default_committer_email)
+
+    if default_branch:
+        config_values.update(branch=default_branch)
+
+    config = make_config(config_values)
     config_path = trestlebot_dir.joinpath("config.yml")
     write_to_file(config, config_path)
     logger.debug(f"trestle-bot config file created at {str(config_path)}")

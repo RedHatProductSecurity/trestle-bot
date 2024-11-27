@@ -59,6 +59,7 @@ class TrestleBotConfig(BaseModel):
     markdown_dir: Optional[str] = None
     committer_name: Optional[str] = None
     committer_email: Optional[str] = None
+    branch: Optional[str] = None
     ssp_index_file: Optional[str] = None
     upstreams: List[UpstreamConfig] = []
 
@@ -94,10 +95,11 @@ class TrestleBotConfig(BaseModel):
 
         config_dict = {
             "repo_path": str(self.repo_path),
-            "markdown_dir": str(self.markdown_dir),
-            "ssp_index_file": str(self.ssp_index_file),
-            "committer_name": str(self.committer_name),
-            "committer_email": str(self.committer_email),
+            "markdown_dir": self.markdown_dir,
+            "ssp_index_file": self.ssp_index_file,
+            "committer_name": self.committer_name,
+            "committer_email": self.committer_email,
+            "branch": self.branch,
             "upstreams": upstreams,
         }
 
