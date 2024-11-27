@@ -78,7 +78,9 @@ def upstream_cmd(ctx: click.Context) -> None:
     """Sync content from upstream git repositories."""
 
 
-@upstream_cmd.command(name="add")
+@upstream_cmd.command(
+    name="add", help="Add new upstream repository and download content."
+)
 @click.pass_context
 @common_options
 @git_options
@@ -166,7 +168,9 @@ def upstream_add_cmd(ctx: click.Context, **kwargs: Any) -> None:
     write_to_file(config, config_path)
 
 
-@upstream_cmd.command(name="sync")
+@upstream_cmd.command(
+    name="sync", help="Sync content from an added upstream repository."
+)
 @click.pass_context
 @common_options
 @git_options
@@ -230,4 +234,4 @@ def upstream_sync_cmd(ctx: click.Context, **kwargs: Any) -> None:
             branch=kwargs["branch"],
         )
         logger.debug(f"Bot results for {upstream.url}: {result}")
-        logger.info(f"Sync from {upstream.url} complete")
+    logger.info("Sync from upstreams complete")
