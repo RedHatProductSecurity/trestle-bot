@@ -11,6 +11,7 @@ from trestlebot import const
 from trestlebot.cli.options.common import common_options, handle_exceptions
 from trestlebot.cli.options.create import common_create_options
 from trestlebot.cli.run import run
+from trestlebot.entrypoints.entrypoint_base import comma_sep_to_list
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
@@ -27,9 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 @click.group(name="create")
-@common_create_options
+@click.pass_context
 @handle_exceptions
-def create_cmd(ctx: click.Context, profile_name: str) -> None:
+def create_cmd(ctx: click.Context) -> None:
     """
     Command leveraged for component definition and ssp authoring in trestlebot.
     """
@@ -38,33 +39,40 @@ def create_cmd(ctx: click.Context, profile_name: str) -> None:
 
 
 @create_cmd.command("compdef")
+@click.pass_context
+@common_create_options
+@common_options
 @click.option(
     "--compdef-name",
+    required=True,
     prompt="Enter name of component definition",
     help="Name of component definition.",
 )
 @click.option(
     "--component-title",
+    required=True,
     prompt="Enter name of component title",
     help="Title of initial component.",
 )
 @click.option(
     "--component-description",
+    required=True,
     prompt="Enter description of the initial component",
     help="Description of initial component.",
 )
 @click.option(
     "--filter-by-profile",
     required=False,
+    type=str,
     help="Optionally filter the controls in the component definition by a profile",
 )
 @click.option(
     "--component-definition-type",
+    required=False,
+    type=str,
     default="service",
     help="Type of component definition",
 )
-@common_options
-@common_create_options
 @handle_exceptions
 def compdef_cmd(
     ctx: click.Context,
@@ -97,6 +105,8 @@ def compdef_cmd(
         comp_type=component_definition_type,
         filter_by_profile=filter_by_profile,
     )
+    logger.info(f"Component definition name is: {component_title}.")
+
     transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
 
     model_filter: ModelFilter = ModelFilter(
@@ -109,6 +119,14 @@ def compdef_cmd(
         rule_transformer=transformer,
         model_filter=model_filter,
     )
+    logger.info(
+        f"Profile to filter controls in the component files is: {filter_by_profile}."
+    )
+    logger.debug(
+        f"Oscal profile in use with the component definition is: {profile_name}."
+    )
+    logger.debug(f"Component definition type is {component_definition_type}.")
+
     pre_tasks.append(rule_transform_task)
 
     regenerate_task: RegenerateTask = RegenerateTask(
@@ -119,25 +137,13 @@ def compdef_cmd(
     pre_tasks.append(regenerate_task)
 
     run(pre_tasks, kwargs)
-
-    for key, value in kwargs.items():
-        logger.info(f"{key}: {value}")
-
-    logger.info(
-        f"The name of the profile in use with the component definition is {profile_name}."
-    )
-    logger.info(
-        f"You have selected component definitions as the document you want {compdef_name} to author."
-    )
-    logger.info(f"The component definition name is {component_title}.")
-    logger.info(f"The component description to author is {component_description}.")
-    logger.info(
-        f"The profile you want to filter controls in the component files is {filter_by_profile}."
-    )
-    logger.info(f"The component definition type is {component_definition_type}.")
+    logger.debug(f"You have successfully authored the the {compdef_name}.")
 
 
 @create_cmd.command("ssp")
+@click.pass_context
+@common_create_options
+@common_options
 @click.option(
     "--ssp-name",
     prompt="Enter name of SSP to create",
@@ -145,21 +151,36 @@ def compdef_cmd(
 )
 @click.option(
     "--leveraged-ssp",
+    required=False,
+    type=str,
     help="Provider SSP to leverage for the new SSP.",
 )
 @click.option(
-    "--ssp-index-path",
+    "--ssp-index-file",
+    required=False,
     type=str,
     default="ssp-index.json",
     help="Optionally set the path to the SSP index file.",
 )
 @click.option(
     "--yaml-header-path",
+    required=False,
+    type=str,
     default="ssp-index.json",
     help="Optionally set a path to a YAML file for custom SSP Markdown YAML headers.",
 )
-@common_options
-@common_create_options
+@click.option(
+    "--version",
+    required=False,
+    type=str,
+    help="Optionally set the version of the SSP.",
+)
+@click.option(
+    "--compdefs",
+    required=False,
+    type=str,
+    help="Comma separated list of component definitions.",
+)
 @handle_exceptions
 def ssp_cmd(
     ctx: click.Context,
@@ -172,29 +193,37 @@ def ssp_cmd(
     profile_name = kwargs["profile_name"]
     ssp_name = kwargs["ssp_name"]
     leveraged_ssp = kwargs["leveraged_ssp"]
-    ssp_index_path = kwargs["ssp_index_path"]
+    ssp_index_file = kwargs["ssp_index_file"]
     yaml_header_path = kwargs["yaml_header_path"]
     repo_path = kwargs["repo_path"]
     markdown_dir = kwargs["markdown_dir"]
-    compdefs = kwargs["None"]
+    compdefs = kwargs["compdefs"]
+    version = kwargs["version"]
 
-    ssp_index: SSPIndex = SSPIndex(index_path=ssp_index_path)
+    ssp_index: SSPIndex = SSPIndex(index_path=ssp_index_file)
     authored_ssp: AuthoredSSP = AuthoredSSP(trestle_root=repo_path, ssp_index=ssp_index)
 
+    logger.info(f"SSP index file is: {ssp_index_file}.")
+
+    comps: List[str] = comma_sep_to_list(compdefs)
     authored_ssp.create_new_default(
-        profile_name=profile_name,
         ssp_name=ssp_name,
-        compdefs=compdefs,
+        profile_name=profile_name,
+        compdefs=comps,
         markdown_path=markdown_dir,
         leveraged_ssp=leveraged_ssp,
         yaml_header=yaml_header_path,
     )
+
+    logger.debug(f"The name of the SSP to create is {ssp_name}.")
+    logger.debug(f"Oscal profile in use with the SSP is: {profile_name}.")
 
     # The starting point for SSPs is the markdown, so assemble into JSON.
     model_filter: ModelFilter = ModelFilter([], [ssp_name])
     assemble_task: AssembleTask = AssembleTask(
         authored_object=authored_ssp,
         markdown_dir=markdown_dir,
+        version=version,
         model_filter=model_filter,
     )
 
@@ -202,8 +231,4 @@ def ssp_cmd(
 
     run(pre_tasks, kwargs)
 
-    logger.info(f"The name of the profile in use with the SSP is {profile_name}.")
-    logger.info(f"The SSP index path is {ssp_index_path}.")
-    logger.info(f"The YAML file for custom SSP markdown is {yaml_header_path}.")
-    logger.info(f"The leveraged SSP is {leveraged_ssp}.")
-    logger.debug(f"The name of the SSP to create is {ssp_name}.")
+    logger.debug(f"You have successfully authored the the {ssp_name}.")

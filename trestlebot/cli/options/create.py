@@ -11,16 +11,22 @@ import click
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def common_create_options(f: F) -> Any:
+def common_create_options(f: F) -> F:
     """
     Configuring common create options decorator for SSP and CD command
     """
 
-    @click.pass_context
     @click.option(
         "--profile-name",
         prompt="Name of trestle workspace to include",
         help="Name of profile in trestle workspace to include.",
+    )
+    @click.option(
+        "--markdown-dir",
+        type=str,
+        prompt="Enter path to store markdown files",
+        default="markdown/",
+        help="Directory name to store markdown files.",
     )
     @functools.wraps(f)
     def wrapper_common_create_options(
