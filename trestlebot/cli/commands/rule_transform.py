@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 @handle_exceptions
 def rule_transform_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Run the rule transform operation."""
-    # Allow any model to be skipped by setting skip_items, by default include all
+    # Allow any model to be skipped by setting skip_item, by default include all
     skip_items = list(kwargs.get("skip_item", []))
     model_filter: ModelFilter = ModelFilter(
         skip_patterns=skip_items,
