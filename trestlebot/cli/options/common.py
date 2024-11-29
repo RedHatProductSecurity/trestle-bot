@@ -151,14 +151,16 @@ def git_options(f: F) -> F:
         type=str,
     )(f)
     f = click.option(
-        "--file-patterns",
-        help="Comma-separated list of file patterns to be used with `git add` in repository updates",
+        "--file-pattern",
+        help="File pattern to be used with `git add` in repository updates",
         type=str,
+        multiple=True,
     )(f)
     f = click.option(
         "--commit-message",
         help="Commit message for automated updates",
         type=str,
+        default="chore: automatic updates",
     )(f)
     f = click.option(
         "--author-name",

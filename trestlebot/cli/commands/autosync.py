@@ -7,7 +7,6 @@ import click
 
 from trestlebot.cli.options.autosync import autosync_options
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
-from trestlebot.cli.run import comma_sep_to_list
 from trestlebot.cli.run import run as bot_run
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored import types
@@ -25,16 +24,16 @@ def run(oscal_model: str, **kwargs: Any) -> None:
 
     pre_tasks: List[TaskBase] = []
     kwargs["working_dir"] = str(kwargs["repo_path"].resolve())
-    if kwargs.get("file_patterns"):
-        kwargs.update({"patterns": comma_sep_to_list(kwargs["file_patterns"])})
+    if kwargs.get("file_pattern"):
+        kwargs.update({"patterns": list(kwargs.get("file_pattern", []))})
     model_filter: ModelFilter = ModelFilter(
-        skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
+        skip_patterns=list(kwargs.get("skip_item", [])),
         include_patterns=["*"],
     )
     authored_object: AuthoredObjectBase = types.get_authored_object(
         oscal_model,
         kwargs["working_dir"],
-        kwargs.get("ssp_index_path", ""),
+        kwargs.get("ssp_index_file", ""),
     )
 
     # Assuming an edit has occurred assemble would be run before regenerate.
@@ -42,7 +41,7 @@ def run(oscal_model: str, **kwargs: Any) -> None:
     if not kwargs.get("skip_assemble"):
         assemble_task: AssembleTask = AssembleTask(
             authored_object=authored_object,
-            markdown_dir=kwargs["markdown_path"],
+            markdown_dir=kwargs["markdown_dir"],
             version=kwargs.get("version", ""),
             model_filter=model_filter,
         )
@@ -53,7 +52,7 @@ def run(oscal_model: str, **kwargs: Any) -> None:
     if not kwargs.get("skip_regenerate"):
         regenerate_task: RegenerateTask = RegenerateTask(
             authored_object=authored_object,
-            markdown_dir=kwargs["markdown_path"],
+            markdown_dir=kwargs["markdown_dir"],
             model_filter=model_filter,
         )
         pre_tasks.append(regenerate_task)
@@ -74,13 +73,12 @@ def autosync_cmd(ctx: click.Context) -> None:
 @autosync_options
 @git_options
 @click.option(
-    "--ssp-index-path",
+    "--ssp-index-file",
     help="Path to ssp index file",
     type=str,
     required=True,
 )
-def autosync_ssp_cmd(ctx: click.Context, ssp_index_path: str, **kwargs: Any) -> None:
-    kwargs.update({"ssp_index_path": ssp_index_path})
+def autosync_ssp_cmd(ctx: click.Context, **kwargs: Any) -> None:
     run("ssp", **kwargs)
 
 
