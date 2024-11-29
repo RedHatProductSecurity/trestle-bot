@@ -26,7 +26,7 @@ def run(pre_tasks: List[TaskBase], kwargs: Dict[Any, Any]) -> BotResults:
 
     return bot.run(
         pre_tasks=pre_tasks,
-        patterns=comma_sep_to_list(kwargs.get("patterns", "")),
+        patterns=kwargs.get("patterns", []),
         commit_message=kwargs.get("commit_message", "Automatic updates from bot"),
         dry_run=kwargs.get("dry_run", False),
     )
