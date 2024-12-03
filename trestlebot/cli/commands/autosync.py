@@ -19,52 +19,6 @@ from trestlebot.tasks.regenerate_task import RegenerateTask
 logger = logging.getLogger(__name__)
 
 
-@handle_exceptions
-def autosync_model(oscal_model: str, kwargs: Any) -> None:
-    """Run autosync for oscal model."""
-
-    pre_tasks: List[TaskBase] = []
-    kwargs["working_dir"] = str(kwargs["repo_path"].resolve())
-
-    if kwargs.get("file_patterns"):
-        kwargs.update({"patterns": list(kwargs["file_patterns"])})
-
-    model_filter: ModelFilter = ModelFilter(
-        skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
-        include_patterns=["*"],
-    )
-    authored_object: AuthoredObjectBase = types.get_authored_object(
-        oscal_model,
-        kwargs["working_dir"],
-        kwargs.get("ssp_index_path"),
-    )
-
-    # Assuming an edit has occurred assemble would be run before regenerate.
-    # Adding this to the pre_tasks list first
-
-    if not kwargs.get("skip_assemble"):
-        assemble_task: AssembleTask = AssembleTask(
-            authored_object=authored_object,
-            markdown_dir=kwargs["markdown_path"],
-            version=kwargs.get("version", ""),
-            model_filter=model_filter,
-        )
-        pre_tasks.append(assemble_task)
-    else:
-        logger.info("Assemble task skipped.")
-
-    if not kwargs.get("skip_regenerate"):
-        regenerate_task: RegenerateTask = RegenerateTask(
-            authored_object=authored_object,
-            markdown_dir=kwargs["markdown_path"],
-            model_filter=model_filter,
-        )
-        pre_tasks.append(regenerate_task)
-    else:
-        logger.info("Regeneration task skipped.")
-    run_bot(pre_tasks, kwargs)
-
-
 @click.command("autosync")
 @click.pass_context
 @common_options
@@ -112,6 +66,7 @@ def autosync_model(oscal_model: str, kwargs: Any) -> None:
     type=str,
     required=False,
 )
+@handle_exceptions
 def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Command to autosync catalog, profile, compdef and ssp."""
 

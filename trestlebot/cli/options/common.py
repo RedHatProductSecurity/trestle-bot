@@ -145,7 +145,7 @@ def git_options(f: F) -> F:
     f = click.option(
         "--target-branch",
         help="Target branch (base branch) to create a pull request against. \
-            No pull request is created if unset",
+            No pull request is created if unset.",
         required=False,
         type=str,
     )(f)
@@ -162,8 +162,8 @@ def git_options(f: F) -> F:
         type=str,
     )(f)
     f = click.option(
-        "--file-patterns",
-        help="Comma-separated list of file patterns to be used with `git add` in repository updates",
+        "--file-pattern",
+        help="File pattern to be used with `git add` in repository updates.",
         type=str,
         default=".",
     )(f)
