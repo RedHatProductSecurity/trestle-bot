@@ -158,7 +158,7 @@ def init_cmd(
     )
     logger.debug("Created markdown directories successfully")
 
-    # inovke the init command in compliance trestle
+    # invoke the init command in compliance trestle
     call_trestle_init(repo_path, debug)
 
     # generate and write trestle-bot config
