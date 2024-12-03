@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
 """Module for rule-transform command"""
 
 import logging
