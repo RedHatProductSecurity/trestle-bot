@@ -42,7 +42,7 @@ def load_value_from_ctx(
 
 @click.command(
     name="sync-upstreams",
-    help="sync and validate OSCAL content from upstream repositories.",
+    help="Sync OSCAL content from upstream repositories.",
 )
 @click.pass_context
 @click.option(
