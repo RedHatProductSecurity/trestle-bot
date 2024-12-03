@@ -73,6 +73,7 @@ def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
     oscal_model = kwargs["oscal_model"]
     markdown_dir = kwargs["markdown_dir"]
     working_dir = str(kwargs["repo_path"].resolve())
+    kwargs["working_dir"] = working_dir
 
     if oscal_model == "ssp" and not kwargs.get("ssp_index_file"):
         logger.error("Trestlebot Error: Missing option '--ssp-index-file'.")
@@ -80,7 +81,9 @@ def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
     pre_tasks: List[TaskBase] = []
 
-    kwargs["working_dir"] = str(kwargs["repo_path"].resolve())
+    if kwargs.get("file_pattern"):
+        kwargs.update({"patterns": comma_sep_to_list(kwargs["file_patterns"])})
+
     model_filter: ModelFilter = ModelFilter(
         skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
         include_patterns=["*"],
