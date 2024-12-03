@@ -13,8 +13,10 @@ from trestlebot.cli.commands.autosync import autosync_cmd
 from trestlebot.cli.config import TrestleBotConfig, write_to_file
 
 
-def test_invalid_oscal_model(tmp_init_dir: str) -> None:
-    """Test invalid OSCAl model option"""
+def test_invalid_oscal_model(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test invalid OSCAl model option."""
+
+    repo_path, _ = tmp_repo
     runner = CliRunner()
     result = runner.invoke(
         autosync_cmd,
@@ -22,7 +24,7 @@ def test_invalid_oscal_model(tmp_init_dir: str) -> None:
             "--oscal-model",
             "invalid",
             "--repo-path",
-            tmp_init_dir,
+            repo_path,
             "--markdown-dir",
             "markdown",
             "--branch",
@@ -37,15 +39,15 @@ def test_invalid_oscal_model(tmp_init_dir: str) -> None:
     assert result.exit_code == 2
 
 
-def test_missing_ssp_index_path(tmp_init_dir: str) -> None:
-    """Test missing ssp-index-file for autosync ssp."""
-
+def test_missing_ssp_index_file_option(tmp_repo: Tuple[str, Repo]) -> None:
+    """Test missing ssp_index_file option for autosync ssp."""
+    repo_path, _ = tmp_repo
     runner = CliRunner()
     cmd_options = [
         "--oscal-model",
         "ssp",
         "--repo-path",
-        tmp_init_dir,
+        repo_path,
         "--markdown-dir",
         "markdown",
         "--branch",
@@ -60,8 +62,7 @@ def test_missing_ssp_index_path(tmp_init_dir: str) -> None:
     assert "Missing option '--ssp-index-file'" in result.output
 
 
-def test_missing_markdown_dir(tmp_repo: Tuple[str, Repo]) -> None:
-
+def test_missing_markdown_dir_option(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path, _ = tmp_repo
     runner = CliRunner()
     cmd_options = [

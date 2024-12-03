@@ -80,9 +80,7 @@ def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
     pre_tasks: List[TaskBase] = []
 
-    if kwargs.get("file_patterns"):
-        kwargs.update({"patterns": comma_sep_to_list(kwargs["file_patterns"])})
-
+    kwargs["working_dir"] = str(kwargs["repo_path"].resolve())
     model_filter: ModelFilter = ModelFilter(
         skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
         include_patterns=["*"],
