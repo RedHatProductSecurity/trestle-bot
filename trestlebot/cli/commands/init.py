@@ -90,6 +90,14 @@ def mkdir_with_hidden_file(file_path: pathlib.Path) -> None:
     prompt="Enter default user email for Git commits (press <enter> to skip)",
 )
 @click.option(
+    "--default-commit-message",
+    type=str,
+    help="Default message for Git commits.",
+    default="",
+    show_default=False,
+    prompt="Enter default message for Git commits (press <enter> to skip)",
+)
+@click.option(
     "--default-branch",
     type=str,
     help="Default repo branch to push automated changes.",
@@ -106,6 +114,7 @@ def init_cmd(
     markdown_dir: str,
     default_committer_name: str,
     default_committer_email: str,
+    default_commit_message: str,
     default_branch: str,
 ) -> None:
     """Command to initialize a new trestlebot repo"""
@@ -159,6 +168,9 @@ def init_cmd(
 
     if default_committer_email:
         config_values.update(committer_email=default_committer_email)
+
+    if default_commit_message:
+        config_values.update(commit_message=default_commit_message)
 
     if default_branch:
         config_values.update(branch=default_branch)

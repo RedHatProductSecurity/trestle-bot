@@ -11,6 +11,7 @@ import yaml
 from trestlebot.cli.config import (
     TrestleBotConfig,
     TrestleBotConfigError,
+    UpstreamsConfig,
     load_from_file,
     make_config,
     write_to_file,
@@ -19,7 +20,11 @@ from trestlebot.cli.config import (
 
 @pytest.fixture
 def config_obj() -> TrestleBotConfig:
-    return TrestleBotConfig(repo_path="/tmp", markdown_dir="markdown")
+    return TrestleBotConfig(
+        repo_path="/tmp",
+        markdown_dir="markdown",
+        upstreams=UpstreamsConfig(sources=["repo@main"]),
+    )
 
 
 def test_invalid_config_raises_errors() -> None:
@@ -39,15 +44,19 @@ def test_make_config_raises_no_errors(tmp_init_dir: str) -> None:
     values = {
         "repo_path": tmp_init_dir,
         "markdown_dir": "markdown",
-        "upstreams": [{"url": "https://test@main", "skip_validation": True}],
+        "committer_name": "committer-name",
+        "committer_email": "committer-email",
+        "upstreams": {"sources": ["https://test@main"], "skip_validation": True},
     }
     config = make_config(values)
     assert isinstance(config, TrestleBotConfig)
-    assert len(config.upstreams) == 1
-    assert config.upstreams[0].url == "https://test@main"
-    assert config.upstreams[0].skip_validation is True
+    assert config.upstreams is not None
+    assert config.upstreams.sources == ["https://test@main"]
+    assert config.upstreams.skip_validation is True
     assert config.repo_path == pathlib.Path(tmp_init_dir)
-    assert config.markdown_dir == "markdown"
+    assert config.markdown_dir == values["markdown_dir"]
+    assert config.committer_name == values["committer_name"]
+    assert config.committer_email == values["committer_email"]
 
 
 def test_config_write_to_file(config_obj: TrestleBotConfig, tmp_init_dir: str) -> None:

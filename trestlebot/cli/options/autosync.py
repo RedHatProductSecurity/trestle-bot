@@ -12,38 +12,34 @@ def autosync_options(f: F) -> F:
     """
 
     f = click.option(
-        "--markdown-path",
-        help="Path to Trestle markdown files",
-        type=click.Path(exists=True),
-        required=True,
+        "--markdown-dir",
+        type=str,
+        help="Directory containing markdown files.",
     )(f)
     f = click.option(
         "--skip-items",
-        help="Comma-separated list of glob patterns to skip when running tasks",
         type=str,
+        help="Comma-separated list of glob patterns of the chosen model type \
+            to skip when running tasks.",
+        multiple=True,
     )(f)
     f = click.option(
         "--skip-assemble",
-        help="Skip assembly task",
+        help="Skip assembly task.",
         is_flag=True,
         default=False,
         show_default=True,
     )(f)
     f = click.option(
         "--skip-regenerate",
-        help="Skip regenerate task",
+        help="Skip regenerate task.",
         is_flag=True,
         default=False,
         show_default=True,
     )(f)
     f = click.option(
         "--version",
-        help="Version of the OSCAL model to set during assembly into JSON",
+        help="Version of the OSCAL model to set during assembly into JSON.",
         type=str,
-    )(f)
-    f = click.option(
-        "--dry-run",
-        help="Run tasks, but do not push to the repository",
-        is_flag=True,
     )(f)
     return f
