@@ -11,12 +11,12 @@ def comma_sep_to_list(string: str) -> List[str]:
     return list(map(str.strip, string.split(","))) if string else []
 
 
-def run(pre_tasks: List[TaskBase], kwargs: Dict[Any, Any]) -> BotResults:
+def run_bot(pre_tasks: List[TaskBase], kwargs: Dict[Any, Any]) -> BotResults:
     """Reusable logic for all commands."""
 
     # Configure and run the bot
     bot = TrestleBot(
-        working_dir=kwargs["working_dir"],
+        working_dir=kwargs["repo_path"],
         branch=kwargs["branch"],
         commit_name=kwargs["committer_name"],
         commit_email=kwargs["committer_email"],
@@ -26,7 +26,9 @@ def run(pre_tasks: List[TaskBase], kwargs: Dict[Any, Any]) -> BotResults:
 
     return bot.run(
         pre_tasks=pre_tasks,
-        patterns=kwargs.get("patterns", []),
-        commit_message=kwargs.get("commit_message", "Automatic updates from bot"),
+        patterns=kwargs.get("patterns", ["."]),
+        commit_message=kwargs.get(
+            "commit_message", "Automatic updates from trestle-bot"
+        ),
         dry_run=kwargs.get("dry_run", False),
     )

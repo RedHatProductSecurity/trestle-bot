@@ -6,7 +6,7 @@ from typing import Any, List
 import click
 
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
-from trestlebot.cli.run import run
+from trestlebot.cli.utils import run_bot
 from trestlebot.const import RULES_VIEW_DIR
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
@@ -67,6 +67,6 @@ def rule_transform_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
     pre_tasks: List[TaskBase] = [rule_transform_task, regenerate_task]
     kwargs["working_dir"] = str(kwargs["repo_path"].resolve())
-    result = run(pre_tasks, kwargs)
+    result = run_bot(pre_tasks, kwargs)
     logger.debug(f"Bot results: {result}")
     logger.info("Rule transform complete!")
