@@ -30,7 +30,7 @@ from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 logger = logging.getLogger(__name__)
 
 
-@click.group(name="create", help="Component definition and ssp authoring.")
+@click.group(name="create", help="Component definition and ssp authoring command.")
 @click.pass_context
 @handle_exceptions
 def create_cmd(ctx: click.Context) -> None:
@@ -40,7 +40,7 @@ def create_cmd(ctx: click.Context) -> None:
     pass
 
 
-@create_cmd.command("compdef")
+@create_cmd.command(name="compdef", help="Component definition authoring subcommand.")
 @click.pass_context
 @common_create_options
 @common_options
@@ -143,7 +143,7 @@ def compdef_cmd(
     logger.debug(f"You have successfully authored the {compdef_name}.")
 
 
-@create_cmd.command("ssp")
+@create_cmd.command(name="ssp", help="Authoring ssp subcommand.")
 @click.pass_context
 @common_create_options
 @common_options
