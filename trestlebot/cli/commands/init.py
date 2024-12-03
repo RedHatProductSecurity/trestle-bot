@@ -45,7 +45,7 @@ def call_trestle_init(repo_path: pathlib.Path, debug: bool) -> None:
         logger.debug("Initialized trestle project successfully")
     else:
         logger.error(
-            f"Initialization failed.  Unexpted trestle error: {CmdReturnCodes(return_code).name}"
+            f"Initialization failed.  Unexpected trestle error: {CmdReturnCodes(return_code).name}"
         )
         sys.exit(ERROR_EXIT_CODE)
 
