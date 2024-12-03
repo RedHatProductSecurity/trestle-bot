@@ -149,6 +149,8 @@ def compdef_cmd(
 @common_options
 @click.option(
     "--ssp-name",
+    required=True,
+    type=str,
     prompt="Enter name of SSP to create",
     help="Name of SSP to create.",
 )
