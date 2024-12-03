@@ -169,7 +169,6 @@ def compdef_cmd(
     "--yaml-header-path",
     required=False,
     type=str,
-    default="ssp-index.json",
     help="Optionally set a path to a YAML file for custom SSP Markdown YAML headers.",
 )
 @click.option(
