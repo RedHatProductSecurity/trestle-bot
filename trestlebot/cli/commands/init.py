@@ -45,7 +45,7 @@ def call_trestle_init(repo_path: pathlib.Path, debug: bool) -> None:
         logger.debug("Initialized trestle project successfully")
     else:
         logger.error(
-            f"Initialization failed.  Unexpted trestle error: {CmdReturnCodes(return_code).name}"
+            f"Initialization failed.  Unexpected trestle error: {CmdReturnCodes(return_code).name}"
         )
         sys.exit(ERROR_EXIT_CODE)
 
@@ -158,10 +158,10 @@ def init_cmd(
     )
     logger.debug("Created markdown directories successfully")
 
-    # inovke the init command in compliance trestle
+    # invoke the init command in compliance trestle
     call_trestle_init(repo_path, debug)
 
-    # generate and write trestle-bot cofig
+    # generate and write trestle-bot config
     config_values = dict(repo_path=repo_path, markdown_dir=markdown_dir)
     if default_committer_name:
         config_values.update(committer_name=default_committer_name)
