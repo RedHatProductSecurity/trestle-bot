@@ -155,7 +155,7 @@ def compdef_cmd(
         f"The profile you want to filter controls in the component files is {filter_by_profile}."
     )
     logger.info(f"The component definition type is {component_definition_type}.")
-    logger.debug(f"You have successfully authored the the {compdef_name}.")
+    logger.debug(f"You have successfully authored the {compdef_name}.")
 
 
 @create_cmd.command("ssp")
@@ -249,4 +249,4 @@ def ssp_cmd(
 
     run_bot(pre_tasks, kwargs)
 
-    logger.debug(f"You have successfully authored the the {ssp_name}.")
+    logger.debug(f"You have successfully authored the {ssp_name}.")
