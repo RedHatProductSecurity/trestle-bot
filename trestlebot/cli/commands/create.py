@@ -140,21 +140,6 @@ def compdef_cmd(
 
     run_bot(pre_tasks, kwargs)
 
-    for key, value in kwargs.items():
-        logger.info(f"{key}: {value}")
-
-    logger.info(
-        f"The name of the profile in use with the component definition is {profile_name}."
-    )
-    logger.info(
-        f"You have selected component definitions as the document you want {compdef_name} to author."
-    )
-    logger.info(f"The component definition name is {component_title}.")
-    logger.info(f"The component description to author is {component_description}.")
-    logger.info(
-        f"The profile you want to filter controls in the component files is {filter_by_profile}."
-    )
-    logger.info(f"The component definition type is {component_definition_type}.")
     logger.debug(f"You have successfully authored the {compdef_name}.")
 
 
