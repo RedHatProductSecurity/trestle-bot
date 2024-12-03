@@ -10,7 +10,7 @@ import click
 from trestlebot import const
 from trestlebot.cli.options.common import common_options, handle_exceptions
 from trestlebot.cli.options.create import common_create_options
-from trestlebot.cli.run import run
+from trestlebot.cli.utils import run_bot
 from trestlebot.entrypoints.entrypoint_base import comma_sep_to_list
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored.compdef import (
@@ -34,7 +34,6 @@ def create_cmd(ctx: click.Context) -> None:
     """
     Command leveraged for component definition and ssp authoring in trestlebot.
     """
-
     pass
 
 
@@ -136,7 +135,23 @@ def compdef_cmd(
     )
     pre_tasks.append(regenerate_task)
 
-    run(pre_tasks, kwargs)
+    run_bot(pre_tasks, kwargs)
+
+    for key, value in kwargs.items():
+        logger.info(f"{key}: {value}")
+
+    logger.info(
+        f"The name of the profile in use with the component definition is {profile_name}."
+    )
+    logger.info(
+        f"You have selected component definitions as the document you want {compdef_name} to author."
+    )
+    logger.info(f"The component definition name is {component_title}.")
+    logger.info(f"The component description to author is {component_description}.")
+    logger.info(
+        f"The profile you want to filter controls in the component files is {filter_by_profile}."
+    )
+    logger.info(f"The component definition type is {component_definition_type}.")
     logger.debug(f"You have successfully authored the the {compdef_name}.")
 
 
@@ -229,6 +244,6 @@ def ssp_cmd(
 
     pre_tasks: List[TaskBase] = [assemble_task]
 
-    run(pre_tasks, kwargs)
+    run_bot(pre_tasks, kwargs)
 
     logger.debug(f"You have successfully authored the the {ssp_name}.")
