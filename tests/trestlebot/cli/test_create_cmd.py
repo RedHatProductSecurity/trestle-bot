@@ -19,7 +19,7 @@ def test_invalid_create_cmd() -> None:
 
 def test_create_ssp_cmd(tmp_init_dir: str) -> None:
     """Tests successful create ssp command."""
-    SSP_INDEX_FILE = "tester-ssp-index.json"
+    SSP_INDEX_FILE = "tmp_init_dir/tester-ssp-index.json"
 
     runner = CliRunner()
     result = runner.invoke(
@@ -68,7 +68,6 @@ def test_create_compdef_cmd(tmp_init_dir: str) -> None:
 
 def test_default_ssp_index_file_cmd(tmp_init_dir: str) -> None:
     """Tests successful default ssp_index.json file creation."""
-
     runner = CliRunner()
     result = runner.invoke(
         create_cmd,
@@ -89,7 +88,7 @@ def test_default_ssp_index_file_cmd(tmp_init_dir: str) -> None:
 
 def test_markdown_files_not_created(tmp_init_dir: str) -> None:
     """Tests failure of markdown file creation when not supplied with directory name."""
-    SSP_INDEX_TESTER = "ssp-tester.index.json"
+    SSP_INDEX_TESTER = "tmp_init_dir/ssp-tester.index.json"
 
     runner = CliRunner()
     result = runner.invoke(
@@ -111,7 +110,7 @@ def test_markdown_files_not_created(tmp_init_dir: str) -> None:
 
 def test_markdown_files_created(tmp_init_dir: str) -> None:
     """Tests successful creation of markdown files."""
-    SSP_INDEX_TESTER = "ssp-tester.index.json"
+    SSP_INDEX_TESTER = "tmp_init_dir/ssp-tester.index.json"
     markdown_file_tester = "/markdown/system-security-plan.md"
 
     runner = CliRunner()
