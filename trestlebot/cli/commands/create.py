@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
 """
 Module for create-cd create-ssp command for CLI
 """

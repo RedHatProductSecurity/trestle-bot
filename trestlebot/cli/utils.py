@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2024 Red Hat, Inc.
+
 from typing import Any, Dict, List
 
 from trestlebot.bot import TrestleBot
