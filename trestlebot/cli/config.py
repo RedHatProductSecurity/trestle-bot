@@ -43,10 +43,10 @@ class TrestleBotConfigError(Exception):
         return "".join(self.errors)
 
 
-class UpstreamConfig(BaseModel):
+class UpstreamsConfig(BaseModel):
     """Data model for upstream sources."""
 
-    url: str
+    sources: List[str]
     include_models: List[str] = ["*"]
     exclude_models: List[str] = []
     skip_validation: bool = False
@@ -59,9 +59,10 @@ class TrestleBotConfig(BaseModel):
     markdown_dir: Optional[str] = None
     committer_name: Optional[str] = None
     committer_email: Optional[str] = None
+    commit_message: Optional[str] = None
     branch: Optional[str] = None
     ssp_index_file: Optional[str] = None
-    upstreams: List[UpstreamConfig] = []
+    upstreams: Optional[UpstreamsConfig] = None
 
     def to_yaml_dict(self) -> Dict[str, Any]:
         """Returns a dict that can be cleanly written to a yaml file.
@@ -77,31 +78,30 @@ class TrestleBotConfig(BaseModel):
         been set (or have a default we want to include).
 
         Values listed in IGNORED_VALUES will be skipped.
-
         """
+
         IGNORED_VALUES: List[Any] = [None, "None", []]
 
-        upstreams = []
-        for upstream in self.upstreams:
-            upstream_dict = {
-                "url": upstream.url,
-                "skip_validation": upstream.skip_validation,
-            }
-            if upstream.include_models:
-                upstream_dict.update(include_models=upstream.include_models)
-            if upstream.exclude_models:
-                upstream_dict.update(exclude_models=upstream.exclude_models)
-            upstreams.append(upstream_dict)
-
-        config_dict = {
+        config_dict: Dict[str, Any] = {
             "repo_path": str(self.repo_path),
             "markdown_dir": self.markdown_dir,
             "ssp_index_file": self.ssp_index_file,
             "committer_name": self.committer_name,
             "committer_email": self.committer_email,
+            "commit_message": self.commit_message,
             "branch": self.branch,
-            "upstreams": upstreams,
         }
+
+        if self.upstreams:
+            upstreams = {
+                "sources": self.upstreams.sources,
+                "skip_validation": self.upstreams.skip_validation,
+                "include_models": self.upstreams.include_models,
+            }
+            if self.upstreams.exclude_models:
+                upstreams["exclude_models"] = self.upstreams.exclude_models
+
+            config_dict.update({"upstreams": upstreams})
 
         # Filter out emtpy values to prevent them from appearing in the config
         return dict(

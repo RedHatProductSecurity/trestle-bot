@@ -10,7 +10,7 @@ import click
 from trestlebot import const
 from trestlebot.cli.options.common import common_options, handle_exceptions
 from trestlebot.cli.options.create import common_create_options
-from trestlebot.cli.run import run
+from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.assemble_task import AssembleTask
 from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
@@ -118,7 +118,7 @@ def compdef_cmd(
     )
     pre_tasks.append(regenerate_task)
 
-    run(pre_tasks, kwargs)
+    run_bot(pre_tasks, kwargs)
 
     for key, value in kwargs.items():
         logger.info(f"{key}: {value}")
@@ -200,7 +200,7 @@ def ssp_cmd(
 
     pre_tasks: List[TaskBase] = [assemble_task]
 
-    run(pre_tasks, kwargs)
+    run_bot(pre_tasks, kwargs)
 
     logger.info(f"The name of the profile in use with the SSP is {profile_name}.")
     logger.info(f"The SSP index path is {ssp_index_path}.")

@@ -76,10 +76,14 @@ def load_config_to_ctx(
 
     if not ctx.default_map:
         ctx.default_map = {
+            "repo_path": config.repo_path,
             "markdown_dir": config.markdown_dir,
             "ssp_index_file": config.ssp_index_file,
             "committer_name": config.committer_name,
             "committer_email": config.committer_email,
+            "commit_message": config.commit_message,
+            "branch": config.branch,
+            "upstreams": config.upstreams,
         }
     else:
         ctx.default_map.update(config)
@@ -134,19 +138,26 @@ def git_options(f: F) -> F:
     """
     f = click.option(
         "--branch",
-        help="Branch name to push changes to",
+        help="Git repo branch to push automated changes.",
         required=True,
         type=str,
     )(f)
     f = click.option(
+        "--target-branch",
+        help="Target branch (base branch) to create a pull request against. \
+            No pull request is created if unset",
+        required=False,
+        type=str,
+    )(f)
+    f = click.option(
         "--committer-name",
-        help="Name of committer",
+        help="User name for git committer.",
         required=True,
         type=str,
     )(f)
     f = click.option(
         "--committer-email",
-        help="Email for committer",
+        help="User email for git committer",
         required=True,
         type=str,
     )(f)
@@ -154,20 +165,22 @@ def git_options(f: F) -> F:
         "--file-patterns",
         help="Comma-separated list of file patterns to be used with `git add` in repository updates",
         type=str,
+        default=".",
     )(f)
     f = click.option(
         "--commit-message",
-        help="Commit message for automated updates",
+        help="Commit message for automated updates.",
+        default="Automatic updates from trestle-bot",
         type=str,
     )(f)
     f = click.option(
         "--author-name",
-        help="Name for commit author if differs from committer",
+        help="Name for commit author if differs from committer.",
         type=str,
     )(f)
     f = click.option(
         "--author-email",
-        help="Email for commit author if differs from committer",
+        help="Email for commit author if differs from committer.",
         type=str,
     )(f)
 
