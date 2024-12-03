@@ -161,7 +161,7 @@ def init_cmd(
     # inovke the init command in compliance trestle
     call_trestle_init(repo_path, debug)
 
-    # generate and write trestle-bot cofig
+    # generate and write trestle-bot config
     config_values = dict(repo_path=repo_path, markdown_dir=markdown_dir)
     if default_committer_name:
         config_values.update(committer_name=default_committer_name)
