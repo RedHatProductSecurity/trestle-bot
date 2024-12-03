@@ -162,8 +162,8 @@ def git_options(f: F) -> F:
         type=str,
     )(f)
     f = click.option(
-        "--file-pattern",
-        help="File pattern to be used with `git add` in repository updates.",
+        "--file-patterns",
+        help="Comma-separated list of file patterns to be used with `git add` in repository updates.",
         type=str,
         default=".",
     )(f)
