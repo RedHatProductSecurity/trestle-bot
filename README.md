@@ -7,7 +7,7 @@
 
 
 
-trestle-bot assists users in leveraging [Compliance-Trestle](https://github.com/oscal-compass/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
+trestle-bot is a CLI tool that assists users in leveraging [Compliance-Trestle](https://github.com/oscal-compass/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
 > WARNING: This project is currently under initial development. APIs may be changed incompatibly from one commit to another.
 
