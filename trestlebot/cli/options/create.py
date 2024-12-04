@@ -21,7 +21,7 @@ def common_create_options(f: F) -> F:
 
     @click.option(
         "--profile-name",
-        prompt="Name of profile in trestle workspace to include",
+        prompt="Enter name of profile in trestle workspace to include",
         help="Name of profile in trestle workspace to include.",
     )
     @click.option(
