@@ -30,7 +30,7 @@ from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 logger = logging.getLogger(__name__)
 
 
-@click.group(name="create", help="Component definition and ssp authoring command.")
+@click.group(name="create", help="Component definition and ssp authoring.")
 @click.pass_context
 @handle_exceptions
 def create_cmd(ctx: click.Context) -> None:
