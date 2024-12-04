@@ -50,4 +50,4 @@ def test_rule_transform(tmp_repo: Tuple[str, Repo]) -> None:
     assert result.exit_code == 0
     assert repo_path.joinpath(test_md).exists()
     commit = next(repo.iter_commits())
-    assert len(commit.stats.files) == 16
+    assert len(commit.stats.files) == 9

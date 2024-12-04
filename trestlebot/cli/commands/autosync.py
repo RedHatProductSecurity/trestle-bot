@@ -22,7 +22,7 @@ from trestlebot.tasks.regenerate_task import RegenerateTask
 logger = logging.getLogger(__name__)
 
 
-@click.command("autosync")
+@click.command("autosync", help="Autosync catalog, profile, compdef and ssp.")
 @click.pass_context
 @common_options
 @git_options
