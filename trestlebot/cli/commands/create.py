@@ -181,8 +181,9 @@ def compdef_cmd(
 )
 @click.option(
     "--compdefs",
-    required=False,
+    required=True,
     type=str,
+    prompt="Enter comma separated list of component definitions to include in SSP",
     help="Comma separated list of component definitions.",
 )
 @handle_exceptions
