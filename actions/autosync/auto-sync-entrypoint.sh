@@ -8,19 +8,19 @@ source /common.sh
 set_git_safe_directory
 
 # Initialize the command variable
-command="trestlebot-autosync \
-        --markdown-path=\"${INPUT_MARKDOWN_PATH}\" \
+command="trestlebot autosync \
+        --markdown-dir=\"${INPUT_MARKDOWN_DIR}\" \
         --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
-        --ssp-index-path=\"${INPUT_SSP_INDEX_PATH}\" \
+        --ssp-index-file=\"${INPUT_SSP_INDEX_FILE}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
         --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
-        --file-patterns=\"${INPUT_FILE_PATTERN}\" \
+        --file-patterns=\"${INPUT_FILE_PATTERNS}\" \
         --committer-name=\"${INPUT_COMMIT_USER_NAME}\" \
         --committer-email=\"${INPUT_COMMIT_USER_EMAIL}\" \
         --author-name=\"${INPUT_COMMIT_AUTHOR_NAME}\" \
         --author-email=\"${INPUT_COMMIT_AUTHOR_EMAIL}\" \
-        --working-dir=\"${INPUT_REPOSITORY}\" \
+        --repo-path=\"${INPUT_REPO_PATH}\" \
         --target-branch=\"${INPUT_TARGET_BRANCH}\" \
         --skip-items=\"${INPUT_SKIP_ITEMS}\" \
         --version=\"${INPUT_VERSION}\""

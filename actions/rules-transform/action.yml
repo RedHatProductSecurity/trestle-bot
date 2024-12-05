@@ -3,14 +3,14 @@ author: "Red Hat Product Security"
 description: "A rules transform action to convert trestle rules in YAML format to OSCAL and propagates changes to Markdown."
 
 inputs:
-  markdown_path: 
+  markdown_dir:
     description: Path relative to the repository path to create markdown files. See action README.md for more information.
     required: true
-  rules_view_path: 
+  rules_view_path:
     description: Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`.
     required: false
     default: "rules/"
-  dry_run: 
+  dry_run:
     description: "Runs tasks without pushing changes to the repository."
     required: false
     default: "false"
@@ -37,11 +37,11 @@ inputs:
   target_branch:
     description: Target branch (or base branch) to create a pull request against. If unset, no pull request will be created. If set, a pull request will be created using the `branch` field as the head branch.
     required: false
-  file_pattern:
+  file_patterns:
     description: Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
     required: false
     default: '.'
-  repository:
+  repo_path:
     description: Local file path to the git repository with a valid trestle project root relative to the GitHub workspace. Defaults to the current directory (`.`)
     required: false
     default: '.'
