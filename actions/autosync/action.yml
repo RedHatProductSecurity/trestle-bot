@@ -3,13 +3,13 @@ author: "Red Hat Product Security"
 description: "An action to perform automatic synchronization of Trestle markdown files to OSCAL."
 
 inputs:
-  markdown_path: 
+  markdown_dir:
     description: Path relative to the repository path where the Trestle markdown files are located. See action README.md for more information.
     required: true
   oscal_model:
     description: OSCAL Model type to assemble. Values can be catalog, profile, compdef, or ssp.
     required: true
-  dry_run: 
+  dry_run:
     description: "Runs tasks without pushing changes to the repository."
     required: false
     default: "false"
@@ -32,7 +32,7 @@ inputs:
   skip_items:
     description: "Comma-separated glob patterns list of content by trestle name to skip during task execution. For example `profile_x,profile_y*,`."
     required: false
-  ssp_index_path:
+  ssp_index_file:
     description: Path relative to the repository path where the ssp index is located. See action README.md for information about the ssp index.
     required: false
     default: "ssp-index.json"
@@ -51,11 +51,11 @@ inputs:
   target_branch:
     description: Target branch (or base branch) to create a pull request against. If unset, no pull request will be created. If set, a pull request will be created using the `branch` field as the head branch.
     required: false
-  file_pattern:
+  file_patterns:
     description: Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`)
     required: false
     default: '.'
-  repository:
+  repo_path:
     description: Local file path to the git repository with a valid trestle project root relative to the GitHub workspace.
     required: false
     default: '.'
