@@ -73,7 +73,7 @@ For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` fo
 #### Code structure
 
 - `actions` - Provides specific logic for `trestle-bot` tasks that are packaged as Actions. See [README.md](./actions/README.md) for more information.
-- `entrypoints` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related in any way so they are not organized into a hierarchical command structure, but they do inherit logic and flags from a base class.
+- `cli` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related so they are not organized into a hierarchical command structure, but they do share some common modules.
 - `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations for interacting with the API.
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
 - `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
@@ -109,7 +109,7 @@ To generate a pin for a third party action, there should be a full length commit
 
 This approach is used for authoring CI workflows that utilize versioned actions to produce frequent updates from dependabot for python and GitHub Actions.
 
-### License Text in Files 
+### License Text in Files
 
 Please use the SPDX license identifier in all source files.
 
@@ -158,11 +158,11 @@ make test-e2e
 #### Run with poetry
 ```
 make develop
-poetry run trestlebot-autosync
-poetry run trestlebot-rules-transform
-poetry run trestlebot-create-cd
-poetry run trestlebot-sync-upstreams
-poetry run trestlebot-create-ssp
+poetry run trestlebot autosync
+poetry run trestlebot rules-transform
+poetry run trestlebot create compdef
+poetry run trestlebot sync-upstreams
+poetry run trestlebot create ssp
 ```
 
 #### Local testing
@@ -186,22 +186,22 @@ cat envfile
 ...
 
 GITHUB_OUTPUT=
-INPUT_SKIP_ITEMS=
-INPUT_DRY_RUN=true
-INPUT_SKIP_ASSEMBLE=false
-INPUT_SKIP_REGENERATE=false
-INPUT_REPOSITORY=.
-INPUT_BRANCH=test
-INPUT_MARKDOWN_PATH=markdown/profiles
-INPUT_OSCAL_MODEL=profile
-INPUT_SSP_INDEX_PATH=
-INPUT_COMMIT_MESSAGE=
-INPUT_COMMIT_USER_NAME=testuser
-INPUT_COMMIT_USER_EMAIL=test@example.com
-INPUT_FILE_PATTERN=*.md,*.json
-INPUT_COMMIT_AUTHOR_NAME=
-INPUT_COMMIT_AUTHOR_EMAIL=
-INPUT_TARGET_BRANCH=
+INPUT_TRESTLEBOT_SKIP_ITEMS=
+INPUT_TRESTLEBOT_DRY_RUN=true
+INPUT_TRESTLEBOT_SKIP_ASSEMBLE=false
+INPUT_TRESTLEBOT_SKIP_REGENERATE=false
+INPUT_TRESTLEBOT_REPO_PATH=.
+INPUT_TRESTLEBOT_BRANCH=test
+INPUT_TRESTLEBOT_MARKDOWN_DIR=markdown/profiles
+INPUT_TRESTLEBOT_OSCAL_MODEL=profile
+INPUT_TRESTLEBOT_SSP_INDEX_FILE=
+INPUT_TRESTLEBOT_COMMIT_MESSAGE=
+INPUT_TRESTLEBOT_COMMIT_USER_NAME=testuser
+INPUT_TRESTLEBOT_COMMIT_USER_EMAIL=test@example.com
+INPUT_TRESTLEBOT_FILE_PATTERNS=*.md,*.json
+INPUT_TRESTLEBOT_COMMIT_AUTHOR_NAME=
+INPUT_TRESTLEBOT_COMMIT_AUTHOR_EMAIL=
+INPUT_TRESTLEBOT_TARGET_BRANCH=
 GITHUB_ACTIONS=true
 
 ```
