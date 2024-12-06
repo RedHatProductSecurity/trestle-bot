@@ -6,7 +6,7 @@ inputs:
   markdown_dir:
     description: Path relative to the repository path to create markdown files. See action README.md for more information.
     required: true
-  rules_view_path:
+  rules_view_dir:
     description: Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`.
     required: false
     default: "rules/"

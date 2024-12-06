@@ -7,7 +7,7 @@ This document provides instructions and examples for creating and using GitHub A
 ## Directory Structure
 
 - Actions related to trestle-bot are located in the `actions` directory.
-- Actions should correlate an command under the `trestlebot/cli/commands` directory.
+- Actions should correlate a command under the `trestlebot/cli/commands` directory.
 
 ## Adding a New Action
 

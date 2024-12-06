@@ -33,7 +33,7 @@ inputs:
     description: "Comma-separated glob patterns list of content by trestle name to skip during task execution. For example `profile_x,profile_y*,`."
     required: false
   ssp_index_file:
-    description: Path relative to the repository path where the ssp index is located. See action README.md for information about the ssp index.
+    description: JSON file relative to the repository path where the ssp index is located. See action README.md for information about the ssp index.
     required: false
     default: "ssp-index.json"
   commit_message:
