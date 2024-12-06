@@ -17,7 +17,6 @@ command="trestlebot create compdef \
         --markdown-dir=\"${INPUT_MARKDOWN_DIR}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
         --filter-by-profile=\"${INPUT_FILTER_BY_PROFILE}\" \
-        --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
         --file-patterns=\"${INPUT_FILE_PATTERNS}\" \
         --committer-name=\"${INPUT_COMMIT_USER_NAME}\" \
@@ -25,15 +24,16 @@ command="trestlebot create compdef \
         --author-name=\"${INPUT_COMMIT_AUTHOR_NAME}\" \
         --author-email=\"${INPUT_COMMIT_AUTHOR_EMAIL}\" \
         --repo-path=\"${INPUT_REPO_PATH}\" \
-        --target-branch=\"${INPUT_TARGET_BRANCH}\""
+        --target-branch=\"${INPUT_TARGET_BRANCH}\"
+        --config=\"${INPUT_CONFIG}\""
 
 # Conditionally include flags
-if [[ ${INPUT_VERBOSE} == true ]]; then
-    command+=" --verbose"
-fi
-
 if [[ ${INPUT_DRY_RUN} == true ]]; then
     command+=" --dry-run"
+fi
+
+if [[ ${INPUT_DEBUG} == true ]]; then
+    command+=" --debug"
 fi
 
 eval "${command}"

@@ -13,7 +13,6 @@ command="trestlebot autosync \
         --oscal-model=\"${INPUT_OSCAL_MODEL}\" \
         --ssp-index-file=\"${INPUT_SSP_INDEX_FILE}\" \
         --commit-message=\"${INPUT_COMMIT_MESSAGE}\" \
-        --pull-request-title=\"${INPUT_PULL_REQUEST_TITLE}\" \
         --branch=\"${INPUT_BRANCH}\" \
         --file-patterns=\"${INPUT_FILE_PATTERNS}\" \
         --committer-name=\"${INPUT_COMMIT_USER_NAME}\" \
@@ -23,7 +22,8 @@ command="trestlebot autosync \
         --repo-path=\"${INPUT_REPO_PATH}\" \
         --target-branch=\"${INPUT_TARGET_BRANCH}\" \
         --skip-items=\"${INPUT_SKIP_ITEMS}\" \
-        --version=\"${INPUT_VERSION}\""
+        --version=\"${INPUT_VERSION}\"
+        --config=\"${INPUT_CONFIG}\""
 
 # Conditionally include flags
 if [[ ${INPUT_SKIP_ASSEMBLE} == true ]]; then
@@ -38,8 +38,8 @@ if [[ ${INPUT_DRY_RUN} == true ]]; then
     command+=" --dry-run"
 fi
 
-if [[ ${INPUT_VERBOSE} == true ]]; then
-    command+=" --verbose"
+if [[ ${INPUT_DEBUG} == true ]]; then
+    command+=" --debug"
 fi
 
 eval "${command}"

@@ -29,10 +29,6 @@ inputs:
     description: Commit message
     required: false
     default: "Sync automatic updates"
-  pull_request_title:
-    description: Custom pull request title
-    required: false
-    default: "Automatic updates from trestlebot"
   branch:
     description: Name of the Git branch to which modifications should be pushed. Required if Action is used on the `pull_request` event.
     required: false
@@ -64,10 +60,14 @@ inputs:
     description: Email address used for the commit author.
     required: false
     default: ${{ github.actor }}@users.noreply.github.com
-  verbose:
-    description: Enable verbose logging
+  debug:
+    description: Enable debug logging messages.
     required: false
     default: "false"
+  config:
+    description: Path to trestlebot configuration file.
+    required: false
+    default: ".trestlebot/config.yml"
 
 outputs:
   changes:
