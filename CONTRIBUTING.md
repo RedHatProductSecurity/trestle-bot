@@ -73,7 +73,9 @@ For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` fo
 #### Code structure
 
 - `actions` - Provides specific logic for `trestle-bot` tasks that are packaged as Actions. See [README.md](./actions/README.md) for more information.
-- `entrypoints` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related in any way so they are not organized into a hierarchical command structure, but they do inherit logic and flags from a base class.
+- `cli` - Provides top level logic for specific user-facing tasks. These tasks are not necessarily related so they are not organized into a hierarchical command structure, but they do share some common modules.
+- `cli/commands` - Provides top level logic for commands and their associated subcommands. The commands are accessed by the single entrypoint `root.py`.
+- `cli/options` - Provides command line options and arguments that are frequently used within `cli/commands`.
 - `provider.py, github.py, and gitlab.py` - Git provider abstract class and concrete implementations for interacting with the API.
 - `tasks` - Pre-tasks can be configured before the main git logic is run. Any task that does workspace management should go here.
 - `tasks/authored` - The `authored` package contains logic for managing authoring tasks for single instances of a top-level OSCAL model. These encapsulate logic from the `compliance-trestle` library and allows loose coupling between `tasks` and `authored` types.
