@@ -89,8 +89,8 @@ def compdef_cmd(
     compdef_name = kwargs["compdef_name"]
     component_title = kwargs["component_title"]
     component_description = kwargs["component_description"]
-    filter_by_profile = kwargs["filter_by_profile"]
-    component_definition_type = kwargs["component_definition_type"]
+    filter_by_profile = kwargs.get("filter_by_profile")
+    component_definition_type = kwargs.get("component_definition_type", "service")
     repo_path = kwargs["repo_path"]
     markdown_dir = kwargs["markdown_dir"]
     if filter_by_profile:
@@ -197,9 +197,7 @@ def ssp_cmd(
 
     profile_name = kwargs["profile_name"]
     ssp_name = kwargs["ssp_name"]
-    leveraged_ssp = kwargs["leveraged_ssp"]
-    ssp_index_file = kwargs["ssp_index_file"]
-    yaml_header_path = kwargs["yaml_header_path"]
+    ssp_index_file = kwargs.get("ssp_index_file", "ssp-index.json")
     repo_path = kwargs["repo_path"]
     markdown_dir = kwargs["markdown_dir"]
     compdefs = kwargs["compdefs"]
@@ -216,8 +214,8 @@ def ssp_cmd(
         profile_name=profile_name,
         compdefs=comps,
         markdown_path=markdown_dir,
-        leveraged_ssp=leveraged_ssp,
-        yaml_header=yaml_header_path,
+        leveraged_ssp=kwargs["leveraged_ssp"],
+        yaml_header=kwargs["yaml_header_path"],
     )
 
     logger.debug(f"The name of the SSP to create is {ssp_name}.")
