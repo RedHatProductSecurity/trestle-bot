@@ -18,6 +18,11 @@ import sys
 import traceback
 from typing import List, Optional
 
+from ssg.products import (
+    load_product_yaml,
+    product_yaml_path
+)
+
 from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, SUCCESS_EXIT_CODE
 from trestlebot.entrypoints.entrypoint_base import EntrypointBase, handle_exception
 from trestlebot.entrypoints.log import set_log_level_from_args
@@ -53,7 +58,17 @@ class CreateCDEntrypoint(EntrypointBase):
             "--compdef-name", required=True, help="Name of component definition"
         )
         self.parser.add_argument(
-            "--component-title", required=True, help="Title of initial component"
+            "--component-title", required=False, help="Title of initial component"
+        )
+        self.parser.add_argument(
+            "--product-name",
+            required=False,
+            help="Name of the ComplainceAsCode content product.",
+        )
+        self.parser.add_argument(
+            "--cac-path",
+            required=False,
+            help="Path of the ComplainceAsCode content path ",
         )
         self.parser.add_argument(
             "--component-description",
@@ -98,6 +113,17 @@ class CreateCDEntrypoint(EntrypointBase):
         exit_code: int = SUCCESS_EXIT_CODE
         try:
             set_log_level_from_args(args)
+            if not args.component_title:
+                if not args.product_name or not args.cac_path:
+                    raise ValueError(
+                        "If --component-title is not provided, " +
+                        "both --product-name and --cac-path must be provided."
+                    )
+            else:
+                if args.product_name or args.cac_path:
+                    raise ValueError(
+                        "The --component-title is provided, no need --product-name and --cac-path."
+                    )
             pre_tasks: List[TaskBase] = []
             filter_by_profile: Optional[FilterByProfile] = None
             trestle_root: pathlib.Path = pathlib.Path(args.working_dir)
@@ -107,13 +133,21 @@ class CreateCDEntrypoint(EntrypointBase):
                     trestle_root, args.filter_by_profile
                 )
 
+            if args.component_title:
+                component_title = args.component_title
+            else:
+                # Get the component title from SSG products
+                component_title = self.get_product_title(
+                    args.cac_path, args.product_name
+                )
+
             authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
                 args.working_dir
             )
             authored_comp.create_new_default(
                 args.profile_name,
                 args.compdef_name,
-                args.component_title,
+                component_title,
                 args.component_description,
                 args.component_definition_type,
                 filter_by_profile,
@@ -124,7 +158,7 @@ class CreateCDEntrypoint(EntrypointBase):
             # In this case we only want to do the transformation and generation for this component
             # definition, so we skip all other component definitions and components.
             model_filter: ModelFilter = ModelFilter(
-                [], [args.compdef_name, args.component_title, f"{RULE_PREFIX}*"]
+                [], [args.compdef_name, component_title, f"{RULE_PREFIX}*"]
             )
 
             rule_transform_task: RuleTransformTask = RuleTransformTask(
@@ -148,6 +182,18 @@ class CreateCDEntrypoint(EntrypointBase):
             exit_code = handle_exception(e, traceback_str)
 
         sys.exit(exit_code)
+
+    def get_product_title(self, ssg_root, product_name: str) -> str:
+        """Get the title of the product using the SSG products library."""
+        try:
+            # Get the product yaml file path
+            product_yml_path = product_yaml_path(ssg_root, product_name)
+            # Load the product data
+            product = load_product_yaml(product_yml_path)
+            # Return product name from product yml file
+            return product._primary_data.get("product")
+        except Exception as e:
+            logger.error(f"Error retrieving product title: {e}", exc_info=True)
 
 
 def main() -> None:

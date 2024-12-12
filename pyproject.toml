@@ -34,6 +34,7 @@ github3-py = "^4.0.1"
 python-gitlab = "^4.2.0"
 ruamel-yaml = "^0.18.5"
 pydantic = "^2.0.0"
+ssg = {git = "https://github.com/ComplianceasCode/content"}
 
 [tool.poetry.group.dev]
 optional = true
