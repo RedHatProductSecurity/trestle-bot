@@ -9,7 +9,7 @@ from typing import Any, List
 import click
 
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
-from trestlebot.cli.utils import run_bot
+from trestlebot.cli.utils import comma_sep_to_list, run_bot
 from trestlebot.const import RULES_VIEW_DIR
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
@@ -40,18 +40,16 @@ logger = logging.getLogger(__name__)
     default=RULES_VIEW_DIR,
 )
 @click.option(
-    "--skip-item",
+    "--skip-items",
     type=str,
-    help="glob pattern for directories to skip when running",
-    multiple=True,
+    help="Comma-separated list of glob patterns for directories to skip when running tasks.",
 )
 @handle_exceptions
 def rule_transform_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Run the rule transform operation."""
     # Allow any model to be skipped by setting skip_item, by default include all
-    skip_items = list(kwargs.get("skip_item", []))
     model_filter: ModelFilter = ModelFilter(
-        skip_patterns=skip_items,
+        skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
         include_patterns=["*"],
     )
 

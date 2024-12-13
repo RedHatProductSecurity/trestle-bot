@@ -63,8 +63,12 @@ def test_missing_ssp_index_file_option(tmp_repo: Tuple[str, Repo]) -> None:
 
 
 def test_missing_markdown_dir_option(tmp_repo: Tuple[str, Repo]) -> None:
+    # When no markdown_dir setting in trestlebot config file.
     repo_path, _ = tmp_repo
     runner = CliRunner()
+    filepath = pathlib.Path(repo_path).joinpath("config.yml")
+    config_obj = TrestleBotConfig(repo_path=repo_path)
+    write_to_file(config_obj, filepath)
     cmd_options = [
         "--oscal-model",
         "compdef",
@@ -76,6 +80,8 @@ def test_missing_markdown_dir_option(tmp_repo: Tuple[str, Repo]) -> None:
         "Test User",
         "--committer-email",
         "test@example.com",
+        "--config",
+        str(filepath),
     ]
     result = runner.invoke(autosync_cmd, cmd_options)
     assert result.exit_code == 2
@@ -83,8 +89,6 @@ def test_missing_markdown_dir_option(tmp_repo: Tuple[str, Repo]) -> None:
 
     # With 'markdown_dir' setting in config.yml
     config_obj = TrestleBotConfig(markdown_dir="markdown")
-    filepath = pathlib.Path(repo_path).joinpath("config.yml")
     write_to_file(config_obj, filepath)
-    cmd_options += ["--config", str(filepath)]
     result = runner.invoke(autosync_cmd, cmd_options)
     assert result.exit_code == 0
