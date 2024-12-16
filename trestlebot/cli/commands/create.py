@@ -11,7 +11,7 @@ from typing import Any, List
 import click
 
 from trestlebot import const
-from trestlebot.cli.options.common import common_options, handle_exceptions
+from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
 from trestlebot.cli.options.create import common_create_options
 from trestlebot.cli.utils import run_bot
 from trestlebot.entrypoints.entrypoint_base import comma_sep_to_list
@@ -44,6 +44,7 @@ def create_cmd(ctx: click.Context) -> None:
 @click.pass_context
 @common_create_options
 @common_options
+@git_options
 @click.option(
     "--compdef-name",
     required=True,
@@ -147,6 +148,7 @@ def compdef_cmd(
 @click.pass_context
 @common_create_options
 @common_options
+@git_options
 @click.option(
     "--ssp-name",
     required=True,
