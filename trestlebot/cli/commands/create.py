@@ -48,19 +48,16 @@ def create_cmd(ctx: click.Context) -> None:
 @click.option(
     "--compdef-name",
     required=True,
-    prompt="Enter name of component definition",
     help="Name of component definition.",
 )
 @click.option(
     "--component-title",
     required=True,
-    prompt="Enter name of component title",
     help="Title of initial component.",
 )
 @click.option(
     "--component-description",
     required=True,
-    prompt="Enter description of the initial component",
     help="Description of initial component.",
 )
 @click.option(
@@ -153,7 +150,6 @@ def compdef_cmd(
     "--ssp-name",
     required=True,
     type=str,
-    prompt="Enter name of SSP to create",
     help="Name of SSP to create.",
 )
 @click.option(
@@ -185,7 +181,6 @@ def compdef_cmd(
     "--compdefs",
     required=True,
     type=str,
-    prompt="Enter comma separated list of component definitions to include in SSP",
     help="Comma separated list of component definitions.",
 )
 @handle_exceptions
@@ -196,7 +191,6 @@ def ssp_cmd(
     """
     SSP Authoring command
     """
-
     profile_name = kwargs["profile_name"]
     ssp_name = kwargs["ssp_name"]
     ssp_index_file = kwargs.get("ssp_index_file", "ssp-index.json")

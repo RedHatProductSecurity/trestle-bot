@@ -2,10 +2,20 @@
 # Copyright (c) 2024 Red Hat, Inc.
 
 """ Unit test for create commands ssp and cd"""
+import pathlib
+from typing import Tuple
 
 from click.testing import CliRunner
+from git import Repo
 
+from tests.testutils import setup_for_compdef, setup_for_ssp
 from trestlebot.cli.commands.create import create_cmd
+
+
+test_prof = "simplified_nist_profile"
+test_comp_name = "test_comp"
+test_ssp_md = "md_ssp"
+test_ssp_cd = "md_cd"
 
 
 def test_invalid_create_cmd() -> None:
@@ -17,10 +27,15 @@ def test_invalid_create_cmd() -> None:
     assert result.exit_code == 2
 
 
-def test_create_ssp_cmd(tmp_init_dir: str) -> None:
+def test_create_ssp_cmd(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests successful create ssp command."""
-    compdef_list_tester = ["ac-12", "ac-13"]
-    ssp_index_tester = "tmp_init_dir/tester-ssp-index.json"
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+
+    ssp_index_file = repo_path.joinpath("ssp-index.json")
+
+    _ = setup_for_ssp(repo_path, test_prof, [test_comp_name], test_ssp_md)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -28,24 +43,34 @@ def test_create_ssp_cmd(tmp_init_dir: str) -> None:
         [
             "ssp",
             "--profile-name",
-            "oscal-profile-name",
+            test_prof,
             "--markdown-dir",
             "markdown",
             "--compdefs",
-            compdef_list_tester,
+            test_comp_name,
             "--ssp-name",
             "test-name",
             "--repo-path",
-            tmp_init_dir,
+            str(repo_path.resolve()),
             "--ssp-index-file",
-            ssp_index_tester,
+            ssp_index_file,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
         ],
     )
     assert result.exit_code == 0
 
 
-def test_create_compdef_cmd(tmp_init_dir: str) -> None:
+def test_create_compdef_cmd(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests successful create compdef command."""
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+
+    _ = setup_for_compdef(repo_path, test_comp_name, test_ssp_cd)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -62,17 +87,24 @@ def test_create_compdef_cmd(tmp_init_dir: str) -> None:
             "description-test",
             "--component-definition-type",
             "type-test",
-            "repo-path",
-            tmp_init_dir,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
         ],
     )
-    assert result.exit_code == 2
+    assert result.exit_code == 0
 
 
-def test_default_ssp_index_file_cmd(tmp_init_dir: str) -> None:
+def test_default_ssp_index_file_cmd(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests successful default ssp_index.json file creation."""
-    compdef_list_tester = ["ac-12", "ac-13"]
-    default_ssp_index_file = "tmp_init_dir/test-ssp-index.json"
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
 
     runner = CliRunner()
     result = runner.invoke(
@@ -84,48 +116,28 @@ def test_default_ssp_index_file_cmd(tmp_init_dir: str) -> None:
             "--markdown-dir",
             "markdown",
             "--compdefs",
-            compdef_list_tester,
+            "test-compdef",
             "--ssp-name",
             "test-name",
             "--repo-path",
-            tmp_init_dir,
-            "--ssp-index-file",
-            default_ssp_index_file,
+            str(repo_path.resolve()),
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
         ],
     )
     assert result.exit_code == 0
 
 
-def test_markdown_files_not_created(tmp_init_dir: str) -> None:
-    """Tests failure of markdown file creation when not supplied with directory name."""
-    compdef_list_tester = ["ac-12", "ac-13"]
-    ssp_index_tester = "tmp_init_dir/ssp-tester.index.json"
-
-    runner = CliRunner()
-    result = runner.invoke(
-        create_cmd,
-        [
-            "ssp",
-            "--profile-name",
-            "oscal-profile-name",
-            "--compdefs",
-            compdef_list_tester,
-            "--ssp-name",
-            "test-name",
-            "repo-path",
-            tmp_init_dir,
-            "--ssp-index-file",
-            ssp_index_tester,
-        ],
-    )
-    assert result.exit_code == 2
-
-
-def test_markdown_files_created(tmp_init_dir: str) -> None:
+def test_markdown_files_created(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests successful creation of markdown files."""
-    ssp_index_tester = "tmp_init_dir/ssp-tester.index.json"
-    markdown_file_tester = "tmp_init_dir/markdown/system-security-plan.md"
-    compdef_list_tester = ["ac-12", "ac-13"]
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    ssp_index_file = repo_path.joinpath("ssp-index.json")
 
     runner = CliRunner()
     result = runner.invoke(
@@ -135,15 +147,21 @@ def test_markdown_files_created(tmp_init_dir: str) -> None:
             "--profile-name",
             "oscal-profile-name",
             "--markdown-dir",
-            markdown_file_tester,
+            "markdown",
             "--compdefs",
-            compdef_list_tester,
+            "test-compdef",
             "--ssp-name",
             "test-name",
             "--repo-path",
-            tmp_init_dir,
+            str(repo_path.resolve()),
             "--ssp-index-file",
-            ssp_index_tester,
+            ssp_index_file,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
         ],
     )
     assert result.exit_code == 0
