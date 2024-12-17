@@ -494,13 +494,13 @@ files = [
 
 [[package]]
 name = "compliance-trestle"
-version = "3.4.0"
+version = "3.5.0"
 description = "Tools to manage & autogenerate python objects representing the OSCAL layers/models"
 optional = false
 python-versions = "*"
 files = [
-    {file = "compliance_trestle-3.4.0-py2.py3-none-any.whl", hash = "sha256:7762b3b3ddb7618fb4203feae104bf5de8dff1cd65de4ee5db01f3802cdc1447"},
-    {file = "compliance_trestle-3.4.0.tar.gz", hash = "sha256:c55d0adbe3d78c63d4ca735a2c6173ca7c96944930ab5fa54484c02e8bd5164c"},
+    {file = "compliance_trestle-3.5.0-py2.py3-none-any.whl", hash = "sha256:e7995683459b8a4ae77377e0934adc88190b1c612cddc000128b7ef19d71a066"},
+    {file = "compliance_trestle-3.5.0.tar.gz", hash = "sha256:29e342eb59e527ebea40da36a2632a8782fbe82e76fda12af72c5ef655856951"},
 ]
 
 [package.dependencies]
@@ -524,7 +524,7 @@ requests = ">=2.32.2"
 "ruamel.yaml" = "*"
 
 [package.extras]
-dev = ["gitpython", "livereload", "markdown-include", "mkdocs (==1.5.0)", "mkdocs-material", "mkdocstrings[python-legacy] (==0.19.0)", "mypy", "pep8-naming", "pre-commit (>=2.4.0)", "pylint", "pymdown-extensions", "pytest (>=5.4.3)", "pytest-cov (>=2.10.0)", "pytest-random-order", "pytest-xdist", "python-dateutil", "python-semantic-release (>=9.8.0)", "setuptools (>=61)", "types-PyYAML", "types-paramiko", "types-requests", "types-setuptools", "urllib3 (==1.26.19)", "wheel", "yapf"]
+dev = ["gitpython", "livereload", "markdown-include", "mkdocs (>=1.6.0)", "mkdocs-htmlproofer-plugin", "mkdocs-material", "mkdocstrings[python] (>=0.25.2)", "mypy", "pep8-naming", "pre-commit (>=2.4.0)", "pylint", "pymdown-extensions", "pytest (>=5.4.3)", "pytest-cov (>=2.10.0)", "pytest-random-order", "pytest-xdist", "python-dateutil", "python-semantic-release (>=9.8.0)", "setuptools (>=61)", "types-PyYAML", "types-paramiko", "types-requests", "types-setuptools", "urllib3 (==1.26.19)", "wheel", "yapf"]
 
 [[package]]
 name = "compliance-trestle-fedramp"
