@@ -176,7 +176,8 @@ def init_cmd(
         config_values.update(branch=default_branch)
 
     config = make_config(config_values)
-    config_path = trestlebot_dir.joinpath("config.yml")
+    if not config_path:
+        config_path = trestlebot_dir.joinpath("config.yml")
     write_to_file(config, config_path)
     logger.debug(f"trestle-bot config file created at {str(config_path)}")
     logger.info(f"Successfully initialized trestlebot project in {repo_path}")
