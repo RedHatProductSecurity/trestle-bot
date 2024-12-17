@@ -49,7 +49,7 @@ def load_value_from_ctx(
     "--sources",
     type=str,
     help="Comma-separated list of upstream git sources to sync. Each source is a string \
-                in the form <repo_url>@<ref> where ref is a git ref such as a tag or branch.",
+        in the form <repo_url>@<ref> where ref is a git ref such as a tag or branch.",
     envvar="TRESTLEBOT_UPSTREAMS_SOURCES",
     callback=load_value_from_ctx,
     required=False,

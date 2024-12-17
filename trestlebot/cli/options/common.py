@@ -55,7 +55,7 @@ def load_config_to_ctx(
     If the user specifies a value for the option directly (e.g. uses --option value)
     then that value is used in favor of the value loaded from the config.
 
-    Simarly, if an option has an associated ENVVAR, and that ENVVAR is set, then the
+    Similarly, if an option has an associated ENVVAR, and that ENVVAR is set, then the
     ENVVAR value is used in favor of the value loaded from the config.
 
     Since the config contains values that should not be mapped to command option values
