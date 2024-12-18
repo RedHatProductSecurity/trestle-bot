@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.12.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.11.0...v0.12.0) (2024-12-18)
+
+
+### Features
+
+* 295 monorepo directory structure design proposal ([#389](https://github.com/RedHatProductSecurity/trestle-bot/issues/389)) ([0314389](https://github.com/RedHatProductSecurity/trestle-bot/commit/0314389ccb454b1c52ef68cd7670da97dbf62510))
+* **bot:** change for configuring trestle-bot PR body update ([#363](https://github.com/RedHatProductSecurity/trestle-bot/issues/363)) ([812ae9a](https://github.com/RedHatProductSecurity/trestle-bot/commit/812ae9acdc9741fc83e20cc219ecbb681e3bf6c4))
+
+
+### Bug Fixes
+
+* run the paths-filter step in its own job ([#370](https://github.com/RedHatProductSecurity/trestle-bot/issues/370)) ([cb42cfe](https://github.com/RedHatProductSecurity/trestle-bot/commit/cb42cfe7e2a5d554f7380a4b327a09324a8d3834))
+
+
+### Maintenance
+
+* add openssf scorecard workflow ([#359](https://github.com/RedHatProductSecurity/trestle-bot/issues/359)) ([63ed23c](https://github.com/RedHatProductSecurity/trestle-bot/commit/63ed23c1768b49022b71b03dcda58fe1b001a452))
+
 ## [0.11.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.10.1...v0.11.0) (2024-09-25)
 
 
