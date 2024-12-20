@@ -14,7 +14,7 @@ name: Example Workflow
         id: trestlebot
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
-          markdown_path: "markdown/components"
+          markdown_dir: "markdown/components"
           
 ```
 
@@ -27,8 +27,8 @@ With custom rules directory:
       id: trestlebot
       uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
       with:
-        markdown_path: "markdown/components"
-        rules_view_path: "custom-rules-dir/"
+        markdown_dir: "markdown/components"
+        rules_view_dir: "custom-rules-dir/"
   ```
 
 ## Action Inputs
@@ -36,22 +36,22 @@ With custom rules directory:
 <!-- START_ACTION_INPUTS -->
 | Name | Description | Default | Required |
 | --- | --- | --- | --- |
-| markdown_path | Path relative to the repository path to create markdown files. See action README.md for more information. | None | True |
-| rules_view_path | Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`. | rules/ | False |
+| markdown_dir | Path relative to the repository path to create markdown files. See action README.md for more information. | None | True |
+| rules_view_dir | Path relative to the repository path where the Trestle rules view files are located. Defaults to `rules/`. | rules/ | False |
 | dry_run | Runs tasks without pushing changes to the repository. | false | False |
 | github_token | "GitHub token used to make authenticated API requests. Note: You should use a defined secret like "secrets.GITHUB_TOKEN" in your workflow file, do not hardcode the token." | None | False |
 | skip_items | Comma-separated glob patterns list of content by Trestle name to skip during task execution. For example `compdef_x,compdef_y*,`. | None | False |
 | commit_message | Commit message | Sync automatic updates | False |
-| pull_request_title | Custom pull request title | Automatic updates from trestlebot | False |
 | branch | Name of the Git branch to which modifications should be pushed. Required if Action is used on the `pull_request` event. | ${{ github.ref_name }} | False |
 | target_branch | Target branch (or base branch) to create a pull request against. If unset, no pull request will be created. If set, a pull request will be created using the `branch` field as the head branch. | None | False |
-| file_pattern | Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`) | . | False |
-| repository | Local file path to the git repository with a valid trestle project root relative to the GitHub workspace. Defaults to the current directory (`.`) | . | False |
+| file_patterns | Comma separated file pattern list used for `git add`. For example `component-definitions/*,*json`. Defaults to (`.`) | . | False |
+| repo_path | Local file path to the git repository with a valid trestle project root relative to the GitHub workspace. Defaults to the current directory (`.`) | . | False |
 | commit_user_name | Name used for the commit user | github-actions[bot] | False |
 | commit_user_email | Email address used for the commit user | 41898282+github-actions[bot]@users.noreply.github.com | False |
 | commit_author_name | Name used for the commit author. Defaults to the username of whoever triggered this workflow run. | ${{ github.actor }} | False |
 | commit_author_email | Email address used for the commit author. | ${{ github.actor }}@users.noreply.github.com | False |
-| verbose | Enable verbose logging | false | False |
+| debug | Enable debug logging messages. | false | False |
+| config | Path to trestlebot configuration file. | .trestlebot/config.yml | False |
 
 <!-- END_ACTION_INPUTS -->
 
