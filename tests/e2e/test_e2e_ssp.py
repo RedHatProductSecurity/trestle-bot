@@ -47,11 +47,11 @@ test_ssp_name = "test_ssp"
 def valid_args_dict() -> Dict[str, str]:
     return {
         "branch": "test",
-        "markdown-path": test_ssp_md,
+        "markdown-dir": test_ssp_md,
         "oscal-model": "ssp",
         "committer-name": "test",
         "committer-email": "test@email.com",
-        "ssp-index": "ssp-index.json",
+        "ssp-index-file": "ssp-index.json",
     }
 
 
@@ -87,12 +87,12 @@ def test_ssp_editing_e2e(
 
     # Get command arguments for the test
     branch = valid_args_dict["branch"]
-    markdown_path = valid_args_dict["markdown-path"]
+    markdown_path = valid_args_dict["markdown-dir"]
     committer_name = valid_args_dict["committer-name"]
     committer_email = valid_args_dict["committer-email"]
 
     create_args: Dict[str, str] = {
-        "markdown-path": markdown_path,
+        "markdown-dir": markdown_path,
         "branch": branch,
         "committer-name": committer_name,
         "committer-email": committer_email,
@@ -102,7 +102,7 @@ def test_ssp_editing_e2e(
     }
     create_command = e2e_runner.build_test_command(
         tmp_repo_str,
-        "create-ssp",
+        "create ssp",
         create_args,
     )
     exit_code, _, _ = e2e_runner.invoke_command(create_command)
