@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Red Hat, Inc.
 
-"""Module for rule-transform command"""
+"""Module for rules-transform command"""
 
 import logging
 from typing import Any, List
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.command(
-    name="rule-transform",
+    name="rules-transform",
     help="Transform rules to an OSCAL Component Definition JSON file.",
 )
 @click.pass_context
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
     help="Comma-separated list of glob patterns for directories to skip when running tasks.",
 )
 @handle_exceptions
-def rule_transform_cmd(ctx: click.Context, **kwargs: Any) -> None:
+def rules_transform_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Run the rule transform operation."""
     # Allow any model to be skipped by setting skip_item, by default include all
     model_filter: ModelFilter = ModelFilter(
