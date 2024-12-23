@@ -94,7 +94,7 @@ def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
     authored_object: AuthoredObjectBase = types.get_authored_object(
         oscal_model,
         working_dir,
-        kwargs.get("ssp_index_path", ""),
+        kwargs.get("ssp_index_file", ""),
     )
 
     # Assuming an edit has occurred assemble would be run before regenerate.
