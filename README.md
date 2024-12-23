@@ -1,3 +1,4 @@
+![TRESTLE-BOT TRANSLATING DOCS](https://as2.ftcdn.net/v2/jpg/06/18/11/81/1000_F_618118160_UGnTNfImuDiU3p6ejshQxIenyqSB70ce.jpg)
 # trestle-bot
 
 [![Pre commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
@@ -13,7 +14,7 @@ trestle-bot is a CLI tool that assists users in leveraging [Compliance-Trestle](
 
 ## Getting Started
 
-### Available Commands
+### Available Commands :memo:
 
 The `autosync` command will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory will be transformed when the action is run. This action supports all top-level models [supported by compliance-trestle for authoring](https://oscal-compass.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
@@ -37,7 +38,7 @@ Below is a table of the available commands and their current availability as a G
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
-### Supported Git Providers
+### Supported Git Providers :octocat:
 
 > Note: Only applicable if using `trestle-bot` to create pull requests. Automatically detecting the git
 provider information is supported for GitHub Actions (GitHub) and GitLab CI (GitLab).
@@ -45,7 +46,7 @@ provider information is supported for GitHub Actions (GitHub) and GitLab CI (Git
 - GitHub
 - GitLab
 
-### Run as a Container
+### Run as a Container :fireworks:
 
 > Note: When running the commands in a container, all are prefixed with `trestlebot` (e.g. `trestlebot autosync`). The default entrypoint for the container is the autosync command.
 
