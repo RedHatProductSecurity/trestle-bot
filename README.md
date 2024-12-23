@@ -14,7 +14,7 @@ trestle-bot is a CLI tool that assists users in leveraging [Compliance-Trestle](
 
 ## Getting Started
 
-### Available Commands :memo:
+### Available Commands :memo: :octocat:
 
 The `autosync` command will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory will be transformed when the action is run. This action supports all top-level models [supported by compliance-trestle for authoring](https://oscal-compass.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
