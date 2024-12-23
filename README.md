@@ -63,14 +63,14 @@ Container images are available in `quay.io`:
 podman run -v $(pwd):/data -w /data quay.io/continuouscompliance/trestle-bot:<tag>
 ```
 
-## Contributing
+## Contributing :outbox_tray: :chart_with_upwards_trend:
 
 For information about contributing to trestle-bot, see the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
 
-## License
+## License :page_facing_up:
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
 
-## Troubleshooting
+## Troubleshooting :warning:
 
 See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for troubleshooting tips.
