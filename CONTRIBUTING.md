@@ -84,9 +84,9 @@ For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` fo
 - `transformers` - This contains data transformation logic; specifically for rules.
 
 
-### Documentation
+### Documentation :open_file_folder:
 
-#### Architecture Decisions
+#### Architecture Decisions :brain:
 
 We document decisions using [Architectural Decision Records](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions). The team will decide when an ADR will be put in place, but this is generally done to document impactful architectural decisions.
 
