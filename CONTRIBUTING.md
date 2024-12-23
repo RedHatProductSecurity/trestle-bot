@@ -33,7 +33,7 @@ Before you start contributing, please take a moment to read through the guide be
     - [Release Process](#release-process)
 
 
-## How To Contribute
+## How To Contribute :grey_question:
 
 Some initial contributions could be:
 
@@ -52,7 +52,7 @@ When submitting a pull request, please follow these guidelines:
 
 ## Developer Guide :bookmark_tabs:
 
-### Prerequisites
+### Prerequisites :closed_lock_with_key:
 
 - [Python](https://www.python.org/downloads/) - v3.8+
 - [Poetry](https://python-poetry.org/)
