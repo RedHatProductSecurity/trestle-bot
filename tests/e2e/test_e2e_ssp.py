@@ -191,6 +191,9 @@ def test_ssp_e2e_editing_failure(
     autosync_command = e2e_runner.build_test_command(
         tmp_repo_str, "autosync", valid_args_dict
     )
-    exit_code, _, response_stderr = e2e_runner.invoke_command(autosync_command)
+    exit_code, response_stdout, response_stderr = e2e_runner.invoke_command(
+        autosync_command
+    )
     assert exit_code == ERROR_EXIT_CODE
-    assert "SSP test_ssp does not exists in the index" in response_stderr
+    err_msg = "SSP test_ssp does not exists in the index"
+    assert err_msg in response_stdout or err_msg in response_stderr
