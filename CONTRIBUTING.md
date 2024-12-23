@@ -50,7 +50,7 @@ When submitting a pull request, please follow these guidelines:
 2. Ensure that your code passes all CI tests.
 3. Please keep the pull request focused on a single issue or feature, if possible.
 
-## Developer Guide :bookmark_tabs:
+## Developer Guide :bookmark_tabs: :flashlight:
 
 ### Prerequisites :closed_lock_with_key:
 
@@ -144,7 +144,7 @@ We encourage the use of type hints in Python code to enhance readability, mainta
 - [SonarCloud](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot) - We use SonarCloud to analyze code quality, coverage, and security. To not break GitHub security model, this will not run on a forked repository.
 - [Semgrep](https://semgrep.dev/docs/extensions/overview/#pre-commit) - Identify issues in the local development environment before committing code. These checks are also run in CI.
 
-### Running tests
+### Running tests :running:
 
 Run all tests with `make test` or `make test-slow` to run all tests including end-to-end.
 For information on end-to-end tests, see [README.md](./tests/e2e/README.md).
@@ -221,7 +221,7 @@ cat my-token.txt | podman secret create repo-secret -
 podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=TRESTLEBOT_REPO_ACCESS_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
 ```
 
-### Release Process
+### Release Process :outbox_tray: :file_folder:
 
 Once work on a release has been completed:
 
