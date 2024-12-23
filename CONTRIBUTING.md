@@ -169,7 +169,7 @@ poetry run trestlebot sync-upstreams
 poetry run trestlebot create ssp
 ```
 
-#### Local testing
+#### Local testing :computer: :shell:
 
 For this guide, we will be using `podman` to test trestlebot in a running container.
 
