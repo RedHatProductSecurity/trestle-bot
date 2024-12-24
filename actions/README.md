@@ -7,13 +7,13 @@ This document provides instructions and examples for creating and using GitHub A
 ## Directory Structure
 
 - Actions related to trestle-bot are located in the `actions` directory.
-- Actions should correlate an entrypoint under the `trestlebot/entrypoints` directory.
+- Actions should correlate a command under the `trestlebot/cli/commands` directory.
 
 ## Adding a New Action
 
 Contributors should scope trestle-bot actions to workspace management and checks. To add a new action:
 
-> Prerequisite: An entrypoint was created under the `trestlebot/entrypoints` directory and added to the `pyproject.toml` under `[tool.poetry.scripts]`
+> Prerequisite: An entrypoint was created under the `trestlebot/cli` directory and added to the `pyproject.toml` under `[tool.poetry.scripts]`
 
 1. Create a new directory in the `actions` directory.
 2. In the new directory, create an `action.yml` file that references the Dockerfile in the root of the repository.
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: RedHatProductSecurity/trestle-bot/actions/create-cd@main
         with:
-          markdown_path: "markdown/components"
+          markdown_dir: "markdown/components"
           profile_name: "my-profile"
           component_definition_name: "my-component-definition"
           component_title: "my-component"
@@ -96,7 +96,7 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "md_comp"
+          markdown_dir: "md_comp"
           oscal_model: "compdef"
           commit_message: "Autosync component definition content [skip ci]"
       # Rule transformation is not idempotent, so you may only want to run this
@@ -115,7 +115,7 @@ jobs:
         id: transform
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
-          markdown_path: "md_comp"
+          markdown_dir: "md_comp"
           commit_message: "Auto-transform rules [skip ci]" 
 ```
 
@@ -148,7 +148,7 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "md_comp"
+          markdown_dir: "md_comp"
           oscal_model: "compdef"
           dry_run: true
       - uses: dorny/paths-filter@v3
@@ -162,7 +162,7 @@ jobs:
         id: transform
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
-          markdown_path: "md_comp"
+          markdown_dir: "md_comp"
           dry_run: true
 ```
 
@@ -210,7 +210,7 @@ jobs:
       if: steps.trestlebot.outputs.changes == 'true'
       uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
       with:
-        markdown_path: "markdown/components"
+        markdown_dir: "markdown/components"
         oscal_model: "compdef"
         branch: "sync-upstream-${{ github.run_id }}"
         skip_assemble: true
@@ -244,7 +244,7 @@ jobs:
       - name: Autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "md_comp"
+          markdown_dir: "md_comp"
           oscal_model: "compdef"
           commit_message: "Update content for release [skip ci]"
           version: ${{ github.event.inputs.version }}

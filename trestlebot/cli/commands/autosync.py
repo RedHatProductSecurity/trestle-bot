@@ -5,11 +5,12 @@
 
 import logging
 import sys
+import traceback
 from typing import Any, List
 
 import click
 
-from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
+from trestlebot.cli.options.common import common_options, git_options
 from trestlebot.cli.utils import comma_sep_to_list, run_bot
 from trestlebot.const import ERROR_EXIT_CODE
 from trestlebot.tasks.assemble_task import AssembleTask
@@ -69,7 +70,6 @@ logger = logging.getLogger(__name__)
     type=str,
     required=False,
 )
-@handle_exceptions
 def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Command to autosync catalog, profile, compdef and ssp."""
 
@@ -87,37 +87,43 @@ def autosync_cmd(ctx: click.Context, **kwargs: Any) -> None:
     if kwargs.get("file_pattern"):
         kwargs.update({"patterns": comma_sep_to_list(kwargs["file_patterns"])})
 
-    model_filter: ModelFilter = ModelFilter(
-        skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
-        include_patterns=["*"],
-    )
-    authored_object: AuthoredObjectBase = types.get_authored_object(
-        oscal_model,
-        working_dir,
-        kwargs.get("ssp_index_path", ""),
-    )
-
-    # Assuming an edit has occurred assemble would be run before regenerate.
-    if not kwargs.get("skip_assemble"):
-        assemble_task: AssembleTask = AssembleTask(
-            authored_object=authored_object,
-            markdown_dir=markdown_dir,
-            version=kwargs.get("version", ""),
-            model_filter=model_filter,
+    try:
+        model_filter: ModelFilter = ModelFilter(
+            skip_patterns=comma_sep_to_list(kwargs.get("skip_items", "")),
+            include_patterns=["*"],
         )
-        pre_tasks.append(assemble_task)
-    else:
-        logger.info("Assemble task skipped.")
-
-    if not kwargs.get("skip_regenerate"):
-        regenerate_task: RegenerateTask = RegenerateTask(
-            authored_object=authored_object,
-            markdown_dir=markdown_dir,
-            model_filter=model_filter,
+        authored_object: AuthoredObjectBase = types.get_authored_object(
+            oscal_model,
+            working_dir,
+            kwargs.get("ssp_index_file", ""),
         )
-        pre_tasks.append(regenerate_task)
-    else:
-        logger.info("Regeneration task skipped.")
 
-    results = run_bot(pre_tasks, kwargs)
-    logger.debug(f"Trestlebot results: {results}")
+        # Assuming an edit has occurred assemble would be run before regenerate.
+        if not kwargs.get("skip_assemble"):
+            assemble_task: AssembleTask = AssembleTask(
+                authored_object=authored_object,
+                markdown_dir=markdown_dir,
+                version=kwargs.get("version", ""),
+                model_filter=model_filter,
+            )
+            pre_tasks.append(assemble_task)
+        else:
+            logger.info("Assemble task skipped.")
+
+        if not kwargs.get("skip_regenerate"):
+            regenerate_task: RegenerateTask = RegenerateTask(
+                authored_object=authored_object,
+                markdown_dir=markdown_dir,
+                model_filter=model_filter,
+            )
+            pre_tasks.append(regenerate_task)
+        else:
+            logger.info("Regeneration task skipped.")
+
+        results = run_bot(pre_tasks, kwargs)
+        logger.debug(f"Trestlebot results: {results}")
+    except Exception as e:
+        traceback_str = traceback.format_exc()
+        logger.error(f"Trestle-bot Error: {str(e)}")
+        logger.debug(traceback_str)
+        sys.exit(ERROR_EXIT_CODE)
