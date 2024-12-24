@@ -110,7 +110,7 @@ def compdef_cmd(
     transformer: ToRulesYAMLTransformer = ToRulesYAMLTransformer()
 
     model_filter: ModelFilter = ModelFilter(
-        [], [profile_name, component_title, f"{const.RULE_PREFIX}*"]
+        [], [compdef_name, component_title, f"{const.RULE_PREFIX}*"]
     )
 
     rule_transform_task: RuleTransformTask = RuleTransformTask(
