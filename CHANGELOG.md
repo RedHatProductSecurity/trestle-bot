@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.12.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.11.0...v0.12.0) (2024-12-25)
+
+
+### Features
+
+* 295 monorepo directory structure design proposal ([#389](https://github.com/RedHatProductSecurity/trestle-bot/issues/389)) ([0314389](https://github.com/RedHatProductSecurity/trestle-bot/commit/0314389ccb454b1c52ef68cd7670da97dbf62510))
+* **bot:** change for configuring trestle-bot PR body update ([#363](https://github.com/RedHatProductSecurity/trestle-bot/issues/363)) ([812ae9a](https://github.com/RedHatProductSecurity/trestle-bot/commit/812ae9acdc9741fc83e20cc219ecbb681e3bf6c4))
+* initialize command for cac to oscal transformation ([6bc5073](https://github.com/RedHatProductSecurity/trestle-bot/commit/6bc507319da7a01d1631f71345aa3a74705f484a))
+
+
+### Bug Fixes
+
+* a typo in autosync command ([d701aab](https://github.com/RedHatProductSecurity/trestle-bot/commit/d701aab315e9f2ee6873ac9c324663681141e493))
+* fix a typo in cli root ([b7b511e](https://github.com/RedHatProductSecurity/trestle-bot/commit/b7b511e173aea8ad9f7c2681b6ea0e640a88e05a))
+* run the paths-filter step in its own job ([#370](https://github.com/RedHatProductSecurity/trestle-bot/issues/370)) ([cb42cfe](https://github.com/RedHatProductSecurity/trestle-bot/commit/cb42cfe7e2a5d554f7380a4b327a09324a8d3834))
+* sys.exit with errorcode when exceptions ([2c2df3d](https://github.com/RedHatProductSecurity/trestle-bot/commit/2c2df3d589750ac1a8af763b139a2e21b70bb59c))
+* update create command for e2e testing ([abcd7eb](https://github.com/RedHatProductSecurity/trestle-bot/commit/abcd7ebbf87464e46f7161bb991b8963d70a4784))
+* update e2e test to use new commands ([6e70243](https://github.com/RedHatProductSecurity/trestle-bot/commit/6e7024315f75851e6bd76affc8544ea4eac933ea))
+
+
+### Maintenance
+
+* add openssf scorecard workflow ([#359](https://github.com/RedHatProductSecurity/trestle-bot/issues/359)) ([63ed23c](https://github.com/RedHatProductSecurity/trestle-bot/commit/63ed23c1768b49022b71b03dcda58fe1b001a452))
+* rename rule-transform to rules-transform ([226a0d2](https://github.com/RedHatProductSecurity/trestle-bot/commit/226a0d24c1fd83a3101bfd251deac3a850143569))
+* update actions for debug and config options ([1f16ca3](https://github.com/RedHatProductSecurity/trestle-bot/commit/1f16ca301da9b808568e671f0b7a3f99f26ddb99))
+* update actions with new cli design ([487d1d4](https://github.com/RedHatProductSecurity/trestle-bot/commit/487d1d40ec4db1502e2ad11344b71d01cce5e12b))
+* update pyproject.toml entrypoints to cli root command ([64adaf5](https://github.com/RedHatProductSecurity/trestle-bot/commit/64adaf5002df6e316db9da9b54ee6cea9633a4fd))
+
 ## [0.11.0](https://github.com/RedHatProductSecurity/trestle-bot/compare/v0.10.1...v0.11.0) (2024-09-25)
 
 
