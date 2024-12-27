@@ -9,7 +9,7 @@ import click
 
 from trestlebot import const
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
-from trestlebot.cli.utils import get_component_title, run_bot
+from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
     FilterByProfile,
@@ -17,6 +17,7 @@ from trestlebot.tasks.authored.compdef import (
 from trestlebot.tasks.base_task import ModelFilter, TaskBase
 from trestlebot.tasks.regenerate_task import RegenerateTask
 from trestlebot.tasks.rule_transform_task import RuleTransformTask
+from trestlebot.transformers.cac_transformer import get_component_title
 from trestlebot.transformers.yaml_transformer import ToRulesYAMLTransformer
 
 
