@@ -3,6 +3,7 @@
 
 """Module for sync cac content command"""
 import logging
+import os
 from typing import Any, List
 
 import click
@@ -59,31 +60,39 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Transform CaC content to OSCAL component definition."""
     # Steps:
     # 1. Check options, logger errors if any and exit.
-    # 2. Initial product component definition with product name
+    # 2. Initialize a product component definition with product name
     # 3. Create a new task to run the data transformation.
     # 4. Initialize a Trestlebot object and run the task(s).
 
-    pre_tasks: List[TaskBase] = []
-
     product = kwargs["product"]
     cac_content_root = kwargs["cac_content_root"]
-    component_definition_type = kwargs.get("component_definition_type", "service")
-    working_dir = kwargs["repo_path"]
+    component_definition_type = kwargs["component_definition_type"]
+    working_dir = str(kwargs["repo_path"].resolve())
+    cac_profile = os.path.join(cac_content_root, kwargs["cac_profile"])
+    oscal_profile = kwargs["oscal_profile"]
 
+    pre_tasks: List[TaskBase] = []
     authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
         trestle_root=working_dir,
     )
-    authored_comp.create_update_cac_compdef(
-        comp_type=component_definition_type,
-        product=product,
-        cac_content_root=cac_content_root,
-        working_dir=working_dir,
-    )
+    # authored_comp.create_update_cac_compdef(
+    #     comp_type=component_definition_type,
+    #     product=product,
+    #     cac_content_root=cac_content_root,
+    #     working_dir=working_dir,
+    # )
 
-    sync_cac_content_task: SyncCacContentTask = SyncCacContentTask(
-        working_dir=working_dir
+    # sync_cac_content_task: SyncCacContentTask = SyncCacContentTask(
+    #     working_dir=working_dir
+    # )
+    sync_cac_content_task = SyncCacContentTask(
+        product,
+        cac_profile,
+        cac_content_root,
+        component_definition_type,
+        oscal_profile,
+        working_dir,  # This could be removed, use authored_comp._trestle_root
     )
-
     pre_tasks.append(sync_cac_content_task)
-
-    run_bot(pre_tasks, kwargs)
+    results = run_bot(pre_tasks, kwargs)
+    logger.debug(f"Trestlebot results: {results}")
