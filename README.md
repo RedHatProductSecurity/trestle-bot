@@ -1,4 +1,4 @@
-![TRESTLE-BOT TRANSLATING DOCS](https://as2.ftcdn.net/v2/jpg/06/18/11/81/1000_F_618118160_UGnTNfImuDiU3p6ejshQxIenyqSB70ce.jpg)
+(https://as2.ftcdn.net/v2/jpg/06/18/11/81/1000_F_618118160_UGnTNfImuDiU3p6ejshQxIenyqSB70ce.jpg)
 # trestle-bot
 
 [![Pre commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
