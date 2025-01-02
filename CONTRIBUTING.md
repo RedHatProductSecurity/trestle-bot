@@ -1,6 +1,5 @@
 # Contributing to trestlebot
 
-![CONTRIBUTING TO BOT](https://t4.ftcdn.net/jpg/05/62/77/17/240_F_562771738_eVSIDlzQexpUerIdfZt6pGFpfndr8365.jpg)
 
 Thank you for your interest in the trestlebot project.
 
