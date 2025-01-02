@@ -14,7 +14,7 @@ trestle-bot is a CLI tool that assists users in leveraging [Compliance-Trestle](
 
 ## Getting Started
 
-### Available Commands :memo: :octocat:
+### :memo: :octocat: Available Commands 
 
 The `autosync` command will sync trestle-generated Markdown files to OSCAL JSON files in a trestle workspace. All content under the provided markdown directory will be transformed when the action is run. This action supports all top-level models [supported by compliance-trestle for authoring](https://oscal-compass.github.io/compliance-trestle/tutorials/ssp_profile_catalog_authoring/ssp_profile_catalog_authoring/).
 
@@ -38,7 +38,7 @@ Below is a table of the available commands and their current availability as a G
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
-### Supported Git Providers :octocat:
+### :octocat: Supported Git Providers 
 
 > Note: Only applicable if using `trestle-bot` to create pull requests. Automatically detecting the git
 provider information is supported for GitHub Actions (GitHub) and GitLab CI (GitLab).
@@ -46,7 +46,7 @@ provider information is supported for GitHub Actions (GitHub) and GitLab CI (Git
 - GitHub
 - GitLab
 
-### Run as a Container :fireworks:
+### :fireworks: Run as a Container 
 
 > Note: When running the commands in a container, all are prefixed with `trestlebot` (e.g. `trestlebot autosync`). The default entrypoint for the container is the autosync command.
 
@@ -63,14 +63,14 @@ Container images are available in `quay.io`:
 podman run -v $(pwd):/data -w /data quay.io/continuouscompliance/trestle-bot:<tag>
 ```
 
-## Contributing :outbox_tray: :chart_with_upwards_trend:
+## :outbox_tray: :chart_with_upwards_trend: Contributing 
 
 For information about contributing to trestle-bot, see the [CONTRIBUTING.md](./CONTRIBUTING.md) file.
 
-## License :page_facing_up:
+## :page_facing_up: License 
 
 This project is licensed under the Apache 2.0 License - see the [LICENSE.md](LICENSE) file for details.
 
-## Troubleshooting :warning:
+## :warning: Troubleshooting
 
 See [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for troubleshooting tips.
