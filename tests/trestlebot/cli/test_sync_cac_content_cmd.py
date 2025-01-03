@@ -17,7 +17,7 @@ cac_content_test_data = pathlib.Path("tests/data/content").resolve()
 test_prof_path = pathlib.Path("tests/data/json/").resolve()
 test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
-test_comp_path = "component-definitions/cac-components/component-definition.json"
+test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -70,8 +70,6 @@ def test_sync_product_name(tmp_repo: Tuple[str, Repo]) -> None:
             "test@email.com",
             "--committer-name",
             "test name",
-            "--markdown-dir",
-            "markdown",
             "--branch",
             "test",
             "--dry-run",
