@@ -64,7 +64,6 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
     product = kwargs["product"]
     cac_content_root = kwargs["cac_content_root"]
-    component_description = kwargs["product"]
     component_definition_type = kwargs.get("component_definition_type", "service")
     working_dir = kwargs["repo_path"]
 
@@ -72,7 +71,6 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
         trestle_root=working_dir,
     )
     authored_comp.create_update_cac_compdef(
-        comp_description=component_description,
         comp_type=component_definition_type,
         product=product,
         cac_content_root=cac_content_root,

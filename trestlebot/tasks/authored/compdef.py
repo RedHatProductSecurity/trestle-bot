@@ -26,7 +26,7 @@ from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectException,
 )
 from trestlebot.transformers.cac_transformer import (
-    get_component_title,
+    get_component_info,
     update_component_definition,
 )
 from trestlebot.transformers.trestle_rule import (
@@ -171,7 +171,6 @@ class AuthoredComponentDefinition(AuthoredObjectBase):
 
     def create_update_cac_compdef(
         self,
-        comp_description: str,
         comp_type: str,
         product: str,
         cac_content_root: str,
@@ -192,9 +191,10 @@ class AuthoredComponentDefinition(AuthoredObjectBase):
         component_definition.metadata.version = "1.0"
         component_definition.components = list()
         oscal_component = generate_sample_model(DefinedComponent)
-        oscal_component.title = get_component_title(product, cac_content_root)
+        product_name, full_name = get_component_info(product, cac_content_root)
+        oscal_component.title = product_name
+        oscal_component.description = full_name
         oscal_component.type = comp_type
-        oscal_component.description = comp_description
 
         # Create all of the component properties for rules
         # This part will be updated in CPLYTM-218
@@ -212,9 +212,7 @@ class AuthoredComponentDefinition(AuthoredObjectBase):
             with open(ofile, "r", encoding="utf-8") as f:
                 data = json.load(f)
             for component in data["component-definition"]["components"]:
-                if component.get("title") == get_component_title(
-                    product, cac_content_root
-                ):
+                if component.get("title") == oscal_component.title:
                     logger.info("Update the exsisting component definition.")
                     # Need to update props parts if the rules updated
                     # Update the version and last modify time
