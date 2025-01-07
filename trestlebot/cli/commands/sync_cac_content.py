@@ -3,12 +3,15 @@
 
 """Module for sync cac content command"""
 import logging
-from typing import Any
+from typing import Any, List
 
 import click
 
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
+from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 
 
 logger = logging.getLogger(__name__)
@@ -60,7 +63,7 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     # 3. Create a new task to run the data transformation.
     # 4. Initialize a Trestlebot object and run the task(s).
 
-    # pre_tasks: List[TaskBase] = []
+    pre_tasks: List[TaskBase] = []
 
     product = kwargs["product"]
     cac_content_root = kwargs["cac_content_root"]
@@ -76,3 +79,11 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
         cac_content_root=cac_content_root,
         working_dir=working_dir,
     )
+
+    sync_cac_content_task: SyncCacContentTask = SyncCacContentTask(
+        working_dir=working_dir
+    )
+
+    pre_tasks.append(sync_cac_content_task)
+
+    run_bot(pre_tasks, kwargs)
