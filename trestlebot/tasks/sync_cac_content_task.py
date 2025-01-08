@@ -3,6 +3,7 @@
 
 """Trestle Bot Sync CaC Content Tasks"""
 
+import datetime
 import json
 import logging
 import os
@@ -33,7 +34,6 @@ from trestlebot.transformers.cac_transformer import (
     RuleInfo,
     RulesTransformer,
     get_component_info,
-    update_component_definition,
 )
 
 
@@ -190,17 +190,25 @@ class SyncCacContentTask(TaskBase):
         cd_json = cd_dir / "component-definition.json"
         if cd_json.exists():
             logger.info(f"The component definition for {self.product} exists.")
-            with open(cd_json, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                components = data["component-definition"]["components"]
-            for index, component in enumerate(components):
-                if component.get("title") == oscal_component.title:
-                    # The update should be skipped if no content changes
-                    logger.info(f"Update props of component {product_name}")
-                    data["component-definition"]["components"][index][
-                        "props"
-                    ] = oscal_component.props
-                    update_component_definition(cd_json)
+            compdef = ComponentDefinition.oscal_read(cd_json)
+            updated = False
+            for index, component in enumerate(compdef.components):
+                if component.title == oscal_component.title:
+                    if component.props != oscal_component.props:
+                        compdef.components[index].props = oscal_component.props
+                        updated = True
+                        break
+            if updated:
+                logger.info(f"Update component definition: {cd_json}")
+                compdef.metadata.version = str(
+                    "{:.1f}".format(float(compdef.metadata.version) + 0.1)
+                )
+                compdef.metadata.last_modified = (
+                    datetime.datetime.now(datetime.timezone.utc)
+                    .replace(microsecond=0)
+                    .isoformat()
+                )
+                compdef.oscal_write(cd_json)
         else:
             logger.info(f"Creating component definition for product {self.product}")
             cd_dir.mkdir(exist_ok=True, parents=True)

@@ -3,13 +3,11 @@
 
 """Transform rules from existing Compliance as Code locations into OSCAL properties."""
 
-import datetime
 import json
 import logging
 import os
 import re
 from html.parser import HTMLParser
-from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import ssg.build_yaml
@@ -41,20 +39,6 @@ def get_component_info(product_name: str, cac_path: str) -> Tuple[str, str]:
         return (component_title, component_description)
     else:
         raise ValueError("component_title is empty or None")
-
-
-def update_component_definition(compdef_file: Path) -> None:
-    # Update the component definition version and modify time
-    with open(compdef_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    current_version = data["component-definition"]["metadata"]["version"]
-    data["component-definition"]["metadata"]["version"] = str(
-        "{:.1f}".format(float(current_version) + 0.1)
-    )
-    current_time = datetime.datetime.now().isoformat()
-    data["component-definition"]["metadata"]["last-modified"] = current_time
-    with open(compdef_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
 
 
 def add_prop(name: str, value: str, remarks: Optional[str] = None) -> Property:
