@@ -87,8 +87,8 @@ def test_missing_markdown_dir_option(tmp_repo: Tuple[str, Repo]) -> None:
     assert result.exit_code == 2
     assert "Error: Missing option '--markdown-dir'" in result.output
 
-    # With 'markdown_dir' setting in config.yml
+    # With non-existent 'markdown_dir' setting in config.yml
     config_obj = TrestleBotConfig(markdown_dir="markdown")
     write_to_file(config_obj, filepath)
     result = runner.invoke(autosync_cmd, cmd_options)
-    assert result.exit_code == 0
+    assert result.exit_code == 1

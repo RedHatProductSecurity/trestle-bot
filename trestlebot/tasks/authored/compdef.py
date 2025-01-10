@@ -4,6 +4,8 @@
 
 """Trestle Bot functions for component definition authoring"""
 
+import json
+import logging
 import os
 import pathlib
 from typing import Callable, List, Optional
@@ -13,13 +15,19 @@ import trestle.oscal.profile as prof
 from trestle.common.err import TrestleError
 from trestle.common.model_utils import ModelUtils
 from trestle.core.catalog.catalog_interface import CatalogInterface
+from trestle.core.generators import generate_sample_model
 from trestle.core.profile_resolver import ProfileResolver
 from trestle.core.repository import AgileAuthoring
+from trestle.oscal.component import ComponentDefinition, DefinedComponent
 
 from trestlebot.const import RULE_PREFIX, RULES_VIEW_DIR, YAML_EXTENSION
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectBase,
     AuthoredObjectException,
+)
+from trestlebot.transformers.cac_transformer import (
+    get_component_info,
+    update_component_definition,
 )
 from trestlebot.transformers.trestle_rule import (
     ComponentInfo,
@@ -28,6 +36,9 @@ from trestlebot.transformers.trestle_rule import (
     TrestleRule,
 )
 from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
+
+
+logger = logging.getLogger(__name__)
 
 
 class FilterByProfile:
@@ -157,6 +168,61 @@ class AuthoredComponentDefinition(AuthoredObjectBase):
             existing_profile_path, component_info, filter_by_profile
         )
         rules_view_builder.write_to_yaml(rule_dir)
+
+    def create_update_cac_compdef(
+        self,
+        comp_type: str,
+        product: str,
+        cac_content_root: str,
+        working_dir: str,
+    ) -> None:
+        """Create component definition for cac content
+
+        Args:
+            comp_description: Description of the component
+            comp_type: Type of the component
+            product: Product name for the component
+            cac_content_root: ComplianceAsCode repo path
+            working_dir: workplace repo path
+        """
+        # Initial component definition fields
+        component_definition = generate_sample_model(ComponentDefinition)
+        component_definition.metadata.title = f"Component definition for {product}"
+        component_definition.metadata.version = "1.0"
+        component_definition.components = list()
+        oscal_component = generate_sample_model(DefinedComponent)
+        product_name, full_name = get_component_info(product, cac_content_root)
+        oscal_component.title = product_name
+        oscal_component.description = full_name
+        oscal_component.type = comp_type
+
+        # Create all of the component properties for rules
+        # This part will be updated in CPLYTM-218
+        """
+        rules: List[RuleInfo] = self.rules_transformer.get_all_rules()
+        all_rule_properties: List[Property] = self.rules_transformer.transform(rules)
+        oscal_component.props = none_if_empty(all_rule_properties)
+        """
+        repo_path = pathlib.Path(working_dir)
+        out_path = repo_path.joinpath(f"{const.MODEL_DIR_COMPDEF}/{product}/")
+        oname = "component-definition.json"
+        ofile = out_path / oname
+        if ofile.exists():
+            logger.info(f"The component for product {product} exists.")
+            with open(ofile, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for component in data["component-definition"]["components"]:
+                if component.get("title") == oscal_component.title:
+                    logger.info("Update the exsisting component definition.")
+                    # Need to update props parts if the rules updated
+                    # Update the version and last modify time
+                    update_component_definition(ofile)
+        else:
+            logger.info(f"Creating component definition for product {product}")
+            out_path.mkdir(exist_ok=True, parents=True)
+            ofile = out_path / oname
+            component_definition.components.append(oscal_component)
+            component_definition.oscal_write(ofile)
 
 
 class RulesViewBuilder:
