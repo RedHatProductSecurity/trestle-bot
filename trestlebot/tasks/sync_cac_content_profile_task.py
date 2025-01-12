@@ -1,3 +1,7 @@
+# Current work for sync_cac_content_profile
+# Task to leverage ComplianceasCode/content ControlsManager
+# Interaction with CLI
+
 # import os
 # from typing import Any, Dict, List
 #
