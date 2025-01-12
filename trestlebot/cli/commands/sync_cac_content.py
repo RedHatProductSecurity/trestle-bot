@@ -11,14 +11,16 @@ from trestlebot.cli.options.common import common_options, git_options, handle_ex
 from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import TaskBase
+
+# from trestlebot.tasks.sync_cac_content_profile_task import SyncCacContentProfileTask
 from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 
 
 logger = logging.getLogger(__name__)
 
 
-@click.command(
-    name="sync-cac-content",
+@click.group(
+    name="sync-cac-content-cmd",
     help="Transform CaC content to component definition in OSCAL.",
 )
 @click.pass_context
@@ -87,3 +89,44 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     pre_tasks.append(sync_cac_content_task)
 
     run_bot(pre_tasks, kwargs)
+
+
+@sync_cac_content_cmd.command(name="profile", help="Authoring Oscal Profile")
+@click.option(
+    "--cac-content-root",
+    help="Root of the CaC content project.",
+    required=True,
+)
+@click.option("--control-file", type=str, required=True, help="Name of OSCAL Profile.")
+@click.option(
+    "--filter-by-level",
+    type=str,
+    required=False,
+    help="Optionally produce OSCAL Profiles by filtered baseline level.",
+)
+def oscal_profile_cmd(
+    ctx: click.Context,
+    **kwargs: Any,
+) -> None:
+    # The cac_content_root accesses the repository of control files
+    # User will input control file name to begin authoring OSCAL Profiles
+    # If user indicates level, a profile specific to indicated level will be produced
+    # If no level associated with control file, task will create single profile with all controls
+    # pre_tasks: List[TaskBase] = []
+    #
+    # cac_content_root = kwargs["cac_content_root"]
+    # control_file = kwargs["control_file"]
+    # filter_by_level = kwargs.get("filter_by_level", None)
+    #
+    # sync_cac_content_profile_task: SyncCacContentProfileTask = (
+    #     SyncCacContentProfileTask(
+    #         working_dir=cac_content_root,
+    #         control_file=control_file,
+    #         filter_by_level=filter_by_level,
+    #     )
+    # )
+    # logger.debug(f"No levels included in control file.")
+    #
+    # pre_tasks.append(sync_cac_content_profile_task)
+    # run_bot(pre_tasks, kwargs)
+    pass
