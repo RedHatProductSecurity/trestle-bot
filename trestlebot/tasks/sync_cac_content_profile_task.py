@@ -75,16 +75,24 @@ class SyncCacContentProfileTask(TaskBase):
             # when making new json -> profile-HIGH.json
 
     def create_oscal_profile(
-        self, import_path: str, controls: List[str], name_update: str
+        self,
+        import_path: str,
+        controls: List[str],
+        name_update: str,
     ):
         # Step 1: If filter by level returns eligible controls, create OSCAL profile with suffix change based on level
         # Step 2: Fill in with control id, loading from eligible controls and all controls
-        self.import_path = import_path
+        self.import_path = kwargs["catalog"]
         # catalog is import_path
         name_update = f"{control_file}-{level}.json"
         self.authored_profile.create_new_default(controls, name_update)
 
-    def execute(self):
-        # try and accept
-        get_control_ids_by_level()
-        pass
+    def execute(self) -> int:
+        # calling to get_control_ids _by_level and checking for valid control file name
+        try:
+            get_control_ids_by_level(
+                control_file=self.control_file, filter_by_level=self.filter_by_level
+            )
+        except KeyError:
+            raise f"The control file {self.control_file} does not exist."
+        return const.SUCCESS_EXIT_CODE
