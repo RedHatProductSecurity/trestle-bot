@@ -9,7 +9,10 @@ from click.testing import CliRunner
 from git import Repo
 
 from tests.testutils import setup_for_catalog, setup_for_profile
-from trestlebot.cli.commands.sync_cac_content import sync_cac_content_cmd
+from trestlebot.cli.commands.sync_cac_content import (
+    sync_cac_content_cmd,
+    sync_cac_content_profile_cmd,
+)
 
 
 test_product = "ocp4"
@@ -84,3 +87,32 @@ def test_sync_product_name(tmp_repo: Tuple[str, Repo]) -> None:
     with open(component_definition, "r", encoding="utf-8") as file:
         content = file.read()
     assert '"title": "ocp4"' in content
+
+
+def test_missing_required_option_profile(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests missing required options in sync-cac-content-profile subcommand."""
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    catalog_tester = "rhel9-baseline"
+    control_file_tester = "rhel9-control-file.yml"
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_content_profile_cmd,
+        [
+            "--control-file",
+            control_file_tester,
+            "--catalog",
+            catalog_tester,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+        ],
+    )
+    assert result.exit_code == 2
