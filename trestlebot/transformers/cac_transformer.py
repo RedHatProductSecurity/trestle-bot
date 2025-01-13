@@ -1,10 +1,10 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Red Hat, Inc.
 
-import datetime
-import json
-from pathlib import Path
-from typing import Tuple
+"""Transform rules from existing Compliance as Code locations into OSCAL properties."""
+
+
+from typing import Dict, List, Tuple
 
 from ssg.products import load_product_yaml, product_yaml_path
 
@@ -24,15 +24,41 @@ def get_component_info(product_name: str, cac_path: str) -> Tuple[str, str]:
         raise ValueError("component_title is empty or None")
 
 
-def update_component_definition(compdef_file: Path) -> None:
-    # Update the component definition version and modify time
-    with open(compdef_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    current_version = data["component-definition"]["metadata"]["version"]
-    data["component-definition"]["metadata"]["version"] = str(
-        "{:.1f}".format(float(current_version) + 0.1)
-    )
-    current_time = datetime.datetime.now().isoformat()
-    data["component-definition"]["metadata"]["last-modified"] = current_time
-    with open(compdef_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+def get_validation_component_mapping(
+    props: List[Dict[str, str]]
+) -> List[Dict[str, str]]:
+    """
+    Adds a new "Check_Id" and "Check_Description" to the props based on the
+    "Rule_Id" value and "Rule_Description".
+
+    Args:
+        props (List[Dict]): The input list of dictionaries.
+
+    Returns:
+        List[Dict]: The updated list with the new "Check_Id" and
+        "Check_Description" entry.
+    """
+
+    props = props
+    rule_check_mapping = []
+    check_id_entry = {}
+    for prop in props:
+        if prop["name"] == "Rule_Id":
+            rule_check_mapping.append(prop)
+            check_id_entry = {
+                "name": "Check_Id",
+                "ns": prop["ns"],
+                "value": prop["value"],
+                "remarks": prop["remarks"],
+            }
+        if prop["name"] == "Rule_Description":
+            rule_check_mapping.append(prop)
+            rule_check_mapping.append(check_id_entry)
+            check_description_entry = {
+                "name": "Check_Description",
+                "ns": prop["ns"],
+                "value": prop["value"],
+                "remarks": prop["remarks"],
+            }
+            rule_check_mapping.append(check_description_entry)
+    return rule_check_mapping
