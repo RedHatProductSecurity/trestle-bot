@@ -3,12 +3,16 @@
 
 """Module for sync cac content command"""
 import logging
+import os
+import sys
+import traceback
 from typing import Any, List
 
 import click
 
-from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
+from trestlebot.cli.options.common import common_options, git_options
 from trestlebot.cli.utils import run_bot
+from trestlebot.const import ERROR_EXIT_CODE
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
@@ -49,41 +53,39 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     "--component-definition-type",
-    type=click.Choice(["service", "validation"]),
+    type=click.Choice(["service", "validation", "software"]),
     help="Type of component definition. Default: service",
     required=False,
     default="service",
 )
-@handle_exceptions
 def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Transform CaC content to OSCAL component definition."""
-    # Steps:
-    # 1. Check options, logger errors if any and exit.
-    # 2. Initial product component definition with product name
-    # 3. Create a new task to run the data transformation.
-    # 4. Initialize a Trestlebot object and run the task(s).
-
-    pre_tasks: List[TaskBase] = []
 
     product = kwargs["product"]
     cac_content_root = kwargs["cac_content_root"]
-    component_definition_type = kwargs.get("component_definition_type", "service")
-    working_dir = kwargs["repo_path"]
+    component_definition_type = kwargs["component_definition_type"]
+    cac_profile = os.path.join(cac_content_root, kwargs["cac_profile"])
+    oscal_profile = kwargs["oscal_profile"]
+    working_dir = str(kwargs["repo_path"].resolve())
 
-    authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
-        trestle_root=working_dir,
-    )
-    authored_comp.create_update_cac_compdef(
-        comp_type=component_definition_type,
-        product=product,
-        cac_content_root=cac_content_root,
-        working_dir=working_dir,
-    )
-
-    sync_cac_content_task: SyncCacContentTask = SyncCacContentTask(
-        working_dir=working_dir
-    )
-
-    pre_tasks.append(sync_cac_content_task)
-
-    run_bot(pre_tasks, kwargs)
+    try:
+        pre_tasks: List[TaskBase] = []
+        authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
+            trestle_root=working_dir,
+        )
+        sync_cac_content_task = SyncCacContentTask(
+            product,
+            cac_profile,
+            cac_content_root,
+            component_definition_type,
+            oscal_profile,
+            authored_comp,
+        )
+        pre_tasks.append(sync_cac_content_task)
+        results = run_bot(pre_tasks, kwargs)
+        logger.debug(f"Trestlebot results: {results}")
+    except Exception as e:
+        traceback_str = traceback.format_exc()
+        logger.error(f"Trestle-bot Error: {str(e)}")
+        logger.debug(traceback_str)
+        sys.exit(ERROR_EXIT_CODE)

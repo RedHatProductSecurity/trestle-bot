@@ -84,3 +84,46 @@ def test_sync_product_name(tmp_repo: Tuple[str, Repo]) -> None:
     with open(component_definition, "r", encoding="utf-8") as file:
         content = file.read()
     assert '"title": "ocp4"' in content
+
+
+def test_sync_cac_validation_comp(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests sync Cac content product name to OSCAL component title ."""
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    setup_for_catalog(repo_path, test_cat, "catalog")
+    setup_for_profile(repo_path, test_prof, "profile")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_content_cmd,
+        [
+            "--product",
+            test_product,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--cac-content-root",
+            cac_content_test_data,
+            "--cac-profile",
+            "cac-profile",
+            "--oscal-profile",
+            test_prof,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+            "--dry-run",
+            "--component-definition-type",
+            "validation",
+        ],
+    )
+    # Check the CLI sync-cac-content is successful
+    assert result.exit_code == 0
+    # Check if the component definition is created
+    component_definition = repo_path.joinpath(test_comp_path)
+    assert component_definition.exists()
+    # Check if it populates the product name as the component title
+    with open(component_definition, "r", encoding="utf-8") as file:
+        content = file.read()
+    assert '"type": "validation"' in content
