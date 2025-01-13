@@ -109,6 +109,9 @@ module = "ruamel"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "ssg.products"
+module = "responses"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "ssg.*"
+ignore_missing_imports = true
