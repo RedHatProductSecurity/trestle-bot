@@ -91,11 +91,23 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     run_bot(pre_tasks, kwargs)
 
 
-@sync_cac_content_cmd.command(name="profile", help="Authoring Oscal Profile")
+@sync_cac_content_cmd.command(name="oscal_profile_cmd", help="Authoring Oscal Profile")
 @click.option(
     "--cac-content-root",
     help="Root of the CaC content project.",
     required=True,
+)
+@click.option(
+    "--product",
+    type=str,
+    required=True,
+    help="Product name for getting associated control files.",
+)
+@click.option(
+    "--catalog",
+    type=str,
+    required=True,
+    help="Catalog leveraged for import of control file data.",
 )
 @click.option("--control-file", type=str, required=True, help="Name of OSCAL Profile.")
 @click.option(
@@ -116,8 +128,11 @@ def oscal_profile_cmd(
     # pre_tasks: List[TaskBase] = []
     #
     # cac_content_root = kwargs["cac_content_root"]
+    # product = kwargs["product"]
+    # catalog = kwargs["catalog"]
     # control_file = kwargs["control_file"]
     # filter_by_level = kwargs.get("filter_by_level", None)
+    #
     #
     # sync_cac_content_profile_task: SyncCacContentProfileTask = (
     #     SyncCacContentProfileTask(

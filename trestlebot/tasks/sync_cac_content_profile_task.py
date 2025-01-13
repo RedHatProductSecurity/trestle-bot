@@ -26,7 +26,7 @@ class SyncCacContentProfileTask(TaskBase):
     def __init__(
         self,
         cac_content_root: str,
-        product: str,  # TODO ADD to cli
+        product: str,
         control_file: str,
         filter_by_level: List[str],
         authored_profile: AuthoredProfile,
