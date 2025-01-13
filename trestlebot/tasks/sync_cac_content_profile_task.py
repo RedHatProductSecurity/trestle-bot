@@ -5,18 +5,16 @@ import logging
 import os
 from typing import Any, Dict, List
 
-from ssg.build_profile import make_name_to_profile_mapping
 from ssg.controls import ControlsManager
-from ssg.entities.profile import ProfileWithInlinePolicies
 from ssg.products import (
     get_profile_files_from_root,
     load_product_yaml,
     product_yaml_path,
 )
 
-from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
+from trestlebot import const
+from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.base_task import TaskBase
-from trestlebot.tasks.sync_cac_content_task import get_env_yaml
 
 
 logger = logging.getLogger(__name__)
@@ -57,19 +55,22 @@ class SyncCacContentProfileTask(TaskBase):
         # accessing control file within content/controls
         # the instance can use the methods within the ControlsManager() class
         # Use for parsing and organizing by level
-        default_levels = control_manager.get_all_controls()
+        default_levels = control_manager.get_all_controls(control_file)
         extract_policy = control_manager._get_policy(control_file)
 
         if not filter_by_level:
             all_controls = control_manager.get_all_controls(control_file)
             self.create_oscal_profile(all_controls)
+            logger.debug(
+                f"No level indicated. Sorting based on {control_file} defaults."
+            )
         else:
             for level in filter_by_level:
                 eligible_controls = control_manager.get_all_controls_of_level(level)
                 self.create_oscal_profile(eligible_controls)
             # make oscal profile
             logger.debug(
-                f"Handling levels: {handling_levels} and changing filename to include {filter_by_level}"
+                f"Organizing controls based on {filter_by_level}. If no level is specified, all controls will be organized."
             )
             # if filter_by_profile = "high" filter_by_profile.upper()
             # when making new json -> profile-HIGH.json
@@ -84,13 +85,14 @@ class SyncCacContentProfileTask(TaskBase):
         # Step 2: Fill in with control id, loading from eligible controls and all controls
         self.import_path = kwargs["catalog"]
         # catalog is import_path
-        name_update = f"{control_file}-{level}.json"
+        self.name_update = name_update
+        name_update = f"{self.control_file}-{self.get_control_ids_by_level.level}.json"
         self.authored_profile.create_new_default(controls, name_update)
 
     def execute(self) -> int:
         # calling to get_control_ids _by_level and checking for valid control file name
         try:
-            get_control_ids_by_level(
+            self.get_control_ids_by_level(
                 control_file=self.control_file, filter_by_level=self.filter_by_level
             )
         except KeyError:
