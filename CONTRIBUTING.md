@@ -1,5 +1,6 @@
 # Contributing to trestlebot
 
+
 Thank you for your interest in the trestlebot project.
 
 Before you start contributing, please take a moment to read through the guide below.
@@ -31,7 +32,7 @@ Before you start contributing, please take a moment to read through the guide be
     - [Release Process](#release-process)
 
 
-## How To Contribute
+## :heavy_plus_sign: How To Contribute 
 
 Some initial contributions could be:
 
@@ -40,7 +41,7 @@ Some initial contributions could be:
 - Try out issues that have the label `good first issue`
 - Opening an issue for bugs or feature requests
 
-## Opening a Pull Request
+## :incoming_envelope: Opening a Pull Request 
 
 When submitting a pull request, please follow these guidelines:
 
@@ -48,19 +49,19 @@ When submitting a pull request, please follow these guidelines:
 2. Ensure that your code passes all CI tests.
 3. Please keep the pull request focused on a single issue or feature, if possible.
 
-## Developer Guide
+## :bookmark_tabs: :flashlight: Developer Guide 
 
-### Prerequisites
+### :closed_lock_with_key: Prerequisites 
 
 - [Python](https://www.python.org/downloads/) - v3.8+
 - [Poetry](https://python-poetry.org/)
 - [Podman](https://podman.io/docs/installation) (Optional) - For testing locally and end-to-end tests
 
-### Development Environment
+### :computer: Development Environment 
 
 For a reproducible development environment, we use Dev Containers. See [devcontainer.json](./.devcontainer/devcontainer.json) for more information. Note that this does not include the `podman` installation to avoid the requirement for containers with elevated privileges.
 
-### How It Works
+### :grey_question: How It Works 
 
 For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` folder.
 
@@ -82,9 +83,9 @@ For workflow diagrams, see the [diagrams](./docs/workflows/) under the `docs` fo
 - `transformers` - This contains data transformation logic; specifically for rules.
 
 
-### Documentation
+### :open_file_folder: Documentation 
 
-#### Architecture Decisions
+#### :brain: Architecture Decisions 
 
 We document decisions using [Architectural Decision Records](http://thinkrelevance.com/blog/2011/11/15/documenting-architecture-decisions). The team will decide when an ADR will be put in place, but this is generally done to document impactful architectural decisions.
 
@@ -100,7 +101,7 @@ Each `README.md` under the `actions` directory have an Actions Inputs and Action
 make update-action-readmes
 ```
 
-#### Authoring CI Workflows
+#### :pencil2: Authoring CI Workflows 
 
 The CI workflows for trestle-bot leverage third party actions pinned to a hash value which is updated by `dependabot.yml`. The purpose of pinning actions to a full length commit SHA is to ensure that the action's code and behavior remain consistent. Actions that are pinned to full length commit SHAs act as immutable releases which allow for distinction between versions and an accurate history log. When selecting a commit SHA to include, the SHA value that is associated with the version of the action should be chosen from the associated action's repository. Dependabot checks for the action's reference against the latest version ensuring a secure and consistent approach to managing dependencies and version updating.
 
@@ -111,7 +112,7 @@ To generate a pin for a third party action, there should be a full length commit
 
 This approach is used for authoring CI workflows that utilize versioned actions to produce frequent updates from dependabot for python and GitHub Actions.
 
-### License Text in Files
+### :ticket: License Text in Files 
 
 Please use the SPDX license identifier in all source files.
 
@@ -119,9 +120,9 @@ Please use the SPDX license identifier in all source files.
 # SPDX-License-Identifier: Apache-2.0
 ```
 
-### Tools
+### :wrench: :hammer: :nut_and_bolt: Tools 
 
-#### Format and Styling
+#### :zap: Format and Styling 
 
 This project uses `black` and `isort` for formatting and `flake8` for linting. You can run these commands to format and lint your code.
 Linting checks can be run as a pre-commit hook and are verified in CI.
@@ -142,7 +143,7 @@ We encourage the use of type hints in Python code to enhance readability, mainta
 - [SonarCloud](https://sonarcloud.io/dashboard?id=rh-psce_trestle-bot) - We use SonarCloud to analyze code quality, coverage, and security. To not break GitHub security model, this will not run on a forked repository.
 - [Semgrep](https://semgrep.dev/docs/extensions/overview/#pre-commit) - Identify issues in the local development environment before committing code. These checks are also run in CI.
 
-### Running tests
+### :running: Running tests 
 
 Run all tests with `make test` or `make test-slow` to run all tests including end-to-end.
 For information on end-to-end tests, see [README.md](./tests/e2e/README.md).
@@ -167,7 +168,7 @@ poetry run trestlebot sync-upstreams
 poetry run trestlebot create ssp
 ```
 
-#### Local testing
+#### :computer: :shell: Local testing 
 
 For this guide, we will be using `podman` to test trestlebot in a running container.
 
@@ -219,7 +220,7 @@ cat my-token.txt | podman secret create repo-secret -
 podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=TRESTLEBOT_REPO_ACCESS_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
 ```
 
-### Release Process
+### :outbox_tray: :file_folder: Release Process 
 
 Once work on a release has been completed:
 

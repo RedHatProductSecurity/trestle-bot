@@ -10,15 +10,19 @@ import click
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
 from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
+from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.sync_cac_content_profile_task import SyncCacContentProfileTask
+
+# from trestlebot.tasks.sync_cac_content_profile_task import SyncCacContentProfileTask
 from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 
 
 logger = logging.getLogger(__name__)
 
 
-@click.command(
-    name="sync-cac-content",
+@click.group(
+    name="sync-cac-content-cmd",
     help="Transform CaC content to component definition in OSCAL.",
 )
 @click.pass_context
@@ -87,3 +91,80 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     pre_tasks.append(sync_cac_content_task)
 
     run_bot(pre_tasks, kwargs)
+
+
+@sync_cac_content_cmd.command(
+    name="oscal-profile", help="Authoring Oscal Profiles with synced CaC contents."
+)
+@click.pass_context
+@common_options
+@git_options
+@click.option(
+    "--cac-content-root",
+    required=True,
+    help="Root of the CaC content project.",
+)
+@click.option(
+    "--product",
+    type=str,
+    required=True,
+    help="Product to build OSCAL Profile for.",
+)
+@click.option(
+    "--oscal-catalog",
+    type=str,
+    required=True,
+    help="Main catalog href, or name of the catalog in trestle workspace.",
+)
+@click.option(
+    "--policy-id",
+    type=str,
+    required=True,
+    help="Policy id for source control file.",
+)
+@click.option(
+    "--filter-by-level",
+    type=List[str],
+    required=False,
+    help="Optionally produce OSCAL Profiles by filtered baseline level.",
+)
+@handle_exceptions
+def sync_cac_content_profile_cmd(
+    ctx: click.Context,
+    **kwargs: Any,
+) -> None:
+    # WIP test
+    # The cac_content_root accesses the repository of control files
+    # User will input control file name to begin authoring OSCAL Profiles
+    # If user indicates level, a profile specific to indicated level will be produced
+    # If no level associated with control file, task will create single profile with all controls
+
+    pre_tasks: List[TaskBase] = []
+
+    working_dir = kwargs["repo_path"]
+    cac_content_root = kwargs["cac_content_root"]
+    product = kwargs["product"]
+    oscal_catalog = kwargs["oscal_catalog"]
+    policy_id = kwargs["policy_id"]
+    filter_by_level = kwargs.get("filter_by_level", list())
+
+    authored_profile: AuthoredProfile = AuthoredProfile(trestle_root=working_dir)
+
+    sync_cac_content_profile_task: SyncCacContentProfileTask = (
+        SyncCacContentProfileTask(
+            cac_content_root=cac_content_root,
+            product=product,
+            import_path=oscal_catalog,
+            control_file=policy_id,
+            filter_by_level=filter_by_level,
+            authored_profile=authored_profile,
+        )
+    )
+    logger.debug(f"No levels included in control file.")
+
+    pre_tasks.append(sync_cac_content_profile_task)
+    run_bot(pre_tasks, kwargs)
+
+
+if __name__ == "__main__":
+    sync_cac_content_profile_cmd()
