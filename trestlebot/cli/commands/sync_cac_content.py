@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 )
 @click.option(
     "--component-definition-type",
-    type=click.Choice(["service", "validation"]),
+    type=click.Choice(["service", "validation", "software"]),
     help="Type of component definition. Default: service",
     required=False,
     default="service",

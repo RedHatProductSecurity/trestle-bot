@@ -24,6 +24,7 @@ from trestlebot.transformers.cac_transformer import (
     RuleInfo,
     RulesTransformer,
     get_component_info,
+    get_validation_component_mapping,
 )
 
 
@@ -84,25 +85,43 @@ class SyncCacContentTask(TaskBase):
         product_name, full_name = get_component_info(
             self.product, self.cac_content_root
         )
-        oscal_component.title = product_name
-        oscal_component.type = compdef_type
-        oscal_component.description = full_name
         all_rule_properties = self._get_rules_properties()
-        oscal_component.props = none_if_empty(all_rule_properties)
-
+        props = none_if_empty(all_rule_properties)
+        oscal_component.type = self.compdef_type
+        if oscal_component.type == "validation":
+            oscal_component.title = "openscap"
+            oscal_component.description = "openscap"
+            oscal_component.props = get_validation_component_mapping(props)
+        else:
+            oscal_component.title = product_name
+            oscal_component.description = full_name
+            oscal_component.props = props
         repo_path = pathlib.Path(self.working_dir)
         cd_dir = repo_path.joinpath(f"{trestle_const.MODEL_DIR_COMPDEF}/{self.product}")
         cd_json = cd_dir / "component-definition.json"
         if cd_json.exists():
             logger.info(f"The component definition for {self.product} exists.")
             compdef = ComponentDefinition.oscal_read(cd_json)
+            components_titles = []
             updated = False
             for index, component in enumerate(compdef.components):
+                components_titles.append(component.title)
+                # If the component exists and the props need to be updated
                 if component.title == oscal_component.title:
                     if component.props != oscal_component.props:
+                        logger.info(
+                            f"Start to update the props of the component {component.title}"
+                        )
                         compdef.components[index].props = oscal_component.props
                         updated = True
+                        compdef.oscal_write(cd_json)
                         break
+            # If the component doesn't exist, append this component
+            if oscal_component.title not in components_titles:
+                logger.info(f"Start to append the component {oscal_component.title}")
+                compdef.components.append(oscal_component)
+                compdef.oscal_write(cd_json)
+                updated = True
             if updated:
                 logger.info(f"Update component definition: {cd_json}")
                 compdef.metadata.version = str(

@@ -35,6 +35,45 @@ def get_component_info(product_name: str, cac_path: str) -> Tuple[str, str]:
         raise ValueError("component_title is empty or None")
 
 
+def get_validation_component_mapping(
+    props: List[Dict[str, str]]
+) -> List[Dict[str, str]]:
+    """
+    Adds a new "Check_Id" and "Check_Description" to the props based on the
+    "Rule_Id" value and "Rule_Description".
+
+    Args:
+        props (List[Dict]): The input list of dictionaries.
+
+    Returns:
+        List[Dict]: The updated list with the new "Check_Id" and
+        "Check_Description" entry.
+    """
+    props = props
+    rule_check_mapping = []
+    check_id_entry = {}
+    for prop in props:
+        if prop["name"] == "Rule_Id":
+            rule_check_mapping.append(prop)
+            check_id_entry = {
+                "name": "Check_Id",
+                "ns": prop["ns"],
+                "value": prop["value"],
+                "remarks": prop["remarks"],
+            }
+        if prop["name"] == "Rule_Description":
+            rule_check_mapping.append(prop)
+            rule_check_mapping.append(check_id_entry)
+            check_description_entry = {
+                "name": "Check_Description",
+                "ns": prop["ns"],
+                "value": prop["value"],
+                "remarks": prop["remarks"],
+            }
+            rule_check_mapping.append(check_description_entry)
+    return rule_check_mapping
+
+
 def add_prop(name: str, value: str, remarks: Optional[str] = None) -> Property:
     """Add a property to a set of rule properties."""
     prop = generate_sample_model(Property)
