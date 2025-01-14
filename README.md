@@ -6,6 +6,7 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=rh-psce_trestle-bot&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=rh-psce_trestle-bot)
 
 
+** **Note: Trestle-bot has moved from [RedHatProductSecurity](https://github.com/RedHatProductSecurity/) to the [Complytime](https://github.com/complytime/) GitHub organization.** **
 
 trestle-bot is a CLI tool that assists users in leveraging [Compliance-Trestle](https://github.com/oscal-compass/compliance-trestle) in CI/CD workflows for [OSCAL](https://github.com/usnistgov/OSCAL) formatted compliance content management.
 
