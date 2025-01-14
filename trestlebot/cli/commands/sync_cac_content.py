@@ -93,31 +93,38 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     run_bot(pre_tasks, kwargs)
 
 
-@sync_cac_content_cmd.command(name="oscal_profile_cmd", help="Authoring Oscal Profile")
+@sync_cac_content_cmd.command(
+    name="oscal-profile", help="Authoring Oscal Profiles with synced CaC contents."
+)
 @click.pass_context
 @common_options
 @git_options
 @click.option(
     "--cac-content-root",
-    help="Root of the CaC content project.",
     required=True,
+    help="Root of the CaC content project.",
 )
 @click.option(
     "--product",
     type=str,
     required=True,
-    help="Product name associated with control file to produce OSCAL Profile.",
+    help="Product to build OSCAL Profile for.",
 )
 @click.option(
-    "--catalog",
+    "--oscal-catalog",
     type=str,
     required=True,
-    help="Catalog leveraged for importing control file data for specified product.",
+    help="Main catalog href, or name of the catalog in trestle workspace.",
 )
-@click.option("--control-file", type=str, required=True, help="Name of OSCAL Profile.")
+@click.option(
+    "--policy-id",
+    type=str,
+    required=True,
+    help="Policy id for source control file.",
+)
 @click.option(
     "--filter-by-level",
-    type=str,
+    type=List[str],
     required=False,
     help="Optionally produce OSCAL Profiles by filtered baseline level.",
 )
@@ -133,21 +140,24 @@ def sync_cac_content_profile_cmd(
     # If no level associated with control file, task will create single profile with all controls
 
     pre_tasks: List[TaskBase] = []
+
     working_dir = kwargs["repo_path"]
     cac_content_root = kwargs["cac_content_root"]
     product = kwargs["product"]
-    # catalog = kwargs["catalog"]
-    control_file = kwargs["control_file"]
-    filter_by_level = kwargs.get("filter_by_level", None)
+    oscal_catalog = kwargs["oscal_catalog"]
+    policy_id = kwargs["policy_id"]
+    filter_by_level = kwargs.get("filter_by_level", list())
 
     authored_profile: AuthoredProfile = AuthoredProfile(trestle_root=working_dir)
 
     sync_cac_content_profile_task: SyncCacContentProfileTask = (
         SyncCacContentProfileTask(
-            product=product,
             cac_content_root=cac_content_root,
-            control_file=control_file,
+            product=product,
+            import_path=oscal_catalog,
+            control_file=policy_id,
             filter_by_level=filter_by_level,
+            authored_profile=authored_profile,
         )
     )
     logger.debug(f"No levels included in control file.")
