@@ -94,7 +94,6 @@ def test_missing_required_option_profile(tmp_repo: Tuple[str, Repo]) -> None:
 
     repo_dir, _ = tmp_repo
     repo_path = pathlib.Path(repo_dir)
-    catalog_tester = "rhel9-baseline"
     control_file_tester = "rhel9-control-file.yml"
 
     runner = CliRunner()
@@ -104,7 +103,7 @@ def test_missing_required_option_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--control-file",
             control_file_tester,
             "--catalog",
-            catalog_tester,
+            "catalog_tester",
             "--repo-path",
             str(repo_path.resolve()),
             "--committer-email",
@@ -116,3 +115,42 @@ def test_missing_required_option_profile(tmp_repo: Tuple[str, Repo]) -> None:
         ],
     )
     assert result.exit_code == 2
+
+
+def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests creation of OSCAL profile and change of .json title."""
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    tester_product = "rhel9"
+    tester_catalog = "rhel9-catalog"
+    setup_for_catalog(repo_path, test_cat, "catalog")
+    # tester_profile = setup_for_profile(repo_path, test_prof, "profile")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_content_profile_cmd,
+        [
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--cac-content-root",
+            cac_content_test_data,
+            "--product",
+            tester_product,
+            "--catalog",
+            tester_catalog,
+            "--control-file",
+            "rhel9-control-file",
+            "--filter-by-level",
+            "high",
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+        ],
+    )
+    assert result.exit_code == 0
+    # oscal_profile =
+    # assert oscal_profile.exists()
