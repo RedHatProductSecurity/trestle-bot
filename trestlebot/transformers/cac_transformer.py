@@ -50,7 +50,7 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
     "Rule_Id" value and "Rule_Description".
 
     Args:
-        props (List[Dict]): The input list of dictionaries.
+        props (Property): The input of Property.
 
     Returns:
         List[Dict]: The updated list with the new "Check_Id" and
@@ -58,10 +58,9 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
     """
     transformed_list = [transform_property(prop) for prop in props]
     rule_check_mapping = []
-    check_id_entry = {}
     for prop in transformed_list:
+        rule_check_mapping.append(prop)
         if prop["name"] == "Rule_Id":
-            rule_check_mapping.append(prop)
             check_id_entry = {
                 "name": "Check_Id",
                 "ns": prop["ns"],
@@ -69,14 +68,20 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
                 "remarks": prop["remarks"],
             }
         if prop["name"] == "Rule_Description":
-            rule_check_mapping.append(prop)
-            rule_check_mapping.append(check_id_entry)
             check_description_entry = {
                 "name": "Check_Description",
                 "ns": prop["ns"],
                 "value": prop["value"],
                 "remarks": prop["remarks"],
             }
+            # Append the Check entry follow Rule_Description
+            rule_check_mapping.append(check_id_entry)
+            rule_check_mapping.append(check_description_entry)
+        # If this rule has paramters, append the Check entry follow paramters
+        if prop["name"] == "Parameter_Value_Alternatives":
+            rule_check_mapping.remove(check_id_entry)
+            rule_check_mapping.remove(check_description_entry)
+            rule_check_mapping.append(check_id_entry)
             rule_check_mapping.append(check_description_entry)
     return rule_check_mapping
 
