@@ -35,9 +35,16 @@ def get_component_info(product_name: str, cac_path: str) -> Tuple[str, str]:
         raise ValueError("component_title is empty or None")
 
 
-def get_validation_component_mapping(
-    props: List[Dict[str, str]]
-) -> List[Dict[str, str]]:
+def transform_property(prop: Property) -> Dict[str, str]:
+    return {
+        "name": prop.name,
+        "ns": prop.ns,
+        "value": prop.value,
+        "remarks": prop.remarks,
+    }
+
+
+def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
     """
     Adds a new "Check_Id" and "Check_Description" to the props based on the
     "Rule_Id" value and "Rule_Description".
@@ -49,10 +56,10 @@ def get_validation_component_mapping(
         List[Dict]: The updated list with the new "Check_Id" and
         "Check_Description" entry.
     """
-    props = props
+    transformed_list = [transform_property(prop) for prop in props]
     rule_check_mapping = []
     check_id_entry = {}
-    for prop in props:
+    for prop in transformed_list:
         if prop["name"] == "Rule_Id":
             rule_check_mapping.append(prop)
             check_id_entry = {

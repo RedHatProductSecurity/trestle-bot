@@ -125,3 +125,47 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
         "file_groupownership_sshd_private_key",
         "sshd_set_keepalive",
     ]
+
+
+def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests sync Cac content to create validation component."""
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    setup_for_catalog(repo_path, test_cat, "catalog")
+    setup_for_profile(repo_path, test_prof, "profile")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_content_cmd,
+        [
+            "--product",
+            test_product,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--cac-content-root",
+            test_content_dir,
+            "--cac-profile",
+            test_cac_profile,
+            "--oscal-profile",
+            test_prof,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+            "--dry-run",
+            "--component-definition-type",
+            "validation",
+        ],
+    )
+    # Check the CLI sync-cac-content is successful
+    component_definition = repo_path.joinpath(test_comp_path)
+    assert result.exit_code == 0
+    # Check if the component definition is created
+    assert component_definition.exists()
+    compdef = ComponentDefinition.oscal_read(component_definition)
+    component = compdef.components[0]
+    assert len(component.props) == 12
+    assert component.title == "openscap"
+    assert component.type == "validation"
