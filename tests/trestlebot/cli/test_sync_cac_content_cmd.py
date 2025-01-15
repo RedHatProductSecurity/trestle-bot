@@ -229,6 +229,6 @@ def test_oscal_json_created(tmp_repo: Tuple[str, Repo]) -> None:
             "--branch",
             "test",
             "--dry-run",
-        ]
+        ],
     )
     assert result.exit_code == 0

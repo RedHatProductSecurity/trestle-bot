@@ -7,13 +7,17 @@
 import os
 import pathlib
 import shutil
-from typing import Optional, Type
+from copy import deepcopy
+from typing import List, Optional, Type
 
 import trestle.core.generators as gens
 import trestle.oscal.profile as prof
 from trestle.common import const
 from trestle.common.err import TrestleError, TrestleNotFoundError
-from trestle.common.load_validate import load_validate_model_name
+from trestle.common.load_validate import (
+    load_validate_model_name,
+    load_validate_model_path,
+)
 from trestle.common.model_utils import ModelUtils
 from trestle.core.models.file_content_type import FileContentType
 from trestle.core.repository import AgileAuthoring
@@ -85,13 +89,67 @@ class AuthoredProfile(AuthoredObjectBase):
         except TrestleError as e:
             raise AuthoredObjectException(f"Trestle generate failed for {profile}: {e}")
 
-    def create_new_default(self, import_path: str, profile_name: str) -> None:
+    def create_or_update(
+        self, import_path: str, profile_name: str, with_ids: Optional[List[str]] = None
+    ) -> bool:
+        """
+        Create or update a profile in place with data.
+
+        Args:
+            import_path: Reference to imported catalog or profile (ex. catalogs/example/catalog.json)
+            profile_name: Output profile name
+            with_ids: Optionally include controls ids
+
+        Returns:
+            A boolean values to denote whether the profile was written out.
+        """
+        trestle_root: pathlib.Path = pathlib.Path(self.get_trestle_root())
+        profile_path = ModelUtils.get_model_path_for_name_and_class(
+            trestle_root,
+            profile_name,
+            prof.Profile,
+            FileContentType.JSON,
+        )
+
+        if not profile_path.exists():
+            self.create_new_default(
+                import_path=import_path, profile_name=profile_name, with_ids=with_ids
+            )
+            return True
+        else:
+            profile: prof.Profile = load_validate_model_path(trestle_root, profile_path)
+            existing_profile = deepcopy(profile)
+            profile.metadata.title = profile_name
+            trestle_import_path = const.TRESTLE_HREF_HEADING + import_path
+            existing_import = next(
+                (imp for imp in profile.imports if imp.href == trestle_import_path),
+                None,
+            )
+            if not existing_import:
+                existing_import = gens.generate_sample_model(prof.Import)
+
+            AuthoredProfile._update_imports(
+                import_path=import_path,
+                profile_import=existing_import,
+                include_controls=with_ids,
+            )
+
+            if not ModelUtils.models_are_equivalent(existing_profile, profile):
+                ModelUtils.update_last_modified(profile)
+                profile.oscal_write(path=profile_path)
+                return True
+        return False
+
+    def create_new_default(
+        self, import_path: str, profile_name: str, with_ids: Optional[List[str]] = None
+    ) -> None:
         """
         Create new profile with default info
 
         Args:
             import_path: Reference to imported catalog or profile (ex. catalogs/example/catalog.json)
             profile_name: Output profile name
+            with_ids: Optionally include controls ids
 
         Notes:
             This will attempt to read the output profile at the current name
@@ -127,12 +185,15 @@ class AuthoredProfile(AuthoredObjectBase):
                     f"Error defining workspace name for profile {profile_name}"
                 )
 
-        # Update imports
-        profile_import: prof.Import = gens.generate_sample_model(prof.Import)
-        profile_import.href = const.TRESTLE_HREF_HEADING + import_path
-        profile_import.include_all = gens.generate_sample_model(IncludeAll)
-
-        profile_data.imports[0] = profile_import
+        # Overwrite imports
+        profile_import = gens.generate_sample_model(prof.Import)
+        trestle_import_path = const.TRESTLE_HREF_HEADING + import_path
+        AuthoredProfile._update_imports(
+            import_path=trestle_import_path,
+            profile_import=profile_import,
+            include_controls=with_ids,
+        )
+        profile_data.imports = [profile_import]
 
         # Set up default values for merge settings.
         merge_object: prof.Merge = gens.generate_sample_model(prof.Merge)
@@ -151,3 +212,18 @@ class AuthoredProfile(AuthoredObjectBase):
 
         profile_path.parent.mkdir(parents=True, exist_ok=True)
         profile_data.oscal_write(path=profile_path)  # type: ignore
+
+    @staticmethod
+    def _update_imports(
+        import_path: str,
+        profile_import: prof.Import,
+        include_controls: Optional[List[str]] = None,
+    ) -> None:
+        profile_import.href = import_path
+        if not include_controls:
+            profile_import.include_all = gens.generate_sample_model(IncludeAll)
+        else:
+            profile_import.include_controls = [
+                prof.SelectControl(with_ids=sorted(include_controls))
+            ]
+        return profile_import

@@ -138,7 +138,9 @@ def sync_cac_content_profile_cmd(
     # User will input control file name to begin authoring OSCAL Profiles
     # If user indicates level, a profile specific to indicated level will be produced
     # If no level associated with control file, task will create single profile with all controls
-
+    """
+    Sync cac content for authoring oscal profiles.
+    """
     pre_tasks: List[TaskBase] = []
 
     working_dir = kwargs["repo_path"]
