@@ -1,6 +1,3 @@
-# Current work for sync_cac_content_profile
-# Task to leverage ComplianceasCode/content ControlsManager
-# Interaction with CLI
 import logging
 import os
 from typing import Any, Dict, List
@@ -30,6 +27,18 @@ class SyncCacContentProfileTask(TaskBase):
         filter_by_level: List[str],
         authored_profile: AuthoredProfile,
     ):
+        """
+        Initializes the SyncCacContentProfileTask.
+
+        Args:
+            cac_content_root (str): The root directory of the CAC content repository that will access specified policy ids.
+            product (str): The product name for the CAC content repository and Oscal Profile.
+            oscal_catalog (str): The catalog used for extracting policy ids and Profile data.
+            policy_id (str): The control file that includes control ids and their associated levels to create OSCAL Profiles.
+            filter_by_level (list): The optional flag indicating a specific level to filter controls in policy ids.
+            authored_profile (AuthoredProfile): Task that leverages oscal to author OSCAL Profiles in trestle-bot.
+
+        """
         self.cac_content_root = cac_content_root
         self.product = product
         self.oscal_catalog = oscal_catalog
@@ -39,9 +48,18 @@ class SyncCacContentProfileTask(TaskBase):
         working_dir = self.authored_profile.get_trestle_root()
         super().__init__(working_dir=working_dir, model_filter=None)
 
-    def get_control_ids_by_level(self, policy_id: str, filter_by_level: str) -> None:
+    def get_control_ids_by_level(
+        self, policy_id: str, filter_by_level: List[str]
+    ) -> None:
         """
-        Collecting control file product data
+        Collecting control file product data by input of policy id and optional filter by level.
+        This method gets default levels based on policy id and updates based on `filter_by_level`.
+        The optional `filter_by_level` will be leveraged to produce OSCAL Profile for desired baseline level.
+
+        Args:
+            policy_id (str): Policy ID for sourcing control file.
+            filter_by_level: List[str]: User indicated baseline level that will be used to filter control files.
+
         """
 
         product_yml_path = product_yaml_path(self.cac_content_root, self.product)
@@ -52,10 +70,7 @@ class SyncCacContentProfileTask(TaskBase):
         )
 
         control_manager.load()
-        # accessing control file within content/controls
-        # the instance can use the methods within the ControlsManager() class
 
-        # TODO Ask Marcus to address use of get_policy in PR notes
         default_levels = control_manager.get_all_controls(policy_id)
         extract_policy = control_manager._get_policy(policy_id)
         logger.debug(
@@ -73,8 +88,6 @@ class SyncCacContentProfileTask(TaskBase):
                 self.create_oscal_profile(eligible_controls)
                 # make oscal profile
                 logger.debug(f"Creating oscal profile using {eligible_controls}.")
-                # if filter_by_profile = "high" filter_by_profile.upper()
-                # when making new json -> profile-HIGH.json
 
     def create_oscal_profile(
         self,
@@ -82,20 +95,22 @@ class SyncCacContentProfileTask(TaskBase):
         controls: List[str],
         name_update: str,
     ) -> None:
+        """
+        Args:
+            import_path (str): The supplied catalog or profile to use for authoring OSCAL Profiles.
+            controls (List[str]): List of controls to include in the profile based on level handling.
+            name_update (str): Name update to use based on filter_by_level user input
+        Returns:
+            None. Follows through by using AuthoredProfile task to create or update OSCAL Profiles.
+        """
         # Step 1: If filter by level returns eligible controls, create OSCAL profile with suffix change based on level
         # Step 2: Fill in with control id, loading from eligible controls and all controls
         self.import_path = import_path
         self.controls = controls
-        # catalog is import_path
         self.name_update = name_update
+
         name_update = f"{self.policy_id}-{self.filter_by_level}.json"
-        # If the import_path is not valid then create new default (based on tasks/authored/profile.py)
-        # Otherwise the existing copy is held as a deep copy and will be accessible even if changing profile inputs
-        # Checks for importing model types (catalog, baseline)
-        # AuthoredProfile will update based on existing_import
-        # If the models aren't equivalent based on the deep copy of the existing profile
-        # Then modelUtils will update profile element that was recently updated and write to the profile_path
-        self.authored_profile.create_new_default(controls, name_update)
+        self.authored_profile.create_or_update(import_path, name_update, controls)
 
     def execute(self) -> int:
         # calling to get_control_ids _by_level and checking for valid control file name
