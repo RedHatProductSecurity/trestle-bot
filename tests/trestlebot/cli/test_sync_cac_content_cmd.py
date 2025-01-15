@@ -118,12 +118,18 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     component = compdef.components[0]
     assert component.title == "rhel8"
     # Check rules component props
-    assert len(component.props) == 6
+    assert len(component.props) == 24
     rule_ids = [p.value for p in component.props if p.name == "Rule_Id"]
     assert rule_ids == [
         "configure_crypto_policy",
         "file_groupownership_sshd_private_key",
         "sshd_set_keepalive",
+    ]
+    # Check parameters props
+    param_ids = [p.value for p in component.props if p.name == "Parameter_Id"]
+    assert list(set(param_ids)) == [
+        "var_sshd_set_keepalive",
+        "var_system_crypto_policy",
     ]
 
 
