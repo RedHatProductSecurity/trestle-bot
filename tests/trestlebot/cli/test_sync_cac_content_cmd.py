@@ -21,6 +21,7 @@ test_prof_path = pathlib.Path("tests/data/json/").resolve()
 test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
+# test_profile_path = f"content/{test_product}/profiles/bsi-2022.profile"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -88,6 +89,7 @@ def test_sync_product_name(tmp_repo: Tuple[str, Repo]) -> None:
         content = file.read()
     assert '"title": "ocp4"' in content
 
+
 # Working
 def test_missing_required_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests missing required options in sync-cac-content-profile subcommand."""
@@ -116,13 +118,17 @@ def test_missing_required_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
         ],
     )
     assert result.exit_code == 2
+
+
 # Working
 def test_invalid_subcommand() -> None:
     """Tests missing required options in sync-cac-content-profile subcommand."""
 
     runner = CliRunner()
-    result = runner.invoke(sync_cac_content_cmd,["Invalid"])
+    result = runner.invoke(sync_cac_content_cmd, ["Invalid"])
     assert result.exit_code == 2
+
+
 # Need additional data
 def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests creation of OSCAL profile and change of .json title."""
@@ -160,6 +166,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
         ],
     )
     assert result.exit_code == 0
+
 
 def test_sync_profile_product_name(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests sync Cac content product name to OSCAL component title ."""
@@ -201,6 +208,7 @@ def test_sync_profile_product_name(tmp_repo: Tuple[str, Repo]) -> None:
     profile = repo_path.joinpath(test_prof_path)
     assert profile.exists()
 
+
 def test_oscal_json_created(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests creation of OSCAL JSON file."""
     repo_dir, _ = tmp_repo
@@ -229,6 +237,6 @@ def test_oscal_json_created(tmp_repo: Tuple[str, Repo]) -> None:
             "--branch",
             "test",
             "--dry-run",
-        ]
+        ],
     )
     assert result.exit_code == 0
