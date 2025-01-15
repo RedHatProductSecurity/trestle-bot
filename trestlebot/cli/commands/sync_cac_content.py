@@ -94,7 +94,7 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
 
 @sync_cac_content_cmd.command(
-    name="oscal-profile", help="Authoring Oscal Profiles with synced CaC contents."
+    name="oscal-profile", help="Authoring Oscal Profiles with synced CaC content."
 )
 @click.pass_context
 @common_options
@@ -154,8 +154,8 @@ def sync_cac_content_profile_cmd(
         SyncCacContentProfileTask(
             cac_content_root=cac_content_root,
             product=product,
-            import_path=oscal_catalog,
-            control_file=policy_id,
+            oscal_catalog=oscal_catalog,
+            policy_id=policy_id,
             filter_by_level=filter_by_level,
             authored_profile=authored_profile,
         )
