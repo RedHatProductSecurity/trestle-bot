@@ -13,7 +13,6 @@ import click
 from trestlebot.cli.options.common import common_options, git_options
 from trestlebot.cli.utils import run_bot
 from trestlebot.const import ERROR_EXIT_CODE
-from trestlebot.tasks.authored.compdef import AuthoredComponentDefinition
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 
@@ -70,16 +69,13 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
 
     try:
         pre_tasks: List[TaskBase] = []
-        authored_comp: AuthoredComponentDefinition = AuthoredComponentDefinition(
-            trestle_root=working_dir,
-        )
         sync_cac_content_task = SyncCacContentTask(
             product,
             cac_profile,
             cac_content_root,
             component_definition_type,
             oscal_profile,
-            authored_comp,
+            working_dir,
         )
         pre_tasks.append(sync_cac_content_task)
         results = run_bot(pre_tasks, kwargs)

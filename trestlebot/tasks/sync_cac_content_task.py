@@ -3,7 +3,6 @@
 
 """Trestle Bot Sync CaC Content Tasks"""
 
-import datetime
 import logging
 import os
 import pathlib
@@ -11,14 +10,14 @@ from typing import List
 
 # from ssg.products import get_all
 from ssg.profiles import get_profiles_from_products
-from trestle.common import const as trestle_const
 from trestle.common.list_utils import none_if_empty
+from trestle.common.model_utils import ModelUtils
 from trestle.core.generators import generate_sample_model
+from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.common import Property
 from trestle.oscal.component import ComponentDefinition, DefinedComponent
 
 from trestlebot import const
-from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.transformers.cac_transformer import (
     RuleInfo,
@@ -41,7 +40,7 @@ class SyncCacContentTask(TaskBase):
         cac_content_root: str,
         compdef_type: str,
         oscal_profile: str,
-        authored_object: AuthoredObjectBase,
+        working_dir: str,
     ) -> None:
         """Initialize CaC content sync task."""
         self.product: str = product
@@ -50,8 +49,6 @@ class SyncCacContentTask(TaskBase):
         self.compdef_type: str = compdef_type
         self.rules: List[str] = []
 
-        self._authored_object = authored_object
-        working_dir = self._authored_object.get_trestle_root()
         super().__init__(working_dir, None)
 
     def _collect_rules(self) -> None:
@@ -97,8 +94,13 @@ class SyncCacContentTask(TaskBase):
             oscal_component.description = full_name
             oscal_component.props = props
         repo_path = pathlib.Path(self.working_dir)
-        cd_dir = repo_path.joinpath(f"{trestle_const.MODEL_DIR_COMPDEF}/{self.product}")
-        cd_json = cd_dir / "component-definition.json"
+        cd_json: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
+            repo_path,
+            self.product,
+            ComponentDefinition,
+            FileContentType.JSON,
+        )
+
         if cd_json.exists():
             logger.info(f"The component definition for {self.product} exists.")
             compdef = ComponentDefinition.oscal_read(cd_json)
@@ -110,15 +112,14 @@ class SyncCacContentTask(TaskBase):
                 if component.title == oscal_component.title:
                     if component.props != oscal_component.props:
                         logger.info(
-                            f"Start to update the props of the component {component.title}"
+                            f"Start to update props of the component {component.title}"
                         )
                         compdef.components[index].props = oscal_component.props
                         updated = True
                         compdef.oscal_write(cd_json)
                         break
-            # If the component doesn't exist, append this component
             if oscal_component.title not in components_titles:
-                logger.info(f"Start to append the component {oscal_component.title}")
+                logger.info(f"Start to append component {oscal_component.title}")
                 compdef.components.append(oscal_component)
                 compdef.oscal_write(cd_json)
                 updated = True
@@ -127,16 +128,12 @@ class SyncCacContentTask(TaskBase):
                 compdef.metadata.version = str(
                     "{:.1f}".format(float(compdef.metadata.version) + 0.1)
                 )
-                compdef.metadata.last_modified = (
-                    datetime.datetime.now(datetime.timezone.utc)
-                    .replace(microsecond=0)
-                    .isoformat()
-                )
+                ModelUtils.update_last_modified(compdef)
                 compdef.oscal_write(cd_json)
         else:
             logger.info(f"Creating component definition for product {self.product}")
+            cd_dir = pathlib.Path(os.path.dirname(cd_json))
             cd_dir.mkdir(exist_ok=True, parents=True)
-            cd_json = cd_dir / "component-definition.json"
             component_definition.components.append(oscal_component)
             component_definition.oscal_write(cd_json)
 
@@ -147,8 +144,10 @@ class SyncCacContentTask(TaskBase):
         # all_products = list(set().union(*get_all(self.cac_content_root)))
         # if self.product not in all_products:
         #     raise TaskException(f"Product {self.product} does not exist.")
+
         # Collect all selected rules in product profile
         self._collect_rules()
         # Create or update product component definition
         self._create_or_update_compdef()
+
         return const.SUCCESS_EXIT_CODE
