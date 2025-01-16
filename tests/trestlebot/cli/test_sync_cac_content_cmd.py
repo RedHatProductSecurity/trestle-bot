@@ -224,7 +224,7 @@ def test_profile_supplied(tmp_repo: Tuple[str, Repo]) -> None:
             "--repo-path",
             str(repo_path.resolve()),
             "--cac-content-root",
-            test_content_dir,
+            str(test_content_dir),
             "--product",
             test_product,
             "--oscal-catalog",
@@ -252,26 +252,24 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path = pathlib.Path(repo_dir)
 
     setup_for_catalog(repo_path, test_cat, "catalog")
+    test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
 
     runner = CliRunner()
     result = runner.invoke(
         sync_cac_content_profile_cmd,
         [
-            "--repo-path",
-            str(repo_path.resolve()),
             "--cac-content-root",
-            test_content_dir,
-            # str(test_content_dir),
+            str(test_content_dir),
             "--product",
             test_product,
             "--oscal-catalog",
-            test_cat,
+            test_catalog_path,
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
             "high",
-            # "--repo-path",
-            # str(repo_path.resolve()),
+            "--repo-path",
+            str(repo_path.resolve()),
             "--committer-email",
             "test@email.com",
             "--committer-name",
@@ -284,10 +282,10 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
     assert result.exit_code == 0
-    oscal_profile = repo_path.joinpath(tester_prof_path)
+    profile = repo_path.joinpath(test_catalog_path)
+    assert profile.exists()
     # assert result.exit_code == 0
     # Checking if content exists in path
-    assert oscal_profile.exists()
 
     # profile = Profile.oscal_read(oscal_profile)
     # assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
