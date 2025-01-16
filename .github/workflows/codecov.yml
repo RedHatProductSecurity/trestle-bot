@@ -25,7 +25,7 @@ jobs:
         run: make test-code-cov
 
       - name: Upload artifact
-        uses: actions/upload-artifact@0b2256b8c012f0828dc542b3febcab082c67f72b # pin@v4
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # pin@v4
         with:
           name: coverage
           path: coverage.xml
@@ -39,7 +39,7 @@ jobs:
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Get coverage
-        uses: actions/download-artifact@65a9edc5881444af0b9093a5e628f2fe47ea3b2e # pin@v4
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # pin@v4
         with:
           name: coverage
       - name: SonarCloud Scan
