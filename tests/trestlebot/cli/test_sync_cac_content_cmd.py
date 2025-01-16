@@ -254,10 +254,12 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
 
     setup_for_catalog(repo_path, test_cat, "catalog")
     # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
+    # tester_prof_path = (
+    #     f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
+    # )
     tester_prof_path = (
-        f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
+        f"profiles/{test_product}/{test_policy_id}-{test_level}/profile.json"
     )
-
     runner = CliRunner()
     result = runner.invoke(
         sync_cac_content_profile_cmd,
