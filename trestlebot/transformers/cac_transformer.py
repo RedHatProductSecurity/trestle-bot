@@ -5,18 +5,17 @@
 
 import logging
 import os
-import re
-from html.parser import HTMLParser
 from typing import Any, Dict, List, Optional, Tuple
 
 from ssg.products import load_product_yaml, product_yaml_path
 from ssg.profiles import get_profiles_from_products
-from ssg.rules import find_rule_dirs_in_paths, get_rule_dir_id
+from ssg.rules import find_rule_dirs_in_paths, get_rule_dir_id, get_rule_dir_yaml
 from ssg.variables import (
     get_variable_options,
     get_variable_property,
     get_variables_from_profiles,
 )
+from ssg.yaml import open_and_macro_expand_from_dir
 from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.core.generators import generate_sample_model
 from trestle.oscal.common import Property
@@ -294,25 +293,15 @@ class RulesTransformer:
         Args:
             rule_obj: The rule object where collection rule data is stored.
         """
-        # The function will raise error: FileNotFoundError
-        # which is caused by loading jinja macros, and this
-        # needs to be fixed by ssg. So comment blow temporarily.
-        # rule_file = ssg.rules.get_rule_dir_yaml(rule_obj.rule_dir)
-        # rule_yaml = ssg.build_yaml.Rule.from_yaml(rule_file)
-        # rule_yaml.normalize(self.product)
-        # description = self._clean_rule_description(rule_yaml.description)
-        # rule_obj.add_description(description)
-        rule_obj.add_description("Pending update")
-        self._get_params(self.root, rule_obj)
+        product_yml_path = product_yaml_path(self.root, self.product)
+        product_yaml = load_product_yaml(product_yml_path)
+        rule_file = get_rule_dir_yaml(rule_obj.rule_dir)
+        rule_yaml = open_and_macro_expand_from_dir(
+            rule_file, self.root, substitutions_dict=product_yaml._data_as_dict
+        )
 
-    @staticmethod
-    def _clean_rule_description(description: str) -> str:
-        """Clean the rule description."""
-        parser = HTMLParser()
-        parser.handle_data(description)
-        cleaned_description = description.replace("\n", " ").strip()
-        cleaned_description = re.sub(" +", " ", cleaned_description)
-        return cleaned_description
+        rule_obj.add_description(rule_yaml["title"].replace("\n", " ").strip())
+        self._get_params(self.root, rule_obj)
 
     @staticmethod
     def _get_params_properties(ruleset: str, param_info: ParamInfo) -> List[Property]:
