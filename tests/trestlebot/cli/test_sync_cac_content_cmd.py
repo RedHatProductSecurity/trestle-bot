@@ -28,6 +28,9 @@ test_comp_path = f"component-definitions/{test_product}/component-definition.jso
 test_policy_id = "1234-levels"
 # tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
 test_level = "low"
+tester_prof_path = (
+        f"profiles/{test_product}/{test_policy_id}/{test_level}/profile.json"
+    )
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -257,9 +260,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # tester_prof_path = (
     #     f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
     # )
-    tester_prof_path = (
-        f"profiles/{test_product}/{test_policy_id}-{test_level}/profile.json"
-    )
+
     runner = CliRunner()
     result = runner.invoke(
         sync_cac_content_profile_cmd,
