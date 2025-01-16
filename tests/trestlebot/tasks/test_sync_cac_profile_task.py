@@ -22,7 +22,8 @@ test_product = "rhel8"
 test_policy = "1234-levels"
 # Note: data in test_content_dir is copied from content repo, PR:
 # https://github.com/ComplianceAsCode/content/pull/12819
-test_content_dir = pathlib.Path("tests/data/content_dir").resolve()
+test_content_path = pathlib.Path("tests/data/content_dir").resolve()
+test_content_dir = str(test_content_path)
 
 
 def test_sync_cac_profile_task(tmp_trestle_dir: str) -> None:

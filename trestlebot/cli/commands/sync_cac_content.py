@@ -162,7 +162,7 @@ def sync_cac_content_profile_cmd(
             authored_profile=authored_profile,
         )
     )
-    logger.debug(f"No levels included in control file.")
+    logger.debug("No levels included in control file.")
 
     pre_tasks.append(sync_cac_content_profile_task)
     run_bot(pre_tasks, kwargs)
