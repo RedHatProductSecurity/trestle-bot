@@ -168,10 +168,11 @@ def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) ->
     # Check the CLI sync-cac-content is successful
     component_definition = repo_path.joinpath(test_comp_path)
     assert result.exit_code == 0
+
     # Check if the component definition is created
     assert component_definition.exists()
     compdef = ComponentDefinition.oscal_read(component_definition)
     component = compdef.components[0]
-    assert len(component.props) == 12
+    assert len(component.props) == 30
     assert component.title == "openscap"
     assert component.type == "validation"
