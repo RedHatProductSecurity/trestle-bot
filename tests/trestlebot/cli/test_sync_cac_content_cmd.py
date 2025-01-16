@@ -287,13 +287,14 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # assert result.exit_code == 0
     # Checking if content exists in path
 
-    # profile = Profile.oscal_read(oscal_profile)
-    # assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
-    # import_data = profile.imports[0]
-    # assert profile.imports == test_cat
+    profile = Profile.oscal_read(profile)
+    assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
+
+    import_data = profile.imports[0]
+    assert profile.imports is not None
     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
     # # Must have controls in include_controls
-    # assert import_data.include_controls is not None
+    assert import_data.include_controls is not None
 
 
 def test_sync_missing_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
