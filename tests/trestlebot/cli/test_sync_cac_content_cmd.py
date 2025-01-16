@@ -259,7 +259,8 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
         sync_cac_content_profile_cmd,
         [
             "--cac-content-root",
-            str(test_content_dir),
+            test_content_dir,
+            #str(test_content_dir),
             "--product",
             test_product,
             "--oscal-catalog",
@@ -281,6 +282,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     )
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
+    #oscal_profile = repo_path.joinpath(f"tests/data/content_dir/products/{test_product}/{test_cat})
     oscal_profile = repo_path.joinpath(tester_cat_path)
     assert result.exit_code == 0
     # Checking if content exists in path
