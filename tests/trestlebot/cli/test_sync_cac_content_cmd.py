@@ -252,7 +252,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path = pathlib.Path(repo_dir)
 
     setup_for_catalog(repo_path, test_cat, "catalog")
-    test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
+    #test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
 
     runner = CliRunner()
     result = runner.invoke(
@@ -263,7 +263,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--product",
             test_product,
             "--oscal-catalog",
-            test_catalog_path,
+            test_cat,
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
@@ -282,19 +282,20 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
     assert result.exit_code == 0
-    profile = repo_path.joinpath(test_catalog_path)
+    profile = repo_path.joinpath(tester_prof_path)
     assert profile.exists()
     # assert result.exit_code == 0
     # Checking if content exists in path
 
-    profile = Profile.oscal_read(profile)
-    assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
+    prof = Profile.oscal_read(profile)
+    assert prof.metadata.title == "Oscal Profile for rhel8 high baseline"
+    assert prof.imports[0].include_controls is not None
 
-    import_data = profile.imports[0]
-    assert profile.imports is not None
+    #import_data = profile.imports[0]
+    #assert profile.imports is not None
     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
     # # Must have controls in include_controls
-    assert import_data.include_controls is not None
+    #assert import_data.include_controls is not None
 
 
 def test_sync_missing_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
