@@ -26,8 +26,8 @@ test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 test_policy_id = "1234-levels"
-#tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
-test_level = ["low"]
+# tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
+test_level = "low"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -253,8 +253,10 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path = pathlib.Path(repo_dir)
 
     setup_for_catalog(repo_path, test_cat, "catalog")
-    #test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-    tester_prof_path = f"profiles/{test_policy_id}-{test_level}/profiles.json"
+    # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
+    tester_prof_path = (
+        f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
+    )
 
     runner = CliRunner()
     result = runner.invoke(
@@ -293,11 +295,11 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     assert prof.metadata.title == "Oscal Profile for rhel8 high baseline"
     assert prof.imports[0].include_controls is not None
 
-    #import_data = profile.imports[0]
-    #assert profile.imports is not None
+    # import_data = profile.imports[0]
+    # assert profile.imports is not None
     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
     # # Must have controls in include_controls
-    #assert import_data.include_controls is not None
+    # assert import_data.include_controls is not None
 
 
 def test_sync_missing_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
