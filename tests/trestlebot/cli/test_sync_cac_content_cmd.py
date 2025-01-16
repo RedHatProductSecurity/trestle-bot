@@ -263,6 +263,8 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     result = runner.invoke(
         sync_cac_content_profile_cmd,
         [
+            "--repo-path",
+            str(repo_path.resolve()),
             "--cac-content-root",
             str(test_content_dir),
             "--product",
@@ -273,8 +275,8 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             test_policy_id,
             "--filter-by-level",
             test_level,
-            "--repo-path",
-            str(repo_path.resolve()),
+            # "--repo-path",
+            # str(repo_path.resolve()),
             "--committer-email",
             "test@email.com",
             "--committer-name",
