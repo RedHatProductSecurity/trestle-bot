@@ -29,6 +29,7 @@ test_policy_id = "abcd-levels"
 test_prof_path = f"profiles/{test_product}/profiles.json"
 
 
+
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests missing required options in sync-cac-content command."""
 
@@ -279,7 +280,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     )
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
-    oscal_profile = repo_path.joinpath(test_prof_path)
+    oscal_profile = repo_path.joinpath("catalog", test_prof_path)
     assert result.exit_code == 0
     # Checking if content exists in path
     assert oscal_profile.exists()
