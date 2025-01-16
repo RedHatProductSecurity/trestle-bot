@@ -26,7 +26,7 @@ test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 test_policy_id = "abcd-levels"
-test_prof_path = f"profiles/{test_product}/profiles.json"
+tester_cat_path = f"catalogs/{test_product}/catalogs.json"
 
 
 
@@ -281,7 +281,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     )
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
-    oscal_profile = repo_path.joinpath(test_prof_path)
+    oscal_profile = repo_path.joinpath(tester_cat_path)
     assert result.exit_code == 0
     # Checking if content exists in path
     assert oscal_profile.exists()
