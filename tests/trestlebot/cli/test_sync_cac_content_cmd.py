@@ -25,8 +25,10 @@ test_cac_profile = "products/rhel8/profiles/example.profile"
 test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
-test_policy_id = "abcd-levels"
-tester_prof_path = f"profiles/{test_product}/profiles.json"
+test_policy_id = "1234-levels"
+#tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
+test_level = "low"
+tester_prof_path = f"profiles/{test_policy_id}-{test_level}/profiles.json"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -267,7 +269,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
-            "high",
+            test_level,
             "--repo-path",
             str(repo_path.resolve()),
             "--committer-email",
