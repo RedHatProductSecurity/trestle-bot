@@ -276,11 +276,12 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "test name",
             "--branch",
             "test",
+            "--dry-run",
         ],
     )
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
-    oscal_profile = repo_path.joinpath("catalog", test_prof_path)
+    oscal_profile = repo_path.joinpath(test_prof_path)
     assert result.exit_code == 0
     # Checking if content exists in path
     assert oscal_profile.exists()
