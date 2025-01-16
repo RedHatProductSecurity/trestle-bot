@@ -276,6 +276,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "test name",
             "--branch",
             "test",
+            "--dry-run",
         ],
     )
     # Using oscal_profile to define the path where OSCAL
