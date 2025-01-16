@@ -8,6 +8,7 @@ from typing import Tuple
 from click.testing import CliRunner
 from git import Repo
 from trestle.oscal.component import ComponentDefinition
+from trestle.oscal.profile import Profile
 
 from tests.testutils import setup_for_catalog, setup_for_profile
 from trestlebot.cli.commands.sync_cac_content import (
@@ -25,6 +26,7 @@ test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 test_policy_id = "abcd-levels"
+test_prof_path = f"profiles/{test_product}/profiles.json"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -189,7 +191,7 @@ def test_missing_required_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
         sync_cac_content_profile_cmd,
         [
             "--cac-content-root",
-            test_content_dir,
+            str(test_content_dir),
             "--product",
             test_product,
             # "--policy-id",
@@ -256,7 +258,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
         sync_cac_content_profile_cmd,
         [
             "--cac-content-root",
-            test_content_dir,
+            str(test_content_dir),
             "--product",
             test_product,
             "--oscal-catalog",
@@ -275,7 +277,21 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "test",
         ],
     )
+    # Using oscal_profile to define the path where OSCAL
+    # Profile needs to be populated
+    oscal_profile = repo_path.joinpath(test_prof_path)
     assert result.exit_code == 0
+    # Checking if content exists in path
+    assert oscal_profile.exists()
+
+    profile = Profile.oscal_read(oscal_profile)
+    assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
+    import_data = profile.imports[0]
+    assert profile.imports == test_cat
+    # Ensuring that the test catalog is used to get controls for OSCAL Profile
+    # Must have controls in include_controls
+    assert import_data.include_controls is not None
+
 
 
 def test_sync_missing_profile_option(tmp_repo: Tuple[str, Repo]) -> None:

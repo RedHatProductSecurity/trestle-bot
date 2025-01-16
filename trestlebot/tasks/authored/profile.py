@@ -282,7 +282,7 @@ class CatalogControlResolver:
         if control_label in self._controls_by_label.keys():
             return self._controls_by_label.get(control_label)
         elif control_label in self.all_controls:
-            # This mean what was passed is already a valid
+            # This means what was passed is already a valid
             # control id.
             return control_label
         return None
