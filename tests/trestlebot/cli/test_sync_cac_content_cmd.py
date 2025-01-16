@@ -7,7 +7,6 @@ from typing import Tuple
 
 from click.testing import CliRunner
 from git import Repo
-from trestle.oscal.catalog import Catalog
 from trestle.oscal.component import ComponentDefinition
 from trestle.oscal.profile import Profile
 
@@ -253,8 +252,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     repo_path = pathlib.Path(repo_dir)
 
     setup_for_catalog(repo_path, test_cat, "catalog")
-    #test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-    test_profile_path = repo_path.joinpath("profiles", test_prof, "profile.json")
+    test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
 
     runner = CliRunner()
     result = runner.invoke(
@@ -265,12 +263,11 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--product",
             test_product,
             "--oscal-catalog",
-            #test_catalog_path,
-            test_cat,
+            test_catalog_path,
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
-            "low",
+            "high",
             "--repo-path",
             str(repo_path.resolve()),
             "--committer-email",
@@ -285,16 +282,16 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
     assert result.exit_code == 0
-    profile = repo_path.joinpath(test_profile_path)
+    profile = repo_path.joinpath(test_catalog_path)
     assert profile.exists()
     # assert result.exit_code == 0
     # Checking if content exists in path
 
-    profiled = Profile.oscal_read(profile)
-    assert profiled.metadata.title == "NIST Special Publication 800-53 Revision 5 MODERATE IMPACT BASELINE"
+    profile = Profile.oscal_read(profile)
+    assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
 
-    import_data = profiled.imports[0]
-    assert profiled.imports is not None
+    import_data = profile.imports[0]
+    assert profile.imports is not None
     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
     # # Must have controls in include_controls
     assert import_data.include_controls is not None
