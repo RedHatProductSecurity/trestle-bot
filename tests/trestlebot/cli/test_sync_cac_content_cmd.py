@@ -267,7 +267,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
-            "high",
+            "low",
             "--repo-path",
             str(repo_path.resolve()),
             "--committer-email",
@@ -287,11 +287,11 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # assert result.exit_code == 0
     # Checking if content exists in path
 
-    profile = Profile.oscal_read(profile)
-    assert profile.metadata.title == "Oscal Profile for rhel8 high baseline"
+    profiled = Profile.oscal_read(profile)
+    assert profiled.metadata.title == "Oscal Profile for rhel8 high baseline"
 
-    import_data = profile.imports[0]
-    assert profile.imports is not None
+    import_data = profiled.imports[0]
+    assert profiled.imports is not None
     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
     # # Must have controls in include_controls
     assert import_data.include_controls is not None
