@@ -26,12 +26,12 @@ test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 test_policy_id = "1234-levels"
-test_level = "-low"
+test_level = "low"
 # tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
 # tester_prof_path = (
 #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}/profile.json"
 # )
-test_prof_path = "1234-levels-low"
+# test_prof_path = "1234-levels-low"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -263,7 +263,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # tester_prof_path = (
     #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
     # )
-    #test_prof_path = "1234-levels-low"
+    test_prof_path = "profiles/1234-levels-low/profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
