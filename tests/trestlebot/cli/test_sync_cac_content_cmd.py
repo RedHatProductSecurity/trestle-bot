@@ -8,7 +8,6 @@ from typing import Tuple
 from click.testing import CliRunner
 from git import Repo
 from trestle.oscal.component import ComponentDefinition
-from trestle.oscal.profile import Profile
 
 from tests.testutils import setup_for_catalog, setup_for_profile
 from trestlebot.cli.commands.sync_cac_content import (
