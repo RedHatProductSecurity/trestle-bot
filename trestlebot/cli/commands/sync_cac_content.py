@@ -124,7 +124,8 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     type=str,
     required=False,
     multiple=True,
-    default=list(),
+    default=List[str],
+    # default=list(),
     help="Optionally produce OSCAL Profiles by filtered baseline level.",
 )
 @handle_exceptions

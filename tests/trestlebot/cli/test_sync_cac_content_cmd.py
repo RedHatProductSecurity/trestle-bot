@@ -28,7 +28,9 @@ test_comp_path = f"component-definitions/{test_product}/component-definition.jso
 test_policy_id = "1234-levels"
 test_level = "low"
 # tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
-tester_prof_path = f"{test_cat}/profiles/{test_policy_id}-{test_level}/profile.json"
+tester_prof_path = (
+    f"products/{test_product}/profiles/{test_policy_id}-{test_level}/profile.json"
+)
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -217,6 +219,7 @@ def test_profile_supplied(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests sync Cac profile content to create OSCAL Profile."""
     repo_dir, _ = tmp_repo
     repo_path = pathlib.Path(repo_dir)
+
     setup_for_catalog(repo_path, test_cat, "catalog")
 
     runner = CliRunner()
@@ -241,68 +244,69 @@ def test_profile_supplied(tmp_repo: Tuple[str, Repo]) -> None:
             "test name",
             "--branch",
             "test",
+            "--dry-run",
         ],
     )
     assert result.exit_code == 0
 
 
-# # Profile test 2 - Need additional data
-# def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
-#     """Tests creation of OSCAL profile and change of .json title."""
-#
-#     repo_dir, _ = tmp_repo
-#     repo_path = pathlib.Path(repo_dir)
-#
-#     setup_for_catalog(repo_path, test_cat, "catalog")
-#     # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-#     # tester_prof_path = (
-#     #     f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
-#     # )
-#
-#     runner = CliRunner()
-#     result = runner.invoke(
-#         sync_cac_content_profile_cmd,
-#         [
-#             "--repo-path",
-#             str(repo_path.resolve()),
-#             "--cac-content-root",
-#             str(test_content_dir),
-#             "--product",
-#             test_product,
-#             "--oscal-catalog",
-#             test_cat,
-#             "--policy-id",
-#             test_policy_id,
-#             "--filter-by-level",
-#             test_level,
-#             # "--repo-path",
-#             # str(repo_path.resolve()),
-#             "--committer-email",
-#             "test@email.com",
-#             "--committer-name",
-#             "test name",
-#             "--branch",
-#             "test",
-#             "--dry-run",
-#         ],
-#     )
-#     # Using oscal_profile to define the path where OSCAL
-#     # Profile needs to be populated
-#     assert result.exit_code == 0
-#     profile = repo_path.joinpath(tester_prof_path)
-#     assert profile.exists()
-#     # assert result.exit_code == 0
-#     # Checking if content exists in path
-#
-#     prof = Profile.oscal_read(profile)
-#     assert prof.metadata.title == "Oscal Profile for rhel8 high baseline"
-#     assert prof.imports[0].include_controls is not None
-#
-#     # import_data = profile.imports[0]
-#     # assert profile.imports is not None
-#     # # Ensuring that the test catalog is used to get controls for OSCAL Profile
-#     # # Must have controls in include_controls
-#     # assert import_data.include_controls is not None
+# Profile test 2 - Need additional data
+def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests creation of OSCAL profile and change of .json title."""
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+
+    setup_for_catalog(repo_path, test_cat, "catalog")
+    # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
+    # tester_prof_path = (
+    #     f"profiles/{test_product}/{test_policy_id}-{test_level}/profiles.json"
+    # )
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_content_profile_cmd,
+        [
+            # "--repo-path",
+            # str(repo_path.resolve()),
+            "--cac-content-root",
+            str(test_content_dir),
+            "--product",
+            test_product,
+            "--oscal-catalog",
+            test_cat,
+            "--policy-id",
+            test_policy_id,
+            "--filter-by-level",
+            test_level,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+            "--dry-run",
+        ],
+    )
+    # Using oscal_profile to define the path where OSCAL
+    # Profile needs to be populated
+    assert result.exit_code == 0
+    profile = repo_path.joinpath(tester_prof_path)
+    assert profile.exists()
+    # assert result.exit_code == 0
+    # Checking if content exists in path
+
+    prof = Profile.oscal_read(profile)
+    assert prof.metadata.title == "Oscal Profile for rhel8 high baseline"
+    assert prof.imports[0].include_controls is not None
+
+    # import_data = profile.imports[0]
+    # assert profile.imports is not None
+    # # Ensuring that the test catalog is used to get controls for OSCAL Profile
+    # # Must have controls in include_controls
+    # assert import_data.include_controls is not None
 
 
 def test_sync_missing_profile_option(tmp_repo: Tuple[str, Repo]) -> None:
