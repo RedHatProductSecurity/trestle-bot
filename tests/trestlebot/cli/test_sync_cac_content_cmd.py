@@ -259,9 +259,10 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
 
     setup_for_catalog(repo_path, test_cat, "catalog")
     # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-    tester_prof_path = (
-        f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
-    )
+    # tester_prof_path = (
+    #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
+    # )
+    test_prof_path = f"/products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
@@ -293,7 +294,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # Using oscal_profile to define the path where OSCAL
     # Profile needs to be populated
     assert result.exit_code == 0
-    profile = repo_path.joinpath(tester_prof_path)
+    profile = repo_path.joinpath(test_prof_path)
     assert profile.exists()
     # assert result.exit_code == 0
     # Checking if content exists in path
