@@ -9,6 +9,9 @@ import traceback
 from typing import Any, List
 
 import click
+import trestle.oscal.catalog as cat
+from trestle.common.model_utils import ModelUtils
+from trestle.core.models.file_content_type import FileContentType
 
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
 from trestlebot.cli.utils import run_bot
@@ -150,19 +153,27 @@ def sync_cac_content_profile_cmd(
     policy_id = kwargs["policy_id"]
     filter_by_level = kwargs.get("filter_by_level", list())
 
+    # get path here
+    oscal_catalog_path = ModelUtils.get_model_path_for_name_and_class(
+        working_dir,
+        oscal_catalog,
+        cat.Catalog,
+        FileContentType.JSON,
+    )
     authored_profile: AuthoredProfile = AuthoredProfile(trestle_root=working_dir)
 
     sync_cac_content_profile_task: SyncCacContentProfileTask = (
         SyncCacContentProfileTask(
             cac_content_root=cac_content_root,
             product=product,
-            oscal_catalog=oscal_catalog,
+            oscal_catalog=str(oscal_catalog_path),
             policy_id=policy_id,
             filter_by_level=filter_by_level,
             authored_profile=authored_profile,
         )
     )
     logger.debug("No levels included in control file.")
+    # get_model_path_for oscal catalog
 
     pre_tasks.append(sync_cac_content_profile_task)
     run_bot(pre_tasks, kwargs)
