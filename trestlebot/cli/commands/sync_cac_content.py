@@ -124,7 +124,7 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     type=str,
     required=False,
     multiple=True,
-    #default=List[str],
+    # default=List[str],
     default=list("all"),
     help="Optionally produce OSCAL Profiles by filtered baseline level.",
 )
@@ -143,7 +143,7 @@ def sync_cac_content_profile_cmd(
     """
     pre_tasks: List[TaskBase] = []
 
-    #working_dir = kwargs["repo_path"]
+    # working_dir = kwargs["repo_path"]
     working_dir = str(kwargs["repo_path"].resolve())
     cac_content_root = kwargs["cac_content_root"]
     product = kwargs["product"]

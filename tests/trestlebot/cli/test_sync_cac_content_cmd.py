@@ -244,7 +244,7 @@ def test_profile_supplied(tmp_repo: Tuple[str, Repo]) -> None:
             "test name",
             "--branch",
             "test",
-            "--dry-run",        #Added after already working
+            "--dry-run",  # Added after already working
         ],
     )
     assert result.exit_code == 0
@@ -259,9 +259,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
 
     setup_for_catalog(repo_path, test_cat, "catalog")
     # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-    tester_prof_path = (
-        f"profiles/{test_policy_id}-{test_level}/profile.json"
-    )
+    tester_prof_path = f"profiles/{test_policy_id}-{test_level}/profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
