@@ -262,7 +262,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # tester_prof_path = (
     #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
     # )
-    test_prof_path = f"profiles/{test_product}/profile.json"
+    test_prof_path = f"profiles/1234-levels-low/profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
