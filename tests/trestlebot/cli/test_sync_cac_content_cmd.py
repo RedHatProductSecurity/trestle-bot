@@ -26,7 +26,7 @@ test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
 test_policy_id = "1234-levels"
-test_level = "low"
+# test_level = "low"
 # tester_prof_path = f"profiles/{policy_id}-{filter_by_level}/profiles.json"
 # tester_prof_path = (
 #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}/profile.json"
@@ -262,7 +262,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # tester_prof_path = (
     #     f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
     # )
-    test_prof_path = f"/products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
+    test_prof_path = f"profiles/{test_product}/profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
@@ -279,7 +279,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
             "--policy-id",
             test_policy_id,
             "--filter-by-level",
-            test_level,
+            "low",
             "--repo-path",
             str(repo_path.resolve()),
             "--committer-email",
