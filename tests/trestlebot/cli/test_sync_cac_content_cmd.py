@@ -259,7 +259,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
 
     setup_for_catalog(repo_path, test_cat, "catalog")
     # test_catalog_path = repo_path.joinpath("catalogs", test_cat, "catalog.json")
-    tester_prof_path = f"profiles/{test_policy_id}-{test_level}/profile.json"
+    tester_prof_path = f"products/{test_product}/profiles/{test_policy_id}-{test_level}-profile.json"
 
     runner = CliRunner()
     result = runner.invoke(
@@ -297,7 +297,7 @@ def test_created_oscal_profile(tmp_repo: Tuple[str, Repo]) -> None:
     # Checking if content exists in path
 
     prof = Profile.oscal_read(profile)
-    assert prof.metadata.title == "Oscal Profile for rhel8 high baseline"
+    assert prof.metadata.title == "Oscal Profile for rhel8 low baseline"
     assert prof.imports[0].include_controls is not None
 
     # import_data = profile.imports[0]
