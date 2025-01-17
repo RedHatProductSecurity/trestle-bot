@@ -5,17 +5,28 @@
 
 import logging
 import os
-import re
-from html.parser import HTMLParser
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-import ssg.build_yaml
-import ssg.products
-import ssg.rules
+from ssg.products import load_product_yaml, product_yaml_path
+from ssg.profiles import get_profiles_from_products
+from ssg.rules import find_rule_dirs_in_paths, get_rule_dir_id, get_rule_dir_yaml
+from ssg.variables import (
+    get_variable_options,
+    get_variable_property,
+    get_variables_from_profiles,
+)
+from ssg.yaml import open_and_macro_expand_from_dir
 from trestle.common.const import TRESTLE_GENERIC_NS
 from trestle.core.generators import generate_sample_model
 from trestle.oscal.common import Property
-from trestle.tasks.csv_to_oscal_cd import RULE_DESCRIPTION, RULE_ID, _RuleSetIdMgr
+from trestle.tasks.csv_to_oscal_cd import (
+    PARAMETER_DESCRIPTION,
+    PARAMETER_ID,
+    PARAMETER_VALUE_ALTERNATIVES,
+    RULE_DESCRIPTION,
+    RULE_ID,
+    _RuleSetIdMgr,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -26,8 +37,8 @@ TRESTLE_CD_NS = f"{TRESTLE_GENERIC_NS}/cd"
 def get_component_info(product_name: str, cac_path: str) -> Tuple[str, str]:
     """Get the product name from product yml file via the SSG library."""
     if product_name and cac_path:
-        product_yml_path = ssg.products.product_yaml_path(cac_path, product_name)
-        product = ssg.products.load_product_yaml(product_yml_path)
+        product_yml_path = product_yaml_path(cac_path, product_name)
+        product = load_product_yaml(product_yml_path)
         component_title = product._primary_data.get("product")
         component_description = product._primary_data.get("full_name")
         return (component_title, component_description)
@@ -50,7 +61,7 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
     "Rule_Id" value and "Rule_Description".
 
     Args:
-        props (List[Dict]): The input list of dictionaries.
+        props (Property): The input of Property.
 
     Returns:
         List[Dict]: The updated list with the new "Check_Id" and
@@ -58,10 +69,9 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
     """
     transformed_list = [transform_property(prop) for prop in props]
     rule_check_mapping = []
-    check_id_entry = {}
     for prop in transformed_list:
+        rule_check_mapping.append(prop)
         if prop["name"] == "Rule_Id":
-            rule_check_mapping.append(prop)
             check_id_entry = {
                 "name": "Check_Id",
                 "ns": prop["ns"],
@@ -69,14 +79,20 @@ def get_validation_component_mapping(props: Property) -> List[Dict[str, str]]:
                 "remarks": prop["remarks"],
             }
         if prop["name"] == "Rule_Description":
-            rule_check_mapping.append(prop)
-            rule_check_mapping.append(check_id_entry)
             check_description_entry = {
                 "name": "Check_Description",
                 "ns": prop["ns"],
                 "value": prop["value"],
                 "remarks": prop["remarks"],
             }
+            # Append the Check entry follow Rule_Description
+            rule_check_mapping.append(check_id_entry)
+            rule_check_mapping.append(check_description_entry)
+        # If this rule has paramters, append the Check entry follow paramters
+        if prop["name"] == "Parameter_Value_Alternatives":
+            rule_check_mapping.remove(check_id_entry)
+            rule_check_mapping.remove(check_description_entry)
+            rule_check_mapping.append(check_id_entry)
             rule_check_mapping.append(check_description_entry)
     return rule_check_mapping
 
@@ -94,11 +110,60 @@ def add_prop(name: str, value: str, remarks: Optional[str] = None) -> Property:
 
 def get_benchmark_root(root: str, product: str) -> str:
     """Get the benchmark root."""
-    product_yaml_path = ssg.products.product_yaml_path(root, product)
-    product_yaml = ssg.products.load_product_yaml(product_yaml_path)
+    product_yml_path = product_yaml_path(root, product)
+    product_yaml = load_product_yaml(product_yml_path)
     product_dir = product_yaml.get("product_dir")
     benchmark_root = os.path.join(product_dir, product_yaml.get("benchmark_root"))
     return benchmark_root
+
+
+def get_profile_params(root: str, product: str, profile_id: str) -> Dict[str, Any]:
+    profiles = get_profiles_from_products(root, [product], sorted=True)
+    params = {}
+    for profile in profiles:
+        if profile.profile_id == profile_id:
+            params = get_variables_from_profiles([profile])
+            break
+    return params
+
+
+class ParamInfo:
+    """Stores rule parameter information."""
+
+    def __init__(self, param_id: str, description: str) -> None:
+        """Initialize."""
+        self._id = param_id
+        self._description = description
+        self._value = ""
+        self._options: Dict[str, str] = dict()
+
+    @property
+    def id(self) -> str:
+        """Get the id."""
+        return self._id
+
+    @property
+    def description(self) -> str:
+        """Get the description."""
+        return self._description
+
+    @property
+    def selected_value(self) -> str:
+        """Get the selected value."""
+        return self._value
+
+    @property
+    def options(self) -> Dict[str, str]:
+        """Get the options."""
+        return self._options
+
+    def set_selected_value(self, value: str) -> None:
+        """Set the selected value."""
+        self._value = value
+
+    def set_options(self, value: Dict[str, str]) -> None:
+        """Set the options."""
+        self._options = value
 
 
 class RuleInfo:
@@ -109,6 +174,7 @@ class RuleInfo:
         self._id = rule_id
         self._description = ""
         self._rule_dir = rule_dir
+        self._parameters: List[ParamInfo] = list()
 
     @property
     def id(self) -> str:
@@ -129,6 +195,10 @@ class RuleInfo:
         """Add a rule description."""
         self._description = value
 
+    def add_parameter(self, value: ParamInfo) -> None:
+        """Add a a rule parameter."""
+        self._parameters.append(value)
+
 
 class RulesTransformer:
     """Transforms rules into properties for creating component definitions."""
@@ -137,6 +207,7 @@ class RulesTransformer:
         self,
         root: str,
         product: str,
+        profile: str,
     ) -> None:
         """Initialize."""
         self.root = root
@@ -144,11 +215,28 @@ class RulesTransformer:
 
         benchmark_root = get_benchmark_root(root, self.product)
         self.rules_dirs_for_product: Dict[str, str] = dict()
-        for dir_path in ssg.rules.find_rule_dirs_in_paths([benchmark_root]):
-            rule_id = ssg.rules.get_rule_dir_id(dir_path)
+        for dir_path in find_rule_dirs_in_paths([benchmark_root]):
+            rule_id = get_rule_dir_id(dir_path)
             self.rules_dirs_for_product[rule_id] = dir_path
 
         self._rules_by_id: Dict[str, RuleInfo] = dict()
+        self.profile_id = os.path.basename(profile).split(".profile")[0]
+        self.profile_params = get_profile_params(root, product, self.profile_id)
+
+    def _new_param_obj(self, param_id: str) -> ParamInfo:
+        param_description = get_variable_property(self.root, param_id, "description")
+        param_obj = ParamInfo(param_id, param_description)
+        return param_obj
+
+    def _get_params(self, root: str, rule_obj: RuleInfo) -> None:
+        # Here need to add params only in this rule.
+        for param_id, param_data in self.profile_params.items():
+            param_obj = self._new_param_obj(param_id)
+            selected_value = param_data[self.product][self.profile_id]
+            param_obj.set_selected_value(selected_value)
+            options = get_variable_options(root, param_id)
+            param_obj.set_options(options)
+            rule_obj.add_parameter(param_obj)
 
     def add_rules(self, rules: List[str]) -> None:
         """
@@ -159,7 +247,6 @@ class RulesTransformer:
         Notes: This attempt to load all rules and will raise an error if any fail.
         """
         rule_errors: List[str] = list()
-
         for rule_id in rules:
             error = self._add_rule(rule_id)
             if error:
@@ -206,33 +293,43 @@ class RulesTransformer:
         Args:
             rule_obj: The rule object where collection rule data is stored.
         """
-        # The function will raise error: FileNotFoundError
-        # which is caused by loading jinja macros, and this
-        # needs to be fixed by ssg. So comment blow temporarily.
-        # rule_file = ssg.rules.get_rule_dir_yaml(rule_obj.rule_dir)
-        # rule_yaml = ssg.build_yaml.Rule.from_yaml(rule_file)
-        # rule_yaml.normalize(self.product)
-        # description = self._clean_rule_description(rule_yaml.description)
-        # rule_obj.add_description(description)
-        rule_obj.add_description("Pending update")
+        product_yml_path = product_yaml_path(self.root, self.product)
+        product_yaml = load_product_yaml(product_yml_path)
+        rule_file = get_rule_dir_yaml(rule_obj.rule_dir)
+        rule_yaml = open_and_macro_expand_from_dir(
+            rule_file, self.root, substitutions_dict=product_yaml._data_as_dict
+        )
+
+        rule_obj.add_description(rule_yaml["title"].replace("\n", " ").strip())
+        self._get_params(self.root, rule_obj)
 
     @staticmethod
-    def _clean_rule_description(description: str) -> str:
-        """Clean the rule description."""
-        parser = HTMLParser()
-        parser.handle_data(description)
-        cleaned_description = description.replace("\n", " ").strip()
-        cleaned_description = re.sub(" +", " ", cleaned_description)
-        return cleaned_description
+    def _get_params_properties(ruleset: str, param_info: ParamInfo) -> List[Property]:
+        """Get a set of parameter properties for a rule object."""
+        id_prop = add_prop(PARAMETER_ID, param_info.id, ruleset)
+        description_prop = add_prop(
+            PARAMETER_DESCRIPTION,
+            param_info.description.replace("\n", " ").strip(),
+            ruleset,
+        )
+        alternative_prop = add_prop(
+            PARAMETER_VALUE_ALTERNATIVES,
+            str(param_info.options),
+            ruleset,
+        )
+        return [id_prop, description_prop, alternative_prop]
 
     def _get_rule_properties(self, ruleset: str, rule_obj: RuleInfo) -> List[Property]:
         """Get a set of rule properties for a rule object."""
         rule_properties: List[Property] = list()
-        # Add rule properties for the rule set
+        # Add rule properties for the ruleset
         rule_properties.append(add_prop(RULE_ID, rule_obj.id, ruleset))
         rule_properties.append(
             add_prop(RULE_DESCRIPTION, rule_obj.description, ruleset)
         )
+        for param in rule_obj._parameters:
+            rule_properties.extend(self._get_params_properties(ruleset, param))
+
         return rule_properties
 
     def get_all_rules(self) -> List[RuleInfo]:

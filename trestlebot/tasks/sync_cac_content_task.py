@@ -65,6 +65,7 @@ class SyncCacContentTask(TaskBase):
         rules_transformer = RulesTransformer(
             self.cac_content_root,
             self.product,
+            self.cac_profile,
         )
         rules_transformer.add_rules(self.rules)
         rules: List[RuleInfo] = rules_transformer.get_all_rules()

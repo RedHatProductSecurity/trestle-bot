@@ -1,0 +1,66 @@
+{{#
+    Create an XCCDF :code:`<sub>` element
+
+:param varname: The name of the variable to reference
+:type varname: str
+
+#}}
+{{% macro xccdf_value(varname) -%}}
+<sub idref="{{{ varname }}}" />
+{{%- endmacro %}}
+
+
+{{#
+    Creates an HTML :code:`<a>` element for the given link and text. If no text is given the
+    link will be the text
+
+:param link: The url the link should have
+:type link: str
+:param text: Optional, text for the link
+:type text: str
+
+#}}
+{{% macro weblink(link, text=none) -%}}
+    {{% if text is not none -%}}
+        <a xmlns='http://www.w3.org/1999/xhtml' href='{{{ link }}}'>{{{ text }}}</a>
+    {{%- else %}}
+        <a xmlns='http://www.w3.org/1999/xhtml' href='{{{ link }}}'>{{{ link }}}</a>
+    {{%- endif %}}
+{{%- endmacro %}}
+
+
+{{#
+    OCIL clause for file group owner
+
+:param file: File to change
+:type file: str
+:param group: the group owner for the file
+:type group: str
+
+#}}
+{{%- macro ocil_clause_file_group_owner(file, group) -%}}
+    {{{ file }}} does not have a group owner of {{{ group }}}
+{{%- endmacro %}}
+
+
+{{#
+    OCIL how to check the file group owner of a file.
+
+:param file: File to change
+:type file: str
+:param group: the group owner for the file
+:type group: str
+
+#}}
+{{%- macro ocil_file_group_owner(file, group) -%}}
+    To check the group ownership of <code>{{{ file }}}</code>,
+    {{% if product in ["ocp4", "rhcos4"] -%}}
+    you'll need to log into a node in the cluster.
+    {{{ rhcos_node_login_instructions() }}}
+    Then,
+    {{%- endif -%}}
+    run the command:
+    <pre>$ ls -lL {{{ file }}}</pre>
+    If properly configured, the output should indicate the following group-owner:
+    <code>{{{ group }}}</code>
+{{%- endmacro %}}
