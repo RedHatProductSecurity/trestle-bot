@@ -7,7 +7,6 @@
 import pathlib
 
 import pytest
-
 import trestle.oscal.profile as prof
 from trestle.common.model_utils import ModelUtils
 from trestle.core.models.file_content_type import FileContentType
