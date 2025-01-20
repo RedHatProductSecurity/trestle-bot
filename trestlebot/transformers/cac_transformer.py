@@ -348,3 +348,11 @@ class RulesTransformer:
             )
             rule_properties.extend(rule_set_props)
         return rule_properties
+
+def get_catalog_info() -> None:
+    """Get catalog info."""
+    pass
+
+def update_catalog(catalog_file: Path) -> None:
+    logger.info(f"Updating catalog for {catalog_file}")
+    pass
