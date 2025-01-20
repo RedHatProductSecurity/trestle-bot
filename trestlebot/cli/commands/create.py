@@ -16,6 +16,7 @@ from trestlebot.cli.options.create import common_create_options
 from trestlebot.cli.utils import run_bot
 from trestlebot.entrypoints.entrypoint_base import comma_sep_to_list
 from trestlebot.tasks.assemble_task import AssembleTask
+from trestlebot.tasks.authored.catalog import AuthoredCatalog
 from trestlebot.tasks.authored.compdef import (
     AuthoredComponentDefinition,
     FilterByProfile,
@@ -139,6 +140,74 @@ def compdef_cmd(
     run_bot(pre_tasks, kwargs)
 
     logger.debug(f"You have successfully authored the {compdef_name}.")
+
+
+@create_cmd.command(name="catalog", help="Catalog authoring subcommand.")
+@click.pass_context
+@common_create_options
+@common_options
+@git_options
+@click.option(
+    "--catalog-name",
+    required=True,
+    help="Name of the catalog.",
+)
+@click.option(
+    "--catalog-title",
+    required=True,
+    help="Title of the catalog.",
+)
+@click.option(
+    "--catalog-version",
+    required=False,
+    help="Version of the catalog.",
+)
+@click.option(
+    "--catalog-remarks",
+    required=False,
+    help="Remarks of the catalog.",
+)
+# @click.option(
+#     "--catalog-groups",
+#     required=False,
+#     help="Remarks of the catalog.",
+# )
+@handle_exceptions
+def catalog_cmd(
+    ctx: click.Context,
+    **kwargs: Any,
+) -> None:
+    """
+    Catalog authoring command.
+    """
+    pre_tasks: List[TaskBase] = []
+
+    repo_path = kwargs["repo_path"]
+    markdown_dir = kwargs["markdown_dir"]
+    catalog_name = kwargs["catalog_name"]
+    catalog_title = kwargs["catalog_title"]
+    catalog_version = kwargs["catalog_version"]
+
+    authored_catalog: AuthoredCatalog = AuthoredCatalog(trestle_root=repo_path)
+    authored_catalog.assemble(
+        markdown_path=markdown_dir,
+        version_tag=catalog_version,
+    )
+    # WIP
+    # authored_catalog.create_new_default(
+    #     catalog_version,
+    #     catalog_name,
+    #     catalog_groups=catalog_groups,
+    # )
+
+    model_filter: ModelFilter = ModelFilter([], [catalog_name])
+
+    pre_tasks.append(rule_transform_task)
+
+    kwargs['dry_run'] = True # TODO delete me
+    run_bot(pre_tasks, kwargs)
+
+    logger.debug(f"Initial catalog {catalog_version} is authored.")
 
 
 @create_cmd.command(name="ssp", help="Authoring ssp subcommand.")

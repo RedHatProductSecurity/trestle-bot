@@ -4,13 +4,16 @@
 """ Unit test for create commands ssp and cd"""
 import pathlib
 from typing import Tuple
+from unittest.mock import Mock, patch
 
 from click.testing import CliRunner
 from git import Repo
+from trestle.core.commands.author.catalog import CatalogGenerate
 
-from tests.testutils import setup_for_compdef, setup_for_ssp
+from tests.testutils import setup_for_compdef, setup_for_ssp, setup_for_catalog
 from trestlebot.cli.commands.create import create_cmd
-
+from trestlebot.tasks.assemble_task import AssembleTask
+from trestlebot.tasks.authored.base_authored import AuthoredObjectBase
 
 test_prof = "simplified_nist_profile"
 test_comp_name = "test_comp"
@@ -63,6 +66,64 @@ def test_create_ssp_cmd(tmp_repo: Tuple[str, Repo]) -> None:
         ],
     )
     assert result.exit_code == 0
+
+
+def test_create_catalog_cmd(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests successful create catalog command."""
+
+    test_cat = "simplified_nist_catalog"
+
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    _ = setup_for_catalog(repo_path, test_cat, "catalog")
+
+    catalog_index_file = repo_path.joinpath("catalog-index.json")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        create_cmd,
+        [
+            "catalog",
+            "--profile-name",
+            test_prof,
+            "--markdown-dir",
+            "markdown",
+            "--compdefs",
+            test_comp_name,
+            "--catalog-name",
+            "test-name",
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--catalog-index-file",
+            catalog_index_file,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+        ],
+    )
+    assert result.exit_code == 0
+
+
+    cat_generate = CatalogGenerate()
+    assert cat_generate._run(args) == 0
+
+    mock = Mock(spec=AuthoredObjectBase)
+    mock.get_trestle_root.return_value = tmp_trestle_dir
+    assemble_task = AssembleTask(mock, cat_md_dir, "1.0.0")
+
+    with patch(
+        "trestlebot.tasks.authored.types.get_trestle_model_dir"
+    ) as mock_get_trestle_model_dir:
+        mock_get_trestle_model_dir.return_value = "catalogs"
+
+        assert assemble_task.execute() == 0
+
+        mock.assemble.assert_called_once_with(
+            markdown_path=md_path, version_tag="1.0.0"
+        )
 
 
 def test_create_compdef_cmd(tmp_repo: Tuple[str, Repo]) -> None:
