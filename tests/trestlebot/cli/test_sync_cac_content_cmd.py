@@ -10,6 +10,7 @@ from git import Repo
 from trestle.oscal.component import ComponentDefinition
 
 from tests.testutils import setup_for_catalog, setup_for_profile
+from trestlebot.cli.commands.sync_cac_catalog import sync_cac_catalog_cmd
 from trestlebot.cli.commands.sync_cac_content import sync_cac_content_cmd
 
 
@@ -21,6 +22,7 @@ test_cac_profile = "products/rhel8/profiles/example.profile"
 test_prof = "simplified_nist_profile"
 test_cat = "simplified_nist_catalog"
 test_comp_path = f"component-definitions/{test_product}/component-definition.json"
+test_catalog_path = f"catalogs/{test_cat}/catalog.json"
 
 
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
@@ -176,3 +178,45 @@ def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) ->
     assert len(component.props) == 30
     assert component.title == "openscap"
     assert component.type == "validation"
+
+
+def test_sync_catalog(tmp_repo: Tuple[str, Repo]) -> None:
+    """Tests sync Cac content product name to OSCAL component title ."""
+    repo_dir, _ = tmp_repo
+    repo_path = pathlib.Path(repo_dir)
+    setup_for_catalog(repo_path, test_cat, "catalog")
+    setup_for_profile(repo_path, test_prof, "profile")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        sync_cac_catalog_cmd,
+        [
+            "--product",
+            test_product,
+            "--repo-path",
+            str(repo_path.resolve()),
+            "--cac-content-root",
+            cac_content_test_data,
+            "--cac-profile",
+            "cac-profile",
+            "--oscal-profile",
+            test_prof,
+            "--committer-email",
+            "test@email.com",
+            "--committer-name",
+            "test name",
+            "--branch",
+            "test",
+            "--dry-run",
+        ],
+    )
+    # Check the CLI sync-cac-content is successful
+    assert result.exit_code == 0
+
+    catalog = repo_path.joinpath(test_catalog_path)
+    assert catalog.exists(), f"Catalog {catalog} must exist"
+    # Check if the catalog is populated with the correct data
+    with open(catalog, "r", encoding="utf-8") as file:
+        content = file.read()
+    assert '"title": "Test Catalog"' in content
+    assert '"oscal-version": "1.1.2"' in content
