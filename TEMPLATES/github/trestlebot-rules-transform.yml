@@ -42,12 +42,12 @@ jobs:
         id: autosync
         uses: RedHatProductSecurity/trestle-bot/actions/autosync@main
         with:
-          markdown_path: "markdown/component-definitions"
+          markdown_dir: "markdown/component-definitions"
           oscal_model: "compdef"
           commit_message: "Autosync component definition content [skip ci]"
       - name: Rules Transform
         if: needs.check_rules.outputs.rules_changed == 'true'
         uses: RedHatProductSecurity/trestle-bot/actions/rules-transform@main
         with:
-          markdown_path: "markdown/component-definitions"
+          markdown_dir: "markdown/component-definitions"
           commit_message: "Auto-transform rules [skip ci]"
