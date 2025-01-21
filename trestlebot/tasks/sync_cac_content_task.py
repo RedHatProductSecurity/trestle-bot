@@ -72,20 +72,15 @@ class SyncCacContentTask(TaskBase):
         all_rule_properties: List[Property] = rules_transformer.transform(rules)
         return all_rule_properties
 
-    def _create_or_update_compdef(self, compdef_type: str = "service") -> None:
-        """Create a component definition for specified product."""
-        component_definition = generate_sample_model(ComponentDefinition)
-        component_definition.metadata.title = f"Component definition for {self.product}"
-        component_definition.metadata.version = "1.0"
-        component_definition.components = list()
-
-        oscal_component = generate_sample_model(DefinedComponent)
+    def _add_props(self, oscal_component: DefinedComponent) -> DefinedComponent:
+        """Add props to OSCAL component."""
         product_name, full_name = get_component_info(
             self.product, self.cac_content_root
         )
         all_rule_properties = self._get_rules_properties()
         props = none_if_empty(all_rule_properties)
         oscal_component.type = self.compdef_type
+
         if oscal_component.type == "validation":
             oscal_component.title = "openscap"
             oscal_component.description = "openscap"
@@ -94,6 +89,58 @@ class SyncCacContentTask(TaskBase):
             oscal_component.title = product_name
             oscal_component.description = full_name
             oscal_component.props = props
+        return oscal_component
+
+    def _update_compdef(
+        self, cd_json: pathlib.Path, oscal_component: DefinedComponent
+    ) -> None:
+        """Update existed OSCAL component definition."""
+        compdef = ComponentDefinition.oscal_read(cd_json)
+        components_titles = []
+        updated = False
+        for index, component in enumerate(compdef.components):
+            components_titles.append(component.title)
+            # If the component exists and the props need to be updated
+            if component.title == oscal_component.title:
+                if component.props != oscal_component.props:
+                    logger.info(f"Start to update props of {component.title}")
+                    compdef.components[index].props = oscal_component.props
+                    updated = True
+                    compdef.oscal_write(cd_json)
+                    break
+
+        if oscal_component.title not in components_titles:
+            logger.info(f"Start to append component {oscal_component.title}")
+            compdef.components.append(oscal_component)
+            compdef.oscal_write(cd_json)
+            updated = True
+
+        if updated:
+            logger.info(f"Update component definition: {cd_json}")
+            compdef.metadata.version = str(
+                "{:.1f}".format(float(compdef.metadata.version) + 0.1)
+            )
+            ModelUtils.update_last_modified(compdef)
+            compdef.oscal_write(cd_json)
+
+    def _create_compdef(
+        self, cd_json: pathlib.Path, oscal_component: DefinedComponent
+    ) -> None:
+        """Create a component definition in OSCAL."""
+        component_definition = generate_sample_model(ComponentDefinition)
+        component_definition.metadata.title = f"Component definition for {self.product}"
+        component_definition.metadata.version = "1.0"
+        component_definition.components = list()
+        cd_dir = pathlib.Path(os.path.dirname(cd_json))
+        cd_dir.mkdir(exist_ok=True, parents=True)
+        component_definition.components.append(oscal_component)
+        component_definition.oscal_write(cd_json)
+
+    def _create_or_update_compdef(self, compdef_type: str = "service") -> None:
+        """Create or update component definition for specified CaC profile."""
+        oscal_component = generate_sample_model(DefinedComponent)
+        oscal_component = self._add_props(oscal_component)
+
         repo_path = pathlib.Path(self.working_dir)
         cd_json: pathlib.Path = ModelUtils.get_model_path_for_name_and_class(
             repo_path,
@@ -101,42 +148,12 @@ class SyncCacContentTask(TaskBase):
             ComponentDefinition,
             FileContentType.JSON,
         )
-
         if cd_json.exists():
             logger.info(f"The component definition for {self.product} exists.")
-            compdef = ComponentDefinition.oscal_read(cd_json)
-            components_titles = []
-            updated = False
-            for index, component in enumerate(compdef.components):
-                components_titles.append(component.title)
-                # If the component exists and the props need to be updated
-                if component.title == oscal_component.title:
-                    if component.props != oscal_component.props:
-                        logger.info(
-                            f"Start to update props of the component {component.title}"
-                        )
-                        compdef.components[index].props = oscal_component.props
-                        updated = True
-                        compdef.oscal_write(cd_json)
-                        break
-            if oscal_component.title not in components_titles:
-                logger.info(f"Start to append component {oscal_component.title}")
-                compdef.components.append(oscal_component)
-                compdef.oscal_write(cd_json)
-                updated = True
-            if updated:
-                logger.info(f"Update component definition: {cd_json}")
-                compdef.metadata.version = str(
-                    "{:.1f}".format(float(compdef.metadata.version) + 0.1)
-                )
-                ModelUtils.update_last_modified(compdef)
-                compdef.oscal_write(cd_json)
+            self._update_compdef(cd_json, oscal_component)
         else:
             logger.info(f"Creating component definition for product {self.product}")
-            cd_dir = pathlib.Path(os.path.dirname(cd_json))
-            cd_dir.mkdir(exist_ok=True, parents=True)
-            component_definition.components.append(oscal_component)
-            component_definition.oscal_write(cd_json)
+            self._create_compdef(cd_json, oscal_component)
 
     def execute(self) -> int:
         """Execute task to create or update product component definition."""
