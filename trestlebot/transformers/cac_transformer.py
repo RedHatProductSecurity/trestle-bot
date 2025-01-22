@@ -332,6 +332,11 @@ class RulesTransformer:
 
         return rule_properties
 
+    def get_rule_id_props(self, rule_ids: List[str]) -> List[Property]:
+        """Get the rule props with rule ids."""
+        props: List[Property] = [add_prop(RULE_ID, rule_id) for rule_id in rule_ids]
+        return props
+
     def get_all_rule_objs(self) -> Dict[str, RuleInfo]:
         return self._rules_by_id
 

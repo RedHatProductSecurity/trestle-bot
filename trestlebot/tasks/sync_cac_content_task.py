@@ -118,6 +118,7 @@ class SyncCacContentTask(TaskBase):
         working_dir: str,
     ) -> None:
         """Initialize CaC content sync task."""
+
         self.product: str = product
         self.cac_profile: str = cac_profile
         self.cac_content_root: str = cac_content_root
@@ -125,9 +126,11 @@ class SyncCacContentTask(TaskBase):
         self.oscal_profile: str = oscal_profile
         self.rules: List[str] = []
         self.controls: List[Control] = list()
+        self.rules_by_id: Dict[str, RuleInfo] = dict()
+
         self.profile_href: str = ""
         self.profile_path: str = ""
-        self._rules_by_id: Dict[str, RuleInfo] = dict()
+        self.profile = OSCALProfileHelper(pathlib.Path(working_dir))
 
         super().__init__(working_dir, None)
 
@@ -148,7 +151,7 @@ class SyncCacContentTask(TaskBase):
             self.cac_profile,
         )
         rules_transformer.add_rules(self.rules)
-        self.rules_by_id: Dict[str, RuleInfo] = rules_transformer.get_all_rule_objs()
+        self.rules_by_id = rules_transformer.get_all_rule_objs()
         rules: List[RuleInfo] = list(self.rules_by_id.values())
         all_rule_properties: List[Property] = rules_transformer.transform(rules)
         return all_rule_properties
@@ -195,6 +198,7 @@ class SyncCacContentTask(TaskBase):
         return control_mgr
 
     def _get_controls(self) -> None:
+        """Collect controls selected by profile."""
         controls_manager = self._load_controls_manager()
         policies = controls_manager.policies
         profile_yaml = _load_yaml_profile_file(self.cac_profile)
@@ -246,7 +250,6 @@ class SyncCacContentTask(TaskBase):
         self,
         implemented_req: ImplementedRequirement,
         control: Control,
-        profile: OSCALProfileHelper,
     ) -> None:
         """
         Break down the response into parts.
@@ -267,7 +270,7 @@ class SyncCacContentTask(TaskBase):
             # self._add_response_by_status(implemented_req, oscal_status, REPLACE_ME)
             implemented_req.statements = list()
             for section_label, section_content in sections_dict.items():
-                statement_id = profile.validate(
+                statement_id = self.profile.validate(
                     f"{implemented_req.control_id}_smt.{section_label}"
                 )
                 if statement_id is None:
@@ -301,18 +304,15 @@ class SyncCacContentTask(TaskBase):
         self,
         type_with_props: TypeWithProps,
         rule_ids: List[str],
+        rules_transformer: RulesTransformer,
     ) -> None:
         """Add rules to a type with props."""
         all_props: List[Property] = as_list(type_with_props.props)
-        # Get a subset from self.rules_by_id according to rule_ids
-        rules_by_id = {k: v for k, v in self.rules_by_id.items() if k in rule_ids}
-        rules: List[RuleInfo] = list(rules_by_id.values())
-        rules_transformer = RulesTransformer(
-            self.cac_content_root,
-            self.product,
-            self.cac_profile,
-        )
-        rule_properties: List[Property] = rules_transformer.transform(rules)
+        all_rule_ids = self.rules_by_id.keys()
+        error_rules = list(filter(lambda x: x not in all_rule_ids, rule_ids))
+        if error_rules:
+            raise ValueError(f"Could not find rules: {', '.join(error_rules)}")
+        rule_properties: List[Property] = rules_transformer.get_rule_id_props(rule_ids)
         all_props.extend(rule_properties)
         type_with_props.props = none_if_empty(all_props)
 
@@ -338,21 +338,18 @@ class SyncCacContentTask(TaskBase):
             control_implementation.set_parameters = none_if_empty(all_set_params)
 
     def _create_implemented_requirement(
-        self, control: Control
+        self, control: Control, rules_transformer: RulesTransformer
     ) -> Optional[ImplementedRequirement]:
         """Create implemented requirement from a control object"""
 
         logger.info(f"Creating implemented requirement for {control.id}")
-        profile = OSCALProfileHelper(pathlib.Path(self.working_dir))
-        profile.load(self.profile_path)
-
-        control_id = profile.validate(control.id)
+        control_id = self.profile.validate(control.id)
         if control_id:
             implemented_req = generate_sample_model(ImplementedRequirement)
             implemented_req.control_id = control_id
-            self._handle_response(implemented_req, control, profile)
+            self._handle_response(implemented_req, control)
             rule_ids = self._process_rule_ids(control.rules)
-            self._attach_rules(implemented_req, rule_ids)
+            self._attach_rules(implemented_req, rule_ids, rules_transformer)
             return implemented_req
         return None
 
@@ -362,10 +359,16 @@ class SyncCacContentTask(TaskBase):
         ci.source = self.profile_href
         all_implement_reqs = list()
         self._get_controls()
+        rules_transformer = RulesTransformer(
+            self.cac_content_root,
+            self.product,
+            self.cac_profile,
+        )
 
-        # Get all profile related controls here:
         for control in self.controls:
-            implemented_req = self._create_implemented_requirement(control)
+            implemented_req = self._create_implemented_requirement(
+                control, rules_transformer
+            )
             if implemented_req:
                 all_implement_reqs.append(implemented_req)
         ci.implemented_requirements = all_implement_reqs
@@ -377,6 +380,7 @@ class SyncCacContentTask(TaskBase):
     ) -> DefinedComponent:
         """Add control implementations to OSCAL component."""
         self._get_source(self.oscal_profile)
+        self.profile.load(self.profile_path)
         control_implementation: ControlImplementation = (
             self._create_control_implementation()
         )
@@ -398,11 +402,14 @@ class SyncCacContentTask(TaskBase):
                     logger.info(f"Start to update props of {component.title}")
                     compdef.components[index].props = oscal_component.props
                     updated = True
+                # The way to check control implementations needs to be updated
                 if (
                     component.control_implementations
                     != oscal_component.control_implementations
                 ):
-                    logger.info(f"Start to update props of {component.title}")
+                    logger.info(
+                        f"Start to update control implementations of {component.title}"
+                    )
                     compdef.components[index].control_implementations = (
                         oscal_component.control_implementations
                     )
@@ -438,7 +445,7 @@ class SyncCacContentTask(TaskBase):
         component_definition.components.append(oscal_component)
         component_definition.oscal_write(cd_json)
 
-    def _create_or_update_compdef(self, compdef_type: str = "service") -> None:
+    def _create_or_update_compdef(self) -> None:
         """Create or update component definition for specified CaC profile."""
         oscal_component = generate_sample_model(DefinedComponent)
         oscal_component = self._add_props(oscal_component)
