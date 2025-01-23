@@ -76,7 +76,7 @@ class SyncCacContentProfileTask(TaskBase):
         control_manager.load()
 
         # accessing control file within content/controls
-        # the instance of the ControlsManager() object can use the relevant methods for handling controls.
+        # ControlsManager() object can access methods for handling controls.
 
         policy: Policy = control_manager._get_policy(policy_id)
         levels: Set[str] = set()

@@ -136,7 +136,7 @@ def sync_cac_content_profile_cmd(
 ) -> None:
     # The cac_content_root accesses the repository of control files.
     # User will input policy_id name to amend name of OSCAL Profile.
-    # If the user indicates level, an OSCAL Profile will be produced with criteria specific to that level.
+    # If user indicates level, an OSCAL Profile will be produced with criteria specific to that level.
     # If no baseline level associated with policy id, task will create OSCAL Profiles for all levels.
     """
     Sync cac content for authoring OSCAL Profiles.
