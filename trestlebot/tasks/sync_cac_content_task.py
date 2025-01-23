@@ -396,41 +396,43 @@ class SyncCacContentTask(TaskBase):
         updated = False
         for index, component in enumerate(compdef.components):
             components_titles.append(component.title)
-            # If the component exists and the props need to be updated
+            # Check if the component exists and needs to be updated
             if component.title == oscal_component.title:
-                if component.props != oscal_component.props:
-                    logger.info(f"Start to update props of {component.title}")
+                if not ModelUtils.models_are_equivalent(
+                    component.props, oscal_component.props, ignore_all_uuid=True
+                ):
+                    logger.info(f"Component props of {component.title} has an update")
                     compdef.components[index].props = oscal_component.props
                     updated = True
-                # The way to check control implementations needs to be updated
-                if (
-                    component.control_implementations
-                    != oscal_component.control_implementations
+                if not ModelUtils.models_are_equivalent(
+                    component.control_implementations,
+                    oscal_component.control_implementations,
+                    ignore_all_uuid=True,
                 ):
                     logger.info(
-                        f"Start to update control implementations of {component.title}"
+                        f"Control implementations of {component.title} has an update"
                     )
                     compdef.components[index].control_implementations = (
                         oscal_component.control_implementations
                     )
                     updated = True
                 if updated:
-                    compdef.oscal_write(cd_json)
                     break
 
         if oscal_component.title not in components_titles:
-            logger.info(f"Start to append component {oscal_component.title}")
+            logger.info(f"Component {oscal_component.title} needs to be added")
             compdef.components.append(oscal_component)
-            compdef.oscal_write(cd_json)
             updated = True
 
         if updated:
-            logger.info(f"Update component definition: {cd_json}")
             compdef.metadata.version = str(
                 "{:.1f}".format(float(compdef.metadata.version) + 0.1)
             )
             ModelUtils.update_last_modified(compdef)
             compdef.oscal_write(cd_json)
+            logger.info(f"Component definition: {cd_json} is updated")
+        else:
+            logger.info(f"No update in component definition: {cd_json}")
 
     def _create_compdef(
         self, cd_json: pathlib.Path, oscal_component: DefinedComponent
