@@ -148,6 +148,14 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     ]
     assert set_params_dict["var_sshd_set_keepalive"] == ["1"]
     assert set_params_dict["var_system_crypto_policy"] == ["fips"]
+    # Test the control status is populated to implemented_requirements
+    prop_names = []
+    for prop in ci.implemented_requirements[0].props:
+        prop_names.append(prop.name)
+        if prop.name == "implementation-status":
+            value = prop.value
+    assert "implementation-status" in prop_names
+    assert value == "not-applicable"
 
 
 def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) -> None:

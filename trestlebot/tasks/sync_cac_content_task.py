@@ -10,11 +10,11 @@ import re
 from typing import Dict, List, Optional, Pattern, Set
 
 # from ssg.products import get_all
-from ssg.controls import Control, ControlsManager
+from ssg.controls import Control, ControlsManager, Status
 from ssg.products import load_product_yaml, product_yaml_path
 from ssg.profiles import _load_yaml_profile_file, get_profiles_from_products
 from trestle.common.common_types import TypeWithParts, TypeWithProps
-from trestle.common.const import TRESTLE_HREF_HEADING
+from trestle.common.const import IMPLEMENTATION_STATUS, REPLACE_ME, TRESTLE_HREF_HEADING
 from trestle.common.list_utils import as_list, none_if_empty
 from trestle.common.model_utils import ModelUtils
 from trestle.core.catalog.catalog_interface import CatalogInterface
@@ -38,6 +38,7 @@ from trestlebot.tasks.base_task import TaskBase
 from trestlebot.transformers.cac_transformer import (
     RuleInfo,
     RulesTransformer,
+    add_prop,
     get_component_info,
     get_validation_component_mapping,
 )
@@ -46,6 +47,42 @@ from trestlebot.transformers.cac_transformer import (
 logger = logging.getLogger(__name__)
 
 SECTION_PATTERN = r"Section ([a-z]):"
+
+
+class OscalStatus:
+    """
+    Represent the status of a control in OSCAL.
+
+    Notes:
+        This transforms the status from SSG to OSCAL in the from
+        string method.
+    """
+
+    PLANNED = "planned"
+    NOT_APPLICABLE = "not-applicable"
+    ALTERNATIVE = "alternative"
+    IMPLEMENTED = "implemented"
+    PARTIAL = "partial"
+
+    @staticmethod
+    def from_string(source: str) -> str:
+        data = {
+            Status.INHERENTLY_MET: OscalStatus.IMPLEMENTED,
+            Status.DOES_NOT_MEET: OscalStatus.ALTERNATIVE,
+            Status.DOCUMENTATION: OscalStatus.IMPLEMENTED,
+            Status.AUTOMATED: OscalStatus.IMPLEMENTED,
+            Status.MANUAL: OscalStatus.ALTERNATIVE,
+            Status.PLANNED: OscalStatus.PLANNED,
+            Status.PARTIAL: OscalStatus.PARTIAL,
+            Status.SUPPORTED: OscalStatus.IMPLEMENTED,
+            Status.PENDING: OscalStatus.ALTERNATIVE,
+            Status.NOT_APPLICABLE: OscalStatus.NOT_APPLICABLE,
+        }
+        if source not in data.keys():
+            raise ValueError(f"Invalid status: {source}. Use one of {data.keys()}")
+        return data.get(source)  # type: ignore
+
+    STATUSES = {PLANNED, NOT_APPLICABLE, ALTERNATIVE, IMPLEMENTED, PARTIAL}
 
 
 class OSCALProfileHelper:
@@ -238,6 +275,32 @@ class SyncCacContentTask(TaskBase):
 
         return sections_dict
 
+    @staticmethod
+    def _add_response_by_status(
+        impl_req: ImplementedRequirement,
+        implementation_status: str,
+        control_response: str,
+    ) -> None:
+        """
+        Add the response to the implemented requirement depending on the status.
+
+        Notes: Per OSCAL requirements, any status other than implemented and partial should have
+        remarks with justification for the status.
+        """
+
+        status_prop = add_prop(IMPLEMENTATION_STATUS, implementation_status, "")
+
+        if (
+            implementation_status == OscalStatus.IMPLEMENTED
+            or implementation_status == OscalStatus.PARTIAL
+        ):
+            impl_req.description = control_response
+        else:
+            status_prop.remarks = control_response
+
+        impl_req.props = as_list(impl_req.props)
+        impl_req.props.append(status_prop)
+
     def _create_statement(self, statement_id: str, description: str = "") -> Statement:
         """Create a statement."""
         statement = generate_sample_model(Statement)
@@ -264,10 +327,10 @@ class SyncCacContentTask(TaskBase):
         pattern = re.compile(SECTION_PATTERN, re.IGNORECASE)
 
         sections_dict = self._build_sections_dict(control_response, pattern)
-        # oscal_status = OscalStatus.from_string(control.status)
+        oscal_status = OscalStatus.from_string(control.status)
 
         if sections_dict:
-            # self._add_response_by_status(implemented_req, oscal_status, REPLACE_ME)
+            self._add_response_by_status(implemented_req, oscal_status, REPLACE_ME)
             implemented_req.statements = list()
             for section_label, section_content in sections_dict.items():
                 statement_id = self.profile.validate(
@@ -282,10 +345,10 @@ class SyncCacContentTask(TaskBase):
                     statement_id, section_content_str.strip()
                 )
                 implemented_req.statements.append(statement)
-        # else:
-        #     self._add_response_by_status(
-        #         implemented_req, oscal_status, control_response.strip()
-        #     )
+        else:
+            self._add_response_by_status(
+                implemented_req, oscal_status, control_response.strip()
+            )
 
     def _process_rule_ids(self, rule_ids: List[str]) -> List[str]:
         """
