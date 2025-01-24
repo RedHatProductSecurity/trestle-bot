@@ -117,7 +117,7 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     assert len(compdef.components) == 1
     component = compdef.components[0]
     assert component.title == "rhel8"
-    # Check rules component props
+    # Check rules component props are added
     assert len(component.props) == 24
     rule_ids = [p.value for p in component.props if p.name == "Rule_Id"]
     assert sorted(rule_ids) == [
@@ -125,12 +125,29 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
         "file_groupownership_sshd_private_key",
         "sshd_set_keepalive",
     ]
-    # Check parameters props
+    # Check parameters props are added
     param_ids = [p.value for p in component.props if p.name == "Parameter_Id"]
     assert sorted(list(set(param_ids))) == [
         "var_sshd_set_keepalive",
         "var_system_crypto_policy",
     ]
+
+    # Check control_implementations are attached
+    ci = component.control_implementations[0]
+    assert ci.source == "trestle://profiles/simplified_nist_profile/profile.json"
+    set_parameters = ci.set_parameters
+    assert len(set_parameters) == 2
+    set_params_ids = []
+    set_params_dict = {}
+    for param in set_parameters:
+        set_params_ids.append(param.param_id)
+        set_params_dict.update({param.param_id: param.values})
+    assert sorted(set_params_ids) == [
+        "var_sshd_set_keepalive",
+        "var_system_crypto_policy",
+    ]
+    assert set_params_dict["var_sshd_set_keepalive"] == ["1"]
+    assert set_params_dict["var_system_crypto_policy"] == ["fips"]
 
 
 def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) -> None:
