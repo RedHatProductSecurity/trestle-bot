@@ -36,3 +36,7 @@ root_cmd.add_command(create_cmd)
 root_cmd.add_command(rules_transform_cmd)
 root_cmd.add_command(sync_cac_content_cmd)
 root_cmd.add_command(sync_upstreams_cmd)
+
+if __name__ == "__main__":
+    root_cmd()
+
