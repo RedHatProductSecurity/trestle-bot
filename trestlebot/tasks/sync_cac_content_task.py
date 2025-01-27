@@ -321,11 +321,9 @@ class SyncCacContentTask(TaskBase):
             implemented_req: The implemented requirement to add the response and statements to.
             control_response: The control response to add to the implemented requirement.
         """
-        # If control notes is unavailable, consider to use other input as replacement
-        # or a generic information.
-        control_response = control.notes
+        # REPLACE_ME is used as a generic string if no control notes
+        control_response = control.notes or REPLACE_ME
         pattern = re.compile(SECTION_PATTERN, re.IGNORECASE)
-
         sections_dict = self._build_sections_dict(control_response, pattern)
         oscal_status = OscalStatus.from_string(control.status)
 

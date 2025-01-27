@@ -7,6 +7,7 @@ from typing import Tuple
 
 from click.testing import CliRunner
 from git import Repo
+from trestle.common.const import REPLACE_ME
 from trestle.oscal.component import ComponentDefinition
 
 from tests.testutils import setup_for_catalog, setup_for_profile
@@ -148,16 +149,34 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     ]
     assert set_params_dict["var_sshd_set_keepalive"] == ["1"]
     assert set_params_dict["var_system_crypto_policy"] == ["fips"]
-    # Test the control status is populated to implemented_requirements
+
+    # Check implemented requirements are populated
     for implemented_req in ci.implemented_requirements:
-        for prop in implemented_req.props:
-            if prop.name == "implementation-status":
+        if implemented_req.control_id == "ac-1":
+            for prop in implemented_req.props:
+                assert prop.value == "implemented"
                 # Check mapping OscalStatus.IMPLEMENTED:CacStatus.AUTOMATED
-                if implemented_req.control_id == "ac-1":
+                if prop.name == "implementation-status":
                     assert prop.value == "implemented"
+            assert len(implemented_req.statements) == 2
+            assert (
+                implemented_req.statements[0].description
+                == "AC-1(a) is an organizational control outside "
+                "the scope of OpenShift configuration."
+            )
+            assert (
+                implemented_req.statements[1].description
+                == "AC-1(b) is an organizational control outside "
+                "the scope of OpenShift configuration."
+            )
+
+        if implemented_req.control_id == "ac-2":
+            for prop in implemented_req.props:
+                assert prop.value == "alternative"
                 # Check mapping OscalStatus.ALTERNATIVE:CacStatus.MANUAL
-                if implemented_req.control_id == "ac-2":
+                if prop.name == "implementation-status":
                     assert prop.value == "alternative"
+                    assert prop.remarks == REPLACE_ME
 
 
 def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) -> None:
