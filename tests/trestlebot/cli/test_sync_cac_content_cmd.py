@@ -7,6 +7,7 @@ from typing import Tuple
 
 from click.testing import CliRunner
 from git import Repo
+from trestle.common.const import REPLACE_ME
 from trestle.oscal.component import ComponentDefinition
 
 from tests.testutils import setup_for_catalog, setup_for_profile
@@ -123,7 +124,7 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     assert len(compdef.components) == 1
     component = compdef.components[0]
     assert component.title == "rhel8"
-    # Check rules component props
+    # Check rules component props are added
     assert len(component.props) == 24
     rule_ids = [p.value for p in component.props if p.name == "Rule_Id"]
     assert sorted(rule_ids) == [
@@ -131,12 +132,57 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
         "file_groupownership_sshd_private_key",
         "sshd_set_keepalive",
     ]
-    # Check parameters props
+    # Check parameters props are added
     param_ids = [p.value for p in component.props if p.name == "Parameter_Id"]
     assert sorted(list(set(param_ids))) == [
         "var_sshd_set_keepalive",
         "var_system_crypto_policy",
     ]
+
+    # Check control_implementations are attached
+    ci = component.control_implementations[0]
+    assert ci.source == "trestle://profiles/simplified_nist_profile/profile.json"
+    set_parameters = ci.set_parameters
+    assert len(set_parameters) == 2
+    set_params_ids = []
+    set_params_dict = {}
+    for param in set_parameters:
+        set_params_ids.append(param.param_id)
+        set_params_dict.update({param.param_id: param.values})
+    assert sorted(set_params_ids) == [
+        "var_sshd_set_keepalive",
+        "var_system_crypto_policy",
+    ]
+    assert set_params_dict["var_sshd_set_keepalive"] == ["1"]
+    assert set_params_dict["var_system_crypto_policy"] == ["fips"]
+
+    # Check implemented requirements are populated
+    for implemented_req in ci.implemented_requirements:
+        if implemented_req.control_id == "ac-1":
+            for prop in implemented_req.props:
+                assert prop.value == "implemented"
+                # Check mapping OscalStatus.IMPLEMENTED:CacStatus.AUTOMATED
+                if prop.name == "implementation-status":
+                    assert prop.value == "implemented"
+            assert len(implemented_req.statements) == 2
+            assert (
+                implemented_req.statements[0].description
+                == "AC-1(a) is an organizational control outside "
+                "the scope of OpenShift configuration."
+            )
+            assert (
+                implemented_req.statements[1].description
+                == "AC-1(b) is an organizational control outside "
+                "the scope of OpenShift configuration."
+            )
+
+        if implemented_req.control_id == "ac-2":
+            for prop in implemented_req.props:
+                assert prop.value == "alternative"
+                # Check mapping OscalStatus.ALTERNATIVE:CacStatus.MANUAL
+                if prop.name == "implementation-status":
+                    assert prop.value == "alternative"
+                    assert prop.remarks == REPLACE_ME
 
 
 def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) -> None:

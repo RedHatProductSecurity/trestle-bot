@@ -38,6 +38,8 @@ Below is a table of the available commands and their current availability as a G
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
+Also the available command `sync-cac-content` supports transforming the [Cac content](https://github.com/ComplianceAsCode/content) to OSCAL component definition in a trestle workspace. For detailed documentation on how to use, see the sync-cac-content.md under [docs/tutorials](./docs/tutorials/).  
+
 ### Supported Git Providers
 
 > Note: Only applicable if using `trestle-bot` to create pull requests. Automatically detecting the git
