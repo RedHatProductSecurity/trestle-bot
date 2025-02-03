@@ -5,6 +5,7 @@
 
 import logging
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from ssg.products import load_product_yaml, product_yaml_path
@@ -349,8 +350,17 @@ class RulesTransformer:
             rule_properties.extend(rule_set_props)
         return rule_properties
 
-def get_catalog_info() -> None:
-    """Get catalog info."""
+def get_catalog_info(control_name: str, cac_path: str) -> Dict:
+    """Get catalog from cac yml file via the SSG library."""
+    if control_name and cac_path:
+        product_yml_path = product_yaml_path(cac_path, product_name)
+        product = load_product_yaml(product_yml_path)
+        component_title = product._primary_data.get("product")
+        component_description = product._primary_data.get("full_name")
+        return (component_title, component_description)
+    else:
+        raise ValueError("component_title is empty or None")
+
     pass
 
 def update_catalog(catalog_file: Path) -> None:

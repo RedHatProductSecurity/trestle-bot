@@ -3,17 +3,24 @@
 
 
 """Trestle Bot functions for catalog authoring"""
-
+import json
+import logging
 import os
 import pathlib
 
+from trestle.common import const
 from trestle.common.err import TrestleError
+from trestle.core.generators import generate_sample_model
 from trestle.core.repository import AgileAuthoring
+from trestle.oscal.catalog import Catalog, Control
 
 from trestlebot.tasks.authored.base_authored import (
     AuthoredObjectBase,
     AuthoredObjectException,
 )
+from trestlebot.transformers.cac_transformer import update_catalog
+
+logger = logging.getLogger(__name__)
 
 
 class AuthoredCatalog(AuthoredObjectBase):
