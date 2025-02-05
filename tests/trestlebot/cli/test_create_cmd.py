@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Red Hat, Inc.
 
-""" Unit test for create commands ssp and cd"""
+"""Unit test for create commands ssp and cd"""
 import pathlib
 from typing import Tuple
 
