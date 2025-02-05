@@ -145,7 +145,7 @@ class SyncCacContentProfileTask(TaskBase):
             self.oscal_catalog, name_update, resolved_controls
         )
         if not written:
-            logger.info(f"No updated for profile {name_update}")
+            logger.info(f"No update for profile {name_update}")
 
     def execute(self) -> int:
         # calling to get_control_ids _by_level and checking for valid control file name
