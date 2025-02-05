@@ -14,7 +14,12 @@ from ssg.controls import Control, ControlsManager, Status
 from ssg.products import load_product_yaml, product_yaml_path
 from ssg.profiles import _load_yaml_profile_file, get_profiles_from_products
 from trestle.common.common_types import TypeWithParts, TypeWithProps
-from trestle.common.const import IMPLEMENTATION_STATUS, REPLACE_ME, TRESTLE_HREF_HEADING
+from trestle.common.const import (
+    IMPLEMENTATION_STATUS,
+    REPLACE_ME,
+    TRESTLE_GENERIC_NS,
+    TRESTLE_HREF_HEADING,
+)
 from trestle.common.list_utils import as_list, none_if_empty
 from trestle.common.model_utils import ModelUtils
 from trestle.core.catalog.catalog_interface import CatalogInterface
@@ -165,6 +170,8 @@ class SyncCacContentTask(TaskBase):
         self.controls: List[Control] = list()
         self.rules_by_id: Dict[str, RuleInfo] = dict()
 
+        self.cac_profile_id = os.path.basename(cac_profile).split(".profile")[0]
+
         self.profile_href: str = ""
         self.profile_path: str = ""
         self.profile = OSCALProfileHelper(pathlib.Path(working_dir))
@@ -174,9 +181,8 @@ class SyncCacContentTask(TaskBase):
     def _collect_rules(self) -> None:
         """Collect all rules from the product profile."""
         profiles = get_profiles_from_products(self.cac_content_root, [self.product])
-        cac_profile_id = os.path.basename(self.cac_profile).split(".profile")[0]
         for profile in profiles:
-            if profile.profile_id == cac_profile_id:
+            if profile.profile_id == self.cac_profile_id:
                 self.rules = profile.rules
                 break
 
@@ -434,6 +440,16 @@ class SyncCacContentTask(TaskBase):
                 all_implement_reqs.append(implemented_req)
         ci.implemented_requirements = all_implement_reqs
         self._add_set_parameters(ci)
+
+        # Add framework prop for complytime consumption. This should be the
+        # orginationing CaC profile name.
+        ci.props = as_list(ci.props)
+        frameworkProp = generate_sample_model(Property)
+        frameworkProp.name = const.FRAMEWORK_SHORT_NAME
+        frameworkProp.value = self.cac_profile_id
+        frameworkProp.ns = TRESTLE_GENERIC_NS
+        ci.props.append(frameworkProp)
+
         return ci
 
     def _add_control_implementations(
