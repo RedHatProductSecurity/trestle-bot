@@ -143,7 +143,7 @@ class E2ETestRunner:
             "--pod",
             E2ETestRunner.TRESTLEBOT_TEST_POD_NAME,
             "--entrypoint",
-            f"trestlebot-{command_name}",
+            "trestlebot",
             "--restart",
             "never",
         ]
@@ -160,9 +160,16 @@ class E2ETestRunner:
                 "-w",
                 "/trestle",
                 self.trestlebot_image,
+            ]
+        )
+        command_nodes = command_name.split()
+        command.extend(
+            command_nodes
+            + [
                 *args_dict_to_list(command_args),
             ]
         )
+
         return command
 
     def invoke_command(

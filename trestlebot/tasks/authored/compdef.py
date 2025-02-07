@@ -4,6 +4,7 @@
 
 """Trestle Bot functions for component definition authoring"""
 
+import logging
 import os
 import pathlib
 from typing import Callable, List, Optional
@@ -28,6 +29,9 @@ from trestlebot.transformers.trestle_rule import (
     TrestleRule,
 )
 from trestlebot.transformers.yaml_transformer import FromRulesYAMLTransformer
+
+
+logger = logging.getLogger(__name__)
 
 
 class FilterByProfile:

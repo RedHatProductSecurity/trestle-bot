@@ -36,8 +36,8 @@ test_comp_name = "test_comp"
             "success/happy path",
             {
                 "branch": "test",
-                "markdown-path": "md_comp",
-                "rules-view-path": RULES_VIEW_DIR,
+                "markdown-dir": "md_comp",
+                "rules-view-dir": RULES_VIEW_DIR,
                 "committer-name": "test",
                 "committer-email": "test@email.com",
             },
@@ -46,8 +46,8 @@ test_comp_name = "test_comp"
             "success/happy path with model skipping",
             {
                 "branch": "test",
-                "rules-view-path": RULES_VIEW_DIR,
-                "markdown-path": "md_comp",
+                "rules-view-dir": RULES_VIEW_DIR,
+                "markdown-dir": "md_comp",
                 "committer-name": "test",
                 "committer-email": "test",
                 "skip-items": test_comp_name,
@@ -101,7 +101,7 @@ def test_rules_transform_e2e(
                 "component-title": "test-comp",
                 "compdef-name": "test-compdef",
                 "component-description": "test",
-                "markdown-path": "markdown",
+                "markdown-dir": "markdown",
                 "branch": "test",
                 "committer-name": "test",
                 "committer-email": "test@email.com",
@@ -114,7 +114,7 @@ def test_rules_transform_e2e(
                 "component-title": "test-comp",
                 "compdef-name": "test-compdef",
                 "component-description": "test",
-                "markdown-path": "markdown",
+                "markdown-dir": "markdown",
                 "branch": "test",
                 "committer-name": "test",
                 "committer-email": "test@email.com",
@@ -129,7 +129,7 @@ def test_create_cd_e2e(
     test_name: str,
     command_args: Dict[str, str],
 ) -> None:
-    """Test the trestlebot create-cd command."""
+    """Test the trestlebot create compdef command."""
     logger.info(f"Running test: {test_name}")
 
     tmp_repo_str, _ = tmp_repo
@@ -139,7 +139,9 @@ def test_create_cd_e2e(
     _ = setup_for_profile(tmp_repo_path, test_prof, "")
     load_from_json(tmp_repo_path, test_filter_prof, test_filter_prof, Profile)
 
-    command = e2e_runner.build_test_command(tmp_repo_str, "create-cd", command_args)
+    command = e2e_runner.build_test_command(
+        tmp_repo_str, "create compdef", command_args
+    )
     exit_code, _, _ = e2e_runner.invoke_command(command, tmp_repo_path)
     assert exit_code == SUCCESS_EXIT_CODE
 
@@ -151,7 +153,7 @@ def test_create_cd_e2e(
         FileContentType.JSON,
     )
     assert comp_path.exists()
-    assert (tmp_repo_path / command_args["markdown-path"]).exists()
+    assert (tmp_repo_path / command_args["markdown-dir"]).exists()
     assert (
         tmp_repo_path
         / RULES_VIEW_DIR
