@@ -29,14 +29,16 @@ The `sync-cac-catalog` command can be used to create or update a [OSCAL System S
 
 Below is a table of the available commands and their current availability as a GitHub Action:
 
-| Command            | Available as a GitHub Action |
-|--------------------|------------------------------|
-| `autosync`         | &#10003;                     |
-| `rules-transform`  | &#10003;                     |                   
-| `create-cd`        | &#10003;                     |
-| `sync-upstreams`   | &#10003;                     |
-| `create-ssp`       |                              |
-| `sync-cac-catalog` |                              |
+| Command                    | Available as a GitHub Action |
+|----------------------------|------------------------------|
+| `autosync`                 | &#10003;                     |
+| `rules-transform`          | &#10003;                     |                   
+| `create-cd`                | &#10003;                     |
+| `sync-upstreams`           | &#10003;                     |
+| `create-ssp`               |                              |
+| `sync-cac-content`         |                              |
+| `sync-cac-content-profile` |                              |
+| `sync-cac-catalog`         |                              |
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
