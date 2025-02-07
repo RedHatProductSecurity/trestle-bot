@@ -40,10 +40,9 @@ jobs:
           component_title: ${{ github.event.inputs.component_title }}
           component_type: ${{ github.event.inputs.component_type }}
           component_description: ${{ github.event.inputs.component_description }}
-          markdown_path: "markdown/component-definitions"
+          markdown_dir: "markdown/component-definitions"
           branch: "create-component-definition-${{ github.run_id }}"
           target_branch: "main"
-          file_pattern: "*.json,markdown/*,rules/*"
+          file_patterns: "*.json,markdown/*,rules/*"
           commit_message: "adds component  ${{ github.event.inputs.component_title }} in ${{ github.event.inputs.component_definition_name }}"
-          pull_request_title: "Add component ${{ github.event.inputs.component_title }} to ${{ github.event.inputs.component_definition_name }}"
           github_token: ${{ secrets.GITHUB_TOKEN }}

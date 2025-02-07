@@ -67,3 +67,20 @@ controls:
     rules:
       - configure_crypto_policy
       - var_system_crypto_policy=future
+
+  - id: AC-1
+    status: automated
+    notes: |-
+      Section a: AC-1(a) is an organizational control outside the scope of OpenShift configuration.
+
+      Section b: AC-1(b) is an organizational control outside the scope of OpenShift configuration.
+    rules: []
+    title: >-
+      AC-1 - ACCESS CONTROL POLICY AND PROCEDURES
+    levels:
+      - low
+  
+  - id: AC-2
+    status: manual
+    levels:
+      - medium

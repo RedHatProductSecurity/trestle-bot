@@ -36,7 +36,7 @@ For this tutorial example, we will be authoring a component-definition.
 1a. Running trestlebot init using a locally installed trestlebot:
 
 ```
-trestlebot-init --oscal-model compdef --working-dir <path-to-your-repo>
+trestlebot init --repo-path <path-to-your-repo>
 ```
 
 1b. Running trestlebot init using a trestle-bot container image:
@@ -56,13 +56,14 @@ podman run -v <path-to-your-repo>:/data:Z  trestle-bot:<tag> --oscal-model compd
 
 ```bash
 .
+├── assessment-plans
+├── assessment-results
 ├── catalogs
 ├── component-definitions
-├── markdown 
+├── markdown
+├── plan-of-action-and-milestones
 ├── profiles
-├── rules
-├── .trestle
-└── .trestlebot
+└── system-security-plans
 ```
 
 2. Any catalog or profile content needed for the authoring process can now be added.

@@ -1,0 +1,32 @@
+---
+policy: 1234 Benchmark for securing systems with levels
+title: 1234 Benchmark for securing systems with levels
+id: 1234-levels
+version: 1.2.3
+source: https://www.abcd.com/linux.pdf
+levels:
+  - id: low
+  - id: medium
+    inherits_from:
+      - low
+  - id: high
+    inherits_from:
+      - medium
+
+controls:
+  - id: AC-1
+    title: User session timeout
+
+  - id: AC-2
+    levels:
+      - low
+    rules:
+      - var_password_pam_minlen=1
+
+  - id: AC-2(3)
+    levels:
+      - medium
+
+  - id: AC-2(5)
+    levels:
+      - high
