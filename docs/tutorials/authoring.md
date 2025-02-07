@@ -4,7 +4,7 @@ This tutorial provides an overview of the authoring process using `trestlebot`. 
 
 ## 1. Prerequisites
 
-- Complete the [GitHub tutorial](https://redhatproductsecurity.github.io/trestle-bot/tutorials/github/)
+- Complete the [GitHub tutorial](https://complytime.github.io/trestle-bot/tutorials/github/)
 
 
 ## 2. Edit in Markdown
