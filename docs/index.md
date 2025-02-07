@@ -32,7 +32,7 @@ Below is a table of the available commands and their current availability as a G
 | Command                    | Available as a GitHub Action |
 |----------------------------|------------------------------|
 | `autosync`                 | &#10003;                     |
-| `rules-transform`          | &#10003;                     |                   
+| `rules-transform`          | &#10003;                     |
 | `create-cd`                | &#10003;                     |
 | `sync-upstreams`           | &#10003;                     |
 | `create-ssp`               |                              |
