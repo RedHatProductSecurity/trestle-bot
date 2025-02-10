@@ -4,8 +4,6 @@
 """Module for sync cac content command"""
 import logging
 import os
-import sys
-import traceback
 from typing import Any, List
 
 import click
@@ -15,7 +13,6 @@ from trestle.core.models.file_content_type import FileContentType
 
 from trestlebot.cli.options.common import common_options, git_options, handle_exceptions
 from trestlebot.cli.utils import run_bot
-from trestlebot.const import ERROR_EXIT_CODE
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.tasks.sync_cac_content_profile_task import SyncCacContentProfileTask
@@ -25,8 +22,17 @@ from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 logger = logging.getLogger(__name__)
 
 
-@click.command(
-    name="sync-cac-content",
+@click.group(name="sync-cac-content", help="Transform cac content to OSCAL models")
+@click.pass_context
+@handle_exceptions
+def sync_cac_content_cmd(ctx: click.Context) -> None:
+    """
+    Command to transform cac content to OSCAL models
+    """
+
+
+@sync_cac_content_cmd.command(
+    name="component-definition",
     help="Transform CaC content to component definition in OSCAL.",
 )
 @click.pass_context
@@ -62,7 +68,7 @@ logger = logging.getLogger(__name__)
     required=False,
     default="service",
 )
-def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
+def sync_content_to_component_definition_cmd(ctx: click.Context, **kwargs: Any) -> None:
     """Transform CaC content to OSCAL component definition."""
 
     product = kwargs["product"]
@@ -72,28 +78,22 @@ def sync_cac_content_cmd(ctx: click.Context, **kwargs: Any) -> None:
     oscal_profile = kwargs["oscal_profile"]
     working_dir = str(kwargs["repo_path"].resolve())
 
-    try:
-        pre_tasks: List[TaskBase] = []
-        sync_cac_content_task = SyncCacContentTask(
-            product,
-            cac_profile,
-            cac_content_root,
-            component_definition_type,
-            oscal_profile,
-            working_dir,
-        )
-        pre_tasks.append(sync_cac_content_task)
-        results = run_bot(pre_tasks, kwargs)
-        logger.debug(f"Trestlebot results: {results}")
-    except Exception as e:
-        traceback_str = traceback.format_exc()
-        logger.error(f"Trestle-bot Error: {str(e)}")
-        logger.debug(traceback_str)
-        sys.exit(ERROR_EXIT_CODE)
+    pre_tasks: List[TaskBase] = []
+    sync_cac_content_task = SyncCacContentTask(
+        product,
+        cac_profile,
+        cac_content_root,
+        component_definition_type,
+        oscal_profile,
+        working_dir,
+    )
+    pre_tasks.append(sync_cac_content_task)
+    results = run_bot(pre_tasks, kwargs)
+    logger.debug(f"Trestlebot results: {results}")
 
 
-@click.command(
-    name="sync-cac-content-profile",
+@sync_cac_content_cmd.command(
+    name="profile",
     help="Authoring Oscal Profiles by level with synced CaC content.",
 )
 @click.pass_context

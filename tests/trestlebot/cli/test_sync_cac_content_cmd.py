@@ -14,6 +14,7 @@ from tests.testutils import setup_for_catalog, setup_for_profile
 from trestlebot.cli.commands.sync_cac_content import (
     sync_cac_content_cmd,
     sync_cac_content_profile_cmd,
+    sync_content_to_component_definition_cmd,
 )
 
 
@@ -30,6 +31,15 @@ test_level = "low"
 tester_prof_path = f"profiles/{test_policy_id}-{test_level}/profiles.json"
 
 
+def test_invalid_sync_cac_cmd() -> None:
+    """Tests that sync-cac-content command fails if given invalid subcommand."""
+    runner = CliRunner()
+    result = runner.invoke(sync_cac_content_cmd, ["invalid"])
+
+    assert "Error: No such command 'invalid'" in result.output
+    assert result.exit_code == 2
+
+
 def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
     """Tests missing required options in sync-cac-content command."""
 
@@ -38,7 +48,7 @@ def test_missing_required_option(tmp_repo: Tuple[str, Repo]) -> None:
 
     runner = CliRunner()
     result = runner.invoke(
-        sync_cac_content_cmd,
+        sync_content_to_component_definition_cmd,
         [
             "--product",
             test_product,
@@ -61,7 +71,7 @@ def test_non_existent_product(tmp_repo: Tuple[str, Repo]) -> None:
 
     runner = CliRunner()
     result = runner.invoke(
-        sync_cac_content_cmd,
+        sync_content_to_component_definition_cmd,
         [
             "--product",
             "non-exist",
@@ -93,7 +103,7 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
 
     runner = CliRunner()
     result = runner.invoke(
-        sync_cac_content_cmd,
+        sync_content_to_component_definition_cmd,
         [
             "--product",
             test_product,
@@ -194,7 +204,7 @@ def test_sync_product_create_validation_component(tmp_repo: Tuple[str, Repo]) ->
 
     runner = CliRunner()
     result = runner.invoke(
-        sync_cac_content_cmd,
+        sync_content_to_component_definition_cmd,
         [
             "--product",
             test_product,

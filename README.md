@@ -26,19 +26,23 @@ The `sync-upstreams` command can be used to sync and validate upstream OSCAL con
 
 The `create ssp` command can be used to create a new [OSCAL System Security Plans](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/system-security-plan/json-outline/) (SSP) in a trestle workspace. The action will create a new SSP JSON file and corresponding directories that contain trestle-generated Markdown files. This action prepares the workspace for use with the `autosync` action by creating or updating the `ssp-index.json` file. The `ssp-index.json` file is used to track the relationships between the SSP and the other OSCAL content in the workspace for the `autosync` action.
 
+The `sync-cac-content` command supports transforming the [Cac content](https://github.com/ComplianceAsCode/content) to OSCAL models in a trestle workspace. For detailed documentation on how to use, see the [sync-cac-content.md](./docs/tutorials/sync-cac-content.md).  
+
+
 Below is a table of the available commands and their current availability as a GitHub Action:
 
-| Command           | Available as a GitHub Action |
-|-------------------|------------------------------|
-| `autosync`        | &#10003;                     |
-| `rules-transform` | &#10003;                     |                   
-| `create compdef`  | &#10003;                     |
-| `sync-upstreams`  | &#10003;                     |
-| `create ssp`      |                              |
+| Command                                 | Available as a GitHub Action |
+|-----------------------------------------|------------------------------|
+| `autosync`                              | &#10003;                     |
+| `rules-transform`                       | &#10003;                     |                   
+| `create compdef`                        | &#10003;                     |
+| `sync-upstreams`                        | &#10003;                     |
+| `create ssp`                            |                              |
+| `sync-cac-content component-definition` |                              |
+| `sync-cac-content profile`              |                              |
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
-Also the available command `sync-cac-content` supports transforming the [Cac content](https://github.com/ComplianceAsCode/content) to OSCAL component definition in a trestle workspace. For detailed documentation on how to use, see the sync-cac-content.md under [docs/tutorials](./docs/tutorials/).  
 
 ### Supported Git Providers
 
