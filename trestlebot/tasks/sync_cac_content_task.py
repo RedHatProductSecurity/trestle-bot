@@ -7,18 +7,16 @@ import logging
 import os
 import pathlib
 import re
-from typing import Dict, List, Optional, Pattern, Set
+from typing import Dict, List, Optional, Pattern
 
 # from ssg.products import get_all
 from ssg.controls import Control, ControlsManager, Status
 from ssg.products import load_product_yaml, product_yaml_path
 from ssg.profiles import _load_yaml_profile_file, get_profiles_from_products
-from trestle.common.common_types import TypeWithParts, TypeWithProps
+from trestle.common.common_types import TypeWithProps
 from trestle.common.const import IMPLEMENTATION_STATUS, REPLACE_ME, TRESTLE_HREF_HEADING
 from trestle.common.list_utils import as_list, none_if_empty
 from trestle.common.model_utils import ModelUtils
-from trestle.core.catalog.catalog_interface import CatalogInterface
-from trestle.core.control_interface import ControlInterface
 from trestle.core.generators import generate_sample_model
 from trestle.core.models.file_content_type import FileContentType
 from trestle.core.profile_resolver import ProfileResolver
@@ -34,6 +32,7 @@ from trestle.oscal.component import (
 )
 
 from trestlebot import const
+from trestlebot.tasks.authored.profile import CatalogControlResolver
 from trestlebot.tasks.base_task import TaskBase
 from trestlebot.transformers.cac_transformer import (
     RuleInfo,
@@ -85,63 +84,6 @@ class OscalStatus:
     STATUSES = {PLANNED, NOT_APPLICABLE, ALTERNATIVE, IMPLEMENTED, PARTIAL}
 
 
-class OSCALProfileHelper:
-    """Helper class to handle OSCAL profile."""
-
-    def __init__(self, trestle_root: pathlib.Path) -> None:
-        """Initialize."""
-        self._root = trestle_root
-        self.profile_controls: Set[str] = set()
-        self.controls_by_label: Dict[str, str] = dict()
-
-    def load(self, profile_path: str) -> None:
-        """Load the profile catalog."""
-        profile_resolver = ProfileResolver()
-        resolved_catalog: Catalog = profile_resolver.get_resolved_profile_catalog(
-            self._root,
-            profile_path,
-            block_params=False,
-            params_format="[.]",
-            show_value_warnings=True,
-        )
-
-        for control in CatalogInterface(resolved_catalog).get_all_controls_from_dict():
-            self.profile_controls.add(control.id)
-            label = ControlInterface.get_label(control)
-            if label:
-                self.controls_by_label[label] = control.id
-                self._handle_parts(control)
-
-    def _handle_parts(
-        self,
-        control: TypeWithParts,
-    ) -> None:
-        """Handle parts of a control."""
-        if control.parts:
-            for part in control.parts:
-                if not part.id:
-                    continue
-                self.profile_controls.add(part.id)
-                label = ControlInterface.get_label(part)
-                # Avoiding key collision here. The higher level control object will take
-                # precedence.
-                if label and label not in self.controls_by_label.keys():
-                    self.controls_by_label[label] = part.id
-                self._handle_parts(part)
-
-    def validate(self, control_id: str) -> Optional[str]:
-        """Validate that the control id exists in the catalog and return the id"""
-        if control_id in self.controls_by_label.keys():
-            logger.debug(f"Found control {control_id} in control labels")
-            return self.controls_by_label.get(control_id)
-        elif control_id in self.profile_controls:
-            logger.debug(f"Found control {control_id} in profile control ids")
-            return control_id
-
-        logger.debug(f"Control {control_id} does not exist in the profile")
-        return None
-
-
 class SyncCacContentTask(TaskBase):
     """Sync CaC content to OSCAL component definition task."""
 
@@ -167,7 +109,7 @@ class SyncCacContentTask(TaskBase):
 
         self.profile_href: str = ""
         self.profile_path: str = ""
-        self.profile = OSCALProfileHelper(pathlib.Path(working_dir))
+        self.catalog_helper = CatalogControlResolver()
 
         super().__init__(working_dir, None)
 
@@ -331,7 +273,7 @@ class SyncCacContentTask(TaskBase):
             self._add_response_by_status(implemented_req, oscal_status, REPLACE_ME)
             implemented_req.statements = list()
             for section_label, section_content in sections_dict.items():
-                statement_id = self.profile.validate(
+                statement_id = self.catalog_helper.get_id(
                     f"{implemented_req.control_id}_smt.{section_label}"
                 )
                 if statement_id is None:
@@ -404,7 +346,7 @@ class SyncCacContentTask(TaskBase):
         """Create implemented requirement from a control object"""
 
         logger.info(f"Creating implemented requirement for {control.id}")
-        control_id = self.profile.validate(control.id)
+        control_id = self.catalog_helper.get_id(control.id)
         if control_id:
             implemented_req = generate_sample_model(ImplementedRequirement)
             implemented_req.control_id = control_id
@@ -441,7 +383,16 @@ class SyncCacContentTask(TaskBase):
     ) -> DefinedComponent:
         """Add control implementations to OSCAL component."""
         self._get_source(self.oscal_profile)
-        self.profile.load(self.profile_path)
+        profile_resolver = ProfileResolver()
+        resolved_catalog: Catalog = profile_resolver.get_resolved_profile_catalog(
+            pathlib.Path(self.working_dir),
+            self.profile_path,
+            block_params=False,
+            params_format="[.]",
+            show_value_warnings=True,
+        )
+        self.catalog_helper.load(resolved_catalog)
+
         control_implementation: ControlImplementation = (
             self._create_control_implementation()
         )

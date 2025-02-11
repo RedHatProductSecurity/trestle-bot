@@ -11,6 +11,7 @@ from copy import deepcopy
 from typing import Dict, List, Optional, Set, Type
 
 import trestle.core.generators as gens
+import trestle.oscal.catalog as cat
 import trestle.oscal.profile as prof
 from trestle.common import const
 from trestle.common.common_types import TypeWithParts
@@ -236,15 +237,13 @@ class AuthoredProfile(AuthoredObjectBase):
 class CatalogControlResolver:
     """Helper class find control ids in OSCAL catalogs based on the label property."""
 
-    def __init__(self, trestle_root: pathlib.Path) -> None:
+    def __init__(self) -> None:
         """Initialize."""
-        self._root = trestle_root
         self.all_controls: Set[str] = set()
         self._controls_by_label: Dict[str, str] = dict()
 
-    def load(self, catalog_path: pathlib.Path) -> None:
+    def load(self, catalog: cat.Catalog) -> None:
         """Load the catalog."""
-        catalog = load_validate_model_path(self._root, catalog_path)
         for control in CatalogInterface(catalog).get_all_controls_from_dict():
             self.all_controls.add(control.id)
             label = ControlInterface.get_label(control)
