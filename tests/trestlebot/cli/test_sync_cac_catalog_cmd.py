@@ -5,18 +5,14 @@
 import pathlib
 from typing import Any, Generator, Tuple
 
-import click
 from click import BaseCommand
 from click.testing import CliRunner
 from git import Repo
 from ssg.controls import Policy
-from trestle.common.model_utils import ModelUtils
-from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.catalog import Catalog, Control
 
 from tests.testutils import TEST_DATA_DIR, setup_for_catalog, setup_for_profile
 from trestlebot.cli.commands.sync_cac_catalog import sync_cac_catalog_cmd
-from trestlebot.tasks.sync_cac_catalog_task import SyncCacCatalogTask
 
 
 test_product = "rhel8"
@@ -43,7 +39,7 @@ def test_sync_catalog_create(tmp_repo: Tuple[str, Repo]) -> None:
             test_content_dir,
             "--repo-path",
             str(repo_path.resolve()),
-            "--cac-control",
+            "--policy-id",
             test_cac_control,
             "--oscal-catalog",
             test_cac_control,
@@ -83,7 +79,7 @@ def test_sync_catalog_create_real(tmp_repo: Tuple[str, Repo]) -> None:
 
     runner = CliRunner()
     assert isinstance(sync_cac_catalog_cmd, BaseCommand)
-    ocp4_policy = "simplified_nist_ocp4"
+    ocp4_policy = "nist_ocp4"
     result = runner.invoke(
         sync_cac_catalog_cmd,
         [
@@ -91,7 +87,7 @@ def test_sync_catalog_create_real(tmp_repo: Tuple[str, Repo]) -> None:
             test_content_dir,
             "--repo-path",
             str(repo_path.resolve()),
-            "--cac-control",
+            "--policy-id",
             ocp4_policy,
             "--oscal-catalog",
             ocp4_policy,
@@ -108,7 +104,7 @@ def test_sync_catalog_create_real(tmp_repo: Tuple[str, Repo]) -> None:
     assert result.exit_code == 0, result.output
 
     # Source
-    policy = Policy(test_content_dir / "controls" / f"{ocp4_policy}.yml")
+    policy = Policy(test_content_dir / "controls/simplified_nist_ocp4.yml")
     policy.load()
 
     # Destination
@@ -131,7 +127,7 @@ def test_sync_catalog_create_real(tmp_repo: Tuple[str, Repo]) -> None:
 
     assert sum(1 for _ in flatten_nested_controls(catalog_obj.groups)) == len(
         policy.controls
-    )
+    ), "Unexpected control count. Do you have multiple policy files with the same policy id?"
 
 
 def test_sync_catalog_update(tmp_repo: Tuple[str, Repo]) -> None:
@@ -142,7 +138,7 @@ def test_sync_catalog_update(tmp_repo: Tuple[str, Repo]) -> None:
 
     runner = CliRunner()
     assert isinstance(sync_cac_catalog_cmd, BaseCommand)
-    test_cac_control = "simplified_nist_ocp4"
+    test_cac_control = "nist_ocp4"
     result = runner.invoke(
         sync_cac_catalog_cmd,
         [
@@ -150,7 +146,7 @@ def test_sync_catalog_update(tmp_repo: Tuple[str, Repo]) -> None:
             test_content_dir,
             "--repo-path",
             str(repo_path.resolve()),
-            "--cac-control",
+            "--policy-id",
             test_cac_control,
             "--oscal-catalog",
             test_cat,

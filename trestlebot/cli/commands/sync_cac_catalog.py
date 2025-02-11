@@ -31,9 +31,9 @@ logger = logging.getLogger(__name__)
     required=True,
 )
 @click.option(
-    "--cac-control",
+    "--policy-id",
     type=str,
-    help="Name of the CaC control file.",
+    help="Policy id for source control file.",
     required=True,
 )
 @click.option(
@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 def sync_cac_catalog_cmd(
     ctx: click.Context,
     cac_content_root: Path,
-    cac_control: str,
+    policy_id: str,
     oscal_catalog: str,
     **kwargs: Any,
 ) -> None:
@@ -54,7 +54,7 @@ def sync_cac_catalog_cmd(
     pre_tasks: List[TaskBase] = []
     sync_cac_content_task = SyncCacCatalogTask(
         cac_content_root=cac_content_root,
-        cac_control=cac_control,
+        policy_id=policy_id,
         oscal_catalog=oscal_catalog,
         working_dir=working_dir,
     )

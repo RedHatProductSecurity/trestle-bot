@@ -123,34 +123,33 @@ class SyncCacCatalogTask(TaskBase):
     """Sync CaC policy controls to OSCAL catalog task."""
 
     cac_content_root: pathlib.Path
-    cac_control: str
+    policy_id: str
     oscal_catalog: str
 
     def __init__(
         self,
         cac_content_root: pathlib.Path,
-        cac_control: str,
+        policy_id: str,
         oscal_catalog: str,
         working_dir: str,
     ) -> None:
         """Initialize CaC catalog sync task."""
         super().__init__(working_dir, None)
         self.cac_content_root = cac_content_root
-        self.cac_control = cac_control  # example: nist_rev5_800_53
+        self.policy_id = policy_id
         self.oscal_catalog = oscal_catalog
         self.rules: List[str] = []
 
     def _load_policy_controls(self) -> Policy:
-        # Old approach: use ControlsManager to load all policies
-        # (if any policy fails to load, the sync fails)
-        # controls_manager = ControlsManager(controls_dir.resolve().as_posix())
-        # New approach: load single Policy file
-        controls_dir = self.cac_content_root / "controls"
-        policy_yaml = controls_dir / f"{self.cac_control}.yml"
-        if not policy_yaml.exists():
-            raise Exception(f"Policy {policy_yaml} does not exist")
-        policy = Policy(policy_yaml)
-        policy.load()
+        """Load a CaC policy."""
+        cac_controls_path = self.cac_content_root / "controls"
+        control_manager = ControlsManager(str(cac_controls_path))
+        try:
+            control_manager.load()
+        except Exception as e:
+            logger.info("Failed to load CaC policy controls", exc_info=e)
+            raise e
+        policy = control_manager._get_policy(self.policy_id)
         return policy
 
     def _sync_catalog(
@@ -247,12 +246,12 @@ class SyncCacCatalogTask(TaskBase):
         repo_path = pathlib.Path(self.working_dir)
         oscal_json = repo_path / "catalogs" / self.oscal_catalog / "catalog.json"
         if oscal_json.exists():
-            logger.info(f"The catalog for {self.cac_control} exists.")
+            logger.info(f"The catalog for {self.policy_id} exists.")
             oscal_catalog = Catalog.oscal_read(oscal_json)
         else:
-            logger.info(f"Creating catalog {self.cac_control}")
+            logger.info(f"Creating catalog {self.policy_id}")
             oscal_catalog = generate_sample_model(Catalog)
-            oscal_catalog.metadata.title = f"Catalog for {self.cac_control}"
+            oscal_catalog.metadata.title = f"Catalog for {self.policy_id}"
             oscal_catalog.params = []
             oscal_catalog.groups = []
             # oscal_catalog.back_matter = None
