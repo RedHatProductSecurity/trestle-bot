@@ -43,7 +43,9 @@ def sync_cac_content_cmd(ctx: click.Context) -> None:
 @click.option(
     "--cac-content-root",
     help="Root of the CaC content project.",
-    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=pathlib.Path),
+    type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, path_type=pathlib.Path
+    ),
     required=True,
 )
 @click.option(
