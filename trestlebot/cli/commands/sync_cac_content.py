@@ -4,6 +4,7 @@
 """Module for sync cac content command"""
 import logging
 import os
+import pathlib
 from typing import Any, List
 
 import click
@@ -15,6 +16,7 @@ from trestlebot.cli.options.common import common_options, git_options, handle_ex
 from trestlebot.cli.utils import run_bot
 from trestlebot.tasks.authored.profile import AuthoredProfile
 from trestlebot.tasks.base_task import TaskBase
+from trestlebot.tasks.sync_cac_catalog_task import SyncCacCatalogTask
 from trestlebot.tasks.sync_cac_content_profile_task import SyncCacContentProfileTask
 from trestlebot.tasks.sync_cac_content_task import SyncCacContentTask
 
@@ -29,6 +31,54 @@ def sync_cac_content_cmd(ctx: click.Context) -> None:
     """
     Command to transform cac content to OSCAL models
     """
+
+
+@sync_cac_content_cmd.command(
+    name="catalog",
+    help="Transform CaC profile to OSCAL catalog.",
+)
+@click.pass_context
+@common_options
+@git_options
+@click.option(
+    "--cac-content-root",
+    help="Root of the CaC content project.",
+    type=click.Path(
+        exists=True, file_okay=False, dir_okay=True, path_type=pathlib.Path
+    ),
+    required=True,
+)
+@click.option(
+    "--policy-id",
+    type=str,
+    help="Policy id for source control file to transform from.",
+    required=True,
+)
+@click.option(
+    "--oscal-catalog",
+    type=str,
+    help="Name of the catalog in the trestle workspace.",
+    required=True,
+)
+def sync_cac_catalog_cmd(
+    ctx: click.Context,
+    cac_content_root: pathlib.Path,
+    policy_id: str,
+    oscal_catalog: str,
+    **kwargs: Any,
+) -> None:
+    """Transform CaC catalog to OSCAL catalog."""
+    working_dir = kwargs["repo_path"]  # From common_options
+    pre_tasks: List[TaskBase] = []
+    sync_cac_content_task = SyncCacCatalogTask(
+        cac_content_root=cac_content_root,
+        policy_id=policy_id,
+        oscal_catalog=oscal_catalog,
+        working_dir=working_dir,
+    )
+    pre_tasks.append(sync_cac_content_task)
+    result = run_bot(pre_tasks, kwargs)
+    logger.debug(f"Trestlebot results: {result}")
 
 
 @sync_cac_content_cmd.command(
