@@ -162,3 +162,5 @@ cython_debug/
 
 # Local VSCode
 .vscode/
+# local jetbrains IDE
+.idea
