@@ -7,6 +7,7 @@ from typing import List, Set
 
 from ssg.controls import Control, ControlsManager, Policy  # type: ignore
 from ssg.products import load_product_yaml, product_yaml_path
+from trestle.common.load_validate import load_validate_model_path
 
 from trestlebot import const
 from trestlebot.tasks.authored.profile import AuthoredProfile, CatalogControlResolver
@@ -50,7 +51,7 @@ class SyncCacContentProfileTask(TaskBase):
         self.filter_by_level = filter_by_level
         self.authored_profile = authored_profile
         working_dir = self.authored_profile.get_trestle_root()
-        self.catalog_helper = CatalogControlResolver(pathlib.Path(working_dir))
+        self.catalog_helper = CatalogControlResolver()
         super().__init__(working_dir=working_dir, model_filter=None)
 
     def get_control_ids_by_level(
@@ -149,7 +150,10 @@ class SyncCacContentProfileTask(TaskBase):
     def execute(self) -> int:
         # calling to get_control_ids _by_level and checking for valid control file name
         try:
-            self.catalog_helper.load(pathlib.Path(self.oscal_catalog))
+            catalog = load_validate_model_path(
+                pathlib.Path(self.working_dir), pathlib.Path(self.oscal_catalog)
+            )
+            self.catalog_helper.load(catalog)
             self.get_control_ids_by_level(self.policy_id, self.filter_by_level)
         except KeyError as e:
             raise TaskException(

@@ -8,6 +8,7 @@ import os
 import pathlib
 
 import pytest
+from trestle.common.load_validate import load_validate_model_path
 from trestle.common.model_utils import ModelUtils
 from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal.profile import CombinationMethodValidValues, Profile
@@ -124,8 +125,9 @@ def test_control_resolver(tmp_trestle_dir: str, input: str, response: str) -> No
     "Test the CatalogControlResolver class."
     trestle_root = pathlib.Path(tmp_trestle_dir)
     _ = testutils.setup_for_catalog(trestle_root, test_cat, test_cat)
-    c2l = CatalogControlResolver(trestle_root)
+    c2l = CatalogControlResolver()
     cat_path = trestle_root.joinpath("catalogs", test_cat, "catalog.json")
-    c2l.load(cat_path)
+    catalog = load_validate_model_path(trestle_root, pathlib.Path(cat_path))
+    c2l.load(catalog)
     result_id = c2l.get_id(input)
     assert result_id == response
