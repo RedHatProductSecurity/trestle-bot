@@ -14,7 +14,9 @@ from typing import List, Optional
 import ssg
 from ssg.controls import ControlsManager, Policy
 from trestle.common import const as common_const
+from trestle.common.model_utils import ModelUtils
 from trestle.core.generators import generate_sample_model
+from trestle.core.models.file_content_type import FileContentType
 from trestle.oscal import common
 from trestle.oscal.catalog import Catalog, Control, Group
 
@@ -246,7 +248,15 @@ class SyncCacCatalogTask(TaskBase):
     def _create_or_update_catalog(self, policy: Policy) -> None:
         """Create or update catalog for specified CaC profile."""
         repo_path = pathlib.Path(self.working_dir)
-        oscal_json = repo_path / "catalogs" / self.oscal_catalog / "catalog.json"
+        oscal_json = ModelUtils.get_model_path_for_name_and_class(
+            repo_path, self.oscal_catalog, Catalog, FileContentType.JSON
+        )
+        if oscal_json is None:
+            # Should never happen
+            raise RuntimeError(
+                "get_model_path_for_name_and_class()"
+                "was expected to return a Catalog, but the API changed."
+            )
         if oscal_json.exists():
             logger.info(f"The catalog for {self.policy_id} exists.")
             oscal_catalog = Catalog.oscal_read(oscal_json)
