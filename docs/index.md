@@ -25,9 +25,7 @@ The `sync-upstreams` command can be used to sync and validate upstream OSCAL con
 
 The `create-ssp` command can be used to create a new [OSCAL System Security Plans](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/system-security-plan/json-outline/) (SSP) in a trestle workspace. The action will create a new SSP JSON file and corresponding directories that contain trestle-generated Markdown files. This action prepares the workspace for use with the `autosync` action by creating or updating the `ssp-index.json` file. The `ssp-index.json` file is used to track the relationships between the SSP and the other OSCAL content in the workspace for the `autosync` action.
 
-The `sync-cac-content` command can be used to create or update an [OSCAL Component Definition](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) (Catalog) in a trestle workspace, based on SSG content.
-
-The `sync-cac-catalog` command can be used to create or update a [OSCAL Catalog](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/catalog/json-outline/) (Catalog) in a trestle workspace, based on a SSG Profile.
+The `sync-cac-content` command can be used to create or update an [OSCAL Catalog](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/catalog/json-outline/) (Catalog), an [OSCAL Profile](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/profile/json-outline/) (Component Definition), or an [OSCAL Component Definition](https://pages.nist.gov/OSCAL-Reference/models/v1.1.1/component-definition/json-outline/) (Component Definition) in a trestle workspace, based on SSG content.
 
 Below is a table of the available commands and their current availability as a GitHub Action:
 
@@ -39,8 +37,6 @@ Below is a table of the available commands and their current availability as a G
 | `sync-upstreams`           | &#10003;                     |
 | `create-ssp`               |                              |
 | `sync-cac-content`         |                              |
-| `sync-cac-content-profile` |                              |
-| `sync-cac-catalog`         |                              |
 
 For detailed documentation on how to use each action, see the README.md in each folder under [actions](./actions/).
 
