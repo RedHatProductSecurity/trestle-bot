@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import itertools
 import logging
 import os
 import pathlib
@@ -12,7 +13,7 @@ import re
 from typing import List, Optional
 
 import ssg
-from ssg.controls import ControlsManager, Policy
+from ssg.controls import Policy
 from trestle.common import const as common_const
 from trestle.common.model_utils import ModelUtils
 from trestle.core.generators import generate_sample_model
@@ -147,14 +148,22 @@ class SyncCacCatalogTask(TaskBase):
     def _load_policy_controls(self) -> Policy:
         """Load a CaC policy."""
         cac_controls_path = self.cac_content_root / "controls"
-        control_manager = ControlsManager(str(cac_controls_path))
-        try:
-            control_manager.load()
-        except Exception as e:
-            logger.info("Failed to load CaC policy controls", exc_info=e)
-            raise e
-        policy = control_manager._get_policy(self.policy_id)
-        return policy
+        for policy_yaml in itertools.chain(
+            cac_controls_path.rglob("*.yml", case_sensitive=False),
+            cac_controls_path.rglob("*.yaml", case_sensitive=False),
+        ):
+            if policy_yaml.is_file():
+                try:
+                    policy = Policy(policy_yaml)
+                    policy.load()
+                    if policy.id == self.policy_id:
+                        return policy
+                except Exception as e:
+                    logger.debug("Failed to load Policy %s", policy_yaml, exc_info=e)
+        raise RuntimeError(
+            "Failed to load CaC policy controls."
+            f" No policy with id {self.policy_id} found."
+        )
 
     def _sync_catalog(
         self,

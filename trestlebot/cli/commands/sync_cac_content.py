@@ -49,7 +49,7 @@ def sync_cac_content_cmd(ctx: click.Context) -> None:
 @click.option(
     "--policy-id",
     type=str,
-    help="Policy id for source control file.",
+    help="Policy id for source control file to transform from.",
     required=True,
 )
 @click.option(
