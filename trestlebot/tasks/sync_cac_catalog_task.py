@@ -75,7 +75,8 @@ def control_cac_to_oscal(
     else:
         sort_id = group_id
     oscal_control.props.append(
-        common.Property(name=common_const.LABEL, value=cac_control_id)
+        # Use original id to ease transforming back to CaC
+        common.Property(name=common_const.LABEL, value=cac_control.id)
     )
     oscal_control.props.append(
         common.Property(name=common_const.SORT_ID, value=sort_id)
