@@ -11,7 +11,7 @@ from git import Repo
 from ssg.controls import Policy
 from trestle.oscal.catalog import Catalog, Control
 
-from tests.testutils import TEST_DATA_DIR, setup_for_catalog, setup_for_profile
+from tests.testutils import TEST_DATA_DIR, setup_for_catalog
 from trestlebot.cli.commands.sync_cac_catalog import sync_cac_catalog_cmd
 
 
