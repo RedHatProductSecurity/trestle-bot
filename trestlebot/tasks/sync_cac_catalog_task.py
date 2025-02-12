@@ -31,7 +31,7 @@ def get_oscal_control_title(
     if not cac_control_title:
         return cac_control_id
     if cac_control_title.startswith(cac_control_id):  # No removeprefix in py3.8
-        title = cac_control_title[len(cac_control_id) :]
+        title = cac_control_title[len(cac_control_id):]
     else:
         title = cac_control_title
     title = re.sub(r"^\W*", "", title)
