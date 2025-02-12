@@ -25,6 +25,7 @@ from trestlebot.const import YAML_EXTENSION
 from trestlebot.entrypoints.log import configure_logger
 
 
+TEST_DATA_DIR = pathlib.Path(__file__).parent.resolve() / "data/"
 JSON_TEST_DATA_PATH = pathlib.Path(__file__).parent.resolve() / "data/json/"
 YAML_TEST_DATA_PATH = pathlib.Path(__file__).parent.resolve() / "data/yaml/"
 TEST_SSP_INDEX = JSON_TEST_DATA_PATH / "test_ssp_index.json"
