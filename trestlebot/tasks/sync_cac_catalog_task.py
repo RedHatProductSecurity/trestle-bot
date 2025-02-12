@@ -149,8 +149,8 @@ class SyncCacCatalogTask(TaskBase):
         """Load a CaC policy."""
         cac_controls_path = self.cac_content_root / "controls"
         for policy_yaml in itertools.chain(
-            cac_controls_path.rglob("*.yml", case_sensitive=False),
-            cac_controls_path.rglob("*.yaml", case_sensitive=False),
+            cac_controls_path.rglob("*.[Yy][Mm][Ll]"),
+            cac_controls_path.rglob("*.[Yy][Aa][Mm][Ll]"),
         ):
             if policy_yaml.is_file():
                 try:
