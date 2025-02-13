@@ -148,18 +148,22 @@ class TrestleBot:
     def _get_committed_files(self, commit: Commit) -> List[str]:
         """Get the list of committed files in the commit."""
         changes: List[str] = []
-        diffs = {diff.a_path: diff for diff in commit.parents[0].diff(commit)}
-        for path in commit.stats.files.keys():
-            diff = diffs.get(path, None)
-            if diff:
-                if diff.change_type == "A":
-                    changes.append(f"{path} [added]")
-                elif diff.change_type == "M":
-                    changes.append(f"{path} [modified]")
-                elif diff.change_type == "D":
-                    changes.append(f"{path} [deleted]")
-                elif diff.change_type == "R":
-                    changes.append(f"{path} [renamed]")
+        if commit.parents:
+            diffs = {diff.a_path: diff for diff in commit.parents[0].diff(commit)}
+            for path in commit.stats.files.keys():
+                diff = diffs.get(path, None)
+                if diff:
+                    if diff.change_type == "A":
+                        changes.append(f"{path} [added]")
+                    elif diff.change_type == "M":
+                        changes.append(f"{path} [modified]")
+                    elif diff.change_type == "D":
+                        changes.append(f"{path} [deleted]")
+                    elif diff.change_type == "R":
+                        changes.append(f"{path} [renamed]")
+        else:
+            for path in commit.stats.files.keys():
+                changes.append(f"{path} [added]")
         return changes
 
     def run(
