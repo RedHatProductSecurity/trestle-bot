@@ -1,0 +1,2436 @@
+policy: NIST
+title: Configuration Recommendations for the OpenShift Container Platform
+id: nist_ocp4
+version: Revision 4
+source: https://www.fedramp.gov/assets/resources/documents/FedRAMP_Security_Controls_Baseline.xlsx
+levels:
+- id: low
+- id: moderate
+- id: high
+controls:
+- id: AC-1
+  status: not applicable
+  notes: |-
+    Section a: AC-1(a) is an organizational control outside the scope of OpenShift configuration.
+
+    Section b: AC-1(b) is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+  description: "The organization:\n a. Develops, documents, and disseminates to [Assignment:\
+    \ organization-defined personnel or roles]:\n   1. An access control policy that\
+    \ addresses purpose, scope, roles, responsibilities, management commitment, coordination\
+    \ among organizational entities, and compliance; and\n   2. Procedures to facilitate\
+    \ the implementation of the access control policy and associated access controls;\
+    \ and\n b. Reviews and updates the current:\n   1. Access control policy [Assignment:\
+    \ organization-defined frequency]; and\n   2. Access control procedures [Assignment:\
+    \ organization-defined frequency].\n\nSupplemental Guidance: This control addresses\
+    \ the establishment of policy and procedures for the effective implementation\
+    \ of selected security controls and control enhancements in the AC family. Policy\
+    \ and procedures reflect applicable federal laws, Executive Orders, directives,\
+    \ regulations, policies, standards, and guidance. Security program policies and\
+    \ procedures at the organization level may make the need for system-specific policies\
+    \ and procedures unnecessary. The policy can be included as part of the general\
+    \ information security policy for organizations or conversely, can be represented\
+    \ by multiple policies reflecting the complex nature of certain organizations.\
+    \ The procedures can be established for the security program in general and for\
+    \ particular information systems, if needed. \n\nThe organizational risk management\
+    \ strategy is a key factor in establishing policy and procedures. Related control:\
+    \ PM-9.\nControl Enhancements: None.\nReferences: NIST Special Publications 800-12,\
+    \ 800-100.\n\nAC-1 (b) (1) [at least annually] \nAC-1 (b) (2) [at least annually\
+    \ or whenever a significant change occurs]"
+  title: >-
+    AC-1 - ACCESS CONTROL POLICY AND PROCEDURES
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-2
+  status: automated
+  notes: |-
+    Section a: AC-2(a) is an organizational control outside the scope of OpenShift configuration.
+
+    Section b: AC-2(b) is an organizational control outside the scope of OpenShift configuration.
+
+    Section c: AC-2(c) is an organizational control outside the scope of OpenShift configuration.
+
+    Section d: AC-2(d) is an organizational control outside the scope of OpenShift configuration.
+
+    Section e: AC-2(e) is an organizational control outside the scope of OpenShift configuration.
+
+    Section f: AC-2(f) is an organizational control outside the scope of OpenShift configuration.
+
+    Section g: AC-2(g) is an organizational control outside the scope of OpenShift configuration.
+
+    Section h: AC-2(h) is an organizational control outside the scope of OpenShift configuration.
+
+    Section i: AC-2(i) is an organizational control outside the scope of OpenShift configuration.
+
+    Section j: AC-2(j) is an organizational control outside the scope of OpenShift configuration.
+
+    Section k: AC-2(k) is an organizational control outside the scope of OpenShift configuration.
+  rules:
+  - idp_is_configured
+  description: |-
+    The organization:
+     a. Identifies and selects the following types of information system accounts to support organizational missions/business functions: [Assignment: organization-defined information system account types];
+     b. Assigns account managers for information system accounts;
+     c. Establishes conditions for group and role membership;
+     d. Specifies authorized users of the information system, group and role membership, and access authorizations (i.e., privileges) and other attributes (as required) for each account;
+     e. Requires approvals by [Assignment: organization-defined personnel or roles] for requests to create information system accounts;
+     f. Creates, enables, modifies, disables, and removes information system accounts in accordance with [Assignment: organization-defined procedures or conditions];
+     g. Monitors the use of, information system accounts;
+     h. Notifies account managers:
+       1. When accounts are no longer required;
+       2. When users are terminated or transferred; and
+       3. When individual information system usage or need-to-know changes;
+     i. Authorizes access to the information system based on:
+       1. A valid access authorization;
+       2. Intended system usage; and
+       3. Other attributes as required by the organization or associated missions/business functions;
+     j. Reviews accounts for compliance with account management requirements [Assignment: organization-defined frequency]; and
+     k. Establishes a process for reissuing shared/group account credentials (if deployed) when individuals are removed from the group.
+    Supplemental Guidance: Information system account types include individual, shared, group, system, guest/anonymous, emergency, developer/manufacturer/vendor, temporary, and service. Some of the account management requirements listed above can be implemented by organizational information systems. The identification of authorized users of the information system and the specification of access privileges reflects the requirements in other security controls in the security plan. Users requiring administrative privileges on information system accounts receive additional scrutiny by appropriate organizational personnel (e.g., system owner, mission/business owner, or chief information security officer) responsible for approving such accounts and privileged access. Organizations may choose to define access privileges or other attributes by account, by type of account, or a combination of both. Other attributes required for authorizing access include, for example, restrictions on time-of-day, day-of-week, and point-of-origin. In defining other account attributes, organizations consider system-related requirements (e.g., scheduled maintenance, system upgrades) and mission/business requirements, (e.g., time zone differences, customer requirements, remote access to support travel requirements). Failure to consider these factors could affect information system availability. Temporary and emergency accounts are accounts intended for short-term use. Organizations establish temporary accounts as a part of normal account activation procedures when there is a need for short-term accounts without the demand for immediacy in account activation. Organizations establish emergency accounts in response to crisis situations and with the need for rapid account activation. Therefore, emergency account activation may bypass normal account authorization processes. Emergency and temporary accounts are not to be confused with infrequently used accounts (e.g., local logon accounts used for special tasks defined by organizations or when network resources are unavailable). Such accounts remain available and are not subject to automatic disabling or removal dates. Conditions for disabling or deactivating accounts include, for example: (i) when shared/group, emergency, or temporary accounts are no longer required; or (ii) when individuals are transferred or terminated. Some types of information system accounts may require specialized training. Related controls: AC-3, AC-4, AC-5, AC-6, AC-10, AC-17, AC-19, AC-20, AU-9, IA-2, IA-4, IA-5, IA-8, CM-5, CM-6, CM-11, MA-3, MA-4, MA-5, PL-4, SC-13.
+
+    References: None.
+
+
+    AC-2 (j) [monthly for privileged accessed, every six (6) months for non-privileged access]
+  title: >-
+    AC-2 - ACCOUNT MANAGEMENT
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-2(1)
+  status: automated
+  notes: |-
+    OpenShift components of the system support automated
+    management through monitoring of accounts and system
+    activity by logging of related information.
+
+    While OpenShift can generate audit data, and securely
+    transport the data to a SIEM, OpenShift does not provide
+    automated mechanisms (e.g. email, text messages) after
+    system events. This functionality would fall to third
+    party software such as an Identity Provider (IdP),
+    Active Directory (MSAD), LDAP, etc.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+
+    Note that the using the htpasswd IDP type cannot cover this
+    control, therefore using htpasswd based IDPs should render
+    the system non-compliant.
+  rules:
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: |-
+    The organization employs automated mechanisms to support the management of information system accounts.
+
+    Supplemental Guidance: The use of automated mechanisms can include, for example: using email or text messaging to automatically notify account managers when users are terminated or transferred; using the information system to monitor account usage; and using telephonic notification to report atypical system account usage.
+  title: >-
+    AC-2(1) - ACCOUNT MANAGEMENT | AUTOMATED SYSTEM ACCOUNT MANAGEMENT
+  levels:
+  - high
+  - moderate
+- id: AC-2(2)
+  status: automated
+  notes: |-
+    OpenShift does not have the capability to create
+    guest/anonymous accounts or temporary accounts. Any
+    external emergency or temporary accounts will be
+    inherited from, and managed by, an external
+    identity service (e.g. Active Directory, LDAP, etc.)
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+
+    It is recommended to grant the cluster-admin clusterrole
+    to a user or a group backed by an IDP and subsequently
+    remove the kubeadmin user as described in https://docs.openshift.com/container-platform/latest/authentication/remove-kubeadmin.html
+  rules:
+  - kubeadmin_removed
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: "The information system automatically [Selection: removes; disables]\
+    \ temporary and emergency accounts after [Assignment: organization-defined time\
+    \ period for each type of account].\n\nSupplemental Guidance: This control enhancement\
+    \ requires the removal of both temporary and emergency accounts automatically\
+    \ after a predefined period of time has elapsed, rather than at the convenience\
+    \ of the systems administrator.\n\nAC-2 (2) [Selection: disables] \n[Assignment:\
+    \ 24 hours from last use]"
+  title: >-
+    AC-2(2) - ACCOUNT MANAGEMENT | REMOVAL OF TEMPORARY / EMERGENCY ACCOUNTS
+  levels:
+  - high
+  - moderate
+- id: AC-2(3)
+  status: automated
+  notes: |-
+    OpenShift does not have the ability to automatically
+    disable user accounts. Automatic disabling of these
+    accounts must happen at the centralized account
+    management level; for example, within LDAP, Red Hat
+    IdM, or Active Directory.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+
+    Note that the using the htpasswd IDP type cannot cover this
+    control, therefore using htpasswd based IDPs should render
+    the system non-compliant.
+  rules:
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: |-
+    The information system automatically disables inactive accounts after [Assignment: organization-defined time period].
+
+    AC-2 (3) [35 days for user accounts]
+    AC-2 (3) Requirement: The service provider defines the time period for non-user accounts (e.g., accounts associated with devices).  The time periods are approved and accepted by the JAB/AO. Where user management is a function of the service, reports of activity of consumer users shall be made available.
+  title: >-
+    AC-2(3) - ACCOUNT MANAGEMENT | DISABLE INACTIVE ACCOUNTS
+  levels:
+  - high
+  - moderate
+- id: AC-2(4)
+  status: automated
+  notes: |-
+    To meet FISMA requirements, OpenShift must be configured
+    to use centralized authentication (e.g. LDAP, Red Hat IdM,
+    Active Directory). The audit of account creation,
+    modification, enabling, disabling, and removal actions is
+    the responsibility of the centralized service. Additionally,
+    notification of organization-defined personnel or roles is
+    also the responsibility of the centralized authentication
+    service.
+
+    OpenShift automatically audits creation of the Identity
+    API objects which subsequently allow to match the creation
+    of the OpenShift identity to the external IDP identity. See
+    https://docs.openshift.com/container-platform/latest/security/audit-log-view.html
+    for documentation on how to view the audit logs and
+    https://docs.openshift.com/container-platform/latest/security/audit-log-policy-config.html
+    for information on configuring the audit logging.
+
+    Note that the using the htpasswd IDP type cannot cover this
+    control, therefore using htpasswd based IDPs should render
+    the system non-compliant.
+  rules:
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: |-
+    The information system automatically audits account creation, modification, enabling, disabling, and removal actions, and notifies [Assignment: organization-defined personnel or roles].
+
+    Supplemental Guidance: Related controls: AU-2, AU-12.
+
+    AC-2 (4) [organization and/or service provider system owner]
+  title: >-
+    AC-2(4) - ACCOUNT MANAGEMENT | AUTOMATED AUDIT ACTIONS
+  levels:
+  - high
+  - moderate
+- id: AC-2(5)
+  status: automated
+  notes: |-
+    To meet the requirements, OpenShift must be configured
+    to use centralized authentication via an IDP. The account
+    inactivity timeout can be either configured per OAuth client
+    as described here:
+    https://docs.openshift.com/container-platform/latest/authentication/configuring-oauth-clients.html#oauth-token-inactivity-timeout_configuring-oauth-clients
+
+    Or globally (this example uses 600s timeout):
+    $ oc patch oauth.config cluster -p '{"spec":{"tokenConfig":{"accessTokenInactivityTimeout": "600s"}}}' --type='merge'
+
+    Note that the global configuration does not change the configuration
+    of the oauthclient objects, so for proper compliance check, both must
+    be audited.
+
+    Also note that prior to OpenShift 4.8, changing the global oauth.config
+    object triggers a rollout of the kube-apiserver which can take up
+    to 15 minutes. You can watch the kube-apiserver rollout with
+    "oc get co kube-apiserver". Once the rollout finishes, the "Progressing"
+    column will say "False".
+  rules:
+  - idp_is_configured
+  - oauth_or_oauthclient_inactivity_timeout
+  description: |-
+    The organization requires that users log out when [Assignment: organization-defined time-period of expected inactivity or description of when to log out].
+
+    Supplemental Guidance: Related control: SC-23.
+
+    AC-2 (5) [inactivity is anticipated to exceed Fifteen (15) minutes]
+    AC-2 (5) Guidance: Should use a shorter timeframe than AC-12.
+  title: >-
+    AC-2(5) - ACCOUNT MANAGEMENT | INACTIVITY LOGOUT
+  levels:
+  - high
+  - moderate
+- id: AC-2(6)
+  status: automated
+  notes: |-
+    OpenShift implements dynamic privilege management capabilities through the use
+    of a proper identity provider. OpenShift users can then be assigned roles through
+    role bindings.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+  rules:
+  - idp_is_configured
+- id: AC-2(7)
+  status: automated
+  notes: |-
+    Section a: Establishing and administering privileged user accounts in accordance with a
+    role-based access scheme that organizes allowed information system access and
+    privileges into roles is an organizational control outside the scope of OpenShift
+
+    However to facilitate a control response, using Role Based Access Control (RBAC),
+    OpenShift roles can be used to grant various levels of access both cluster-wide as well as at
+    the project scope. Users and groups can be associated with, or bound
+    to, multiple roles at the same time.
+
+    For service accounts that might also have privileged access, Security
+    Context Constraints (SCC) should be used to limit privileged actions
+    in service accounts.
+
+    For the cluster, the kubeadmin user should be completely disabled.
+
+    More information on RBAC can be viewed at:
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information for SCC can be viewed at:
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section b: The organization monitoring privileged role assignments is an organizational
+    control outside the configuration of OpenShift.
+    Section c: The organization taking defined actions when privileged role assignments are no
+    longer appropriate is an organizational control outside the scope of OpenShift.
+  rules:
+  - kubeadmin_removed
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: |-
+    The organization:
+    (a) Establishes and administers privileged user accounts in accordance with a role-based access scheme that organizes allowed information system access and privileges into roles;
+    (b) Monitors privileged role assignments; and
+    (c) Takes [Assignment: organization-defined actions] when privileged role assignments are no longer appropriate.
+
+    Supplemental Guidance: Privileged roles are organization-defined roles assigned to individuals that allow those individuals to perform certain security-relevant functions that ordinary users are not authorized to perform. These privileged roles include, for example, key management, account management, network and system administration, database administration, and web administration.
+
+    AC-2 (7) (c) [disables/revokes access within a organization-specified timeframe]
+  title: >-
+    AC-2(7) - ACCOUNT MANAGEMENT | ROLE-BASED SCHEMES
+  levels:
+  - high
+  - moderate
+- id: AC-2(8)
+  status: automated
+  notes: |-
+    OpenShift will dynamically create user and system accounts in the OpenShift cluster
+    when configured to connect to an identity provider.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+  rules:
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+- id: AC-2(9)
+  status: not applicable
+  notes: |-
+    OpenShift does not have the concept of group accounts.
+
+    Should the organization allow shared credentials, the
+    creation and management of such would fall under the scope
+    of operating the shared identity service and not OpenShift.
+
+    It is recommended to grant the cluster-admin clusterrole
+    to a user or a group backed by an IDP and subsequently
+    remove the kubeadmin user as described in https://docs.openshift.com/container-platform/latest/authentication/remove-kubeadmin.html
+  rules:
+  - kubeadmin_removed
+  description: |-
+    The organization only permits the use of shared/group accounts that meet [Assignment: organization-defined conditions for establishing shared/group accounts].
+
+    AC-2 (9) [organization-defined need with justification statement that explains why such accounts are necessary]
+    AC-2 (9) Required if shared/group accounts are deployed
+  title: >-
+    AC-2(9) - ACCOUNT MANAGEMENT | RESTRICTIONS ON USE OF SHARED GROUPS / ACCOUNTS
+  levels:
+  - high
+  - moderate
+- id: AC-2(10)
+  status: not applicable
+  notes: |-
+    OpenShift does not have the concept of group accounts.
+
+    Should the organization allow shared credentials, the
+    creation and management of such would fall under the scope
+    of operating the shared identity service and not OpenShift.
+
+    It is recommended to grant the cluster-admin clusterrole
+    to a user or a group backed by an IDP and subsequently
+    remove the kubeadmin user as described in https://docs.openshift.com/container-platform/latest/authentication/remove-kubeadmin.html
+  rules:
+  - kubeadmin_removed
+  description: "The information system terminates shared/group account credentials\
+    \ when members leave the group.\n\n \nAC-2 (10) Required if shared/group accounts\
+    \ are deployed"
+  title: >-
+    AC-2(10) - ACCOUNT MANAGEMENT | SHARED / GROUP ACCOUNT CREDENTIAL TERMINATION
+  levels:
+  - high
+  - moderate
+- id: AC-2(11)
+  status: not applicable
+  notes: |-
+    Enforcement of organization-defined circumstances and/or usage
+    conditions is the responsibility of third party identity
+    management software such as Red Hat Identity Management (Red Hat IdM),
+    Active Directory (MSAD), LDAP, etc.
+
+    To configure an Identity Provider (IdP), refer to the "Authentication"
+    chapter of the OpenShift Container Platform documentation at
+    https://docs.openshift.com/container-platform/latest/authentication/understanding-authentication.html
+  rules: []
+  description: |-
+    The information system enforces [Assignment: organization-defined circumstances and/or usage conditions] for [Assignment: organization-defined information system accounts].
+
+    Supplemental Guidance: Organizations can describe the specific conditions or circumstances under which information system accounts can be used, for example, by restricting usage to certain days of the week, time of day, or specific durations of time.
+  title: >-
+    AC-2(11) - ACCOUNT MANAGEMENT | USAGE CONDITIONS
+  levels:
+  - high
+- id: AC-2(12)
+  status: automated
+  notes: |-
+    Section a: Monitoring of atypical use is outside of the scope of OpenShift configuration.
+    However, setting up log forwarding can help analyze the data for suspicious
+    activity. Please refer to
+    https://docs.openshift.com/container-platform/latest/logging/cluster-logging-external.html
+    to learn more about setting up secure log forwarding.
+    Section b: Monitoring of atypical use is outside of the scope of OpenShift configuration.
+    However, setting up log forwarding can help analyze the data for suspicious
+    activity. Please refer to
+    https://docs.openshift.com/container-platform/latest/logging/cluster-logging-external.html
+    to learn more about setting up secure log forwarding.
+  rules:
+  - audit_log_forwarding_enabled
+  description: |-
+    The organization:
+     (a) Monitors information system accounts for [Assignment: organization-defined atypical use]; and
+     (b) Reports atypical usage of information system accounts to [Assignment: organization-defined personnel or roles].
+
+    Supplemental Guidance: Atypical usage includes, for example, accessing information systems at certain times of the day and from locations that are not consistent with the normal usage patterns of individuals working in organizations. Related control: CA-7.
+
+    AC-2 (12) (b)[at a minimum, the ISSO and/or similar role within the organization]
+    AC-2 (12)(a) Guidance: Required for privileged accounts.
+    AC-2 (12)(b) Guidance: Required for privileged accounts.
+  title: >-
+    AC-2(12) - ACCOUNT MANAGEMENT | ACCOUNT MONITORING / ATYPICAL USAGE
+  levels:
+  - high
+  - moderate
+- id: AC-2(13)
+  status: not applicable
+  notes: |-
+    AC-2 (13) is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization disables accounts of users posing a significant risk within [Assignment: organization-defined time period] of discovery of the risk.
+
+    Supplemental Guidance: Users posing a significant risk to organizations include individuals for whom reliable evidence or intelligence indicates either the intention to use authorized access to information systems to cause harm or through whom adversaries will cause harm. Harm includes potential adverse impacts to organizational operations and assets, individuals, other organizations, or the Nation. Close coordination between authorizing officials, information system administrators, and human resource managers is essential in order for timely execution of this control enhancement. Related control: PS-4.
+
+
+    AC-2 (13) [one (1) hour]
+  title: >-
+    AC-2(13) - ACCOUNT MANAGEMENT | DISABLE ACCOUNTS FOR HIGH-RISK INDIVIDUALS
+  levels:
+  - high
+- id: AC-3
+  status: inherently met
+  notes: |-
+    This control is inherently met through the use of Role-based Access Control
+    for an OpenShift user. Namespaces should also be configured to
+    sandbox users and resources to only the required projects.
+  rules: []
+  description: |-
+    The information system enforces approved authorizations for logical access to information and system resources in accordance with applicable access control policies.
+
+    Supplemental Guidance: Access control policies (e.g., identity-based policies, role-based policies, attribute-based policies) and access enforcement mechanisms (e.g., access control lists, access control matrices, cryptography) control access between active entities or subjects (i.e., users or processes acting on behalf of users) and passive entities or objects (e.g., devices, files, records, domains) in information systems. In addition to enforcing authorized access at the information system level and recognizing that information systems can host many applications and services in support of organizational missions and business operations, access enforcement mechanisms can also be employed at the application and service level to provide increased information security. Related controls: AC-2, AC-4, AC-5, AC-6, AC-16, AC-17, AC-18, AC-19, AC-20, AC-21, AC-22, AU-9, CM-5, CM-6, CM-11, MA-3, MA-4, MA-5, PE-3.
+
+    References: None.
+  title: >-
+    AC-3 - ACCESS ENFORCEMENT
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-3(1)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST, and incorporated into
+    AC-6
+  rules: []
+- id: AC-3(2)
+  status: pending
+  notes: |-
+    A control response for AC-3 (2) is planned. Engineering
+    progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-88
+  rules: []
+- id: AC-3(3)
+  status: pending
+  notes: |-
+    Section a: A response to AC-3 (3) is planned. Engineering
+    progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-212
+    Section b: A response to AC-3 (3) is planned. Engineering
+    progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-212
+    Section c: A response to AC-3 (3) is planned. Engineering
+    progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-212
+  rules: []
+- id: AC-3(4)
+  status: supported
+  notes: |-
+    Section a: OpenShift uses the concept of users and groups to segregate subjects and objects.
+    A user can be assigned to one or more groups, each of which represent a certain
+    set of users. Groups are useful when managing authorization policies to grant
+    permissions to multiple users at once, for example allowing access to objects
+    within a project, versus granting them to users individually.
+
+    OpenShift Security Context Constraints (SCC) control the actions that a pod can
+    perform and what it has the ability to access.
+
+    More information on Role Based Access Control (RBAC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information on Security Context Constraints (SCC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section b: Only OpenShift cluster administrators have privileges to modify the security attributes
+    within OpenShift. Specifically, cluster administrators have full access to modify the
+    bindings of a particular role to a user. For users that have been provided more
+    privileges based on a particular role, those users then can only make changes based on
+    the privileges afforded to them.
+
+    More information on Role Based Access Control (RBAC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information on Security Context Constraints (SCC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section c: Only OpenShift cluster administrators have privileges to modify the security attributes
+    within OpenShift. Specifically, cluster administrators have full access to modify the
+    bindings of a particular role to a user. For users that have been provided more
+    privileges based on a particular role, those users then can only make changes based on
+    the privileges afforded to them. The same is true for Security Context Constraints (SCC).
+
+    More information on Role Based Access Control (RBAC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information on Security Context Constraints (SCC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section d: Only OpenShift cluster administrators have privileges to modify the full security attributes
+    within OpenShift. Specifically, cluster administrators have full access to modify the default
+    set of security attributes. For users that have been provided more
+    privileges based on a particular role, those users then can only make changes based on
+    the privileges afforded to them. The same is true for Security Context Constraints (SCC).
+
+    More information on Role Based Access Control (RBAC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information on Security Context Constraints (SCC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section e: Only OpenShift cluster administrators have privileges to change rules governing access
+    control on the cluster. The same is true for Security Context Constraints (SCC).
+
+    More information on Role Based Access Control (RBAC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information on Security Context Constraints (SCC) can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+  rules: []
+- id: AC-3(5)
+  status: pending
+  notes: |-
+    A response to AC-3 (5) is planned. Progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-91
+  rules: []
+- id: AC-3(6)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-3(7)
+  status: supported
+  notes: |-
+    This control is met through a variety of OpenShift technologies:
+    - Role-based Access Control
+    - Seccomp
+    - SELinux
+    - Namespaces
+    - Security Context Constraints (SCC)
+  rules: []
+- id: AC-3(8)
+  status: pending
+  notes: |-
+    A response to AC-3 (8) is planned. Engineering progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-96
+  rules: []
+- id: AC-3(9)
+  status: pending
+  notes: |-
+    Section a: A response to AC-3 (9) is planned. Engineering progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-97
+    Section b: A response to AC-3 (9) is planned. Engineering progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-97
+  rules: []
+- id: AC-3(10)
+  status: supported
+  notes: |-
+    A response to AC-3 (10) is planned. Engineering progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-213
+  rules: []
+- id: AC-4
+  status: automated
+  notes: |-
+    The customer is responsible for ensuring that NetworkPolicies
+    are configured in all non-openshift namespaces to allow traffic
+    only in the namespace and not across namespaces:
+    https://docs.openshift.com/container-platform/4.6/networking/network_policy/about-network-policy.html
+
+    Routes created in Red Hat OpenShift must also have an appropriate
+    policy that prefers a secure endpoint.
+
+    Documentation for creating an ingress rule can be viewed at:
+    https://docs.openshift.com/container-platform/latest/networking/configuring_ingress_cluster_traffic/overview-traffic.html
+
+    Documentation for creating a route can be viewed at:
+    https://docs.openshift.com/container-platform/latest/networking/routes/route-configuration.html
+  rules:
+  - configure_network_policies_namespaces
+  - routes_protected_by_tls
+  description: |-
+    The information system enforces approved authorizations for controlling the flow of information within the system and between interconnected systems based on [Assignment: organization-defined information flow control policies].
+
+    Supplemental Guidance: Information flow control regulates where information is allowed to travel within an information system and between information systems (as opposed to who is allowed to access the information) and without explicit regard to subsequent accesses to that information. Flow control restrictions include, for example, keeping export-controlled information from being transmitted in the clear to the Internet, blocking outside traffic that claims to be from within the organization, restricting web requests to the Internet that are not from the internal web proxy server, and limiting information transfers between organizations based on data structures and content. Transferring information between information systems representing different security domains with different security policies introduces risk that such transfers violate one or more domain security policies. In such situations, information owners/stewards provide guidance at designated policy enforcement points between interconnected systems. Organizations consider mandating specific architectural solutions when required to enforce specific security policies. Enforcement includes, for example: (i) prohibiting information transfers between interconnected systems (i.e., allowing access only); (ii) employing hardware mechanisms to enforce one-way information flows; and (iii) implementing trustworthy regarding mechanisms to reassign security attributes and security labels.
+
+    Organizations commonly employ information flow control policies and enforcement mechanisms to control the flow of information between designated sources and destinations (e.g., networks, individuals, and devices) within information systems and between interconnected systems. Flow control is based on the characteristics of the information and/or the information path. Enforcement occurs, for example, in boundary protection devices (e.g., gateways, routers, guards, encrypted tunnels, firewalls) that employ rule sets or establish configuration settings that restrict information system services, provide a packet-filtering capability based on header information, or message- filtering capability based on message content (e.g., implementing key word searches or using document characteristics). Organizations also consider the trustworthiness of filtering/inspection mechanisms (i.e., hardware, firmware, and software components) that are critical to information flow enforcement. Control enhancements 3 through 22 primarily address cross-domain solution needs which focus on more advanced filtering techniques, in-depth analysis, and stronger flow enforcement mechanisms implemented in cross-domain products, for example, high-assurance guards. Such capabilities are generally not available in commercial off-the-shelf information technology products. Related controls: AC-3, AC-17, AC-19, AC-21, CM-6, CM-7, SA-8, SC-2, SC-5, SC-7, SC-18.
+
+    References: None.
+  title: >-
+    AC-4 - INFORMATION FLOW ENFORCEMENT
+  levels:
+  - high
+  - moderate
+- id: AC-4(1)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-99
+  rules: []
+- id: AC-4(2)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-100
+  rules: []
+- id: AC-4(3)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-101
+  rules: []
+- id: AC-4(4)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-214
+  rules: []
+- id: AC-4(5)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-215
+  rules: []
+- id: AC-4(6)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-102
+  rules: []
+- id: AC-4(7)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-216
+  rules: []
+- id: AC-4(8)
+  status: not applicable
+  notes: |-
+    Security policy filters for data structures can check for maximum file lengths,
+    maximum field sizes, and data/file types (for structured and unstructured data)
+    can be met by OpenShift.
+
+    All of OpenShift extends the Kubernetes API with custom resource definitions.
+    The api has built-in limits and there are additional validations we can perform. [1]
+
+    However security policy filters for data content which checks for specific words enumerated values
+    or data value ranges, and hidden content, are an organizational control outside the scope of
+    OpenShift configuration.
+
+    [1] https://kubernetes.io/docs/tasks/extend-kubernetes/custom-resources/custom-resource-definitions/#validation-rules
+
+  rules: []
+  description: |-
+    The information system enforces information flow control using [Assignment: organization-defined security policy filters] as a basis for flow control decisions for [Assignment: organization-defined information flows].
+
+    Supplemental Guidance:  Organization-defined security policy filters can address data structures and content. For example, security policy filters for data structures can check for maximum file lengths, maximum field sizes, and data/file types (for structured and unstructured data). Security policy filters for data content can check for specific words (e.g., dirty/clean word filters), enumerated values or data value ranges, and hidden content. Structured data permits the interpretation of data content by applications. Unstructured data typically refers to digital information without a particular data structure or with a data structure that does not facilitate the development of rule sets to address the particular sensitivity of the information conveyed by the data or the associated flow enforcement decisions. Unstructured data consists of: (i) bitmap objects that are inherently non language-based (i.e., image, video, or audio files); and (ii) textual objects that are based on written or printed languages (e.g., commercial off-the- shelf word processing documents, spreadsheets, or emails). Organizations can implement more than one security policy filter to meet information flow control objectives (e.g., employing clean word lists in conjunction with dirty word lists may help to reduce false positives).
+  title: >-
+    AC-4(8) - INFORMATION FLOW ENFORCEMENT | SECURITY POLICY FILTERS
+  levels:
+  - high
+- id: AC-4(9)
+  status: pending
+  notes: |-
+    Changes to OpenShift information flows take effect immediately. It is assumed
+    that all information flow modifications have undergone organizational
+    approval processes prior to being implemented in OpenShift.
+
+    OpenShift cannot protect against authenticated users who were
+    given authorization to execute administrative commands (such as
+    information flow modifications).
+
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-104
+  rules: []
+- id: AC-4(10)
+  status: supported
+  notes: |-
+    Privileged Administrators are defined as authenticated users who
+    were given authorization to execute privileged commands on OpenShift
+    systems (e.g. "sudo access").
+
+    To modify security policies users must first authenticate with
+    standard credentials (e.g. username/password or username/key).
+    Once authenticated users must elevate privileges to root access
+    through usage of "sudo", which will require users to re-authenticate
+    themselves.
+
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-217
+  rules: []
+- id: AC-4(11)
+  status: supported
+  notes: |-
+    Privileged Administrators are defined as authenticated users who
+    were given authorization to execute privileged commands on OpenShift
+    systems (e.g. "sudo access").
+
+    The default system behavior allows Privileged Administrators
+    to (re)configure security policy filters. For example,
+    to reflect changes in network security policies, Privileged
+    Administrators can dynamically change the allowed network
+    ports and protocols that security policy mechanisms (such
+    as firewalld) check in accordance with the definitions
+    provided by organizations.
+
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-218
+  rules: []
+- id: AC-4(12)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-105
+  rules: []
+- id: AC-4(13)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-106
+  rules: []
+- id: AC-4(14)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-107
+  rules: []
+- id: AC-4(15)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-108
+  rules: []
+- id: AC-4(16)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-4(17)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-107
+  rules: []
+- id: AC-4(18)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-110
+  rules: []
+- id: AC-4(19)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-111
+  rules: []
+- id: AC-4(20)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-112
+  rules: []
+- id: AC-4(21)
+  status: automated
+  notes: |-
+    The customer is responsible for ensuring that NetworkPolicies
+    are configured in all non-openshift namespaces to allow traffic
+    only in the namespace and not across namespaces:
+    https://docs.openshift.com/container-platform/4.6/networking/network_policy/about-network-policy.html
+
+    Routes created in Red Hat OpenShift must also have an appropriate
+    policy that prefers a secure endpoint.
+
+    Documentation for creating an ingress rule can be viewed at:
+    https://docs.openshift.com/container-platform/latest/networking/configuring_ingress_cluster_traffic/overview-traffic.html
+
+    Documentation for creating a route can be viewed at:
+    https://docs.openshift.com/container-platform/latest/networking/routes/route-configuration.html
+  rules:
+  - configure_network_policies_namespaces
+  - routes_protected_by_tls
+  description: |-
+    The information system separates information flows logically or physically using [Assignment: organization-defined mechanisms and/or techniques] to accomplish [Assignment: organization- defined required separations by types of information].
+
+    Supplemental Guidance:  Enforcing the separation of information flows by type can enhance protection by ensuring that information is not commingled while in transit and by enabling flow control by transmission paths perhaps not otherwise achievable. Types of separable information include, for example, inbound and outbound communications traffic, service requests and responses, and information of differing security categories.
+  title: >-
+    AC-4(21) - INFORMATION FLOW ENFORCEMENT | PHYSICAL / LOGICAL SEPARATION OF INFORMATION
+    FLOWS
+  levels:
+  - high
+  - moderate
+- id: AC-4(22)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-114
+  rules: []
+- id: AC-5
+  status: not applicable
+  notes: |-
+    Section a: Separation of duties is an organizational process outside the
+    scope of OpenShift configuration.
+
+    However, to aide in such processes, note that OpenShift provides the capability to
+    implement Role-based Access Control (RBAC) which determine whether a
+    user is allowed to perform a given action. Documentation on the OpenShift RBAC
+    capabilities can be found at
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    Section b: Documentation of the separation of duties of individuals
+    is an organizational control outside the scope of OpenShift
+    configuration.
+
+    However, to aide in such processes, note that OpenShift provides the capability to
+    implement Role-based access control (RBAC) objects which determine whether a
+    user is allowed to perform a given action. Documentation on the OpenShift RBAC
+    capabilities can be found at
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    Section c: Organizational processes which define information system access
+    authorizations to support separation of duties is outside
+    the scope of OpenShift configuration.
+
+    However, to aide in such processes, note that OpenShift provides the capability to
+    implement Role-based access control (RBAC) objects which determine whether a
+    user is allowed to perform a given action. Documentation on the OpenShift RBAC
+    capabilities can be found at
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+  rules: []
+  description: "The organization:\n a. Separates [Assignment: organization-defined\
+    \ duties of individuals];\n b. Documents separation of duties of individuals;\
+    \ and\n c. Defines information system access authorizations to support separation\
+    \ of duties.\n\nSupplemental Guidance:  Separation of duties addresses the potential\
+    \ for abuse of authorized privileges and helps to reduce the risk of malevolent\
+    \ activity without collusion. Separation of duties includes, for example: (i)\
+    \ dividing mission functions and information system support functions among different\
+    \ individuals and/or roles; (ii) conducting information system support functions\
+    \ with different individuals (e.g., system management, programming, configuration\
+    \ management, quality assurance and testing, and network security); and (iii)\
+    \ ensuring security personnel administering access control functions do not also\
+    \ administer audit functions. Related controls: AC-3, AC-6, PE-3, PE-4, PS-2.\n\
+    \nControl Enhancements:  None.\n\nReferences: None.\n\n \nAC-5 Guidance: CSPs\
+    \ have the option to provide a separation of duties matrix as an attachment to\
+    \ the SSP."
+  title: >-
+    AC-5 - SEPARATION OF DUTIES
+  levels:
+  - high
+  - moderate
+- id: AC-6
+  status: inherently met
+  notes: |-
+    This control is inherently met through the combination of Role-based
+    Access Control for both user and system accounts by dividing the
+    roles and assigning them via RBAC to the appropriate accounts,
+    plus defaulting to the restricted SCC.
+
+    Documentation on the OpenShift RBAC capabilities can be found at
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+    Documentation on the OpenShift SCCs can be found at
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+  rules: []
+  description: |-
+    The organization employs the principle of least privilege, allowing only authorized accesses for users (or processes acting on behalf of users) which are necessary to accomplish assigned tasks in accordance with organizational missions and business functions.
+
+    Supplemental Guidance:  Organizations employ least privilege for specific duties and information systems. The principle of least privilege is also applied to information system processes, ensuring that the processes operate at privilege levels no higher than necessary to accomplish required organizational missions/business functions. Organizations consider the creation of additional processes, roles, and information system accounts as necessary, to achieve least privilege. Organizations also apply least privilege to the development, implementation, and operation of organizational information systems. Related controls: AC-2, AC-3, AC-5, CM-6, CM-7, PL-2.
+
+    References: None.
+  title: >-
+    AC-6 - LEAST PRIVILEGE
+  levels:
+  - high
+  - moderate
+- id: AC-6(1)
+  status: automated
+  notes: |-
+    This control is inherently met because OpenShift requires the
+    membership in the cluster-admin role in order to change security
+    functions or security relevant information by default. Other
+    finer-grained access control can be configured using RBAC:
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+  rules:
+  - directory_permissions_var_log_oauth_audit
+  - file_ownership_var_log_oauth_audit
+  - file_ownership_var_log_kube_audit
+  - file_permissions_var_log_ocp_audit
+  - directory_permissions_var_log_kube_audit
+  - file_permissions_var_log_kube_audit
+  - file_permissions_var_log_oauth_audit
+  - file_ownership_var_log_ocp_audit
+  - directory_permissions_var_log_ocp_audit
+  description: |-
+    The organization explicitly authorizes access to [Assignment: organization-defined security functions (deployed in hardware, software, and firmware) and security-relevant information].
+
+    Supplemental Guidance:  Security functions include, for example, establishing system accounts, configuring access authorizations (i.e., permissions, privileges), setting events to be audited, and setting intrusion detection parameters. Security-relevant information includes, for example, filtering rules for routers/firewalls, cryptographic key management information, configuration parameters for security services, and access control lists. Explicitly authorized personnel include, for example, security administrators, system and network administrators, system security officers, system maintenance personnel, system programmers, and other privileged users. Related controls: AC-17, AC-18, AC-19.
+
+    AC-6 (1) [all functions not publicly accessible and all security-relevant information not publicly available]
+  title: >-
+    AC-6(1) - LEAST PRIVILEGE | AUTHORIZE ACCESS TO SECURITY FUNCTIONS
+  levels:
+  - high
+  - moderate
+- id: AC-6(2)
+  status: not applicable
+  notes: |-
+    This is an organizational/procedural control outside the scope of
+    OpenShift configuration.
+
+    The customer will be responsible for requiring users to use the
+    lowest level of access required to perform any given function. In
+    terms of OpenShift, this may require creation of multiple logon
+    accounts per user. When users require access to privileged functions
+    or capability, they will need to logout from the unprivileged account
+    and login with an account that has received appropriate RBAC rights.
+
+    Note: OpenShift does not have privilege escalation capabilities similar
+    to sudo in Linux. Users will have to completely logout/login when
+    requiring privilege escalation between accounts.
+
+    It is recommended to grant the cluster-admin clusterrole
+    to a user or a group backed by an IDP and subsequently
+    remove the kubeadmin user as described in https://docs.openshift.com/container-platform/latest/authentication/remove-kubeadmin.html
+  rules: []
+  description: |-
+    The organization requires that users of information system accounts, or roles, with access to [Assignment: organization-defined security functions or security-relevant information], use non- privileged accounts or roles, when accessing nonsecurity functions.
+
+    Supplemental Guidance:  This control enhancement limits exposure when operating from within privileged accounts or roles. The inclusion of roles addresses situations where organizations implement access control policies such as role-based access control and where a change of role provides the same degree of assurance in the change of access authorizations for both the user and all processes acting on behalf of the user as would be provided by a change between a privileged and non-privileged account. Related control: PL-4.
+
+    AC-6 (2) [all security functions]
+    AC-6 (2) Guidance:  Examples of security functions include but are not limited to: establishing system accounts, configuring access authorizations (i.e., permissions, privileges), setting events to be audited, and setting intrusion detection parameters, system programming, system and security administration, other privileged functions.
+  title: >-
+    AC-6(2) - LEAST PRIVILEGE | NON-PRIVILEGED ACCESS FOR NONSECURITY FUNCTIONS
+  levels:
+  - high
+  - moderate
+- id: AC-6(3)
+  status: not applicable
+  notes: |-
+    This is an organizational/procedural control outside the scope of
+    OpenShift configuration.
+
+    The customer will be responsible for managing which user has appropriate
+    network access rights and document the rationale for such access in the
+    security plan for the information system.
+
+  rules: []
+  description: |-
+    The organization authorizes network access to [Assignment: organization-defined privileged commands] only for [Assignment: organization-defined compelling operational needs] and documents the rationale for such access in the security plan for the information system.
+
+    Supplemental Guidance:  Network access is any access across a network connection in lieu of local access (i.e., user being physically present at the device). Related control: AC-17.
+
+    AC-6 (3)-1 [all privileged commands]
+  title: >-
+    AC-6(3) - LEAST PRIVILEGE | NETWORK ACCESS TO PRIVILEGED COMMANDS
+  levels:
+  - high
+- id: AC-6(4)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-117
+  rules: []
+- id: AC-6(5)
+  status: not applicable
+  notes: |-
+    Restricting privileged accounts to organization-defined personnel
+    or roles is outside the scope of OpenShift configuration, therefore
+    AC-6(5) is an organizational control.
+  rules: []
+  description: |-
+    The organization restricts privileged accounts on the information system to [Assignment:
+    organization-defined personnel or roles].
+
+    Supplemental Guidance:  Privileged accounts, including super user accounts, are typically described as system administrator for various types of commercial off-the-shelf operating systems. Restricting privileged accounts to specific personnel or roles prevents day-to-day users from having access to privileged information/functions. Organizations may differentiate in the application of this control enhancement between allowed privileges for local accounts and for domain accounts provided organizations retain the ability to control information system configurations for key security parameters and as otherwise necessary to sufficiently mitigate risk. Related control: CM-6.
+  title: >-
+    AC-6(5) - LEAST PRIVILEGE | PRIVILEGED ACCOUNTS
+  levels:
+  - high
+  - moderate
+- id: AC-6(6)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-119
+  rules: []
+- id: AC-6(7)
+  status: not applicable
+  notes: |-
+    Reviews and manage the privileges assigned to user is an organization control.
+
+    However to facilitate a control response, using Role Based Access Control (RBAC),
+    OpenShift roles can be used to grant various levels of access both cluster-wide as well as at
+    the project scope. Users and groups can be associated with, or bound
+    to, multiple roles at the same time.
+
+    For service accounts that might also have privileged access, Security
+    Context Constraints (SCC) should be used to limit privileged actions
+    in service accounts.
+
+    For the cluster, the kubeadmin user should be completely disabled.
+
+    More information on RBAC can be viewed at:
+    https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    More information for SCC can be viewed at:
+    https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+    Section b: The organization monitoring privileged role assignments is an organizational
+
+
+  rules: []
+  description: |-
+    The organization:
+     (a)   Reviews [Assignment: organization-defined frequency] the privileges assigned to [Assignment: organization-defined roles or classes of users] to validate the need for such privileges; and
+     (b)   Reassigns or removes privileges, if necessary, to correctly reflect organizational mission/business needs.
+
+    Supplemental Guidance:  The need for certain assigned user privileges may change over time reflecting changes in organizational missions/business function, environments of operation, technologies, or threat. Periodic review of assigned user privileges is necessary to determine if the rationale for assigning such privileges remains valid. If the need cannot be revalidated, organizations take appropriate corrective actions. Related control: CA-7.
+
+    AC-6 (7)(a)-1  at a minimum, annually
+    AC-6 (7)(a)-2  all users with privileges
+  title: >-
+    AC-6(7) - LEAST PRIVILEGE | REVIEW OF USER PRIVILEGES
+  levels:
+  - high
+- id: AC-6(8)
+  status: supported
+  notes: |-
+    Red Hat OpenShift provides security context constraints (SCC) [1] that control permissions for actions that a pod can perform and what resources a pod can access. 
+
+    Red Hat OpenShift does an admission control inspection for pods based on the capabilities granted to a user [2].
+
+    However to assist in developing and handling SCC to address this control [3], use of Role-based Access Control (RBAC) [4] and the architecture of OpenShift provide logical access restrictions based on user and group roles in addition to logical separation of systems and components [5].
+
+    [1] https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html
+ 
+    [2] https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html#admission_configuring-internal-oauth
+
+    [3] https://docs.openshift.com/container-platform/latest/authentication/managing-security-context-constraints.html#role-based-access-to-ssc_configuring-internal-oauth
+
+    [4] https://docs.openshift.com/container-platform/latest/authentication/using-rbac.html
+
+    [5] https://docs.openshift.com/container-platform/latest/architecture/architecture.html
+
+  rules: []
+  description: |-
+    The information system prevents [Assignment: organization-defined software] from executing at higher privilege levels than users executing the software.
+
+    Supplemental Guidance:  In certain situations, software applications/programs need to execute with elevated privileges to perform required functions. However, if the privileges required for execution are at a higher level than the privileges assigned to organizational users invoking such applications/programs, those users are indirectly provided with greater privileges than assigned by organizations.
+
+    AC-6 (8) [any software except software explicitly documented]
+  title: >-
+    AC-6(8) - LEAST PRIVILEGE | PRIVILEGE LEVELS FOR CODE EXECUTION
+  levels:
+  - high
+- id: AC-6(9)
+  status: automated
+  notes: |-
+    OpenShift performs audit logging by default, which makes this
+    control inherently met.
+
+    What constitutes an action by an admin role must be synthetized in a
+    SIEM, though. OCP audit logs do specify the RBAC rule that allowed the action
+    and the identity that requested the action.
+
+    See https://docs.openshift.com/container-platform/latest/security/audit-log-view.html
+    for documentation on how to view the audit logs and
+    https://docs.openshift.com/container-platform/latest/security/audit-log-policy-config.html
+    for information on configuring the audit logging.
+  rules:
+  - directory_access_var_log_kube_audit
+  - directory_access_var_log_oauth_audit
+  - directory_access_var_log_ocp_audit
+  description: |-
+    The information system audits the execution of privileged functions.
+
+    Supplemental Guidance:  Misuse of privileged functions, either intentionally or unintentionally by authorized users, or by unauthorized external entities that have compromised information system accounts, is a serious and ongoing concern and can have significant adverse impacts on organizations. Auditing the use of privileged functions is one way to detect such misuse, and in doing so, help mitigate the risk from insider threats and the advanced persistent threat (APT). Related control: AU-2.
+  title: >-
+    AC-6(9) - LEAST PRIVILEGE | AUDITING USE OF PRIVILEGED FUNCTIONS
+  levels:
+  - high
+  - moderate
+- id: AC-6(10)
+  status: inherently met
+  notes: |-
+    This control is inherently met through the use of Role-based Access Control
+    and SCCs.
+  rules: []
+  description: |-
+    The information system prevents non-privileged users from executing privileged functions to include disabling, circumventing, or altering implemented security safeguards/countermeasures.
+
+    Supplemental Guidance:  Privileged functions include, for example, establishing information system accounts, performing system integrity checks, or administering cryptographic key management activities. Non-privileged users are individuals that do not possess appropriate authorizations. Circumventing intrusion detection and prevention mechanisms or malicious code protection mechanisms are examples of privileged functions that require protection from non-privileged users.
+  title: >-
+    AC-6(10) - LEAST PRIVILEGE | PROHIBIT NON-PRIVILEGED USERS FROM EXECUTING PRIVILEGED
+    FUNCTIONS
+  levels:
+  - high
+  - moderate
+- id: AC-7
+  status: automated
+  notes: |-
+    Section a: To meet the requirements, OpenShift must be configured
+    to use centralized authentication via an IDP. The limit
+    on consecutive failed login attempts must then be set
+    on the IDP side.
+
+    Note that the using the htpasswd IDP type cannot cover this
+    control, therefore using htpasswd based IDPs should render
+    the system non-compliant.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+
+    Section b: To meet the requirements, OpenShift must be configured
+    to use centralized authentication via an IDP. The account
+    lock or delay until next login prompt must then be set
+    on the IDP side.
+
+    Note that the using the htpasswd IDP type cannot cover this
+    control, therefore using htpasswd based IDPs should render
+    the system non-compliant.
+
+    To configure an IdP, see https://docs.openshift.com/container-platform/latest/authentication/understanding-identity-provider.html
+    The customer will be responsible for taking required
+    actions defined by the customer, upon account lockout.
+  rules:
+  - ocp_idp_no_htpasswd
+  - idp_is_configured
+  description: "The information system:\n a. Enforces a limit of [Assignment: organization-defined\
+    \ number] consecutive invalid logon attempts by a user during a [Assignment: organization-defined\
+    \ time period]; and\n b. Automatically [Selection: locks the account/node for\
+    \ an [Assignment: organization-defined time period]; locks the account/node until\
+    \ released by an administrator; delays next logon prompt according to [Assignment:\
+    \ organization-defined delay algorithm]] when the maximum number of unsuccessful\
+    \ attempts is exceeded.\n\nSupplemental Guidance:  This control applies regardless\
+    \ of whether the logon occurs via a local or network connection. Due to the potential\
+    \ for denial of service, automatic lockouts initiated by information systems are\
+    \ usually temporary and automatically release after a predetermined time period\
+    \ established by organizations. If a delay algorithm is selected, organizations\
+    \ may choose to employ different algorithms for different information system components\
+    \ based on the capabilities of those components. Responses to unsuccessful logon\
+    \ attempts may be implemented at both the operating system and the application\
+    \ levels. Related controls: AC-2, AC-9, AC-14, IA-5.\n\nReferences: None.\n\n\
+    AC-7(a)-1 [not more than three (3)]\n \nAC-7(a)-2 [fifteen (15) minutes] \n\n\
+    AC-7(b) [locks the account/node for a minimum of three (3) hours or until unlocked\
+    \ by an administrator]"
+  title: >-
+    AC-7 - UNSUCCESSFUL LOGON ATTEMPTS
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-7(1)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-7(2)
+  status: not applicable
+  notes: |-
+    Management of mobile devices is outside the scope
+    of OpenShift configuration.
+  rules: []
+  description: |-
+    The information system purges/wipes information from [Assignment: organization-defined mobile devices] based on [Assignment: organization-defined purging/wiping requirements/techniques] after [Assignment: organization-defined number] consecutive, unsuccessful device logon attempts.
+
+    Supplemental Guidance: This control enhancement applies only to mobile devices for which a logon occurs (e.g., personal digital assistants, smart phones, tablets). The logon is to the mobile device, not to any one account on the device. Therefore, successful logons to any accounts on mobile devices reset the unsuccessful logon count to zero. Organizations define information to be purged/wiped carefully in order to avoid over purging/wiping which may result in devices becoming unusable. Purging/wiping may be unnecessary if the information on the device is protected with sufficiently strong encryption mechanisms. Related controls: AC-19, MP-5, MP-6, SC-13.
+
+    AC-7 (2)-1 [mobile devices as defined by organization policy]
+    AC-7 (2)-3 [three (3)]
+  title: >-
+    AC-7(2) - UNSUCCESSFUL LOGON ATTEMPTS | PURGE / WIPE MOBILE DEVICE
+  levels:
+  - high
+- id: AC-8
+  status: automated
+  notes: |-
+    Section a: To configure a login banner for console logins via "oc login",
+    ensure a "motd" configMap in the openshift namespace exists.
+    The login message is set in the "message" key of the configMap:
+
+    $ oc create cm motd --from-literal=message="this is the display banner" -nopenshift
+
+    To configure a login banner for the webUI logins, please follow:
+    https://docs.openshift.com/container-platform/latest/web_console/customizing-the-web-console.html#customizing-the-login-page_customizing-web-console
+
+    Section b: To configure a login banner for console logins via "oc login",
+    ensure a "motd" configMap in the openshift namespace exists.
+    The login message is set in the "message" key of the configMap:
+
+    $ oc create cm motd --from-literal=message="this is the display banner" -nopenshift
+
+    To configure a login banner for the webUI logins, please follow:
+    https://docs.openshift.com/container-platform/latest/web_console/customizing-the-web-console.html#customizing-the-login-page_customizing-web-console
+
+    The login banner is displayed before the user logins in to the webUI,
+    thus satisfying the control. For console logins, the login banner
+    is displayed when the user acquires an OAuth token, but before they
+    actually perform any action.
+
+    Section c: The customer will be responsible for displaying a system use
+    information message to users. A successful control response will need
+    to address the conditions under which the message will be
+    displayed (if a non-government user accesses the system, the system
+    use information message may not be appropriate), as well as the
+    contents of the notification message, including references to
+    applicable monitoring, recording, or auditing, and authorized usage
+    of the system.
+
+    A control response to AC-8 is planned. Progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-125
+
+    Section c.1: The customer will be responsible for determining the conditions
+    under which the system use notification will be displayed. These
+    conditions must be reviewed and accepted by the FedRAMP JAB.
+
+    A control response to AC-8 is planned. Progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-125
+
+    Section c.2: The customer will be responsible for how the system use notification
+    will be verified and how often it should be re-displayed and
+    re-verified. These conditions must be reviewed an accepted by the
+    FedRAMP JAB.
+
+    A control response to AC-8 is planned. Progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-125
+
+    Section c.3: The customer will be responsible for verifying that the system use
+    notification is being displayed as required, either through a
+    configuration baseline check or via other means. If this verification
+    does not happen through a configuration baseline check, the JAB must
+    review and accept the process used to perform the verification.
+
+    A control response to AC-8 is planned. Progress can be tracked
+    via:
+
+    https://issues.redhat.com/browse/CMP-125
+  rules:
+  - openshift_motd_exists
+  - banner_or_login_template_set
+  description: "The information system:\n a. Displays to users [Assignment: organization-defined\
+    \ system use notification message or banner] before granting access to the system\
+    \ that provides privacy and security notices consistent with applicable federal\
+    \ laws, Executive Orders, directives, policies, regulations, standards, and guidance\
+    \ and states that:\n   1. Users are accessing a U.S. Government information system;\n\
+    \   2. Information system usage may be monitored, recorded, and subject to audit;\n\
+    \   3. Unauthorized use of the information system is prohibited and subject to\
+    \ criminal and civil penalties; and\n   4. Use of the information system indicates\
+    \ consent to monitoring and recording;\n b. Retains the notification message or\
+    \ banner on the screen until users acknowledge the usage conditions and take explicit\
+    \ actions to log on to or further access the information system; and \n c. For\
+    \ publicly accessible systems:\n   1. Displays system use information [Assignment:\
+    \ organization-defined conditions], before granting further access;\n   2. Displays\
+    \ references, if any, to monitoring, recording, or auditing that are consistent\
+    \ with privacy accommodations for such systems that generally prohibit those activities;\
+    \ and\n   3. Includes a description of the authorized uses of the system.\n\n\
+    Supplemental Guidance:  System use notifications can be implemented using messages\
+    \ or warning banners displayed before individuals log in to information systems.\
+    \ System use notifications are used only for access via logon interfaces with\
+    \ human users and are not required when such human interfaces do not exist. Organizations\
+    \ consider system use notification messages/banners displayed in multiple languages\
+    \ based on specific organizational needs and the demographics of information system\
+    \ users. Organizations also consult with the Office of the General Counsel for\
+    \ legal review and approval of warning banner content.\n\nControl Enhancements:\
+    \  None.\n\nReferences: None.\n\n\nAC-8 (a) [see additional Requirements and Guidance]\n\
+    AC-8 (c) [see additional Requirements and Guidance]\nAC-8 Requirement: The service\
+    \ provider shall determine elements of the cloud environment that require the\
+    \ System Use Notification control. The elements of the cloud environment that\
+    \ require System Use Notification are approved and accepted by the JAB/AO. \n\
+    Requirement: The service provider shall determine how System Use Notification\
+    \ is going to be verified and provide appropriate periodicity of the check. The\
+    \ System Use Notification verification and periodicity are approved and accepted\
+    \ by the JAB/AO.\nGuidance: If performed as part of a Configuration Baseline check,\
+    \ then the % of items requiring setting that are checked and that pass (or fail)\
+    \ check can be provided. \nRequirement: If not performed as part of a Configuration\
+    \ Baseline check, then there must be documented agreement on how to provide results\
+    \ of verification and the necessary periodicity of the verification by the service\
+    \ provider. The documented agreement on how to provide verification of the results\
+    \ are approved and accepted by the JAB/AO."
+  title: >-
+    AC-8 - SYSTEM USE NOTIFICATION
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-9
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-126
+  rules: []
+- id: AC-9(1)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-127
+  rules: []
+- id: AC-9(2)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-128
+  rules: []
+- id: AC-9(3)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-129
+  rules: []
+- id: AC-9(4)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-130
+  rules: []
+- id: AC-10
+  status: pending
+  notes: |-
+    The customer will be responsible for limiting the number of
+    concurrent sessions to the customer application as required.
+    A successful control implemented will need to address the technical
+    mechanism used to enforce this limit.
+
+    At the moment, the OpenShift OAuth server does not support
+    limiting the number of concurrent logins. This work is scheduled
+    for OpenShift in https://issues.redhat.com/browse/RFE-48
+  rules: []
+  description: |-
+    The information system limits the number of concurrent sessions for each [Assignment: organization-defined account and/or account type] to [Assignment: organization-defined number].
+
+    Supplemental Guidance:  Organizations may define the maximum number of concurrent sessions for information system accounts globally, by account type (e.g., privileged user, non-privileged user, domain, specific application), by account, or a combination. For example, organizations may limit the number of concurrent sessions for system administrators or individuals working in particularly sensitive domains or mission-critical applications. This control addresses concurrent sessions for information system accounts and does not address concurrent sessions by single users via multiple system accounts.
+
+    Control Enhancements:  None.
+
+    References: None.
+
+
+    AC-10-2 [three (3) sessions for privileged access and two (2) sessions for non-privileged access]
+  title: >-
+    AC-10 - CONCURRENT SESSION CONTROL
+  levels:
+  - high
+  - moderate
+- id: AC-11
+  status: not applicable
+  notes: |-
+    Section a: A session lock must be configured with the device that is used
+    to access Red Hat OpenShift.
+
+    See also AC-2(5) for information on configuring inactivity timeout.
+
+    Section b: A session lock must be configured with the device that is used
+    to access Red Hat OpenShift.
+
+    See also AC-2(5) for information on configuring inactivity timeout.
+  rules: []
+  description: |-
+    The information system:
+     a. Prevents further access to the system by initiating a session lock after [Assignment: organization-defined time period] of inactivity or upon receiving a request from a user; and
+     b. Retains the session lock until the user reestablishes access using established identification and authentication procedures.
+
+    Supplemental Guidance:  Session locks are temporary actions taken when users stop work and move away from the immediate vicinity of information systems but do not want to log out because of the temporary nature of their absences. Session locks are implemented where session activities can be determined. This is typically at the operating system level, but can also be at the application level. Session locks are not an acceptable substitute for logging out of information systems, for example, if organizations require users to log out at the end of workdays. Related control: AC-7.
+
+    References: OMB Memorandum 06-16.
+
+    AC-11(a) [fifteen (15) minutes]
+  title: >-
+    AC-11 - SESSION LOCK
+  levels:
+  - high
+  - moderate
+- id: AC-11(1)
+  status: not applicable
+  notes: |-
+    A session lock must be configured with the device that is used
+    to access Red Hat OpenShift.
+
+    See also AC-2(5) for information on configuring inactivity timeout.
+  rules: []
+  description: |-
+    The information system conceals, via the session lock, information previously visible on the display with a publicly viewable image.
+
+    Supplemental Guidance:  Publicly viewable images can include static or dynamic images, for example, patterns used with screen savers, photographic images, solid colors, clock, battery life indicator, or a blank screen, with the additional caveat that none of the images convey sensitive information.
+
+    References:  OMB Memorandum 06-16.
+  title: >-
+    AC-11(1) - SESSION LOCK | PATTERN-HIDING DISPLAYS
+  levels:
+  - high
+  - moderate
+- id: AC-12
+  status: automated
+  notes: "The customer will be responsible for defining events or conditions\nrequiring\
+    \ disconnection (for example, user requesting logout),\nand for terminating the\
+    \ session when those events or conditions\narise. Because a very common condition\
+    \ is to disconnect a user\nafter a certain period of time, this control response\
+    \ describes\nhow to configure the internal OAuth server\u2019s token duration.\n\
+    \nTo meet the requirements, OpenShift must be configured\nto use centralized authentication\
+    \ via an IDP. The token\nduration can be then be configured globally:\nhttps://docs.openshift.com/container-platform/latest/authentication/configuring-internal-oauth.html#oauth-configuring-internal-oauth_configuring-internal-oauth\n\
+    \nOr per client:\nhttps://docs.openshift.com/container-platform/4.7/rest_api/oauth_apis/oauthclient-oauth-openshift-io-v1.html#oauthclient-oauth-openshift-io-v1\n\
+    \nNote that the global configuration does not change the configuration\nof the\
+    \ oauthclient objects, so for proper compliance check, both must\nbe audited.\n\
+    \nAlso note that prior to OpenShift 4.8, changing the global oauth.config\nobject\
+    \ triggers a rollout of the kube-apiserver which can take up\nto 15 minutes. You\
+    \ can watch the kube-apiserver rollout with\n\"oc get co kube-apiserver\". Once\
+    \ the rollout finishes, the \"Progressing\"\ncolumn will say \"False\"."
+  rules:
+  - oauth_or_oauthclient_token_maxage
+  description: "The information system automatically terminates a user session after\
+    \ [Assignment: organization-defined conditions or trigger events requiring session\
+    \ disconnect].\n\nSupplemental Guidance:  This control addresses the termination\
+    \ of user-initiated logical sessions in contrast to SC-10 which addresses the\
+    \ termination of network connections that are associated with communications sessions\
+    \ (i.e., network disconnect). A logical session (for local, network, and remote\
+    \ access) is initiated whenever a user (or process acting on behalf of a user)\
+    \ accesses an organizational information system. Such user sessions can be terminated\
+    \ (and thus terminate user access) without terminating network sessions. Session\
+    \ termination terminates all processes associated with a user\u2019s logical session\
+    \ except those processes that are specifically created by the user (i.e., session\
+    \ owner) to continue after the session is terminated. Conditions or trigger events\
+    \ requiring automatic session termination can include, for example, organization-defined\
+    \ periods of user inactivity, targeted responses to certain types of incidents,\
+    \ time-of-day restrictions on information system use. Related controls: SC-10,\
+    \ SC-23.\n\nReferences: None."
+  title: >-
+    AC-12 - SESSION TERMINATION
+  levels:
+  - high
+  - moderate
+- id: AC-12(1)
+  status: partial
+  notes: |-
+    With any authentication mechanism the ability to revoke credentials if they
+    are compromised or no longer required, is a key control. Kubernetes client
+    certificate authentication does not allow for this due to a lack of support
+    for certificate revocation.
+
+    OpenShift's built-in OAuth server allows credential revocation by relying on
+    the Identity provider, as well as giving the administrators the ability to
+    revoke any tokens given to a specific user.
+
+    The OpenShift does not have the logout capability when cert is being used with
+    the default kubeadmin account, therefore we need to check if kubeadmin account
+    is disabled.
+
+    Section b: A RFE has been filed. Progress can be tracked via: 
+
+    https://issues.redhat.com/browse/RFE-2645
+  rules:
+  - idp_is_configured
+  - kubeadmin_removed
+  description: |-
+    The information system:
+     (a)   Provides a logout capability for user-initiated communications sessions whenever authentication is used to gain access to [Assignment: organization-defined information resources]; and
+     (b)   Displays an explicit logout message to users indicating the reliable termination of authenticated communications sessions.
+
+    Supplemental Guidance:  Information resources to which users gain access via authentication include, for example, local workstations, databases, and password-protected websites/web- based services. Logout messages for web page access, for example, can be displayed after authenticated sessions have been terminated. However, for some types of interactive sessions including, for example, file transfer protocol (FTP) sessions, information systems typically send logout messages as final messages prior to terminating sessions.
+
+    AC-12 (1) Guidance: https://www.owasp.org/index.php/Testing_for_logout_functionality_%28OTG-SESS-006%29
+  title: >-
+    AC-12(1) - SESSION TERMINATION | USER-INITIATED LOGOUTS / MESSAGE DISPLAYS
+  levels:
+  - high
+- id: AC-13
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-14
+  status: not applicable
+  notes: |-
+    Regardless of access mechanism, such as the OpenShift Console or remote
+    access attempts through SSH, unauthenticated users will only be shown the
+    system use notifications (as defined in AC-8) and login prompt. This is
+    non-configurable behavior.
+  rules: []
+  description: "The organization:\n a. Identifies [Assignment: organization-defined\
+    \ user actions] that can be performed on the information system without identification\
+    \ or authentication consistent with organizational missions/business functions;\
+    \ and\n b. Documents and provides supporting rationale in the security plan for\
+    \ the information system, user actions not requiring identification or authentication.\n\
+    \nSupplemental Guidance:  This control addresses situations in which organizations\
+    \ determine that no identification or authentication is required in organizational\
+    \ information systems. Organizations may allow a limited number of user actions\
+    \ without identification or authentication including, for example, when individuals\
+    \ access public websites or other publicly accessible federal information systems,\
+    \ when individuals use mobile phones to receive calls, or when facsimiles are\
+    \ received. Organizations also identify actions that normally require identification\
+    \ or authentication but may under certain circumstances (e.g., emergencies), allow\
+    \ identification or authentication mechanisms to be bypassed. Such bypasses may\
+    \ occur, for example, via a software-readable physical switch that commands bypass\
+    \ of the logon functionality and is protected from accidental or unmonitored use.\
+    \ This control does not apply to situations where identification and authentication\
+    \ have already occurred and are not repeated, but rather to situations where identification\
+    \ and authentication have not yet occurred. Organizations may decide that there\
+    \ are no user actions that can be performed on organizational information systems\
+    \ without identification and authentication and thus, the values for assignment\
+    \ statements can be none. Related controls: CP-2, IA-2.\n\nControl Enhancements:\
+    \  None.\n\n(1)   PERMITTED ACTIONS WITHOUT IDENTIFICATION OR AUTHENTICATION |\
+    \ NECESSARY USES\n[Withdrawn: Incorporated into AC-14]. \n\nReferences:  None."
+  title: >-
+    AC-14 - PERMITTED ACTIONS WITHOUT IDENTIFICATION OR
+
+    AUTHENTICATION
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-14(1)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-15
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-16
+  status: not applicable
+  notes: |-
+    Section a: Data release markings, such as NATO or NOFORN, are the responsibility
+    of application and data owners running workload on the OpenShift platform.
+    This control is not applicable to the configuration of OpenShift itself.
+
+    Section b: Data release markings, such as NATO or NOFORN, are the responsibility
+    of application and data owners running workload on the OpenShift platform.
+    This control is not applicable to the configuration of OpenShift itself.
+
+    Section c: Data release markings, such as NATO or NOFORN, are the responsibility
+    of application and data owners running workload on the OpenShift platform.
+    This control is not applicable to the configuration of OpenShift itself.
+
+    Section d: Data release markings, such as NATO or NOFORN, are the responsibility
+    of application and data owners running workload on the OpenShift platform.
+    This control is not applicable to the configuration of OpenShift itself.
+  rules: []
+- id: AC-16(1)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(2)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(3)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(4)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(5)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(6)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(7)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(8)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(9)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-16(10)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-17
+  status: not applicable
+  notes: |-
+    Section a: This control reflects organizational procedures/policies, and is not
+    applicable to the configuration of OpenShift.
+
+    Section b: This control reflects organizational procedures/policies, and is not
+    applicable to the configuration of OpenShift.
+  rules: []
+  description: |-
+    The organization:
+     a. Establishes and documents usage restrictions, configuration/connection requirements, and implementation guidance for each type of remote access allowed; and
+     b. Authorizes remote access to the information system prior to allowing such connections.
+
+    Supplemental Guidance:  Remote access is access to organizational information systems by users (or processes acting on behalf of users) communicating through external networks (e.g., the Internet). Remote access methods include, for example, dial-up, broadband, and wireless. Organizations often employ encrypted virtual private networks (VPNs) to enhance confidentiality and integrity over remote connections. The use of encrypted VPNs does not make the access non-remote; however, the use of VPNs, when adequately provisioned with appropriate security controls (e.g., employing appropriate encryption techniques for confidentiality and integrity protection) may provide sufficient assurance to the organization that it can effectively treat such connections as internal networks. Still, VPN connections traverse external networks, and the encrypted VPN does not enhance the availability of remote connections. Also, VPNs with encrypted tunnels can affect the organizational capability to adequately monitor network communications traffic for malicious code. Remote access controls apply to information systems other than public web servers or systems designed for public access. This control addresses authorization prior to allowing remote access without specifying the formats for such authorization. While organizations may use interconnection security agreements to authorize remote access connections, such agreements are not required by this control. Enforcing access restrictions for remote connections is addressed in AC-3. Related controls: AC-2, AC-3, AC-18, AC-19, AC-20, CA-3, CA-7, CM-8, IA-2, IA-3, IA-8, MA-4, PE-17, PL-4, SC-10, SI-4.
+
+    References: NIST Special Publications 800-46, 800-77, 800-113, 800-114, 800-121.
+  title: >-
+    AC-17 - REMOTE ACCESS
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-17(1)
+  status: not applicable
+  notes: |-
+    This is an organizational control outside the scope of OpenShift configuration.
+  rules: []
+  description: |-
+    The information system monitors and controls remote access methods.
+
+    Supplemental Guidance:  Automated monitoring and control of remote access sessions allows organizations to detect cyber attacks and also ensure ongoing compliance with remote access policies by auditing connection activities of remote users on a variety of information system components (e.g., servers, workstations, notebook computers, smart phones, and tablets). Related controls: AU-2, AU-12.
+  title: >-
+    AC-17(1) - REMOTE ACCESS | AUTOMATED MONITORING / CONTROL
+  levels:
+  - high
+  - moderate
+- id: AC-17(2)
+  status: automated
+  notes: |-
+    Beginning with OpenShift 4.3, when OpenShift is deployed on Red Hat Enterprise
+    Linux, and FIPS is enabled as a kernel setting, OpenShift will use OpenSSL
+    libraries instead of the native Golang crypto. The system operator will need to
+    verify that OpenShift is being deployed on a version of Red Hat Enterprise Linux
+    that has been FIPS validated.
+  rules:
+  - fips_mode_enabled_on_all_nodes
+  description: |-
+    The information system implements cryptographic mechanisms to protect the confidentiality and integrity of remote access sessions.
+
+    Supplemental Guidance:  The encryption strength of mechanism is selected based on the security categorization of the information. Related controls: SC-8, SC-12, SC-13.
+  title: >-
+    AC-17(2) - REMOTE ACCESS | PROTECTION OF CONFIDENTIALITY / INTEGRITY USING ENCRYPTION
+  levels:
+  - high
+  - moderate
+- id: AC-17(3)
+  status: automated
+  notes: |-
+    The customer will be responsible for requiring remote access
+    connections to the customer application to be routed through
+    customer-defined network access control points. A successful control
+    response will need to address the nature, number, and location of
+    such access control points, as well as the security controls in place
+    to protect those access control points.
+
+    Managed access points can be created and configured through the use of
+    bastion hosts, ingress rule(s), and/or opening a route to a new access point.
+
+    Documentation for creating and using a bastion host can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/networking/accessing-hosts.html
+
+    Documentation for creating an ingress rule can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/networking/configuring_ingress_cluster_traffic/overview-traffic.html
+
+    Documentation for creating a route can be viewed at:
+
+    https://docs.openshift.com/container-platform/latest/networking/routes/route-configuration.html
+  rules:
+  - routes_protected_by_tls
+  description: |-
+    The information system routes all remote accesses through [Assignment: organization-defined number] managed network access control points.
+
+    Supplemental Guidance:  Limiting the number of access control points for remote accesses reduces the attack surface for organizations. Organizations consider the Trusted Internet Connections (TIC) initiative requirements for external network connections. Related control: SC-7.
+  title: >-
+    AC-17(3) - REMOTE ACCESS | MANAGED ACCESS CONTROL POINTS
+  levels:
+  - high
+  - moderate
+- id: AC-17(4)
+  status: not applicable
+  notes: |-
+    Section a: Authorizing the execution of privileged commands and access to security-relevant
+    information via remote access only for organizational defined needs is an
+    organizational control outside the scope of OpenShift configuration.
+
+    Section b: Documenting the rationale for the execution of privileged commands and access to
+    security-relevant information via remote access in the security plan for the
+    information system is an organizational control outside the scope of OpenShift
+    configuration.
+  rules: []
+  description: |-
+    The organization:
+     (a)   Authorizes the execution of privileged commands and access to security-relevant information via remote access only for [Assignment: organization-defined needs]; and
+     (b)   Documents the rationale for such access in the security plan for the information system.
+
+    Supplemental Guidance:  Related control: AC-6.
+  title: >-
+    AC-17(4) - REMOTE ACCESS | PRIVILEGED COMMANDS / ACCESS
+  levels:
+  - high
+  - moderate
+- id: AC-17(5)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-17(6)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-147
+  rules: []
+- id: AC-17(7)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-17(8)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-17(9)
+  status: inherently met
+  notes: |-
+    This control is inherently met by Red Hat OpenShift.
+
+    OpenShift nodes may be placed into Maintenance Mode. This
+    designation will migrate applications from a given cluster node to
+    another, disconnecting any active sessions to a given cluster node.
+
+    If immediate disconnect of all hosted applications are desired,
+    individual containers may be halted. This will disconnect user sessions
+    for tenant applications immediately.
+
+    In order to disconnect all users, delete all OAuth tokens:
+    $ oc delete oauthaccesstoken --all
+
+    Since neither Kubernetes nor Red Hat OpenShift support CRLs or
+    OSCP, the advice is not to use x509 certificates. If certificates
+    must absolutely be used, use very short-lived certificates and
+    as a last resort, instead of preventing authentication, remove all
+    RBAC rules associated with accounts that possess x509 certificates.
+  rules: []
+  description: |-
+    The organization provides the capability to expeditiously disconnect or disable remote access to the information system within [Assignment: organization-defined time period].
+
+    Supplemental Guidance:  This control enhancement requires organizations to have the capability to rapidly disconnect current users remotely accessing the information system and/or disable further remote access. The speed of disconnect or disablement varies based on the criticality of missions/business functions and the need to eliminate immediate or future remote access to organizational information systems.
+
+    AC-17 (9) [fifteen (15) minutes]
+  title: >-
+    AC-17(9) - REMOTE ACCESS | DISCONNECT / DISABLE ACCESS
+  levels:
+  - high
+  - moderate
+- id: AC-18
+  status: not applicable
+  notes: |-
+    Section a: Organizational processes regarding the establishment of wireless
+    access usage restrictions are outside the scope of OpenShift configuration.
+
+    Section b: Organizational processes regarding wireless access to the information
+    system are outside the scope of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization:
+     a. Establishes usage restrictions, configuration/connection requirements, and implementation guidance for wireless access; and
+     b. Authorizes wireless access to the information system prior to allowing such connections.
+
+    Supplemental Guidance:  Wireless technologies include, for example, microwave, packet radio (UHF/VHF), 802.11x, and Bluetooth. Wireless networks use authentication protocols (e.g., EAP/TLS, PEAP), which provide credential protection and mutual authentication. Related controls: AC-2, AC-3, AC-17, AC-19, CA-3, CA-7, CM-8, IA-2, IA-3, IA-8, PL-4, SI-4.
+
+    References: NIST Special Publications 800-48, 800-94, 800-97.
+  title: >-
+    AC-18 - WIRELESS ACCESS
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-18(1)
+  status: not applicable
+  notes: |-
+    Configuration of wireless networking is outside the scope of
+    OpenShift configuration.
+  rules: []
+  description: |-
+    The information system protects wireless access to the system using authentication of [Selection
+    (one or more): users; devices] and encryption.
+
+    Supplemental Guidance:  Related controls: SC-8, SC-13.
+  title: >-
+    AC-18(1) - WIRELESS ACCESS | AUTHENTICATION AND ENCRYPTION
+  levels:
+  - high
+  - moderate
+- id: AC-18(2)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-18(3)
+  status: not applicable
+  notes: |-
+    The configuration of wireless networking is accomplished at the
+    OpenShift node / operating system layer and is not applicable to
+    the OpenShift Kubernetes layer.
+  rules: []
+  description: |-
+    The organization disables, when not intended for use, wireless networking capabilities internally embedded within information system components prior to issuance and deployment.
+
+    Supplemental Guidance:  Related control: AC-19.
+  title: >-
+    AC-18(3) - WIRELESS ACCESS | DISABLE WIRELESS NETWORKING
+  levels:
+  - high
+- id: AC-18(4)
+  status: not applicable
+  notes: |-
+    OpenShift does not have wireless network capability, therefore,
+    this control is not applicable to OpenShift.
+  rules: []
+  description: |-
+    The organization identifies and explicitly authorizes users allowed to independently configure wireless networking capabilities.
+
+    Supplemental Guidance:  Organizational authorizations to allow selected users to configure wireless networking capability are enforced in part, by the access enforcement mechanisms employed within organizational information systems. Related controls: AC-3, SC-15.
+  title: >-
+    AC-18(4) - WIRELESS ACCESS | RESTRICT CONFIGURATIONS BY USERS
+  levels:
+  - high
+- id: AC-18(5)
+  status: not applicable
+  notes: |-
+    Radio antenna selection and calibration is outside the scope
+    of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization selects radio antennas and calibrates transmission power levels to reduce the probability that usable signals can be received outside of organization-controlled boundaries.
+
+    Supplemental Guidance:  Actions that may be taken by organizations to limit unauthorized use of wireless communications outside of organization-controlled boundaries include, for example: (i) reducing the power of wireless transmissions so that the transmissions are less likely to emit a signal that can be used by adversaries outside of the physical perimeters of organizations; (ii) employing measures such as TEMPEST to control wireless emanations; and (iii) using directional/beam forming antennas that reduce the likelihood that unintended receivers will be able to intercept signals. Prior to taking such actions, organizations can conduct periodic wireless surveys to understand the radio frequency profile of organizational information systems as well as other systems that may be operating in the area. Related control: PE-19.
+  title: >-
+    AC-18(5) - WIRELESS ACCESS | ANTENNAS / TRANSMISSION POWER LEVELS
+  levels:
+  - high
+- id: AC-19
+  status: not applicable
+  notes: |-
+    Section a: Establishing organizational usage restrictions for mobile devices is outside
+    the scope of OpenShift configuration.
+
+    Section b: Authorization of mobile devices is outside the scope of OpenShift
+    configuration.
+  rules: []
+  description: |-
+    The organization:
+     a. Establishes usage restrictions, configuration requirements, connection requirements, and implementation guidance for organization-controlled mobile devices; and
+     b. Authorizes the connection of mobile devices to organizational information systems.
+
+    Supplemental Guidance:  A mobile device is a computing device that: (i) has a small form factor such that it can easily be carried by a single individual; (ii) is designed to operate without a physical connection (e.g., wirelessly transmit or receive information); (iii) possesses local, non- removable or removable data storage; and (iv) includes a self-contained power source. Mobile devices may also include voice communication capabilities, on-board sensors that allow the device to capture information, and/or built-in features for synchronizing local data with remote locations. Examples include smart phones, E-readers, and tablets. Mobile devices are typically associated with a single individual and the device is usually in close proximity to the individual; however, the degree of proximity can vary depending upon on the form factor and size of the device. The processing, storage, and transmission capability of the mobile device may be comparable to or merely a subset of desktop systems, depending upon the nature and intended purpose of the device. Due to the large variety of mobile devices with different technical characteristics and capabilities, organizational restrictions may vary for the different classes/types of such devices. Usage restrictions and specific implementation guidance for mobile devices include, for example, configuration management, device identification and authentication, implementation of mandatory protective software (e.g., malicious code detection, firewall), scanning devices for malicious code, updating virus protection software, scanning for critical software updates and patches, conducting primary operating system (and possibly other resident software) integrity checks, and disabling unnecessary hardware (e.g., wireless, infrared). Organizations are cautioned that the need to provide adequate security for mobile devices goes beyond the requirements in this control. Many safeguards and countermeasures for mobile devices are reflected in other security controls in the catalog allocated in the initial control baselines as starting points for the development of security plans and overlays using the tailoring process. There may also be some degree of overlap in the requirements articulated by the security controls within the different families of controls. AC-20 addresses mobile devices that are not organization-controlled. Related controls: AC-3, AC-7, AC-18, AC-20, CA-9, CM-2, IA-2, IA-3, MP-2, MP-4, MP-5, PL-4, SC-7, SC-43, SI-3, SI-4.
+
+    References: OMB Memorandum 06-16; NIST Special Publications 800-114, 800-124, 800-164.
+  title: >-
+    AC-19 - ACCESS CONTROL FOR MOBILE DEVICES
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-19(1)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-19(2)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-19(3)
+  status: not applicable
+  notes: |-
+    This control was withdrawn by NIST.
+  rules: []
+- id: AC-19(4)
+  status: not applicable
+  notes: |-
+    Section a: Organizational restrictions on the use of mobile devices is outside
+    the scope of OpenShift configuration.
+
+    Section b: Enforcement of organizational restrictions of mobile devices is
+    outside the scope of OpenShift configuration.
+
+    Section c: Restricting the connection of classified mobile devices to
+    classified information systems is outside the scope of OpenShift
+    configuration.
+  rules: []
+- id: AC-19(5)
+  status: not applicable
+  notes: |-
+    Encryption strategies for mobile devices is outside
+    the scope of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization employs [Selection: full-device encryption; container encryption] to protect the confidentiality and integrity of information on [Assignment: organization-defined mobile devices].
+
+    Supplemental Guidance:  Container-based encryption provides a more fine-grained approach to the encryption of data/information on mobile devices, including for example, encrypting selected data structures such as files, records, or fields. Related controls: MP-5, SC-13, SC-28.
+
+    References:  OMB Memorandum 06-16; NIST Special Publications 800-114, 800-124, 800-164.
+  title: >-
+    AC-19(5) - ACCESS CONTROL FOR MOBILE DEVICES | FULL DEVICE / CONTAINER-BASED ENCRYPTION
+  levels:
+  - high
+  - moderate
+- id: AC-20
+  status: not applicable
+  notes: |-
+    Section a: Organizational processes for establishing terms and conditions
+    for accessing the information system from external information
+    systems is outside the scope of OpenShift configuration.
+
+    Section b: Organizational processes for establishing terms and conditions
+    for the processing, storage, or transmission of organization-controlled
+    information using external information systems is outside the scope
+    of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization establishes terms and conditions, consistent with any trust relationships established with other organizations owning, operating, and/or maintaining external information systems, allowing authorized individuals to:
+     a. Access the information system from external information systems; and
+     b. Process, store, or transmit organization-controlled information using external information systems.
+
+    Supplemental Guidance:  External information systems are information systems or components of information systems that are outside of the authorization boundary established by organizations and for which organizations typically have no direct supervision and authority over the application of required security controls or the assessment of control effectiveness. External information systems include, for example: (i) personally owned information systems/devices (e.g., notebook computers, smart phones, tablets, personal digital assistants); (ii) privately owned computing and communications devices resident in commercial or public facilities (e.g., hotels, train stations, convention centers, shopping malls, or airports); (iii) information systems owned or controlled by nonfederal governmental organizations; and (iv) federal information systems that are not owned by, operated by, or under the direct supervision and authority of organizations. This control also addresses the use of external information systems for the processing, storage, or transmission of
+    organizational information, including, for example, accessing cloud services (e.g., infrastructure as a service, platform as a service, or software as a service) from organizational information systems.
+
+    For some external information systems (i.e., information systems operated by other federal agencies, including organizations subordinate to those agencies), the trust relationships that have been established between those organizations and the originating organization may be such, that no explicit terms and conditions are required. Information systems within these organizations
+    would not be considered external. These situations occur when, for example, there are pre-existing sharing/trust agreements (either implicit or explicit) established between federal agencies or organizations subordinate to those agencies, or when such trust agreements are specified by applicable laws, Executive Orders, directives, or policies. Authorized individuals include, for example, organizational personnel, contractors, or other individuals with authorized access to organizational information systems and over which organizations have the authority to impose rules of behavior with regard to system access. Restrictions that organizations impose on authorized individuals need not be uniform, as those restrictions may vary depending upon the
+    trust relationships between organizations. Therefore, organizations may choose to impose different security restrictions on contractors than on state, local, or tribal governments.
+
+    This control does not apply to the use of external information systems to access public interfaces to organizational information systems (e.g., individuals accessing federal information through www.usa.gov). Organizations establish terms and conditions for the use of external information systems in accordance with organizational security policies and procedures. Terms and conditions address as a minimum: types of applications that can be accessed on organizational information systems from external information systems; and the highest security category of information that can be processed, stored, or transmitted on external information systems. If terms and conditions with the owners of external information systems cannot be established, organizations may impose restrictions on organizational personnel using those external systems. Related controls: AC-3, AC-17, AC-19, CA-3, PL-4, SA-9.
+
+    References: FIPS Publication 199.
+  title: >-
+    AC-20 - USE OF EXTERNAL INFORMATION SYSTEMS
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-20(1)
+  status: not applicable
+  notes: |-
+    Section a: Verification of security control implementation on external systems
+    is outside the scope of OpenShift configuration.
+
+    Section b: Retention of approved information system connection or processing
+    agreements with organizational entities hosting the external
+    information system is outside the scope of OpenShift configuration.
+  rules: []
+  description: "The organization permits authorized individuals to use an external\
+    \ information system to access the information system or to process, store, or\
+    \ transmit organization-controlled information only when the organization:\n (a)\
+    \   Verifies the implementation of required security controls on the external\
+    \ system as specified in the organization\u2019s information security policy and\
+    \ security plan; or\n (b)   Retains approved information system connection or\
+    \ processing agreements with the organizational entity hosting the external information\
+    \ system.\n\nSupplemental Guidance:  This control enhancement recognizes that\
+    \ there are circumstances where individuals using external information systems\
+    \ (e.g., contractors, coalition partners) need to access organizational information\
+    \ systems. In those situations, organizations need confidence that the external\
+    \ information systems contain the necessary security safeguards (i.e., security\
+    \ controls), so as not to compromise, damage, or otherwise harm organizational\
+    \ information systems. Verification that the required security controls have been\
+    \ implemented can be achieved, for example, by third-party, independent assessments,\
+    \ attestations, or other means, depending on the confidence level required by\
+    \ organizations. Related control: CA-2."
+  title: >-
+    AC-20(1) - USE OF EXTERNAL INFORMATION SYSTEMS | LIMITS ON AUTHORIZED USE
+  levels:
+  - high
+  - moderate
+- id: AC-20(2)
+  status: not applicable
+  notes: |-
+    Organizational processes regarding the restriction or
+    prohibiting of the use of organization-controlled portable
+    storage devices by authorized individuals on external information
+    systems is outside the scope of OpenShift configuration.
+  rules: []
+  description: |-
+    The organization [Selection: restricts; prohibits] the use of organization-controlled portable storage devices by authorized individuals on external information systems.
+
+    Supplemental Guidance:  Limits on the use of organization-controlled portable storage devices in external information systems include, for example, complete prohibition of the use of such devices or restrictions on how the devices may be used and under what conditions the devices may be used.
+  title: >-
+    AC-20(2) - USE OF EXTERNAL INFORMATION SYSTEMS | PORTABLE STORAGE DEVICES
+  levels:
+  - high
+  - moderate
+- id: AC-20(3)
+  status: not applicable
+  notes: |-
+    Organizational processes regarding the restriction or
+    prohibiting of the use of non-organizationally owned
+    information systems, system components, or devices to process,
+    store, or transmit organizational information, is
+    outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-20(4)
+  status: not applicable
+  notes: |-
+    Organizational processes regarding prohibiting the use of
+    organization-defined network accessible storage devices in
+    external information systems is beyond the scope of OpenShift
+    configuration.
+  rules: []
+- id: AC-21
+  status: not applicable
+  notes: |-
+    Section a: Facilitation of information sharing is outside the scope
+    of OpenShift configuration.
+
+    Section b: Employment of technology or processes to assist users in making
+    information sharing/collaboration decisions is outside
+    the scope of OpenShift configuration.
+  rules: []
+  description: "The organization:\na. Facilitates information sharing by enabling\
+    \ authorized users to determine whether access authorizations assigned to the\
+    \ sharing partner match the access restrictions on the information for [Assignment:\
+    \ organization-defined information sharing circumstances where user discretion\
+    \ is required]; and\nb. Employs [Assignment: organization-defined automated mechanisms\
+    \ or manual processes] to assist users in making information sharing/collaboration\
+    \ decisions.\n\_\nSupplemental Guidance:\_This control applies to information\
+    \ that may be restricted in some manner (e.g., privileged medical information,\
+    \ contract-sensitive information, proprietary information, personally identifiable\
+    \ information, classified information related to special access programs or compartments)\
+    \ based on some formal or administrative determination. Depending on the particular\
+    \ information-sharing circumstances, sharing partners may be defined at the individual,\
+    \ group, or organizational level. Information may be defined by content, type,\
+    \ security category, or special access program/compartment. Related control: AC-3.\n\
+    \nReferences: None."
+  title: >-
+    AC-21 - INFORMATION SHARING
+  levels:
+  - high
+  - moderate
+- id: AC-21(1)
+  status: not applicable
+  notes: |-
+    Enforcement of information-sharing decisions is outside
+    the scope of OpenShift configuration.
+  rules: []
+- id: AC-21(2)
+  status: not applicable
+  notes: |-
+    Implementation of information search and retrieval services
+    that enforce organization-defined information sharing restrictions
+    is outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-22
+  status: not applicable
+  notes: |-
+    Section a: Organizational processes regarding the designation of individuals
+    authorized to post information onto a publicly accessible information
+    system is outside the scope of OpenShift configuration.
+
+    Section b: Training authorized individuals to ensure that publicly accessible
+    information does not contain nonpublic information is outside the
+    scope of OpenShift configuration.
+
+    Section c: Reviewing the proposed content of information prior to posting onto
+    the publicly accessible information system to ensure that nonpublic
+    information is not included is outside the scope of OpenShift
+    configuration.
+
+    Section d: Reviewing content on the publicly accessible information system
+    for nonpublic information at an organization-defined frequency and
+    removal of such information, if discovered, is outside the scope of
+    OpenShift configuration.
+  rules: []
+  description: |-
+    The organization:
+     a. Designates individuals authorized to post information onto a publicly accessible information system;
+     b. Trains authorized individuals to ensure that publicly accessible information does not contain nonpublic information;
+     c. Reviews the proposed content of information prior to posting onto the publicly accessible information system to ensure that nonpublic information is not included; and
+     d. Reviews the content on the publicly accessible information system for nonpublic information [Assignment: organization-defined frequency] and removes such information, if discovered.
+
+    Supplemental Guidance:  In accordance with federal laws, Executive Orders, directives, policies, regulations, standards, and/or guidance, the general public is not authorized access to nonpublic information (e.g., information protected under the Privacy Act and proprietary information). This control addresses information systems that are controlled by the organization and accessible to the general public, typically without identification or authentication. The posting of information on
+    non-organization information systems is covered by organizational policy. Related controls: AC-3, AC-4, AT-2, AT-3, AU-13.
+
+    Control Enhancements: None.
+
+    References: None.
+
+    AC-22 (d) [at least quarterly]
+  title: >-
+    AC-22 - PUBLICLY ACCESSIBLE CONTENT
+  levels:
+  - high
+  - moderate
+  - low
+- id: AC-23
+  status: not applicable
+  notes: |-
+    Organizational employment of organization-defined data mining
+    prevention and detection techniques for organization-defined data
+    storage objects is outside the scope of OpenShift configuration.
+  rules: []
+- id: AC-24
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-151
+  rules: []
+- id: AC-24(1)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-152
+  rules: []
+- id: AC-24(2)
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-153
+  rules: []
+- id: AC-25
+  status: pending
+  notes: |-
+    A control response is planned. Progress can be tracked via:
+
+    https://issues.redhat.com/browse/CMP-154
+  rules: []
+- id: AT-1
+  status: not applicable
+  notes: |-
+    Section a: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section b: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: "The organization:\n a. Develops, documents, and disseminates to [Assignment:\
+    \ organization-defined personnel or roles]:\n   1. A security awareness and training\
+    \ policy that addresses purpose, scope, roles, responsibilities, management commitment,\
+    \ coordination among organizational entities, and compliance; and\n   2.  Procedures\
+    \ to facilitate the implementation of the security awareness and training policy\
+    \ and associated security awareness and training controls; and\n b. Reviews and\
+    \ updates the current:\n   1. Security awareness and training policy [Assignment:\
+    \ organization-defined frequency]; and\n   2.  Security awareness and training\
+    \ procedures [Assignment: organization-defined frequency].\n\nSupplemental Guidance:\
+    \  This control addresses the establishment of policy and procedures for the effective\
+    \ implementation of selected security controls and control enhancements in the\
+    \ AT family. Policy and procedures reflect applicable federal laws, Executive\
+    \ Orders, directives, regulations, policies, standards, and guidance. Security\
+    \ program policies and procedures at the organization level may make the need\
+    \ for system-specific policies and procedures unnecessary. The policy can be included\
+    \ as part of the general information security policy for organizations or conversely,\
+    \ can be represented by multiple policies reflecting the complex nature of certain\
+    \ organizations. The procedures can be established for the security program in\
+    \ general and for particular information systems, if needed. The organizational\
+    \ risk management strategy is a key factor in establishing policy and procedures.\
+    \ Related control: PM-9.\n\nControl Enhancements:  None.\n\nReferences:  NIST\
+    \ Special Publications 800-12, 800-16, 800-50, 800-100.\n\nAT-1 (b) (1) [at least\
+    \ annually or whenever a significant change occurs] \nAT-1 (b) (2) [at least annually\
+    \ or whenever a significant change occurs]"
+  title: >-
+    AT-1 - SECURITY AWARENESS AND TRAINING POLICY AND PROCEDURES
+  levels:
+  - high
+  - moderate
+  - low
+- id: AT-2
+  status: not applicable
+  notes: |-
+    Section a: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section b: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section c: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization provides basic security awareness training to information system users (including managers, senior executives, and contractors):
+     a. As part of initial training for new users;
+     b. When required by information system changes; and
+     c. [Assignment: organization-defined frequency] thereafter.
+
+    Supplemental Guidance:  Organizations determine the appropriate content of security awareness training and security awareness techniques based on the specific organizational requirements and the information systems to which personnel have authorized access. The content includes a basic understanding of the need for information security and user actions to maintain security and to respond to suspected security incidents. The content also addresses awareness of the need for operations security. Security awareness techniques can include, for example, displaying posters, offering supplies inscribed with security reminders, generating email advisories/notices from senior organizational officials, displaying logon screen messages, and conducting information security awareness events. Related controls: AT-3, AT-4, PL-4.
+
+    References: C.F.R. Part 5 Subpart C (5 C.F.R. 930.301); Executive Order 13587; NIST Special Publication 800-50.
+
+    AT-2 (c) [at least annually]
+  title: >-
+    AT-2 - SECURITY AWARENESS TRAINING
+  levels:
+  - high
+  - moderate
+  - low
+- id: AT-2(1)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+- id: AT-2(2)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization includes security awareness training on recognizing and reporting potential indicators of insider threat.
+
+    Supplemental Guidance:  Potential indicators and possible precursors of insider threat can include behaviors such as inordinate, long-term job dissatisfaction, attempts to gain access to information not required for job performance, unexplained access to financial resources, bullying or sexual harassment of fellow employees, workplace violence, and other serious violations of organizational policies, procedures, directives, rules, or practices. Security awareness training includes how to communicate employee and management concerns regarding potential indicators of insider threat through appropriate organizational channels in accordance with established organizational policies and procedures. Related controls: PL-4, PM-12, PS-3, PS-6.
+
+    References:  C.F.R. Part 5 Subpart C (5 C.F.R 930.301); Executive Order 13587; NIST Special Publication 800-50.
+  title: >-
+    AT-2(2) - SECURITY AWARENESS | INSIDER THREAT
+  levels:
+  - high
+  - moderate
+- id: AT-3
+  status: not applicable
+  notes: |-
+    Section a: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section b: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section c: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization provides role-based security training to personnel with assigned security roles and responsibilities:
+    a. Before authorizing access to the information system or performing assigned duties;
+    b. When required by information system changes; and
+    c. [Assignment: organization-defined frequency] thereafter.
+
+    Supplemental Guidance:  Organizations determine the appropriate content of security training based on the assigned roles and responsibilities of individuals and the specific security requirements of organizations and the information systems to which personnel have authorized access. In addition, organizations provide enterprise architects, information system developers, software developers, acquisition/procurement officials, information system managers, system/network administrators, personnel conducting configuration management and auditing activities, personnel performing independent verification and validation activities, security control assessors, and other personnel having access to system-level software, adequate security-related technical training specifically tailored for their assigned duties. Comprehensive role-based training addresses management, operational, and technical roles and responsibilities covering physical, personnel, and technical safeguards and countermeasures. Such training can include for example, policies, procedures, tools, and artifacts for the organizational security roles defined. Organizations also provide the training necessary for individuals to carry out their responsibilities related to operations and
+    supply chain security within the context of organizational information security programs. Role-based security training also applies to contractors providing services to federal agencies. Related controls: AT-2, AT-4, PL-4, PS-7, SA-3, SA-12, SA-16.
+
+    References: C.F.R. Part 5 Subpart C (5 C.F.R. 930.301); NIST Special Publications 800-16, 800-50.
+
+    AT-3 (c) [at least annually]
+  title: >-
+    AT-3 - ROLE-BASED SECURITY TRAINING
+  levels:
+  - high
+  - moderate
+  - low
+- id: AT-3(1)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+- id: AT-3(2)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+- id: AT-3(3)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization includes practical exercises in security training that reinforce training objectives.
+
+    Supplemental Guidance:  Practical exercises may include, for example, security training for software developers that includes simulated cyber attacks exploiting common software vulnerabilities (e.g., buffer overflows), or spear/whale phishing attacks targeted at senior leaders/executives. These types of practical exercises help developers better understand the effects of such vulnerabilities and appreciate the need for security coding standards and processes.
+  title: >-
+    AT-3(3) - SECURITY TRAINING | PRACTICAL EXERCISES
+  levels:
+  - high
+- id: AT-3(4)
+  status: not applicable
+  notes: |-
+    This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization provides training to its personnel on [Assignment: organization-defined indicators of malicious code] to recognize suspicious communications and anomalous behavior in organizational information systems.
+
+    Supplemental Guidance:  A well-trained workforce provides another organizational safeguard that can be employed as part of a defense-in-depth strategy to protect organizations against malicious code coming in to organizations via email or the web applications. Personnel are trained to look for indications of potentially suspicious email (e.g., receiving an unexpected email, receiving an email containing strange or poor grammar, or receiving an email from an unfamiliar sender but who appears to be from a known sponsor or contractor). Personnel are also trained on how to respond to such suspicious email or web communications (e.g., not opening attachments, not clicking on embedded web links, and checking the source of email addresses). For this process to work effectively, all organizational personnel are trained and made aware of what constitutes suspicious communications. Training personnel on how to recognize anomalous behaviors in organizational information systems can potentially provide early warning for the presence of malicious code. Recognition of such anomalous behavior by organizational personnel can supplement automated malicious code detection and protection tools and systems employed by organizations.
+    AT-3 (4) [malicious code indicators as defined by organization  incident policy/capability]
+  title: >-
+    AT-3(4) - SECURITY TRAINING | SUSPICIOUS COMMUNICATIONS AND ANOMALOUS SYSTEM BEHAVIOR
+  levels:
+  - high
+- id: AT-4
+  status: not applicable
+  notes: |-
+    Section a: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+
+    Section b: This control reflects organizational procedure/policy and is not
+    applicable to component-level configuration.
+  rules: []
+  description: |-
+    The organization:
+     a. Documents and monitors individual information system security training activities including basic security awareness training and specific information system security training; and
+     b. Retains individual training records for [Assignment: organization-defined time period].
+
+    Supplemental Guidance:  Documentation for specialized training may be maintained by individual supervisors at the option of the organization. Related controls: AT-2, AT-3, PM-14.
+
+    Control Enhancements:  None.
+
+    References:  None.
+
+    AT-4 (b) [five (5) years or 5 years after completion of a specific training program]
+  title: >-
+    AT-4 - SECURITY TRAINING RECORDS
+  levels:
+  - high
+  - moderate
+  - low
+- id: AT-5
+  status: not applicable
+  notes: |-
+    As of NIST 800-53 rev4 this control was withdrawn
+    and incorporated into PM-15.
+  rules: []
+- id: AU-1
+  status: not applicable
+  notes: |-
+    Section a: Developing an organization-level audit and accountability
+    policy is outside the scope of OpenShift configuration.
+
+    Section b: Review and updating an organizational-level audit and
+    accountability policy is outside the scope of OpenShift
+    configuration.
+  rules: []
+  description: |-
+    The organization:
+     a. Develops, documents, and disseminates to [Assignment: organization-defined personnel or roles]:
+       1. An audit and accountability policy that addresses purpose, scope, roles, responsibilities, management commitment, coordination among organizational entities, and compliance; and
+       2.  Procedures to facilitate the implementation of the audit and accountability policy and associated audit and accountability controls; and
+     b. Reviews and updates the current:
+       1. Audit and accountability policy [Assignment: organization-defined frequency]; and
+       2. Audit and accountability procedures [Assignment: organization-defined frequency].
+
+    Supplemental Guidance:  This control addresses the establishment of policy and procedures for the effective implementation of selected security controls and control enhancements in the AU family. Policy and procedures reflect applicable federal laws, Executive Orders, directives, regulations, policies, standards, and guidance. Security program policies and procedures at the organization level may make the need for system-specific policies and procedures unnecessary. The policy can be included as part of the general information security policy for organizations or conversely, can be represented by multiple policies reflecting the complex nature of certain organizations. The procedures can be established for the security program in general and for particular information systems, if needed. The organizational risk management strategy is a key factor in establishing policy and procedures. Related control: PM-9.
+
+    Control Enhancements:  None.
+
+    References:  NIST Special Publications 800-12, 800-100.
+
+    AU-1 (b) (1) [at least annually]
+    AU-1 (b) (2) [at least annually or whenever a significant change occurs]
+  title: >-
+    AU-1 - AUDIT AND ACCOUNTABILITY POLICY AND
+
+    PROCEDURES
+  levels:
+  - high
+  - moderate
+  - low

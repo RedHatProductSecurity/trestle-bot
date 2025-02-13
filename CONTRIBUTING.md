@@ -219,6 +219,26 @@ cat my-token.txt | podman secret create repo-secret -
 podman run --entrypoint /entrypoint.sh --secret repo-secret,type=env,target=TRESTLEBOT_REPO_ACCESS_TOKEN --env-file=envfile -v my-trestle-space:/data -w /data localhost:5000/trestlebot:latest
 ```
 
+#### Local GitHub actions
+
+Podman setup
+
+* The workflows can be executed locally by installing `act` and `podman`.
+* For rootless podman to work with `act`:
+  * Enable the socket: `systemctl --user enable --now podman.socket`
+  * Set the `DOCKER_HOST` environment variable in your ~/.bashrc:
+    * `export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock`
+
+Trestle repository setup
+
+* `cd` to the repository's parent directory
+* `git clone --bare trestle-repo trestle-repo-bare.git`
+* `cd` back to the trestle repository
+* `git remote add origin ../trestle-repo-bare.git`
+* `git fetch --all`
+
+
+
 ### Release Process
 
 Once work on a release has been completed:
