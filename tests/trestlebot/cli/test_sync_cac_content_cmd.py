@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2024 Red Hat, Inc.
 
-""" Unit test for sync-cac-content command"""
+"""Unit test for sync-cac-content command"""
 import pathlib
 from typing import Any, Generator, Tuple
 
@@ -306,6 +306,11 @@ def test_sync_product(tmp_repo: Tuple[str, Repo]) -> None:
     # Check control_implementations are attached
     ci = component.control_implementations[0]
     assert ci.source == "trestle://profiles/simplified_nist_profile/profile.json"
+
+    assert len(ci.props) == 1
+    assert ci.props[0].name == "Framework_Short_Name"
+    assert ci.props[0].value == "example"
+
     set_parameters = ci.set_parameters
     assert len(set_parameters) == 2
     set_params_ids = []

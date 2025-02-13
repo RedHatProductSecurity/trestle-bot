@@ -56,3 +56,10 @@ GITHUB_SERVER_URL = "https://github.com"
 # Trestlebot init constants
 TRESTLEBOT_CONFIG_DIR = ".trestlebot"
 TRESTLEBOT_KEEP_FILE = ".keep"
+
+# Props
+
+# TODO(jpower432): Propose upstream as to be populated
+# by the profile or catalog "name" based on trestle workspace
+# conventions.
+FRAMEWORK_SHORT_NAME = "Framework_Short_Name"

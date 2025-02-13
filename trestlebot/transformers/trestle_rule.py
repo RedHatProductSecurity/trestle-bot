@@ -130,7 +130,7 @@ def get_default_rule() -> TrestleRule:
 
 # Adapted from https://docs.pydantic.dev/latest/errors/errors/
 def location_to_dot_separation(
-    location: Tuple[Union[str, int], ...]
+    location: Tuple[Union[str, int], ...],
 ) -> str:  # pragma: no cover
     """Convert a tuple of strings and integers to a dot separated string."""
     path: str = ""
